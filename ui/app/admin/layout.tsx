@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Customers', href: '/admin/customers' },
   { name: 'Invoices', href: '/admin/invoices' },
   { name: 'Payments', href: '/admin/payments' },
+  { name: 'Day Off', href: '/admin/day-off' },
 ];
 
 export default function AdminLayout({

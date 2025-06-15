@@ -86,131 +86,63 @@ const additionalServices = [
 ];
 
 export function SectionPricing() {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
-
   return (
     <section id="pricing" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-            Transparent Pricing
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-black sm:text-4xl mb-2">
+            FixMyLeak - Rates Overview
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            All prices include VAT. Additional charges may apply based on location and job complexity.
-          </p>
         </div>
-
-        {/* Main Pricing Tiers */}
-        <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {pricingTiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={`relative rounded-2xl border ${
-                tier.isPopular
-                  ? 'border-black shadow-xl'
-                  : 'border-gray-200 shadow-lg'
-              } bg-white p-8 transition-all hover:shadow-2xl`}
-            >
-              {tier.callout && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex rounded-full bg-black px-4 py-1 text-sm font-semibold text-white">
-                    {tier.callout}
-                  </span>
-                </div>
-              )}
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900">{tier.name}</h3>
-                <p className="mt-2 text-sm text-gray-600">{tier.description}</p>
-                <p className="mt-4">
-                  <span className="text-4xl font-bold text-gray-900">£{tier.price}</span>
-                  {tier.name !== 'Pipe Replacement' && (
-                    <span className="text-sm text-gray-600">/hour</span>
-                  )}
-                </p>
-              </div>
-              <ul className="mt-8 space-y-4">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-green-500 mt-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="ml-3 text-sm text-gray-600">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <a
-                  href="#contact"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className={`block w-full rounded-lg px-4 py-3 text-center text-sm font-semibold ${
-                    tier.isPopular
-                      ? 'bg-black text-white hover:bg-gray-800'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                  } transition-colors`}
-                >
-                  Book Now
-                </a>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-40 justify-center">
+          {/* Card 1: Call-out & Hourly Labour Rates */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-10 min-w-[380px] md:min-w-[480px] flex flex-col">
+            <h3 className="text-2xl font-semibold text-black mb-6 text-center">Call-out & Hourly Labour Rates</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-2 pr-4 font-bold">Day & Time</th>
+                    <th className="py-2 pr-4 font-bold">Call-out Fee</th>
+                    <th className="py-2 font-bold">Labour Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b"><td className="py-2 pr-4">Mon-Fri 08:00-18:00</td><td className="py-2 pr-4">£80</td><td className="py-2">£60-£80</td></tr>
+                  <tr className="border-b"><td className="py-2 pr-4">Mon-Fri 18:00-08:00</td><td className="py-2 pr-4">£110</td><td className="py-2">£100-£120</td></tr>
+                  <tr className="border-b"><td className="py-2 pr-4">Saturday 08:00-18:00</td><td className="py-2 pr-4">£110</td><td className="py-2">£80-£100</td></tr>
+                  <tr className="border-b"><td className="py-2 pr-4">Saturday 18:00-08:00</td><td className="py-2 pr-4">£130</td><td className="py-2">£100-£120</td></tr>
+                  <tr className="border-b"><td className="py-2 pr-4">Sunday (All day)</td><td className="py-2 pr-4">£140</td><td className="py-2">£100-£130</td></tr>
+                  <tr><td className="py-2 pr-4">Bank Holidays (All day)</td><td className="py-2 pr-4">£150</td><td className="py-2">£120-£140</td></tr>
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
-
-        {/* Additional Services */}
-        <div className="mt-20">
-          <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-            Additional Services
-          </h3>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {additionalServices.map((service) => (
-              <div
-                key={service.name}
-                className={`rounded-lg border ${
-                  selectedService === service.name
-                    ? 'border-black shadow-lg'
-                    : 'border-gray-200'
-                } bg-white p-6 transition-all hover:shadow-md`}
-                onClick={() => setSelectedService(service.name)}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="text-lg font-semibold text-gray-900">
-                      {service.name}
-                    </h4>
-                    <p className="mt-1 text-sm text-gray-600">
-                      {service.description}
-                    </p>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    From £{service.price}
-                  </p>
-                </div>
-              </div>
-            ))}
+          </div>
+          {/* Card 2: Full-Day Booking Rates */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-10 min-w-[380px] md:min-w-[480px] flex flex-col">
+            <h3 className="text-2xl font-semibold text-black mb-6 text-center">Full-Day Booking Rates</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left whitespace-nowrap">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-2 pr-4 font-bold">Day</th>
+                    <th className="py-2 font-bold">Full-Day Rate (Approx. 8h)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b"><td className="py-2 pr-4">Mon-Fri</td><td className="py-2">£480 - £520</td></tr>
+                  <tr className="border-b"><td className="py-2 pr-4">Saturday</td><td className="py-2">£600 - £750</td></tr>
+                  <tr><td className="py-2 pr-4">Sunday / Bank Holiday</td><td className="py-2">£750 - £950</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-
-        {/* Pricing Note */}
-        <div className="mt-12 text-center text-sm text-gray-600">
-          <p>
-            * All prices are subject to change based on job complexity and location.
-            <br />
-            ** Emergency call-out fee applies outside standard working hours.
-            <br />
-            *** Free quotes available for all services.
-          </p>
+        {/* Explanatory Text */}
+        <div className="mt-12 text-center text-base text-black max-w-3xl mx-auto space-y-4">
+          <p>All rates above are labour only. Materials are not included and can be supplied by the customer, or provided by me at cost + 20%. Call-out fee includes travel and initial assessment.</p>
+          <p>Full-day bookings offer reduced hourly rates and are subject to availability.</p>
+          <p>All prices are set based on average rates in South West London and remain competitive and fair.</p>
         </div>
       </div>
     </section>

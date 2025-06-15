@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { SectionHero } from '@/components/SectionHero';
 import { SectionPricing } from '@/components/SectionPricing';
 import { FormBooking } from '@/components/FormBooking';
+import Image from 'next/image';
 
 const services = [
   {
@@ -80,16 +81,17 @@ export default function HomePage() {
       <section id="services" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {services.map((service) => (
-              <div
-                key={service.title}
-                className="p-6 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
-              >
-                <h3 className="text-xl font-semibold mb-4">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div className="p-8 border border-gray-200 rounded-2xl shadow-lg bg-white flex flex-col items-center text-center">
+              <h3 className="text-2xl font-semibold mb-4">Call-out & Hourly Labour Rates</h3>
+              <p className="text-black mb-6">Flexible hourly bookings for urgent or short jobs. Transparent rates for all times and days. See pricing for details.</p>
+              <a href="#pricing" className="btn btn-primary rounded-full px-6 py-2">View Rates</a>
+            </div>
+            <div className="p-8 border border-gray-200 rounded-2xl shadow-lg bg-white flex flex-col items-center text-center">
+              <h3 className="text-2xl font-semibold mb-4">Full-Day Booking Rates</h3>
+              <p className="text-black mb-6">Book a full day for larger or planned works. Enjoy reduced hourly rates. See pricing for details.</p>
+              <a href="#pricing" className="btn btn-primary rounded-full px-6 py-2">View Rates</a>
+            </div>
           </div>
         </div>
       </section>
@@ -98,54 +100,79 @@ export default function HomePage() {
       <SectionPricing />
 
       {/* About Section */}
-      <section id="about" className="bg-gray-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h3 className="text-2xl font-semibold mb-4">Your Trusted Plumbing Partner</h3>
-              <p className="text-gray-600 mb-6">
-                With over 15 years of experience, we've been providing professional plumbing services across the UK. 
-                Our team of qualified plumbers is committed to delivering the highest quality service to every customer.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <svg className="h-6 w-6 text-black mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Gas Safe registered engineers</span>
+      <section id="about" className="relative bg-gradient-to-br from-blue-50 via-white to-gray-100 py-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-10">
+          {/* Top row: Image and About text side by side */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12 w-full">
+            {/* Image with Name Card */}
+            <div className="relative w-80 h-auto flex-shrink-0 flex flex-col items-center">
+              {/* Professional Image Card */}
+              <div className="relative rounded-2xl overflow-hidden shadow-xl bg-white p-2">
+                <div className="relative rounded-xl overflow-hidden">
+                  <Image
+                    src="/plamen.jpeg"
+                    alt="Plamen Zhelev"
+                    width={320}
+                    height={400}
+                    className="object-cover w-full h-96"
+                    priority
+                  />
                 </div>
-                <div className="flex items-center">
-                  <svg className="h-6 w-6 text-black mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>24/7 emergency services</span>
-                </div>
-                <div className="flex items-center">
-                  <svg className="h-6 w-6 text-black mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Fully insured and guaranteed work</span>
+              </div>
+              {/* Professional Name Card */}
+              <div className="mt-4 bg-white rounded-xl shadow-lg border border-gray-100 px-8 py-4 w-full max-w-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-xl text-black">Plamen Zhelev</span>
+                    <span className="text-sm text-gray-600">Professional Plumber</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-600 font-medium">Available</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h4 className="text-4xl font-bold text-black mb-2">15+</h4>
-                <p className="text-gray-600">Years Experience</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h4 className="text-4xl font-bold text-black mb-2">10k+</h4>
-                <p className="text-gray-600">Happy Customers</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h4 className="text-4xl font-bold text-black mb-2">24/7</h4>
-                <p className="text-gray-600">Emergency Service</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h4 className="text-4xl font-bold text-black mb-2">100%</h4>
-                <p className="text-gray-600">Satisfaction</p>
-              </div>
+            {/* About Text */}
+            <div className="flex-1 w-full max-w-xl bg-white/80 rounded-3xl shadow-lg p-8 border border-gray-100">
+              <h2 className="text-4xl font-extrabold text-black mb-4">Your Trusted Plumbing Partner</h2>
+              <p className="text-black text-lg mb-6">
+                With over 15 years of experience, we've been providing professional plumbing services across the UK.<br/>
+                Our team of qualified plumbers is committed to delivering the highest quality service to every customer.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2 text-black font-medium">
+                  <svg className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  Gas Safe registered engineers
+                </li>
+                <li className="flex items-center gap-2 text-black font-medium">
+                  <svg className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  24/7 emergency services
+                </li>
+                <li className="flex items-center gap-2 text-black font-medium">
+                  <svg className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  Fully insured and guaranteed work
+                </li>
+              </ul>
+            </div>
+          </div>
+          {/* Bottom row: Stats in a single horizontal row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl mx-auto mt-4">
+            <div className="bg-blue-50 p-6 rounded-2xl shadow text-center">
+              <h4 className="text-3xl font-bold text-black mb-1">15+</h4>
+              <p className="text-black">Years Experience</p>
+            </div>
+            <div className="bg-blue-50 p-6 rounded-2xl shadow text-center">
+              <h4 className="text-3xl font-bold text-black mb-1">10k+</h4>
+              <p className="text-black">Happy Customers</p>
+            </div>
+            <div className="bg-blue-50 p-6 rounded-2xl shadow text-center">
+              <h4 className="text-3xl font-bold text-black mb-1">24/7</h4>
+              <p className="text-black">Emergency Service</p>
+            </div>
+            <div className="bg-blue-50 p-6 rounded-2xl shadow text-center">
+              <h4 className="text-3xl font-bold text-black mb-1">100%</h4>
+              <p className="text-black">Satisfaction</p>
             </div>
           </div>
         </div>

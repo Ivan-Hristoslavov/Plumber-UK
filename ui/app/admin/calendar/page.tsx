@@ -18,10 +18,10 @@ type Booking = {
 const mockBookings: Booking[] = [
   // June 10: 4 bookings, 2 at 09:00, 1 at 12:00, 1 at 23:00
   {
-    id: '1', customerName: 'John Smith', service: 'Emergency Call Out', date: '2024-06-10', time: '09:00', status: 'confirmed', paymentStatus: 'paid', amount: 85,
+    id: '1', customerName: 'John Smith', service: 'Call-out & Hourly Labour Rates', date: '2024-06-10', time: '09:00', status: 'confirmed', paymentStatus: 'paid', amount: 80,
   },
   {
-    id: '2', customerName: 'Anna Lee', service: 'Leak Detection', date: '2024-06-10', time: '09:00', status: 'pending', paymentStatus: 'pending', amount: 65,
+    id: '2', customerName: 'Anna Lee', service: 'Full-Day Booking Rates', date: '2024-06-10', time: '09:00', status: 'pending', paymentStatus: 'pending', amount: 520,
   },
   {
     id: '3', customerName: 'Paul Black', service: 'Boiler Service', date: '2024-06-10', time: '12:00', status: 'confirmed', paymentStatus: 'paid', amount: 120,

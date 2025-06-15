@@ -19,22 +19,22 @@ const mockBookings: Booking[] = [
   {
     id: '1',
     customerName: 'John Smith',
-    service: 'Emergency Call Out',
+    service: 'Call-out & Hourly Labour Rates',
     date: '2024-03-20',
     time: '09:00',
     status: 'scheduled',
     paymentStatus: 'paid',
-    amount: 85,
+    amount: 80,
   },
   {
     id: '2',
     customerName: 'Sarah Johnson',
-    service: 'Bathroom Installation',
+    service: 'Full-Day Booking Rates',
     date: '2024-03-20',
     time: '14:00',
     status: 'scheduled',
     paymentStatus: 'pending',
-    amount: 2500,
+    amount: 520,
   },
   // Add more mock bookings as needed
 ];

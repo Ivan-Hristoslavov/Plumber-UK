@@ -11,12 +11,12 @@ const mockCustomers = [
     phone: '07123 456789',
     address: '123 Main St, London',
     bookings: [
-      { id: 'b1', service: 'Emergency Call Out', date: '2024-06-10', amount: 85, status: 'confirmed', paymentStatus: 'paid' },
-      { id: 'b2', service: 'Boiler Service', date: '2024-06-15', amount: 120, status: 'completed', paymentStatus: 'paid' },
+      { id: 'b1', service: 'Call-out & Hourly Labour Rates', date: '2024-06-10', amount: 80, status: 'confirmed', paymentStatus: 'paid' },
+      { id: 'b2', service: 'Full-Day Booking Rates', date: '2024-06-15', amount: 520, status: 'completed', paymentStatus: 'paid' },
     ],
     payments: [
-      { id: 'p1', amount: 85, date: '2024-06-10', status: 'paid' },
-      { id: 'p2', amount: 120, date: '2024-06-15', status: 'paid' },
+      { id: 'p1', amount: 80, date: '2024-06-10', status: 'paid' },
+      { id: 'p2', amount: 520, date: '2024-06-15', status: 'paid' },
     ],
   },
   {
@@ -26,10 +26,10 @@ const mockCustomers = [
     phone: '07234 567890',
     address: '456 High Rd, Manchester',
     bookings: [
-      { id: 'b3', service: 'Bathroom Installation', date: '2024-06-11', amount: 2500, status: 'pending', paymentStatus: 'pending' },
+      { id: 'b3', service: 'Full-Day Booking Rates', date: '2024-06-11', amount: 520, status: 'pending', paymentStatus: 'pending' },
     ],
     payments: [
-      { id: 'p3', amount: 2500, date: '2024-06-11', status: 'pending' },
+      { id: 'p3', amount: 520, date: '2024-06-11', status: 'pending' },
     ],
   },
 ];

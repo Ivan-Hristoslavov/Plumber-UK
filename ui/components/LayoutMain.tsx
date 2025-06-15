@@ -1,15 +1,54 @@
+'use client';
+
 import NavigationNavbar from './NavigationNavbar';
 import { ButtonCallNow } from './ButtonCallNow';
+import { DayOffBanner } from './DayOffBanner';
+import { useState, useEffect } from 'react';
 
 export default function LayoutMain({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [hasDayOffBanner, setHasDayOffBanner] = useState(false);
+
+  useEffect(() => {
+    const checkDayOffSettings = () => {
+      const savedSettings = localStorage.getItem('dayOffSettings');
+      const dismissed = sessionStorage.getItem('dayOffBannerDismissed');
+      
+      if (savedSettings && dismissed !== 'true') {
+        const settings = JSON.parse(savedSettings);
+        if (settings.isEnabled && settings.showOnAllPages) {
+          // Check date range if set
+          const now = new Date();
+          const startDate = settings.startDate ? new Date(settings.startDate) : null;
+          const endDate = settings.endDate ? new Date(settings.endDate) : null;
+          
+          const withinRange = (!startDate || now >= startDate) && (!endDate || now <= endDate);
+          setHasDayOffBanner(withinRange);
+        } else {
+          setHasDayOffBanner(false);
+        }
+      } else {
+        setHasDayOffBanner(false);
+      }
+    };
+
+    checkDayOffSettings();
+    
+    // Listen for storage changes
+    const handleStorageChange = () => checkDayOffSettings();
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
+      <DayOffBanner />
       <NavigationNavbar />
-      <main className="flex-grow pt-16">
+      <main className={`flex-grow ${hasDayOffBanner ? 'pt-32' : 'pt-16'} transition-all duration-300`}>
         {children}
       </main>
       <ButtonCallNow />

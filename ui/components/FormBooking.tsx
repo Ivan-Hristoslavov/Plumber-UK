@@ -11,34 +11,16 @@ type Service = {
 
 const services: Service[] = [
   {
-    id: 'emergency-leak',
-    name: 'Emergency Leak Repair',
-    description: '24/7 emergency leak detection and repair',
-    price: '£85/hour',
+    id: 'callout-hourly',
+    name: 'Call-out & Hourly Labour Rates',
+    description: 'Flexible hourly bookings for urgent or short jobs. See pricing section for full details.',
+    price: 'See table',
   },
   {
-    id: 'standard-pipe',
-    name: 'Standard Pipe Repair',
-    description: 'Regular pipe maintenance and repairs',
-    price: '£65/hour',
-  },
-  {
-    id: 'pipe-replacement',
-    name: 'Pipe Replacement',
-    description: 'Complete pipe replacement service',
-    price: 'From £150',
-  },
-  {
-    id: 'leak-detection',
-    name: 'Leak Detection',
-    description: 'Advanced leak detection service',
-    price: '£85',
-  },
-  {
-    id: 'pipe-unblocking',
-    name: 'Pipe Unblocking',
-    description: 'Professional pipe unblocking service',
-    price: '£120',
+    id: 'full-day',
+    name: 'Full-Day Booking Rates',
+    description: 'Book a full day for larger or planned works. See pricing section for full details.',
+    price: 'See table',
   },
 ];
 
