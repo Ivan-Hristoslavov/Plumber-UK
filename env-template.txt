@@ -1,0 +1,9 @@
+# Supabase Configuration
+# Получете тези стойности от вашия Supabase dashboard
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+
+# Admin Credentials
+ADMIN_EMAIL=admin@fixmyleak.com
+ADMIN_PASSWORD=your-secure-password-here
+ADMIN_NAME=Your Full Name

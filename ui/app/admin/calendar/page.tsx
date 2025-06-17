@@ -14,61 +14,8 @@ type Booking = {
   amount: number;
 };
 
-// Add more diverse dummy bookings for 24/7 calendar
-const mockBookings: Booking[] = [
-  // June 10: 4 bookings, 2 at 09:00, 1 at 12:00, 1 at 23:00
-  {
-    id: '1', customerName: 'John Smith', service: 'Call-out & Hourly Labour Rates', date: '2024-06-10', time: '09:00', status: 'confirmed', paymentStatus: 'paid', amount: 80,
-  },
-  {
-    id: '2', customerName: 'Anna Lee', service: 'Full-Day Booking Rates', date: '2024-06-10', time: '09:00', status: 'pending', paymentStatus: 'pending', amount: 520,
-  },
-  {
-    id: '3', customerName: 'Paul Black', service: 'Boiler Service', date: '2024-06-10', time: '12:00', status: 'confirmed', paymentStatus: 'paid', amount: 120,
-  },
-  {
-    id: '4', customerName: 'Night Owl', service: 'Emergency Call Out', date: '2024-06-10', time: '23:00', status: 'confirmed', paymentStatus: 'paid', amount: 150,
-  },
-  // June 11: 1 booking
-  {
-    id: '5', customerName: 'Sarah Johnson', service: 'Bathroom Installation', date: '2024-06-11', time: '14:00', status: 'pending', paymentStatus: 'pending', amount: 2500,
-  },
-  // June 12: 3 bookings, 2 at 11:00, 1 at 18:00
-  {
-    id: '6', customerName: 'Michael Brown', service: 'Boiler Service', date: '2024-06-12', time: '11:00', status: 'confirmed', paymentStatus: 'paid', amount: 120,
-  },
-  {
-    id: '7', customerName: 'Lisa Green', service: 'Power Flushing', date: '2024-06-12', time: '11:00', status: 'pending', paymentStatus: 'pending', amount: 400,
-  },
-  {
-    id: '8', customerName: 'Late Worker', service: 'Drainage Services', date: '2024-06-12', time: '18:00', status: 'confirmed', paymentStatus: 'paid', amount: 150,
-  },
-  // June 13: 1 booking
-  {
-    id: '9', customerName: 'Emily White', service: 'Leak Detection', date: '2024-06-13', time: '16:00', status: 'cancelled', paymentStatus: 'refunded', amount: 65,
-  },
-  // June 14: 3 bookings, 2 at 10:00, 1 at 13:00
-  {
-    id: '10', customerName: 'David Green', service: 'Radiator Installation', date: '2024-06-14', time: '10:00', status: 'confirmed', paymentStatus: 'paid', amount: 300,
-  },
-  {
-    id: '11', customerName: 'Night Shift', service: 'Emergency Call Out', date: '2024-06-14', time: '10:00', status: 'pending', paymentStatus: 'pending', amount: 120,
-  },
-  {
-    id: '12', customerName: 'Olivia Black', service: 'Power Flushing', date: '2024-06-14', time: '13:00', status: 'pending', paymentStatus: 'pending', amount: 400,
-  },
-  // June 15: 1 booking
-  {
-    id: '13', customerName: 'James Blue', service: 'Gas Safety Certificate', date: '2024-06-15', time: '15:00', status: 'confirmed', paymentStatus: 'paid', amount: 90,
-  },
-  // June 16: 2 bookings, 1 at 12:00, 1 at 03:00
-  {
-    id: '14', customerName: 'Sophia Red', service: 'Drainage Services', date: '2024-06-16', time: '12:00', status: 'pending', paymentStatus: 'pending', amount: 150,
-  },
-  {
-    id: '15', customerName: 'Early Bird', service: 'Boiler Service', date: '2024-06-16', time: '03:00', status: 'confirmed', paymentStatus: 'paid', amount: 120,
-  },
-];
+// Empty bookings array - data will be loaded from Supabase
+const mockBookings: Booking[] = [];
 
 // Set default selected date to the first booking's date
 const defaultSelectedDate = mockBookings.length > 0 ? mockBookings[0].date : format(new Date(), 'yyyy-MM-dd');

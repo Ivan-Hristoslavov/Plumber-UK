@@ -13,18 +13,43 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError('');
 
-    // For demo purposes, using hardcoded credentials
-    // In production, this would be replaced with proper authentication
-    if (email === 'admin@fixmyleak.com' && password === 'admin123') {
-      localStorage.setItem('adminAuth', 'true');
-      router.push('/admin/calendar');
-    } else {
-      setError('Invalid credentials');
+    try {
+      // Send credentials to API for authentication
+      const response = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        // Redirect to dashboard on successful login
+        router.push('/admin/dashboard');
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Back to Home Button */}
+      <div className="absolute top-6 left-6">
+        <button
+          onClick={() => window.location.href = '/#home'}
+          className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 bg-white hover:bg-blue-50 rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Home
+        </button>
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Admin Panel Login
@@ -89,7 +114,7 @@ export default function AdminLoginPage() {
             </div>
           </form>
 
-          {/* Demo credentials */}
+          {/* Help section */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -97,13 +122,12 @@ export default function AdminLoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Demo Credentials
+                  Need Help?
                 </span>
               </div>
             </div>
             <div className="mt-6 text-center text-sm text-gray-500">
-              <p>Email: admin@fixmyleak.com</p>
-              <p>Password: admin123</p>
+              <p>Contact support if you've forgotten your credentials</p>
             </div>
           </div>
         </div>

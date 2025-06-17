@@ -7,6 +7,7 @@ type Service = {
   name: string;
   description: string;
   price: string;
+  icon: string;
 };
 
 const services: Service[] = [
@@ -15,12 +16,14 @@ const services: Service[] = [
     name: 'Call-out & Hourly Labour Rates',
     description: 'Flexible hourly bookings for urgent or short jobs. See pricing section for full details.',
     price: 'See table',
+    icon: '🔧',
   },
   {
     id: 'full-day',
     name: 'Full-Day Booking Rates',
     description: 'Book a full day for larger or planned works. See pricing section for full details.',
     price: 'See table',
+    icon: '📅',
   },
 ];
 
@@ -33,254 +36,257 @@ const timeSlots = [
 ];
 
 export function FormBooking() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    service: '',
-    date: '',
-    timeSlot: '',
-    description: '',
-    isEmergency: false,
-  });
+  const [selectedService, setSelectedService] = useState('');
+  const [formKey] = useState(() => Math.random().toString(36));
+  
+  console.log('FormBooking rendered with key:', formKey);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-
-    try {
-      // Here you would typically send the form data to your backend
-      // For now, we'll simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        service: '',
-        date: '',
-        timeSlot: '',
-        description: '',
-        isEmergency: false,
-      });
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }));
-  };
-
-  // Get tomorrow's date for the minimum date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  // Get today's date for the minimum date and default value
+  const today = new Date();
+  const minDate = today.toISOString().split('T')[0];
+  const defaultDate = minDate;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-lg">
+    <form key={formKey} action="#" method="POST" className="space-y-6">
+      {/* Personal Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Personal Information */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-          
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Full Name *
-            </label>
+        <div className="group">
+          <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
+            Full Name *
+          </label>
+          <div className="relative">
             <input
               type="text"
               id="name"
               name="name"
               required
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 group-hover:border-white/30"
+              placeholder="Enter your full name"
             />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email *
-            </label>
+        <div className="group">
+          <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
+            Email Address *
+          </label>
+          <div className="relative">
             <input
               type="email"
               id="email"
               name="email"
               required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 group-hover:border-white/30"
+              placeholder="your.email@example.com"
             />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Phone Number *
-            </label>
+        <div className="group">
+          <label htmlFor="phone" className="block text-sm font-semibold text-white mb-2">
+            Phone Number *
+          </label>
+          <div className="relative">
             <input
               type="tel"
               id="phone"
               name="phone"
               required
-              value={formData.phone}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 group-hover:border-white/30"
+              placeholder="+44 7XXX XXXXXX"
             />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </div>
           </div>
+        </div>
 
-          <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-              Address *
-            </label>
+        <div className="group">
+          <label htmlFor="address" className="block text-sm font-semibold text-white mb-2">
+            Service Address *
+          </label>
+          <div className="relative">
             <textarea
               id="address"
               name="address"
               required
               rows={3}
-              value={formData.address}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 group-hover:border-white/30 resize-none"
+              placeholder="Enter the full address where service is needed"
+            />
+            <div className="absolute top-3 right-3">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Service Selection */}
+      <div className="space-y-4">
+        <label className="block text-sm font-semibold text-white mb-3">
+          Select Service Type *
+        </label>
+        <div className="grid grid-cols-1 gap-4">
+          {services.map(service => (
+            <div
+              key={service.id}
+              className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                selectedService === service.id
+                  ? 'border-blue-400 bg-blue-500/20 shadow-lg'
+                  : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+              }`}
+              onClick={() => setSelectedService(service.id)}
+            >
+              <input
+                type="radio"
+                name="service"
+                value={service.id}
+                checked={selectedService === service.id}
+                onChange={(e) => setSelectedService(e.target.value)}
+                className="sr-only"
+              />
+              <div className="flex items-start space-x-4">
+                <div className="text-2xl">{service.icon}</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-white mb-1">{service.name}</h4>
+                  <p className="text-sm text-white/70 mb-2">{service.description}</p>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+                    {service.price}
+                  </span>
+                </div>
+              </div>
+              <div className={`absolute top-4 right-4 transition-opacity ${
+                selectedService === service.id ? 'opacity-100' : 'opacity-0'
+              }`}>
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Date and Time */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="group">
+          <label htmlFor="preferred-date" className="block text-sm font-semibold text-white mb-2">
+            Preferred Date *
+          </label>
+          <div className="relative">
+            <input
+              type="date"
+              id="preferred-date"
+              name="preferred-date"
+              required
+              min={minDate}
+              defaultValue={defaultDate}
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white group-hover:border-white/30 [color-scheme:dark]"
+              style={{
+                colorScheme: 'dark'
+              }}
             />
           </div>
         </div>
 
-        {/* Service Information */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-900">Service Details</h3>
-
-          <div>
-            <label htmlFor="service" className="block text-sm font-medium text-gray-700">
-              Select Service *
-            </label>
-            <select
-              id="service"
-              name="service"
-              required
-              value={formData.service}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
-            >
-              <option value="">Choose a service</option>
-              {services.map(service => (
-                <option key={service.id} value={service.id}>
-                  {service.name} - {service.price}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-              Preferred Date *
-            </label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              required
-              min={minDate}
-              value={formData.date}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="timeSlot" className="block text-sm font-medium text-gray-700">
-              Preferred Time Slot *
-            </label>
+        <div className="group">
+          <label htmlFor="timeSlot" className="block text-sm font-semibold text-white mb-2">
+            Preferred Time *
+          </label>
+          <div className="relative">
             <select
               id="timeSlot"
               name="timeSlot"
               required
-              value={formData.timeSlot}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
+              className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white group-hover:border-white/30 appearance-none"
             >
-              <option value="">Select a time slot</option>
+              <option value="" className="bg-gray-800 text-white">Select a time slot</option>
               {timeSlots.map(slot => (
-                <option key={slot} value={slot}>
+                <option key={slot} value={slot} className="bg-gray-800 text-white">
                   {slot}
                 </option>
               ))}
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Problem Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Please describe your plumbing issue..."
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
-            />
+      {/* Problem Description */}
+      <div className="group">
+        <label htmlFor="description" className="block text-sm font-semibold text-white mb-2">
+          Problem Description
+        </label>
+        <div className="relative">
+          <textarea
+            id="description"
+            name="description"
+            rows={4}
+            placeholder="Please describe your plumbing issue in detail..."
+            className="w-full px-4 py-3 rounded-xl border-2 border-white/20 focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 group-hover:border-white/30 resize-none"
+          />
+          <div className="absolute top-3 right-3">
+            <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
           </div>
+        </div>
+      </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isEmergency"
-              name="isEmergency"
-              checked={formData.isEmergency}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
-            />
-            <label htmlFor="isEmergency" className="ml-2 block text-sm text-gray-700">
-              This is an emergency (24/7 service available)
-            </label>
-          </div>
+      {/* Emergency Option */}
+      <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-4">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="isEmergency"
+            name="isEmergency"
+            className="h-5 w-5 rounded border-red-300 text-red-600 focus:ring-red-500 bg-white/10"
+          />
+          <label htmlFor="isEmergency" className="ml-3 flex items-center">
+            <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <span className="text-sm font-medium text-white">
+              This is an emergency (45min response time)
+            </span>
+          </label>
         </div>
       </div>
 
       {/* Submit Button */}
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`px-6 py-3 rounded-lg text-white font-medium ${
-            isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-black hover:bg-gray-800'
-          } transition-colors`}
-        >
-          {isSubmitting ? 'Submitting...' : 'Book Now'}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="w-full px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 bg-blue-600 text-white shadow-lg hover:shadow-xl hover:bg-blue-700"
+      >
+        Send Booking Request
+        <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      </button>
 
-      {/* Status Messages */}
-      {submitStatus === 'success' && (
-        <div className="mt-4 p-4 bg-green-50 text-green-700 rounded-lg">
-          Thank you for your booking! We will contact you shortly to confirm your appointment.
-        </div>
-      )}
-      {submitStatus === 'error' && (
-        <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-lg">
-          There was an error submitting your booking. Please try again or call us directly.
-        </div>
-      )}
-
-      <p className="text-sm text-gray-500 mt-4">
-        * Required fields. For emergencies, please call us directly at 0800 123 4567.
+      <p className="text-sm text-white/60 text-center">
+        * Required fields. For emergencies, call us directly at <strong className="text-white">07541777225</strong>
       </p>
     </form>
   );

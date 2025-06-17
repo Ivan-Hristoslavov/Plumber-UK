@@ -1,41 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-// Dummy customer data
-const mockCustomers = [
-  {
-    id: 'c1',
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    phone: '07123 456789',
-    address: '123 Main St, London',
-    bookings: [
-      { id: 'b1', service: 'Call-out & Hourly Labour Rates', date: '2024-06-10', amount: 80, status: 'confirmed', paymentStatus: 'paid' },
-      { id: 'b2', service: 'Full-Day Booking Rates', date: '2024-06-15', amount: 520, status: 'completed', paymentStatus: 'paid' },
-    ],
-    payments: [
-      { id: 'p1', amount: 80, date: '2024-06-10', status: 'paid' },
-      { id: 'p2', amount: 520, date: '2024-06-15', status: 'paid' },
-    ],
-  },
-  {
-    id: 'c2',
-    name: 'Sarah Johnson',
-    email: 'sarah.j@email.com',
-    phone: '07234 567890',
-    address: '456 High Rd, Manchester',
-    bookings: [
-      { id: 'b3', service: 'Full-Day Booking Rates', date: '2024-06-11', amount: 520, status: 'pending', paymentStatus: 'pending' },
-    ],
-    payments: [
-      { id: 'p3', amount: 520, date: '2024-06-11', status: 'pending' },
-    ],
-  },
-];
+type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  customer_type: 'individual' | 'company';
+  company_name?: string;
+  vat_number?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export default function CustomersPage() {
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addType, setAddType] = useState<'individual' | 'company'>('individual');
   const [newCustomer, setNewCustomer] = useState({
@@ -53,57 +38,102 @@ export default function CustomersPage() {
     contactPhone: '',
   });
   const [formError, setFormError] = useState('');
-  const [customers, setCustomers] = useState(mockCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  function handleAddCustomer(e) {
+  // Load customers on component mount
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  const loadCustomers = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading customers...');
+      const response = await fetch('/api/customers');
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Loaded customers:', data);
+        setCustomers(data);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to load customers:', response.status, errorText);
+      }
+    } catch (error) {
+      console.error('Error loading customers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
-    if (addType === 'individual') {
-      if (!newCustomer.name || !newCustomer.email || !newCustomer.phone || !newCustomer.address) {
-        setFormError('Please fill in all required fields.');
-        return;
-      }
-      setCustomers([
-        ...customers,
-        {
-          id: (customers.length + 1).toString(),
+
+    try {
+      let customerData;
+      
+      if (addType === 'individual') {
+        if (!newCustomer.name || !newCustomer.email || !newCustomer.phone || !newCustomer.address) {
+          setFormError('Please fill in all required fields.');
+          return;
+        }
+        customerData = {
           name: newCustomer.name,
           email: newCustomer.email,
           phone: newCustomer.phone,
           address: newCustomer.address,
-          bookings: [],
-          payments: [],
-        },
-      ]);
-    } else {
-      if (!newCustomer.companyName || !newCustomer.companyEmail || !newCustomer.companyPhone || !newCustomer.companyAddress) {
-        setFormError('Please fill in all required fields.');
-        return;
-      }
-      setCustomers([
-        ...customers,
-        {
-          id: (customers.length + 1).toString(),
+          customer_type: 'individual' as const,
+        };
+      } else {
+        if (!newCustomer.companyName || !newCustomer.companyEmail || !newCustomer.companyPhone || !newCustomer.companyAddress) {
+          setFormError('Please fill in all required fields.');
+          return;
+        }
+        customerData = {
           name: newCustomer.companyName,
           email: newCustomer.companyEmail,
           phone: newCustomer.companyPhone,
           address: newCustomer.companyAddress,
-          vat: newCustomer.vat,
-          contactPerson: newCustomer.contactPerson,
-          contactEmail: newCustomer.contactEmail,
-          contactPhone: newCustomer.contactPhone,
-          bookings: [],
-          payments: [],
+          customer_type: 'company' as const,
+          company_name: newCustomer.companyName,
+          vat_number: newCustomer.vat || null,
+          contact_person: newCustomer.contactPerson || null,
+          contact_email: newCustomer.contactEmail || null,
+          contact_phone: newCustomer.contactPhone || null,
+        };
+      }
+
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ]);
+        body: JSON.stringify(customerData),
+      });
+
+      if (response.ok) {
+        // Reload customers list
+        await loadCustomers();
+        
+        // Reset form
+        setShowAddModal(false);
+        setAddType('individual');
+        setNewCustomer({
+          name: '', email: '', phone: '', address: '',
+          companyName: '', companyEmail: '', companyPhone: '', companyAddress: '', vat: '', contactPerson: '', contactEmail: '', contactPhone: '',
+        });
+      } else {
+        const error = await response.json();
+        setFormError(error.error || 'Failed to create customer');
+      }
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      setFormError('Failed to create customer');
     }
-    setShowAddModal(false);
-    setAddType('individual');
-    setNewCustomer({
-      name: '', email: '', phone: '', address: '',
-      companyName: '', companyEmail: '', companyPhone: '', companyAddress: '', vat: '', contactPerson: '', contactEmail: '', contactPhone: '',
-    });
-  }
+  };
 
   return (
     <div className="p-6">
@@ -121,6 +151,7 @@ export default function CustomersPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
@@ -128,22 +159,50 @@ export default function CustomersPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {customers.map((customer) => (
-              <tr key={customer.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.phone}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.address}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => setSelectedCustomer(customer)}
-                    className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    View
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  Loading customers...
                 </td>
               </tr>
-            ))}
+            ) : customers.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  No customers found. Add your first customer using the button above.
+                </td>
+              </tr>
+            ) : (
+              customers.map((customer) => (
+                <tr key={customer.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {customer.name}
+                    {customer.customer_type === 'company' && customer.contact_person && (
+                      <div className="text-xs text-gray-500">Contact: {customer.contact_person}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      customer.customer_type === 'individual' 
+                        ? 'bg-blue-100 text-blue-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {customer.customer_type === 'individual' ? 'Individual' : 'Company'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.phone}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.address}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => setSelectedCustomer(customer)}
+                      className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
