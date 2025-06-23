@@ -59,12 +59,7 @@ CREATE TRIGGER update_bookings_updated_at BEFORE UPDATE ON bookings FOR EACH ROW
 CREATE TRIGGER update_admin_settings_updated_at BEFORE UPDATE ON admin_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_admin_profile_updated_at BEFORE UPDATE ON admin_profile FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert sample data for bookings
-INSERT INTO bookings (customer_name, customer_email, customer_phone, service, date, time, status, payment_status, amount, address, notes) VALUES
-('John Smith', 'john.smith@email.com', '+44 7700 900123', 'Call-out & Hourly Labour Rates', '2024-03-20', '09:00', 'scheduled', 'paid', 80.00, '123 Main Street, London, SW1A 1AA', 'Customer prefers morning appointments'),
-('Sarah Johnson', 'sarah.j@email.com', '+44 7700 900456', 'Full-Day Booking Rates', '2024-03-20', '14:00', 'pending', 'pending', 520.00, '456 Oak Avenue, Manchester, M1 1AA', 'Large bathroom renovation project'),
-('Michael Brown', 'mike.brown@email.com', '+44 7700 900789', 'Call-out & Hourly Labour Rates', '2024-03-21', '10:00', 'completed', 'paid', 120.00, '789 Pine Road, Birmingham, B1 1AA', NULL),
-('Emily White', 'emily.white@email.com', '+44 7700 900012', 'Call-out & Hourly Labour Rates', '2024-03-19', '16:00', 'cancelled', 'refunded', 65.00, '321 Elm Street, Liverpool, L1 1AA', 'Customer cancelled due to emergency');
+-- Sample booking data removed to keep database clean
 
 -- Insert default admin profile
 INSERT INTO admin_profile (name, email, phone, company_name, company_address, gas_safe_number) VALUES

@@ -43,54 +43,85 @@ export async function POST(request: NextRequest) {
         .eq('id', customer_id)
         .single()
 
-      const { data: booking } = await supabase
+      let booking = null
+      if (booking_id) {
+        const { data: bookingData } = await supabase
         .from('bookings')
         .select('service, date')
         .eq('id', booking_id)
         .single()
-
-      if (!customer || !booking) {
-        return NextResponse.json({ error: 'Customer or booking not found' }, { status: 404 })
+        booking = bookingData
       }
 
-      // Create Stripe payment intent
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: 'gbp',
-        metadata: {
-          customer_id,
-          booking_id,
-          customer_name: customer.name,
-          service: booking.service,
-        },
-        description: description || `Payment for ${booking.service} - ${customer.name}`,
-      })
+      if (!customer) {
+        return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
+      }
 
-      // Create payment record in database
-      const { data: payment, error } = await supabase
+      // Create payment record in database first
+      const { data: payment, error: paymentError } = await supabase
         .from('payments')
         .insert([{
-          booking_id,
+          booking_id: booking_id || null,
           customer_id,
           amount,
           payment_method: 'card',
           payment_status: 'pending',
           payment_date: new Date().toISOString().split('T')[0],
-          reference: paymentIntent.id,
-          notes: `Stripe Payment Intent: ${paymentIntent.id}`,
+          reference: null, // Will be updated with session ID
+          notes: 'Stripe Checkout Session created',
         }])
         .select()
         .single()
 
-      if (error) {
-        console.error('Error creating payment record:', error)
+      if (paymentError) {
+        console.error('Error creating payment record:', paymentError)
         return NextResponse.json({ error: 'Failed to create payment record' }, { status: 500 })
       }
 
+      // Create Stripe Checkout Session
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      const productName = description || (booking ? `Payment for ${booking.service}` : 'Service Payment')
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'gbp',
+            product_data: {
+              name: productName,
+              description: booking ? `Service: ${booking.service} | Date: ${booking.date}` : 'Payment for services',
+            },
+            unit_amount: Math.round(amount * 100), // Convert to pence
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/payment/cancel?payment_id=${payment.id}`,
+        customer_email: customer.email,
+        metadata: {
+          customer_id,
+          booking_id: booking_id || '',
+          payment_id: payment.id,
+          customer_name: customer.name,
+        },
+        expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // Expires in 24 hours
+      })
+
+      // Update payment record with session ID
+      await supabase
+        .from('payments')
+        .update({
+          reference: session.id,
+          notes: `Stripe Checkout Session: ${session.id}`,
+        })
+        .eq('id', payment.id)
+
       return NextResponse.json({
-        payment,
-        client_secret: paymentIntent.client_secret,
-        payment_intent_id: paymentIntent.id,
+        payment: { ...payment, reference: session.id },
+        checkout_url: session.url,
+        session_id: session.id,
+        expires_at: session.expires_at,
       }, { status: 201 })
 
     } else {
@@ -123,16 +154,34 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { payment_intent_id, status, payment_method } = body
+    const { session_id, payment_intent_id, status, payment_method } = body
 
-    // Find payment by Stripe reference
-    const { data: payment, error: findError } = await supabase
+    let payment = null
+
+    // Find payment by session ID or payment intent ID
+    if (session_id) {
+      const { data: paymentData, error: findError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('reference', session_id)
+        .single()
+      
+      if (!findError && paymentData) {
+        payment = paymentData
+      }
+    } else if (payment_intent_id) {
+      const { data: paymentData, error: findError } = await supabase
       .from('payments')
       .select('*')
       .eq('reference', payment_intent_id)
       .single()
 
-    if (findError || !payment) {
+      if (!findError && paymentData) {
+        payment = paymentData
+      }
+    }
+
+    if (!payment) {
       return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
     }
 

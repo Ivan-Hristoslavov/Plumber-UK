@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 type DayOffSettings = {
   isEnabled: boolean;
@@ -11,34 +12,135 @@ type DayOffSettings = {
 };
 
 export default function DayOffPage() {
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+  
   const [settings, setSettings] = useState<DayOffSettings>({
     isEnabled: false,
-    message: 'We are currently on holiday. Emergency services are still available. Please call 0800 123 4567 for urgent matters.',
-    startDate: '',
-    endDate: '',
+    message: 'Limited service hours today. Emergency services available 24/7.',
+    startDate: today,
+    endDate: today,
     showOnAllPages: true,
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem('dayOffSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    loadSettings();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      console.log('Loading Day Off settings from database...');
+      
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('key, value')
+        .eq('key', 'dayOffSettings')
+        .single();
+
+      if (error) {
+        console.error('Error loading settings:', error);
+        // If no settings exist yet, use defaults
+        if (error.code === 'PGRST116') {
+          console.log('No Day Off settings found, using defaults');
+        }
+      } else {
+        console.log('Loaded settings from database:', data);
+        
+        if (data?.value) {
+          const dayOffData = data.value;
+          const loadedSettings = {
+            isEnabled: dayOffData.isEnabled || false,
+            message: dayOffData.message || 'Limited service hours today. Emergency services available 24/7.',
+            startDate: dayOffData.startDate || today,
+            endDate: dayOffData.endDate || today,
+            showOnAllPages: dayOffData.showOnAllPages || false
+          };
+          
+          console.log('Processed settings object:', loadedSettings);
+          setSettings(loadedSettings);
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error loading settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveDayOffSettings = async () => {
+    try {
+      const dayOffData = {
+        isEnabled: settings.isEnabled,
+        message: settings.message,
+        startDate: settings.startDate,
+        endDate: settings.endDate,
+        showOnAllPages: settings.showOnAllPages
+      };
+      
+      console.log('Saving Day Off settings:', dayOffData);
+      
+      // First, check if the record exists
+      const { data: existingData, error: checkError } = await supabase
+        .from('admin_settings')
+        .select('id')
+        .eq('key', 'dayOffSettings')
+        .single();
+
+      let result;
+      if (checkError && checkError.code === 'PGRST116') {
+        // Record doesn't exist, insert new one
+        console.log('Creating new dayOffSettings record');
+        result = await supabase
+          .from('admin_settings')
+          .insert({ 
+            key: 'dayOffSettings', 
+            value: dayOffData 
+          });
+      } else if (existingData) {
+        // Record exists, update it
+        console.log('Updating existing dayOffSettings record');
+        result = await supabase
+          .from('admin_settings')
+          .update({ value: dayOffData })
+          .eq('key', 'dayOffSettings');
+      } else {
+        throw new Error('Unexpected error checking for existing record');
+      }
+
+      if (result.error) {
+        console.error('Supabase error saving settings:', result.error);
+        throw new Error(`Failed to save Day Off settings: ${result.error.message}`);
+      }
+      
+      console.log('Successfully saved Day Off settings:', result.data);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      throw error;
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
+    setSaveMessage('');
+    
     try {
-      // Save to localStorage (in production, this would be an API call)
-      localStorage.setItem('dayOffSettings', JSON.stringify(settings));
+      console.log('Starting to save Day Off settings:', settings);
+      
+      // Save settings to database as single JSON object
+      await saveDayOffSettings();
+
+      console.log('Day Off settings saved successfully');
       setSaveMessage('Settings saved successfully!');
       setTimeout(() => setSaveMessage(''), 3000);
     } catch (error) {
-      setSaveMessage('Error saving settings');
+      console.error('Failed to save settings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setSaveMessage(`Error saving settings: ${errorMessage}`);
+      setTimeout(() => setSaveMessage(''), 5000);
     } finally {
       setIsSaving(false);
     }
@@ -48,249 +150,301 @@ export default function DayOffPage() {
     setSettings(prev => ({ ...prev, isEnabled: !prev.isEnabled }));
   };
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Day Off Management</h1>
-          <p className="text-gray-600 mt-1">Manage holiday notices and day off announcements for your customers.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          {saveMessage && (
-            <div className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-              saveMessage.includes('Error') 
-                ? 'bg-red-50 text-red-700 border border-red-200' 
-                : 'bg-green-50 text-green-700 border border-green-200'
-            }`}>
-              <svg className={`w-4 h-4 mr-2 ${saveMessage.includes('Error') ? 'text-red-500' : 'text-green-500'}`} fill="currentColor" viewBox="0 0 20 20">
-                {saveMessage.includes('Error') ? (
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                ) : (
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                )}
-              </svg>
-              {saveMessage}
+  const handleInputChange = (key: keyof DayOffSettings, value: any) => {
+    setSettings(prev => {
+      const newSettings = { ...prev, [key]: value };
+      
+      // If start date is changed and it's after end date, update end date
+      if (key === 'startDate' && value > prev.endDate) {
+        newSettings.endDate = value;
+      }
+      
+      return newSettings;
+    });
+  };
+
+  // Check if day off should be automatically disabled
+  const checkAutoDisable = () => {
+    if (settings.endDate && settings.isEnabled) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endDate = new Date(settings.endDate);
+      
+      if (today > endDate) {
+        return true; // Should be auto-disabled
+      }
+    }
+    return false;
+  };
+
+  const isAutoDisabled = checkAutoDisable();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-6"></div>
+            <div className="bg-white rounded-xl p-6">
+              <div className="h-6 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Day Off Management</h1>
+            <p className="text-gray-600 mt-1">Configure your day off settings and customer notifications.</p>
+          </div>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
           >
             {isSaving ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Saving...
+                <span>Saving...</span>
               </>
             ) : (
-              <>
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                </svg>
-                Save Settings
-              </>
+              <span>Save Settings</span>
             )}
           </button>
         </div>
-      </div>
 
-      {/* Status Overview Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className={`p-3 rounded-full ${settings.isEnabled ? 'bg-yellow-100' : 'bg-green-100'}`}>
-                {settings.isEnabled ? (
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Day Off Status</h2>
-                <p className={`text-sm mt-1 ${settings.isEnabled ? 'text-yellow-600' : 'text-green-600'}`}>
-                  {settings.isEnabled ? 'Day off mode is currently ACTIVE' : 'Day off mode is currently INACTIVE'}
-                </p>
-                {settings.isEnabled && (settings.startDate || settings.endDate) && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    {settings.startDate && `From: ${new Date(settings.startDate).toLocaleDateString()}`}
-                    {settings.startDate && settings.endDate && ' - '}
-                    {settings.endDate && `Until: ${new Date(settings.endDate).toLocaleDateString()}`}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className={`text-sm font-medium ${settings.isEnabled ? 'text-yellow-600' : 'text-gray-500'}`}>
-                {settings.isEnabled ? 'Active' : 'Inactive'}
-              </span>
-              <button
-                onClick={handleToggle}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  settings.isEnabled ? 'bg-yellow-500' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.isEnabled ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+        {/* Save Message */}
+        {saveMessage && (
+          <div className={`p-4 rounded-lg ${saveMessage.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+            {saveMessage}
+          </div>
+        )}
+
+        {/* Auto-disable warning */}
+        {isAutoDisabled && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <p className="text-orange-800 font-medium">
+                Day off period has expired and will be automatically disabled when customers visit the site.
+              </p>
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Settings Form */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">Day Off Configuration</h2>
-          <p className="text-sm text-gray-600 mt-1">Configure your day off message and display settings.</p>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          {/* Message */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Day Off Message
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <textarea
-              value={settings.message}
-              onChange={(e) => setSettings(prev => ({ ...prev, message: e.target.value }))}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="Enter the message to display when day off mode is active..."
-            />
-            <p className="text-xs text-gray-500 mt-2">This message will be displayed to customers when day off mode is enabled.</p>
-          </div>
-
-          {/* Date Range */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Date Range (Optional)
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">Start Date</label>
-                <input
-                  type="date"
-                  value={settings.startDate}
-                  onChange={(e) => setSettings(prev => ({ ...prev, startDate: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">End Date</label>
-                <input
-                  type="date"
-                  value={settings.endDate}
-                  onChange={(e) => setSettings(prev => ({ ...prev, endDate: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">If specified, the date range will be displayed alongside the message.</p>
-          </div>
-
-          {/* Display Options */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Display Options</h3>
-            <label className="flex items-start space-x-3">
-              <input
-                type="checkbox"
-                checked={settings.showOnAllPages}
-                onChange={(e) => setSettings(prev => ({ ...prev, showOnAllPages: e.target.checked }))}
-                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Show banner on all pages
-                </span>
-                <p className="text-xs text-gray-500 mt-1">
-                  Display a sticky notification banner at the top of all website pages when day off mode is active.
-                </p>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Preview */}
-      {settings.isEnabled && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Live Preview</h2>
-            <p className="text-sm text-gray-600 mt-1">This is how your day off notice will appear to customers.</p>
-          </div>
+        {/* Status Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6">
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <svg className="h-6 w-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Day Off Notice</h3>
-                  <p className="text-yellow-700 leading-relaxed">{settings.message}</p>
-                  {(settings.startDate || settings.endDate) && (
-                    <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
-                      <p className="text-sm font-medium text-yellow-800">
-                        📅 Schedule:
-                      </p>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        {settings.startDate && `From: ${new Date(settings.startDate).toLocaleDateString('en-GB', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}`}
-                        {settings.startDate && settings.endDate && <br />}
-                        {settings.endDate && `Until: ${new Date(settings.endDate).toLocaleDateString('en-GB', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}`}
-                      </p>
-                    </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className={`p-3 rounded-full ${settings.isEnabled ? 'bg-yellow-100' : 'bg-green-100'}`}>
+                  {settings.isEnabled ? (
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   )}
                 </div>
-                <button className="flex-shrink-0 text-yellow-600 hover:text-yellow-700">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Day Off Status</h2>
+                  <p className={`text-sm mt-1 ${settings.isEnabled ? 'text-yellow-600' : 'text-green-600'}`}>
+                    {settings.isEnabled ? 'Day off mode is currently ACTIVE' : 'Day off mode is currently INACTIVE'}
+                  </p>
+                  {settings.isEnabled && (settings.startDate || settings.endDate) && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {settings.startDate && `From: ${new Date(settings.startDate).toLocaleDateString('en-GB')}`}
+                      {settings.startDate && settings.endDate && ' - '}
+                      {settings.endDate && `Until: ${new Date(settings.endDate).toLocaleDateString('en-GB')}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className={`text-sm font-medium ${settings.isEnabled ? 'text-yellow-600' : 'text-gray-500'}`}>
+                  {settings.isEnabled ? 'Active' : 'Inactive'}
+                </span>
+                <button
+                  onClick={handleToggle}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    settings.isEnabled ? 'bg-yellow-500' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      settings.isEnabled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
                 </button>
               </div>
             </div>
           </div>
         </div>
-      )}
 
-      {/* Help Section */}
-      <div className="bg-blue-50 rounded-xl border border-blue-200 p-6">
-        <div className="flex items-start space-x-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-          <div>
-            <h3 className="text-sm font-semibold text-blue-900">How it works</h3>
-            <ul className="text-sm text-blue-800 mt-2 space-y-1">
-              <li>• Toggle the switch to activate/deactivate day off mode</li>
-              <li>• Customize your message to inform customers about your availability</li>
-              <li>• Set optional start and end dates for automatic scheduling</li>
-              <li>• The banner will appear on all pages when enabled and "Show on all pages" is checked</li>
-              <li>• Customers can dismiss the banner, but it will reappear on page refresh</li>
-            </ul>
+        {/* Settings Form */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-900">Day Off Configuration</h2>
+            <p className="text-sm text-gray-600 mt-1">Configure your day off message and display settings.</p>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Message */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Day Off Message
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+              <textarea
+                value={settings.message}
+                onChange={(e) => handleInputChange('message', e.target.value)}
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter the message to display when day off mode is active..."
+              />
+              <p className="text-xs text-gray-500 mt-2">This message will be displayed to customers when day off mode is enabled.</p>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Date Range (Optional)
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    value={settings.startDate}
+                    min={today}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">End Date</label>
+                  <input
+                    type="date"
+                    value={settings.endDate}
+                    min={settings.startDate || today}
+                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                If specified, the banner will automatically appear/disappear based on these dates. 
+                <strong> Day off will be automatically disabled after the end date.</strong>
+              </p>
+            </div>
+
+            {/* Display Options */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Display Options</h3>
+              <label className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  checked={settings.showOnAllPages}
+                  onChange={(e) => handleInputChange('showOnAllPages', e.target.checked)}
+                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-700">
+                    Show banner on all pages
+                  </span>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Display a sticky notification banner at the top of all website pages when day off mode is active.
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Preview */}
+        {settings.isEnabled && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Banner Preview</h2>
+              <p className="text-sm text-gray-600 mt-1">This is how the banner will appear to customers.</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="bg-yellow-400 border border-yellow-500 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <svg className="h-5 w-5 text-yellow-800 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-yellow-800 mb-2">Day Off Notice</h3>
+                      <p className="text-yellow-700 leading-relaxed">{settings.message}</p>
+                      {(settings.startDate || settings.endDate) && (
+                        <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
+                          <p className="text-sm font-medium text-yellow-800">
+                            📅 Schedule:
+                          </p>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            {settings.startDate && `From: ${new Date(settings.startDate).toLocaleDateString('en-GB', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}`}
+                            {settings.startDate && settings.endDate && <br />}
+                            {settings.endDate && `Until: ${new Date(settings.endDate).toLocaleDateString('en-GB', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button className="flex-shrink-0 text-yellow-600 hover:text-yellow-700">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Help Section */}
+        <div className="bg-blue-50 rounded-xl border border-blue-200 p-6">
+          <div className="flex items-start space-x-3">
+            <svg className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">How Day Off Mode Works</h3>
+              <div className="text-blue-800 space-y-2 text-sm">
+                <p>• <strong>Automatic Management:</strong> Set start and end dates, and the system will automatically show/hide the banner</p>
+                <p>• <strong>Auto-Disable:</strong> Day off mode automatically turns off after the end date passes</p>
+                <p>• <strong>Database Storage:</strong> All settings are saved to the database and sync across all pages</p>
+                <p>• <strong>Customer Experience:</strong> Customers see a professional notice banner at the top of all pages</p>
+                <p>• <strong>Emergency Contact:</strong> Include emergency contact information in your message for urgent matters</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

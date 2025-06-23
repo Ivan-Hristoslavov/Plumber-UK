@@ -23,6 +23,9 @@ The payments system is integrated with Stripe for secure online payments. This a
 Create or update the `.env.local` file in the `ui` directory:
 
 ```bash
+# Site Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
 # Stripe Configuration (Test Mode)
 STRIPE_SECRET_KEY=sk_test_your_secret_key_here
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
@@ -31,6 +34,11 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Admin Credentials
+ADMIN_EMAIL=admin@fixmyleak.com
+ADMIN_PASSWORD=your-secure-password-here
+ADMIN_NAME=Your Full Name
 ```
 
 ### 4. Update Stripe Configuration
@@ -51,11 +59,13 @@ export const getStripe = () => {
 };
 ```
 
-### 5. Setup Webhooks (Optional but Recommended)
+### 5. Setup Webhooks (Recommended)
 1. In Stripe Dashboard, go to **Developers** → **Webhooks**
 2. Click **Add endpoint**
 3. Set endpoint URL to: `https://yourdomain.com/api/webhooks/stripe`
 4. Select events to listen for:
+   - `checkout.session.completed`
+   - `checkout.session.expired`
    - `payment_intent.succeeded`
    - `payment_intent.payment_failed`
    - `payment_intent.canceled`
@@ -69,7 +79,9 @@ export const getStripe = () => {
 - Click **Send Payment Link**
 - Select customer and booking (optional)
 - Enter amount and description
-- System creates Stripe Payment Intent and stores in database
+- System creates Stripe Checkout Session and returns a shareable payment link
+- Link is automatically copied to clipboard and can be sent to customer
+- Payment links expire after 24 hours
 
 ### Record Manual Payments
 - Click **Record Payment** 

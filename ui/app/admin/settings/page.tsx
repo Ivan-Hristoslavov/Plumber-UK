@@ -38,7 +38,7 @@ const defaultSettings: SettingsState = {
   emergencyRate: '150',
   standardRate: '75',
   dayOffEnabled: false,
-  dayOffMessage: 'We are currently closed for maintenance.',
+  dayOffMessage: 'Limited service hours today. Emergency services available 24/7.',
   dayOffStartDate: '',
   dayOffEndDate: '',
   emailNotifications: true,

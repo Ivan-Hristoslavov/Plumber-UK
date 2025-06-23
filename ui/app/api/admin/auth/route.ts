@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
     // Validate credentials with bcrypt
     if (!error && adminProfile && await bcrypt.compare(password, adminProfile.password)) {
       // Set authentication cookie
-      cookies().set('adminAuth', 'authenticated', {
+      const cookieStore = await cookies();
+      cookieStore.set('adminAuth', 'authenticated', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -43,7 +44,8 @@ export async function POST(request: NextRequest) {
 // Logout endpoint
 export async function DELETE() {
   try {
-    cookies().delete('adminAuth');
+    const cookieStore = await cookies();
+    cookieStore.delete('adminAuth');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Logout error:', error);

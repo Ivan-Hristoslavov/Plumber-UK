@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object);
+        break;
+      
+      case 'checkout.session.expired':
+        await handleCheckoutSessionExpired(event.data.object);
+        break;
+      
       case 'payment_intent.succeeded':
       case 'payment_intent.payment_failed':
       case 'payment_intent.canceled':
@@ -41,6 +49,92 @@ export async function POST(request: NextRequest) {
     console.error('Error handling webhook:', error);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
+}
+
+async function handleCheckoutSessionCompleted(session: any) {
+  const sessionId = session.id;
+  const paymentStatus = session.payment_status; // 'paid', 'unpaid', 'no_payment_required'
+  const paymentIntentId = session.payment_intent;
+
+  console.log(`Checkout session completed: ${sessionId}, status: ${paymentStatus}`);
+
+  // Find payment in database by session ID
+  const { data: payment, error: findError } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('reference', sessionId)
+    .single();
+
+  if (findError || !payment) {
+    console.error('Payment not found for checkout session:', sessionId);
+    return;
+  }
+
+  // Update payment status
+  const dbStatus = paymentStatus === 'paid' ? 'paid' : 'failed';
+  
+  const { error: updateError } = await supabase
+    .from('payments')
+    .update({
+      payment_status: dbStatus,
+      payment_method: 'card',
+      notes: `Stripe Checkout Session completed: ${sessionId}${paymentIntentId ? ` | Payment Intent: ${paymentIntentId}` : ''}`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', payment.id);
+
+  if (updateError) {
+    console.error('Error updating payment status:', updateError);
+    return;
+  }
+
+  // If payment is successful and linked to a booking, update booking status
+  if (dbStatus === 'paid' && payment.booking_id) {
+    await supabase
+      .from('bookings')
+      .update({
+        payment_status: 'paid',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', payment.booking_id);
+  }
+
+  console.log(`Payment ${payment.id} updated to status: ${dbStatus}`);
+}
+
+async function handleCheckoutSessionExpired(session: any) {
+  const sessionId = session.id;
+
+  console.log(`Checkout session expired: ${sessionId}`);
+
+  // Find payment in database by session ID
+  const { data: payment, error: findError } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('reference', sessionId)
+    .single();
+
+  if (findError || !payment) {
+    console.error('Payment not found for expired checkout session:', sessionId);
+    return;
+  }
+
+  // Update payment status to failed
+  const { error: updateError } = await supabase
+    .from('payments')
+    .update({
+      payment_status: 'failed',
+      notes: `Stripe Checkout Session expired: ${sessionId}`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', payment.id);
+
+  if (updateError) {
+    console.error('Error updating expired payment status:', updateError);
+    return;
+  }
+
+  console.log(`Payment ${payment.id} marked as failed due to session expiration`);
 }
 
 async function handlePaymentIntentUpdate(paymentIntent: any) {

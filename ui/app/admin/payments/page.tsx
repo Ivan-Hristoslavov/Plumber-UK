@@ -187,12 +187,21 @@ export default function PaymentsPage() {
       if (response.ok) {
         const data = await response.json();
         
-        // Redirect to Stripe Checkout
-        const stripe = await getStripe();
-        if (stripe && data.client_secret) {
-          // For now, we'll just show success message
-          // In production, you'd redirect to a payment page
-          alert(`Payment link created! Client Secret: ${data.client_secret}`);
+        if (data.checkout_url) {
+          // Show success message with payment link
+          const message = `Payment link created successfully!\n\nCheckout URL: ${data.checkout_url}\n\nExpires: ${new Date(data.expires_at * 1000).toLocaleString()}\n\nYou can copy this link and send it to the customer.`;
+          
+          if (confirm(`${message}\n\nWould you like to open the payment link in a new tab?`)) {
+            window.open(data.checkout_url, '_blank');
+          }
+          
+          // Copy to clipboard
+          navigator.clipboard.writeText(data.checkout_url).then(() => {
+            alert('Payment link copied to clipboard!');
+          }).catch(() => {
+            console.log('Could not copy to clipboard');
+          });
+          
           await loadData();
           setShowPaymentLinkModal(false);
           setPaymentLink({

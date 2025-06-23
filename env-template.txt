@@ -3,6 +3,14 @@
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 
+# Site Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
 # Admin Credentials
 ADMIN_EMAIL=admin@fixmyleak.com
 ADMIN_PASSWORD=your-secure-password-here

@@ -1,38 +1,79 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
 
 type Booking = {
   id: string;
-  customerName: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
   service: string;
   date: string;
   time: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-  paymentStatus: 'pending' | 'paid' | 'refunded';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'pending';
+  payment_status: 'pending' | 'paid' | 'refunded';
   amount: number;
+  address: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
-// Empty bookings array - data will be loaded from Supabase
-const mockBookings: Booking[] = [];
-
-// Set default selected date to the first booking's date
-const defaultSelectedDate = mockBookings.length > 0 ? mockBookings[0].date : format(new Date(), 'yyyy-MM-dd');
-
 export default function CalendarPage() {
-  const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [view, setView] = useState<'week' | 'day'>('week');
   const [multiSlotBookings, setMultiSlotBookings] = useState<Booking[] | null>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+  const weekStart = startOfWeek(parseISO(selectedDate), { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
+  // Load bookings from Supabase
+  useEffect(() => {
+    loadBookings();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(loadBookings, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadBookings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/bookings');
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookings');
+      }
+      
+      const data = await response.json();
+      setBookings(data.bookings || []);
+    } catch (err) {
+      console.error('Error loading bookings:', err);
+      setError('Failed to load bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getBookingsForDate = (date: Date) => {
-    return mockBookings.filter(booking => 
+    let filteredBookings = bookings.filter(booking => 
       isSameDay(parseISO(booking.date), date)
     );
+    
+    if (statusFilter !== 'all') {
+      filteredBookings = filteredBookings.filter(booking => 
+        booking.status === statusFilter
+      );
+    }
+    
+    return filteredBookings;
   };
 
   const getStatusColor = (status: Booking['status']) => {
@@ -44,7 +85,7 @@ export default function CalendarPage() {
     }
   };
 
-  const getPaymentStatusColor = (status: Booking['paymentStatus']) => {
+  const getPaymentStatusColor = (status: Booking['payment_status']) => {
     switch (status) {
       case 'paid': return 'bg-green-100 text-green-800';
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -52,6 +93,63 @@ export default function CalendarPage() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const updateBookingStatus = async (bookingId: string, status: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (response.ok) {
+        await loadBookings(); // Reload bookings
+        setSelectedBooking(null);
+      } else {
+        throw new Error('Failed to update booking status');
+      }
+    } catch (err) {
+      console.error('Error updating booking status:', err);
+      setError('Failed to update booking status');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-2 text-gray-600">Loading calendar...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Error loading calendar</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <button
+                onClick={loadBookings}
+                className="mt-2 text-sm text-red-800 hover:text-red-900 underline"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -77,10 +175,41 @@ export default function CalendarPage() {
               Day
             </button>
           </div>
+          <div className="flex items-center space-x-4">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="all">All Bookings ({bookings.length})</option>
+              <option value="pending">Pending ({bookings.filter(b => b.status === 'pending').length})</option>
+              <option value="scheduled">Scheduled ({bookings.filter(b => b.status === 'scheduled').length})</option>
+              <option value="completed">Completed ({bookings.filter(b => b.status === 'completed').length})</option>
+              <option value="cancelled">Cancelled ({bookings.filter(b => b.status === 'cancelled').length})</option>
+            </select>
+            <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-yellow-100 rounded border border-yellow-200"></div>
+                <span className="text-gray-600">Pending</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-100 rounded border border-blue-200"></div>
+                <span className="text-gray-600">Scheduled</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-100 rounded border border-green-200"></div>
+                <span className="text-gray-600">Completed</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-100 rounded border border-red-200"></div>
+                <span className="text-gray-600">Cancelled</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => setSelectedDate(addDays(selectedDate, -7))}
+            onClick={() => setSelectedDate(format(addDays(parseISO(selectedDate), -7), 'yyyy-MM-dd'))}
             className="p-2 rounded-lg hover:bg-gray-100"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,11 +220,27 @@ export default function CalendarPage() {
             {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
           </span>
           <button
-            onClick={() => setSelectedDate(addDays(selectedDate, 7))}
+            onClick={() => setSelectedDate(format(addDays(parseISO(selectedDate), 7), 'yyyy-MM-dd'))}
             className="p-2 rounded-lg hover:bg-gray-100"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setSelectedDate(format(new Date(), 'yyyy-MM-dd'))}
+            className="px-3 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors"
+          >
+            Today
+          </button>
+          <button
+            onClick={loadBookings}
+            disabled={loading}
+            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            title="Refresh calendar"
+          >
+            <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
         </div>
@@ -119,8 +264,8 @@ export default function CalendarPage() {
           ))}
         </div>
 
-        {/* Time slots */}
-        {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+        {/* Time slots - Show only working hours (8 AM to 6 PM) */}
+        {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
           <div key={hour} className="grid grid-cols-8 border-b last:border-b-0">
             <div className="p-4 border-r text-sm text-gray-500">
               {format(new Date().setHours(hour, 0), 'HH:00')}
@@ -139,14 +284,22 @@ export default function CalendarPage() {
                       <button
                         key={bookings[0].id}
                         onClick={() => setSelectedBooking(bookings[0])}
-                        className="w-full p-2 mb-2 text-left rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+                        className={`w-full p-2 mb-2 text-left rounded-lg transition-colors ${
+                          bookings[0].status === 'completed' 
+                            ? 'bg-green-50 hover:bg-green-100 border border-green-200' 
+                            : bookings[0].status === 'cancelled'
+                            ? 'bg-red-50 hover:bg-red-100 border border-red-200'
+                            : bookings[0].status === 'pending'
+                            ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200'
+                            : 'bg-blue-50 hover:bg-blue-100 border border-blue-200'
+                        }`}
                       >
-                        <div className="text-sm font-medium">{bookings[0].customerName}</div>
+                        <div className="text-sm font-medium">{bookings[0].customer_name}</div>
                         <div className="text-xs text-gray-600">{bookings[0].service}</div>
                         <div className="text-xs text-gray-600">{bookings[0].time}</div>
                         <div className="flex space-x-1 mt-1">
                           <span className={`px-1.5 py-0.5 rounded text-xs ${getStatusColor(bookings[0].status)}`}>{bookings[0].status}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-xs ${getPaymentStatusColor(bookings[0].paymentStatus)}`}>{bookings[0].paymentStatus}</span>
+                          <span className={`px-1.5 py-0.5 rounded text-xs ${getPaymentStatusColor(bookings[0].payment_status)}`}>{bookings[0].payment_status}</span>
                         </div>
                       </button>
                       {bookings.length > 1 && (
@@ -185,7 +338,13 @@ export default function CalendarPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Customer</label>
-                  <div className="mt-1 text-gray-900">{selectedBooking.customerName}</div>
+                  <div className="mt-1 text-gray-900">{selectedBooking.customer_name}</div>
+                  {selectedBooking.customer_email && (
+                    <div className="text-sm text-gray-600">{selectedBooking.customer_email}</div>
+                  )}
+                  {selectedBooking.customer_phone && (
+                    <div className="text-sm text-gray-600">{selectedBooking.customer_phone}</div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Service</label>
@@ -194,35 +353,54 @@ export default function CalendarPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Date</label>
-                    <div className="mt-1 text-gray-900">{selectedBooking.date}</div>
+                    <div className="mt-1 text-gray-900">{format(parseISO(selectedBooking.date), 'MMM dd, yyyy')}</div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Time</label>
                     <div className="mt-1 text-gray-900">{selectedBooking.time}</div>
                   </div>
                 </div>
+                {selectedBooking.address && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Address</label>
+                    <div className="mt-1 text-gray-900">{selectedBooking.address}</div>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <div className="mt-1">
-                      <span className={`px-2 py-1 rounded text-sm ${getStatusColor(selectedBooking.status)}`}>
-                        {selectedBooking.status}
-                      </span>
+                      <select
+                        value={selectedBooking.status}
+                        onChange={(e) => updateBookingStatus(selectedBooking.id, e.target.value)}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Payment</label>
                     <div className="mt-1">
-                      <span className={`px-2 py-1 rounded text-sm ${getPaymentStatusColor(selectedBooking.paymentStatus)}`}>
-                        {selectedBooking.paymentStatus}
+                      <span className={`px-2 py-1 rounded text-sm ${getPaymentStatusColor(selectedBooking.payment_status)}`}>
+                        {selectedBooking.payment_status}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Amount</label>
-                  <div className="mt-1 text-gray-900">£{selectedBooking.amount}</div>
+                  <div className="mt-1 text-gray-900">£{selectedBooking.amount.toFixed(2)}</div>
                 </div>
+                {selectedBooking.notes && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Notes</label>
+                    <div className="mt-1 text-gray-900 bg-gray-50 p-2 rounded text-sm">{selectedBooking.notes}</div>
+                  </div>
+                )}
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
@@ -230,15 +408,6 @@ export default function CalendarPage() {
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   Close
-                </button>
-                <button
-                  onClick={() => {
-                    // Handle status update
-                    setSelectedBooking(null);
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark"
-                >
-                  Update Status
                 </button>
               </div>
             </div>
@@ -267,12 +436,12 @@ export default function CalendarPage() {
                   <div key={booking.id} className="border rounded p-3 mb-2 bg-gray-50">
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="font-medium">{booking.customerName}</div>
+                        <div className="font-medium">{booking.customer_name}</div>
                         <div className="text-xs text-gray-600">{booking.service}</div>
                         <div className="text-xs text-gray-600">{booking.time}</div>
                         <div className="flex space-x-1 mt-1">
                           <span className={`px-1.5 py-0.5 rounded text-xs ${getStatusColor(booking.status)}`}>{booking.status}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-xs ${getPaymentStatusColor(booking.paymentStatus)}`}>{booking.paymentStatus}</span>
+                          <span className={`px-1.5 py-0.5 rounded text-xs ${getPaymentStatusColor(booking.payment_status)}`}>{booking.payment_status}</span>
                         </div>
                       </div>
                       <button
