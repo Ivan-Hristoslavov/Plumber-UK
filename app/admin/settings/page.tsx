@@ -156,8 +156,8 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-        <span className="ml-3 text-gray-600">Loading settings...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400" />
+        <span className="ml-3 text-gray-600 dark:text-gray-400 transition-colors duration-300">Loading settings...</span>
       </div>
     );
   }
@@ -167,13 +167,13 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
             Manage your business settings and preferences.
           </p>
         </div>
         <button
-          className="flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
           disabled={saving}
           onClick={handleSave}
         >
@@ -208,26 +208,26 @@ export default function AdminSettingsPage() {
         <div
           className={`p-4 rounded-lg ${
             message.includes("Error")
-              ? "bg-red-50 text-red-700"
-              : "bg-green-50 text-green-700"
-          }`}
+              ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+              : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+          } transition-colors duration-300`}
         >
           {message}
         </div>
       )}
 
       {/* Business Information */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
           Business Information
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Business Name
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="text"
               value={settings.businessName}
               onChange={(e) =>
@@ -236,11 +236,11 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Business Email
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="email"
               value={settings.businessEmail}
               onChange={(e) =>
@@ -249,11 +249,11 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Business Phone
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="tel"
               value={settings.businessPhone}
               onChange={(e) =>
@@ -262,11 +262,11 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Business Address
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="text"
               value={settings.businessAddress}
               onChange={(e) =>
@@ -278,15 +278,15 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Pricing */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Pricing</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">Pricing</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Standard Hourly Rate (£)
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="number"
               value={settings.standardRate}
               onChange={(e) =>
@@ -295,11 +295,11 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Emergency Rate (£)
             </label>
             <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
               type="number"
               value={settings.emergencyRate}
               onChange={(e) =>
@@ -311,18 +311,18 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Working Hours */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
           Working Hours
         </h2>
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                 Start Time
               </label>
               <input
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
                 type="time"
                 value={settings.workingHoursStart}
                 onChange={(e) =>
@@ -331,11 +331,11 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                 End Time
               </label>
               <input
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
                 type="time"
                 value={settings.workingHoursEnd}
                 onChange={(e) =>
@@ -346,42 +346,36 @@ export default function AdminSettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 transition-colors duration-300">
               Working Days
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-              {[
-                "monday",
-                "tuesday",
-                "wednesday",
-                "thursday",
-                "friday",
-                "saturday",
-                "sunday",
-              ].map((day) => (
-                <label
-                  key={day}
-                  className="flex items-center space-x-2 cursor-pointer"
-                >
-                  <input
-                    checked={settings.workingDays.includes(day)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    type="checkbox"
-                    onChange={() => toggleWorkingDay(day)}
-                  />
-                  <span className="text-sm text-gray-700 capitalize">
-                    {day}
-                  </span>
-                </label>
-              ))}
+            <div className="flex flex-wrap gap-4">
+              {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map(
+                (day) => (
+                  <label
+                    key={day}
+                    className="inline-flex items-center space-x-2 cursor-pointer"
+                  >
+                    <input
+                      checked={settings.workingDays.includes(day)}
+                      className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
+                      type="checkbox"
+                      onChange={() => toggleWorkingDay(day)}
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300 capitalize transition-colors duration-300">
+                      {day}
+                    </span>
+                  </label>
+                )
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Day Off Settings */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
           Day Off Settings
         </h2>
         <div className="space-y-6">
@@ -396,7 +390,7 @@ export default function AdminSettingsPage() {
               }
             />
             <label
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
               htmlFor="dayOffEnabled"
             >
               Enable Day Off Banner
@@ -406,11 +400,11 @@ export default function AdminSettingsPage() {
           {settings.dayOffEnabled && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                   Day Off Message
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
                   rows={3}
                   value={settings.dayOffMessage}
                   onChange={(e) =>
@@ -421,11 +415,11 @@ export default function AdminSettingsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                     Start Date
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
                     type="date"
                     value={settings.dayOffStartDate}
                     onChange={(e) =>
@@ -434,11 +428,11 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                     End Date
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
                     type="date"
                     value={settings.dayOffEndDate}
                     onChange={(e) =>
@@ -453,64 +447,52 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
           Notifications
         </h2>
         <div className="space-y-4">
-          <div className="flex items-center space-x-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
             <input
               checked={settings.emailNotifications}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              id="emailNotifications"
+              className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
               type="checkbox"
               onChange={(e) =>
                 handleInputChange("emailNotifications", e.target.checked)
               }
             />
-            <label
-              className="text-sm font-medium text-gray-700"
-              htmlFor="emailNotifications"
-            >
-              Email Notifications
-            </label>
-          </div>
+            <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
+              Enable email notifications
+            </span>
+          </label>
 
-          <div className="flex items-center space-x-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
             <input
               checked={settings.smsNotifications}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              id="smsNotifications"
+              className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
               type="checkbox"
               onChange={(e) =>
                 handleInputChange("smsNotifications", e.target.checked)
               }
             />
-            <label
-              className="text-sm font-medium text-gray-700"
-              htmlFor="smsNotifications"
-            >
-              SMS Notifications
-            </label>
-          </div>
+            <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
+              Enable SMS notifications
+            </span>
+          </label>
 
-          <div className="flex items-center space-x-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
             <input
               checked={settings.autoConfirmBookings}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              id="autoConfirmBookings"
+              className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
               type="checkbox"
               onChange={(e) =>
                 handleInputChange("autoConfirmBookings", e.target.checked)
               }
             />
-            <label
-              className="text-sm font-medium text-gray-700"
-              htmlFor="autoConfirmBookings"
-            >
-              Auto-confirm Bookings
-            </label>
-          </div>
+            <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
+              Auto-confirm bookings
+            </span>
+          </label>
         </div>
       </div>
     </div>

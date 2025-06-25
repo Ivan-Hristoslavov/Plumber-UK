@@ -109,7 +109,7 @@ export default function LayoutMain({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors duration-500">
       <NavigationNavbar />
       <main
         className={`flex-grow transition-all duration-300 ${hasDayOffBanner ? "pt-[112px]" : "pt-20"}`}
@@ -322,10 +322,23 @@ export default function LayoutMain({
 
           {/* Bottom Bar */}
           <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © 2024 FixMyLeak. All rights reserved. Licensed & Insured
-              Plumbers.
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <p className="text-gray-400 text-sm">
+                © {new Date().getFullYear()} FixMyLeak. All rights reserved. Licensed & Insured
+                Plumbers.
+              </p>
+              <p className="text-gray-400 text-sm">
+                Developed by{" "}
+                <a
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                  href="https://serenity.rapid-frame.co.uk/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Serenity Web Studio
+                </a>
+              </p>
+            </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a
                 className="text-gray-400 hover:text-blue-400 text-sm transition-colors"

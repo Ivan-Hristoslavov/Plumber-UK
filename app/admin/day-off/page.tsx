@@ -188,14 +188,14 @@ export default function DayOffPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors duration-300">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded mb-6" />
-            <div className="bg-white rounded-xl p-6">
-              <div className="h-6 bg-gray-200 rounded mb-4" />
-              <div className="h-4 bg-gray-200 rounded mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-3/4" />
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-6 transition-colors duration-300" />
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 transition-colors duration-300">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4 transition-colors duration-300" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 transition-colors duration-300" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 transition-colors duration-300" />
             </div>
           </div>
         </div>
@@ -204,20 +204,20 @@ export default function DayOffPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors duration-300">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
               Day Off Management
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
               Configure your day off settings and customer notifications.
             </p>
           </div>
           <button
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+            className="px-6 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-blue-400 dark:disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors duration-300 flex items-center space-x-2"
             disabled={isSaving}
             onClick={handleSave}
           >
@@ -253,7 +253,11 @@ export default function DayOffPage() {
         {/* Save Message */}
         {saveMessage && (
           <div
-            className={`p-4 rounded-lg ${saveMessage.includes("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}
+            className={`p-4 rounded-lg ${
+              saveMessage.includes("Error")
+                ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
+                : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
+            } transition-colors duration-300`}
           >
             {saveMessage}
           </div>
@@ -283,96 +287,94 @@ export default function DayOffPage() {
         )}
 
         {/* Status Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div
-                  className={`p-3 rounded-full ${settings.isEnabled ? "bg-yellow-100" : "bg-green-100"}`}
-                >
-                  {settings.isEnabled ? (
-                    <svg
-                      className="w-6 h-6 text-yellow-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-6 h-6 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Day Off Status
-                  </h2>
-                  <p
-                    className={`text-sm mt-1 ${settings.isEnabled ? "text-yellow-600" : "text-green-600"}`}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div
+                className={`p-3 rounded-full ${settings.isEnabled ? "bg-yellow-100" : "bg-green-100"}`}
+              >
+                {settings.isEnabled ? (
+                  <svg
+                    className="w-6 h-6 text-yellow-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    {settings.isEnabled
-                      ? "Day off mode is currently ACTIVE"
-                      : "Day off mode is currently INACTIVE"}
-                  </p>
-                  {settings.isEnabled &&
-                    (settings.startDate || settings.endDate) && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {settings.startDate &&
-                          `From: ${new Date(settings.startDate).toLocaleDateString("en-GB")}`}
-                        {settings.startDate && settings.endDate && " - "}
-                        {settings.endDate &&
-                          `Until: ${new Date(settings.endDate).toLocaleDateString("en-GB")}`}
-                      </p>
-                    )}
-                </div>
+                    <path
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                    />
+                  </svg>
+                )}
               </div>
-              <div className="flex items-center space-x-3">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                  Day Off Status
+                </h2>
+                <p
+                  className={`text-sm mt-1 ${settings.isEnabled ? "text-yellow-600" : "text-green-600"}`}
+                >
+                  {settings.isEnabled
+                    ? "Day off mode is currently ACTIVE"
+                    : "Day off mode is currently INACTIVE"}
+                </p>
+                {settings.isEnabled &&
+                  (settings.startDate || settings.endDate) && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {settings.startDate &&
+                        `From: ${new Date(settings.startDate).toLocaleDateString("en-GB")}`}
+                      {settings.startDate && settings.endDate && " - "}
+                      {settings.endDate &&
+                        `Until: ${new Date(settings.endDate).toLocaleDateString("en-GB")}`}
+                    </p>
+                  )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <span
+                className={`text-sm font-medium ${settings.isEnabled ? "text-yellow-600" : "text-gray-500"}`}
+              >
+                {settings.isEnabled ? "Active" : "Inactive"}
+              </span>
+              <button
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  settings.isEnabled ? "bg-yellow-500" : "bg-gray-200"
+                }`}
+                onClick={handleToggle}
+              >
                 <span
-                  className={`text-sm font-medium ${settings.isEnabled ? "text-yellow-600" : "text-gray-500"}`}
-                >
-                  {settings.isEnabled ? "Active" : "Inactive"}
-                </span>
-                <button
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    settings.isEnabled ? "bg-yellow-500" : "bg-gray-200"
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    settings.isEnabled ? "translate-x-6" : "translate-x-1"
                   }`}
-                  onClick={handleToggle}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.isEnabled ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-              </div>
+                />
+              </button>
             </div>
           </div>
         </div>
 
         {/* Settings Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100">
           <div className="p-6 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Day Off Configuration
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Configure your day off message and display settings.
             </p>
           </div>
@@ -380,18 +382,18 @@ export default function DayOffPage() {
           <div className="p-6 space-y-6">
             {/* Message */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Day Off Message
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <textarea
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                 placeholder="Enter the message to display when day off mode is active..."
                 rows={4}
                 value={settings.message}
                 onChange={(e) => handleInputChange("message", e.target.value)}
               />
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 This message will be displayed to customers when day off mode is
                 enabled.
               </p>
@@ -399,16 +401,16 @@ export default function DayOffPage() {
 
             {/* Date Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Date Range (Optional)
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                     Start Date
                   </label>
                   <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                     min={today}
                     type="date"
                     value={settings.startDate}
@@ -418,11 +420,11 @@ export default function DayOffPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
                     End Date
                   </label>
                   <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                     min={settings.startDate || today}
                     type="date"
                     value={settings.endDate}
@@ -432,7 +434,7 @@ export default function DayOffPage() {
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 If specified, the banner will automatically appear/disappear
                 based on these dates.
                 <strong>
@@ -443,24 +445,24 @@ export default function DayOffPage() {
             </div>
 
             {/* Display Options */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                 Display Options
               </h3>
               <label className="flex items-start space-x-3">
                 <input
                   checked={settings.showOnAllPages}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded"
                   type="checkbox"
                   onChange={(e) =>
                     handleInputChange("showOnAllPages", e.target.checked)
                   }
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Show banner on all pages
                   </span>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Display a sticky notification banner at the top of all
                     website pages when day off mode is active.
                   </p>
@@ -472,12 +474,12 @@ export default function DayOffPage() {
 
         {/* Preview */}
         {settings.isEnabled && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
                 Banner Preview
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 This is how the banner will appear to customers.
               </p>
             </div>
@@ -487,7 +489,7 @@ export default function DayOffPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
                     <svg
-                      className="h-5 w-5 text-yellow-800 mt-0.5 flex-shrink-0"
+                      className="h-5 w-5 text-yellow-800 dark:text-yellow-400 mt-0.5 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -498,18 +500,18 @@ export default function DayOffPage() {
                       />
                     </svg>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+                      <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2">
                         Day Off Notice
                       </h3>
-                      <p className="text-yellow-700 leading-relaxed">
+                      <p className="text-yellow-700 dark:text-yellow-300 leading-relaxed">
                         {settings.message}
                       </p>
                       {(settings.startDate || settings.endDate) && (
-                        <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
-                          <p className="text-sm font-medium text-yellow-800">
+                        <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
                             📅 Schedule:
                           </p>
-                          <p className="text-sm text-yellow-700 mt-1">
+                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
                             {settings.startDate &&
                               `From: ${new Date(
                                 settings.startDate
@@ -534,7 +536,7 @@ export default function DayOffPage() {
                       )}
                     </div>
                   </div>
-                  <button className="flex-shrink-0 text-yellow-600 hover:text-yellow-700">
+                  <button className="flex-shrink-0 text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-500">
                     <svg
                       className="w-5 h-5"
                       fill="none"

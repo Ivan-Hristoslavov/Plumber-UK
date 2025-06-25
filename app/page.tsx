@@ -10,24 +10,24 @@ import { FormBooking } from "@/components/FormBooking";
 
 const faqItems = [
   {
-    question: "What areas do you cover?",
+    question: "What areas do you cover in London?",
     answer:
-      "We provide plumbing services across the entire United Kingdom, with 24/7 emergency coverage in major cities.",
+      "We provide plumbing services across South West London, including Clapham, Balham, Chelsea, Battersea, Wandsworth, and Streatham. We aim to arrive within 45 minutes for emergency callouts in these areas.",
   },
   {
     question: "Are your plumbers qualified?",
     answer:
-      "Yes, all our plumbers are fully qualified, Gas Safe registered, and undergo regular training to maintain the highest standards.",
+      "Yes, we are fully qualified and Gas Safe registered with over 10 years of experience. We maintain professional qualifications and have worked on high-end properties including Claridge's Hotel in Mayfair.",
   },
   {
-    question: "Do you offer emergency services?",
+    question: "How quickly can you respond to emergencies?",
     answer:
-      "Yes, we provide 24/7 emergency plumbing services. Our emergency team is always on call to handle urgent situations.",
+      "We offer same-day emergency plumbing services with response times of up to 45 minutes for our main coverage areas in South West London. Available 24/7 for urgent plumbing issues.",
   },
   {
     question: "What are your payment terms?",
     answer:
-      "We accept all major credit cards, bank transfers, and cash payments. Payment is due upon completion of work.",
+      "We accept all major credit cards, bank transfers, and cash payments. We provide transparent pricing with no hidden costs - you pay exactly what we quote. Payment is due upon completion of work.",
   },
 ];
 
@@ -41,23 +41,26 @@ export default function HomePage() {
       <SectionPricing />
 
       {/* About Section */}
-      <section className="relative py-24 overflow-hidden" id="about">
+      <section
+        className="relative py-24 overflow-hidden transition-all duration-500"
+        id="about"
+      >
         {/* Background with gradient and pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-10 w-40 h-40 bg-blue-500 rounded-full" />
-          <div className="absolute top-60 right-20 w-32 h-32 bg-purple-500 rounded-full" />
-          <div className="absolute bottom-40 left-1/4 w-24 h-24 bg-yellow-500 rounded-full" />
-          <div className="absolute bottom-20 right-10 w-36 h-36 bg-green-500 rounded-full" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 transition-all duration-500" />
+        <div className="absolute inset-0 opacity-5 dark:opacity-20">
+          <div className="absolute top-20 left-10 w-40 h-40 bg-blue-500 dark:bg-blue-400 rounded-full" />
+          <div className="absolute top-60 right-20 w-32 h-32 bg-purple-500 dark:bg-purple-400 rounded-full" />
+          <div className="absolute bottom-40 left-1/4 w-24 h-24 bg-yellow-500 dark:bg-yellow-400 rounded-full" />
+          <div className="absolute bottom-20 right-10 w-36 h-36 bg-green-500 dark:bg-green-400 rounded-full" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
               About Our Expert Team
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
               Meet the professionals who bring years of experience and
               dedication to every plumbing job
             </p>
@@ -68,7 +71,7 @@ export default function HomePage() {
             {/* Left Column - Image */}
             <div className="flex justify-center">
               <div className="relative group max-w-md">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-white p-4 group-hover:shadow-3xl transition-all duration-500 transform group-hover:-translate-y-2">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-white dark:bg-gray-800 p-4 group-hover:shadow-3xl transition-all duration-500 transform group-hover:-translate-y-2">
                   <div className="relative rounded-2xl overflow-hidden">
                     <Image
                       priority
@@ -83,12 +86,14 @@ export default function HomePage() {
                 </div>
 
                 {/* Professional Name Card */}
-                <div className="mt-6 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 px-6 py-4 transform group-hover:scale-105 transition-all duration-300">
+                <div className="mt-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 px-6 py-4 transform group-hover:scale-105 transition-all duration-300">
                   <div className="text-center">
-                    <h3 className="font-bold text-2xl text-gray-900 mb-1">
+                    <h3 className="font-bold text-2xl text-gray-900 dark:text-white mb-1 transition-colors duration-300">
                       Plamen Zhelev
                     </h3>
-                    <p className="text-gray-600 mb-3">Professional Plumber</p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-3 transition-colors duration-300">
+                      Professional Plumber
+                    </p>
 
                     <div className="flex items-center justify-center gap-2 mb-3">
                       <svg
@@ -98,14 +103,14 @@ export default function HomePage() {
                       >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="text-sm text-gray-600 font-medium">
+                      <span className="text-sm text-gray-600 dark:text-gray-300 font-medium transition-colors duration-300">
                         Fully Qualified • 10+ Years
                       </span>
                     </div>
 
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                      <span className="text-sm text-green-600 font-medium">
+                      <div className="w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-sm text-green-600 dark:text-green-400 font-medium transition-colors duration-300">
                         Available Now
                       </span>
                     </div>
@@ -116,9 +121,9 @@ export default function HomePage() {
 
             {/* Right Column - Content */}
             <div className="space-y-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500">
                 <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mr-4">
+                  <div className="w-12 h-12 bg-blue-600 dark:bg-blue-500 rounded-xl flex items-center justify-center mr-4 transition-colors duration-300">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="none"
@@ -133,30 +138,30 @@ export default function HomePage() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
                     Your Trusted Plumbing Partner
                   </h3>
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300">
                     My name is Plamen Zhelev, and I'm a fully qualified plumbing
                     and heating engineer based in London. With over 10 years of
                     hands-on experience and professional qualifications, I run
                     my own company – PZ Plumbing Ltd.
                   </p>
 
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300">
                     I cover areas including Clapham, Balham, Chelsea,
                     Wandsworth, Battersea, and the surrounding parts of London.
                     I offer emergency callouts with response times of up to 45
                     minutes and same-day service guaranteed.
                   </p>
 
-                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 p-4 rounded-lg transition-all duration-300">
                     <div className="flex items-start">
                       <svg
-                        className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0"
+                        className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3 flex-shrink-0 transition-colors duration-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -168,7 +173,7 @@ export default function HomePage() {
                           strokeWidth={2}
                         />
                       </svg>
-                      <p className="text-sm text-blue-800 font-medium">
+                      <p className="text-sm text-blue-800 dark:text-blue-200 font-medium transition-colors duration-300">
                         <strong>Notable Project:</strong> Worked at Claridge's
                         Hotel in Mayfair for three years, installing and
                         maintaining high-end plumbing systems.
@@ -179,13 +184,13 @@ export default function HomePage() {
               </div>
 
               {/* Services List */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100">
-                <h4 className="text-xl font-bold text-gray-900 mb-6">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 transition-all duration-500">
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Our Services
                 </h4>
                 <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 transition-all duration-300">
+                    <div className="w-8 h-8 bg-green-500 dark:bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-300">
                       <svg
                         className="h-4 w-4 text-white"
                         fill="none"
@@ -200,34 +205,12 @@ export default function HomePage() {
                         />
                       </svg>
                     </div>
-                    <span className="text-gray-800 font-medium">
-                      Leak detection and repair
+                    <span className="text-gray-800 dark:text-gray-200 font-medium transition-colors duration-300">
+                      Emergency Leak Detection
                     </span>
                   </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
-                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="h-4 w-4 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-gray-800 font-medium">
-                      Emergency callouts - 45 min response
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 transition-all duration-300">
+                    <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-300">
                       <svg
                         className="h-4 w-4 text-white"
                         fill="none"
@@ -242,13 +225,12 @@ export default function HomePage() {
                         />
                       </svg>
                     </div>
-                    <span className="text-gray-800 font-medium">
-                      Installation of sanitary appliances
+                    <span className="text-gray-800 dark:text-gray-200 font-medium transition-colors duration-300">
+                      Pipe Repairs & Replacements
                     </span>
                   </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-xl border border-orange-100">
-                    <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800 transition-all duration-300">
+                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <svg
                         className="h-4 w-4 text-white"
                         fill="none"
@@ -256,26 +238,19 @@ export default function HomePage() {
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                        <path
-                          d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"
+                          d="M8 14v3a2 2 0 002 2h4a2 2 0 002-2v-3M8 14V9a2 2 0 012-2h4a2 2 0 012 2v5M8 14H6a2 2 0 01-2-2V9a2 2 0 012-2h2m8 7h2a2 2 0 002-2V9a2 2 0 00-2-2h-2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
                         />
                       </svg>
                     </div>
-                    <span className="text-gray-800 font-medium">
-                      Quooker boiling water taps fitting
+                    <span className="text-gray-800 dark:text-gray-200 font-medium transition-colors duration-300">
+                      Bathroom & Kitchen Installations
                     </span>
                   </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-xl border border-teal-100">
-                    <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <svg
                         className="h-4 w-4 text-white"
                         fill="none"
@@ -283,7 +258,7 @@ export default function HomePage() {
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V5a1 1 0 011-1h3a1 1 0 001-1V4z"
+                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
@@ -291,135 +266,144 @@ export default function HomePage() {
                       </svg>
                     </div>
                     <span className="text-gray-800 font-medium">
-                      Tap, sink, waste & valve repairs
+                      Boiler Repairs & Servicing
                     </span>
                   </div>
-                </div>
-
-                {/* CTA Button */}
-                <div className="mt-6 text-center">
-                  <a
-                    className="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-full font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                    href="#contact"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document
-                        .getElementById("contact")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                    Get In Touch
-                  </a>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Stats Section */}
-          <div className="mt-20">
-            <div className="text-center mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Why Choose Us
-              </h3>
-              <p className="text-gray-600">
-                Numbers that speak for our quality and reliability
-              </p>
-            </div>
+      {/* Areas We Cover Section */}
+      <section
+        className="relative py-24 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-all duration-500"
+        id="areas"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              Areas We Cover
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto transition-colors duration-300">
+              FixMyLeak proudly serves South West and Central London areas with
+              same-day plumbing and leak detection services
+            </p>
+          </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              <div className="group bg-blue-600 p-8 rounded-3xl shadow-lg text-center text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+          {/* Service Areas Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {[
+              {
+                name: "Clapham",
+                postcode: "SW4",
+                description:
+                  "Emergency plumber Clapham - Same day leak detection and pipe repairs",
+              },
+              {
+                name: "Balham",
+                postcode: "SW12",
+                description:
+                  "Fast response plumbing services in Balham - Available 24/7",
+              },
+              {
+                name: "Battersea",
+                postcode: "SW8",
+                description:
+                  "Professional plumber Battersea - Boiler repairs and installations",
+              },
+              {
+                name: "Wandsworth",
+                postcode: "SW18",
+                description:
+                  "Trusted plumbing services Wandsworth - Emergency callouts",
+              },
+              {
+                name: "Chelsea",
+                postcode: "SW3",
+                description:
+                  "Premium plumber Chelsea - Luxury bathroom installations",
+              },
+              {
+                name: "Streatham",
+                postcode: "SW16",
+                description:
+                  "Reliable plumber Streatham - Leak detection specialists",
+              },
+            ].map((area) => (
+              <div
+                key={area.name}
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-400 group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {area.name}
+                  </h3>
+                  <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
+                    {area.postcode}
+                  </span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  {area.description}
+                </p>
+                <div className="flex items-center text-sm text-green-600 dark:text-green-400">
                   <svg
-                    className="w-8 h-8 text-white"
+                    className="w-4 h-4 mr-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
                     />
                   </svg>
+                  <span className="font-medium">45-minute response time</span>
                 </div>
-                <h4 className="text-4xl font-bold mb-2">10+</h4>
-                <p className="text-blue-100 font-medium">Years Experience</p>
               </div>
+            ))}
+          </div>
 
-              <div className="group bg-green-600 p-8 rounded-3xl shadow-lg text-center text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                </div>
-                <h4 className="text-4xl font-bold mb-2">10k+</h4>
-                <p className="text-green-100 font-medium">Happy Customers</p>
-              </div>
+          {/* Coverage Information */}
 
-              <div className="group bg-purple-600 p-8 rounded-3xl shadow-lg text-center text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                </div>
-                <h4 className="text-4xl font-bold mb-2">45min</h4>
-                <p className="text-purple-100 font-medium">Response Time</p>
-              </div>
-
-              <div className="group bg-orange-600 p-8 rounded-3xl shadow-lg text-center text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                </div>
-                <h4 className="text-4xl font-bold mb-2">100%</h4>
-                <p className="text-orange-100 font-medium">Satisfaction</p>
-              </div>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 text-center transition-all duration-300">
+            <div className="flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                Outside Our Main Areas?
+              </h4>
             </div>
+            <p className="text-gray-700 dark:text-gray-300 mb-4 transition-colors duration-300">
+              If you're outside these zones, feel free to contact us to check
+              availability – we prioritise local response but may be able to
+              help or refer you to a trusted colleague.
+            </p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium transition-colors duration-300">
+              We aim to arrive within 45 minutes for emergency callouts in our
+              main service areas.
+            </p>
           </div>
         </div>
       </section>
@@ -429,7 +413,7 @@ export default function HomePage() {
 
       {/* Contact Section */}
       <section
-        className="relative bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 py-12 overflow-hidden"
+        className="relative bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 py-12 overflow-hidden transition-colors duration-500"
         id="contact"
       >
         {/* Background Pattern */}
@@ -604,7 +588,7 @@ export default function HomePage() {
             </div>
 
             {/* Booking Form */}
-            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
+            <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl border border-white/20 dark:border-gray-600/50 transition-colors duration-300">
               <h3 className="text-xl font-semibold text-white mb-4">
                 Book a Service
               </h3>

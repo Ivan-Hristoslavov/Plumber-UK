@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { ThemeToggle } from "../../components/ThemeToggle";
 
 const navigation = [
   {
@@ -216,16 +217,16 @@ export default function AdminLayout({
 
   // If we're on the login page, just render the children
   if (pathname === "/admin/login") {
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
   }
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4" />
-          <p className="text-gray-600 font-medium">Loading Admin Panel...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 dark:border-blue-400 border-t-transparent mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-300 font-medium transition-colors duration-300">Loading Admin Panel...</p>
         </div>
       </div>
     );
@@ -236,8 +237,8 @@ export default function AdminLayout({
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+      return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -250,7 +251,7 @@ export default function AdminLayout({
 
       {/* Fixed Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-all duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -268,6 +269,8 @@ export default function AdminLayout({
             </div>
             <span className="text-white font-bold text-lg">Admin Panel</span>
           </Link>
+          {/* Theme Toggle in Sidebar Header */}
+          <ThemeToggle size="sm" />
           <button
             className="lg:hidden text-white hover:text-gray-200 transition-colors"
             onClick={() => setSidebarOpen(false)}
@@ -299,8 +302,8 @@ export default function AdminLayout({
                   key={item.name}
                   className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
                     isActive
-                      ? "bg-blue-50 text-blue-700 shadow-sm"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 shadow-sm"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                   }`}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
@@ -308,8 +311,8 @@ export default function AdminLayout({
                   <span
                     className={`mr-3 transition-colors ${
                       isActive
-                        ? "text-blue-700"
-                        : "text-gray-400 group-hover:text-gray-600"
+                        ? "text-blue-700 dark:text-blue-300"
+                        : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"
                     }`}
                   >
                     {item.icon}
@@ -325,20 +328,20 @@ export default function AdminLayout({
         </nav>
 
         {/* User section - Fixed at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">PZ</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 Plamen Zhelev
               </p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
             </div>
           </div>
           <button
-            className="w-full flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             onClick={async () => {
               try {
                 await fetch("/api/admin/auth", { method: "DELETE" });
@@ -370,11 +373,11 @@ export default function AdminLayout({
       {/* Main content area with proper margin for fixed sidebar */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-colors duration-300">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             <div className="flex items-center">
               <button
-                className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setSidebarOpen(true)}
               >
                 <svg
@@ -393,7 +396,7 @@ export default function AdminLayout({
               </button>
 
               <div className="ml-4 lg:ml-0">
-                <h1 className="text-lg font-semibold text-gray-900">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {navigation.find((item) => item.href === pathname)?.name ||
                     "Admin Panel"}
                 </h1>
@@ -402,14 +405,17 @@ export default function AdminLayout({
 
             <div className="flex items-center space-x-4">
               <div className="hidden sm:block text-right">
-                <p className="text-sm text-gray-500">Welcome back,</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Welcome back,</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
                   Plamen Zhelev
                 </p>
               </div>
 
+              {/* Theme Toggle in Header */}
+              <ThemeToggle size="md" />
+
               {/* Notifications */}
-              <button className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full relative transition-colors">
+              <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative transition-colors">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -430,15 +436,15 @@ export default function AdminLayout({
         </header>
 
         {/* Quick Actions - Top Navigation */}
-        <div className="bg-white border-b border-gray-200 p-4 sm:p-6 sticky top-16 z-20">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 sticky top-16 z-20 transition-colors duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              className="flex items-center p-4 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+              className="flex items-center p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
               href="/admin/bookings"
             >
-              <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+              <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-blue-600"
+                  className="w-5 h-5 text-blue-600 dark:text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -452,18 +458,18 @@ export default function AdminLayout({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">New Booking</p>
-                <p className="text-xs text-gray-500">Create a new booking</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">New Booking</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Create a new booking</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
+              className="flex items-center p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group"
               href="/admin/invoices"
             >
-              <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+              <div className="p-2 bg-green-100 dark:bg-green-800/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-green-600"
+                  className="w-5 h-5 text-green-600 dark:text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -477,20 +483,20 @@ export default function AdminLayout({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
                   Create Invoice
                 </p>
-                <p className="text-xs text-gray-500">Generate new invoice</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Generate new invoice</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group"
+              className="flex items-center p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group"
               href="/admin/customers"
             >
-              <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+              <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-purple-600"
+                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -504,20 +510,20 @@ export default function AdminLayout({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
                   Add Customer
                 </p>
-                <p className="text-xs text-gray-500">Register new customer</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Register new customer</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors group"
+              className="flex items-center p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group"
               href="/admin/dashboard"
             >
-              <div className="p-2 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-800/50 rounded-lg group-hover:bg-yellow-200 dark:group-hover:bg-yellow-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-yellow-600"
+                  className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -531,17 +537,17 @@ export default function AdminLayout({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
                   View Reports
                 </p>
-                <p className="text-xs text-gray-500">Analytics & insights</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Analytics & insights</p>
               </div>
             </Link>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>

@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Home", href: "#home" },
   { name: "Pricing", href: "#pricing" },
   { name: "About", href: "#about" },
+  { name: "Service Areas", href: "#areas" },
   { name: "FAQ", href: "#faq" },
   { name: "Contact", href: "#contact" },
 ];
@@ -175,6 +177,8 @@ export default function NavigationNavbar() {
     };
 
     window.addEventListener("scroll", handleScrollSpy);
+    // Initial check when component mounts
+    handleScrollSpy();
 
     return () => window.removeEventListener("scroll", handleScrollSpy);
   }, []);
@@ -188,7 +192,12 @@ export default function NavigationNavbar() {
     const element = document.getElementById(targetId);
 
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      // Close mobile menu if open
+      setIsMobileMenuOpen(false);
+      // Scroll to the element with offset for the navbar
+      const yOffset = -80; // Adjust based on your navbar height
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
@@ -272,15 +281,15 @@ export default function NavigationNavbar() {
       <div
         className={`transition-all duration-700 ease-out ${
           isScrolled || hasDayOffBanner
-            ? "bg-white/95 backdrop-blur-xl shadow-2xl py-3 border-b border-blue-100/50"
-            : "bg-white/10 backdrop-blur-sm py-4"
+            ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl py-3 border-b border-blue-100/50 dark:border-gray-700/50"
+            : "bg-white/10 dark:bg-gray-900/10 backdrop-blur-sm py-4"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link
-              className="text-2xl font-bold transition-all duration-500 hover:scale-110 text-blue-600 hover:text-blue-700 drop-shadow-lg"
+              className="text-2xl font-bold transition-all duration-500 hover:scale-110 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 drop-shadow-lg"
               href="/"
             >
               FIX MY LEAK
@@ -293,8 +302,8 @@ export default function NavigationNavbar() {
                   key={item.name}
                   className={`relative px-6 py-3 text-sm font-semibold transition-all duration-500 rounded-full hover:scale-110 transform hover:-translate-y-1 ${
                     activeSection === item.href.substring(1)
-                      ? "text-white bg-blue-600 shadow-lg hover:shadow-xl hover:bg-blue-700"
-                      : "text-blue-600 hover:text-white hover:bg-blue-600 hover:shadow-lg"
+                      ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg hover:shadow-xl hover:bg-blue-700 dark:hover:bg-blue-600"
+                      : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
                   }`}
                   href={item.href}
                   onClick={(e) => handleClick(e, item.href)}
@@ -305,11 +314,16 @@ export default function NavigationNavbar() {
                   )}
                 </Link>
               ))}
+              
+              {/* Theme Toggle */}
+              <div className="ml-2">
+                <ThemeToggle size="md" />
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-3 rounded-full transition-all duration-500 hover:scale-110 transform hover:-translate-y-1 text-blue-600 hover:text-white hover:bg-blue-600 shadow-lg hover:shadow-xl"
+              className="md:hidden p-3 rounded-full transition-all duration-500 hover:scale-110 transform hover:-translate-y-1 text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 shadow-lg hover:shadow-xl"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <svg
@@ -351,14 +365,14 @@ export default function NavigationNavbar() {
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col space-y-3 p-6 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-blue-100/50">
+          <div className="flex flex-col space-y-3 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50">
             {navigation.map((item, index) => (
               <Link
                 key={item.name}
                 className={`px-6 py-4 text-base font-semibold rounded-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 ${
                   activeSection === item.href.substring(1)
-                    ? "text-white bg-blue-600 shadow-lg"
-                    : "text-blue-600 hover:text-white hover:bg-blue-600 hover:shadow-lg"
+                    ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg"
+                    : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
                 }`}
                 href={item.href}
                 style={{ animationDelay: `${index * 0.1}s` }}
@@ -370,6 +384,11 @@ export default function NavigationNavbar() {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Mobile Theme Toggle */}
+            <div className="flex justify-center pt-4 border-t border-blue-100 dark:border-gray-600">
+              <ThemeToggle size="lg" />
+            </div>
           </div>
         </div>
       </div>

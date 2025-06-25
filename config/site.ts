@@ -3,9 +3,41 @@ export type SiteConfig = typeof siteConfig;
 export const siteConfig = {
   name: "FIX MY LEAK",
   description:
-    "Professional plumbing services across the United Kingdom. Available 24/7 for emergency plumbing needs.",
+    "Professional plumbing services across South West London. Emergency plumber covering Clapham, Balham, Chelsea, Battersea, Wandsworth, and Streatham with 45-minute response times.",
   links: {
-    phone: "0800 123 4567",
-    email: "info@plumbe-uk.com",
+    phone: "07476 746635",
+    email: "info@fixmyleak.co.uk",
   },
+  areas: [
+    {
+      name: "Clapham",
+      slug: "clapham",
+      postcode: "SW4"
+    },
+    {
+      name: "Balham", 
+      slug: "balham",
+      postcode: "SW12"
+    },
+    {
+      name: "Chelsea",
+      slug: "chelsea", 
+      postcode: "SW3"
+    },
+    {
+      name: "Battersea",
+      slug: "battersea",
+      postcode: "SW8"
+    },
+    {
+      name: "Wandsworth",
+      slug: "wandsworth",
+      postcode: "SW18"
+    },
+    {
+      name: "Streatham",
+      slug: "streatham",
+      postcode: "SW16"
+    }
+  ],
 };

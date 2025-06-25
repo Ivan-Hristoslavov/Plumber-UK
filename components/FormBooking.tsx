@@ -197,7 +197,7 @@ export function FormBooking() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="group">
           <label
-            className="block text-xs font-semibold text-white mb-1"
+            className="block text-xs font-semibold text-white dark:text-gray-200 mb-1"
             htmlFor="name"
           >
             Full Name *

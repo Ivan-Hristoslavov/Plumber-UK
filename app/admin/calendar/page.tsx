@@ -86,26 +86,26 @@ export default function CalendarPage() {
   const getStatusColor = (status: Booking["status"]) => {
     switch (status) {
       case "scheduled":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-300";
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-800/50 text-green-800 dark:text-green-300";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
     }
   };
 
   const getPaymentStatusColor = (status: Booking["payment_status"]) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-800/50 text-green-800 dark:text-green-300";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-300";
       case "refunded":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
     }
   };
 
@@ -135,8 +135,8 @@ export default function CalendarPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-          <span className="ml-2 text-gray-600">Loading calendar...</span>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-primary-light" />
+          <span className="ml-2 text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading calendar...</span>
         </div>
       </div>
     );
@@ -145,10 +145,10 @@ export default function CalendarPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-colors duration-300">
           <div className="flex">
             <svg
-              className="h-5 w-5 text-red-400"
+              className="h-5 w-5 text-red-400 dark:text-red-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -161,12 +161,12 @@ export default function CalendarPage() {
               />
             </svg>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300 transition-colors duration-300">
                 Error loading calendar
               </h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-400 transition-colors duration-300">{error}</p>
               <button
-                className="mt-2 text-sm text-red-800 hover:text-red-900 underline"
+                className="mt-2 text-sm text-red-800 dark:text-red-300 hover:text-red-900 dark:hover:text-red-200 underline transition-colors duration-300"
                 onClick={loadBookings}
               >
                 Try again
@@ -183,23 +183,23 @@ export default function CalendarPage() {
       {/* Calendar Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Calendar</h1>
           <div className="flex space-x-2">
             <button
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                 view === "week"
                   ? "bg-primary text-white"
-                  : "bg-white text-gray-600"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
               }`}
               onClick={() => setView("week")}
             >
               Week
             </button>
             <button
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                 view === "day"
                   ? "bg-primary text-white"
-                  : "bg-white text-gray-600"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
               }`}
               onClick={() => setView("day")}
             >
@@ -208,7 +208,7 @@ export default function CalendarPage() {
           </div>
           <div className="flex items-center space-x-4">
             <select
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -232,27 +232,27 @@ export default function CalendarPage() {
             </select>
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-yellow-100 rounded border border-yellow-200" />
-                <span className="text-gray-600">Pending</span>
+                <div className="w-3 h-3 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
+                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Pending</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-100 rounded border border-blue-200" />
-                <span className="text-gray-600">Scheduled</span>
+                <div className="w-3 h-3 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
+                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Scheduled</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-100 rounded border border-green-200" />
-                <span className="text-gray-600">Completed</span>
+                <div className="w-3 h-3 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
+                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Completed</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-100 rounded border border-red-200" />
-                <span className="text-gray-600">Cancelled</span>
+                <div className="w-3 h-3 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
+                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Cancelled</span>
               </div>
             </div>
           </div>
         </div>
         <div className="flex items-center space-x-4">
           <button
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
             onClick={() =>
               setSelectedDate(
                 format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd")
@@ -273,12 +273,12 @@ export default function CalendarPage() {
               />
             </svg>
           </button>
-          <span className="text-lg font-medium">
+          <span className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
             {format(weekStart, "MMM d")} -{" "}
             {format(addDays(weekStart, 6), "MMM d, yyyy")}
           </span>
           <button
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
             onClick={() =>
               setSelectedDate(
                 format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd")
@@ -300,13 +300,13 @@ export default function CalendarPage() {
             </svg>
           </button>
           <button
-            className="px-3 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors"
+            className="px-3 py-2 text-sm font-medium text-primary dark:text-primary-light border border-primary dark:border-primary-light rounded-lg hover:bg-primary hover:text-white dark:hover:bg-primary-light/20 transition-colors duration-300"
             onClick={() => setSelectedDate(format(new Date(), "yyyy-MM-dd"))}
           >
             Today
           </button>
           <button
-            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300 transition-colors duration-300"
             disabled={loading}
             title="Refresh calendar"
             onClick={loadBookings}
@@ -329,19 +329,19 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-300">
         {/* Time slots header */}
-        <div className="grid grid-cols-8 border-b">
-          <div className="p-4 border-r" />
+        <div className="grid grid-cols-8 border-b dark:border-gray-700 transition-colors duration-300">
+          <div className="p-4 border-r dark:border-gray-700 transition-colors duration-300" />
           {weekDays.map((day) => (
             <div
               key={day.toString()}
-              className={`p-4 text-center border-r ${
-                isSameDay(day, new Date()) ? "bg-primary/5" : ""
+              className={`p-4 text-center border-r dark:border-gray-700 transition-colors duration-300 ${
+                isSameDay(day, new Date()) ? "bg-primary/5 dark:bg-primary/20" : ""
               }`}
             >
-              <div className="font-medium">{format(day, "EEE")}</div>
-              <div className="text-sm text-gray-500">
+              <div className="font-medium dark:text-white transition-colors duration-300">{format(day, "EEE")}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                 {format(day, "MMM d")}
               </div>
             </div>
@@ -350,8 +350,8 @@ export default function CalendarPage() {
 
         {/* Time slots - Show only working hours (8 AM to 6 PM) */}
         {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
-          <div key={hour} className="grid grid-cols-8 border-b last:border-b-0">
-            <div className="p-4 border-r text-sm text-gray-500">
+          <div key={hour} className="grid grid-cols-8 border-b dark:border-gray-700 last:border-b-0 transition-colors duration-300">
+            <div className="p-4 border-r dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
               {format(new Date().setHours(hour, 0), "HH:00")}
             </div>
             {weekDays.map((day) => {
@@ -362,30 +362,30 @@ export default function CalendarPage() {
               return (
                 <div
                   key={day.toString()}
-                  className="p-2 border-r min-h-[100px] relative"
+                  className="p-2 border-r dark:border-gray-700 min-h-[100px] relative transition-colors duration-300"
                 >
                   {bookings.length > 0 && (
                     <>
                       <button
                         key={bookings[0].id}
-                        className={`w-full p-2 mb-2 text-left rounded-lg transition-colors ${
+                        className={`w-full p-2 mb-2 text-left rounded-lg transition-colors duration-300 ${
                           bookings[0].status === "completed"
-                            ? "bg-green-50 hover:bg-green-100 border border-green-200"
+                            ? "bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800"
                             : bookings[0].status === "cancelled"
-                              ? "bg-red-50 hover:bg-red-100 border border-red-200"
+                              ? "bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800"
                               : bookings[0].status === "pending"
-                                ? "bg-yellow-50 hover:bg-yellow-100 border border-yellow-200"
-                                : "bg-blue-50 hover:bg-blue-100 border border-blue-200"
+                                ? "bg-yellow-50 dark:bg-yellow-900/30 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800"
+                                : "bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
                         }`}
                         onClick={() => setSelectedBooking(bookings[0])}
                       >
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium dark:text-white transition-colors duration-300">
                           {bookings[0].customer_name}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {bookings[0].service}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {bookings[0].time}
                         </div>
                         <div className="flex space-x-1 mt-1">
@@ -403,7 +403,7 @@ export default function CalendarPage() {
                       </button>
                       {bookings.length > 1 && (
                         <button
-                          className="w-full p-1 text-xs text-center rounded bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                          className="w-full p-1 text-xs text-center rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300"
                           onClick={() => setMultiSlotBookings(bookings)}
                         >
                           +{bookings.length - 1} more
@@ -420,13 +420,13 @@ export default function CalendarPage() {
 
       {/* Booking Details Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full transition-colors duration-300">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold">Booking Details</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Booking Details</h2>
                 <button
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors duration-300"
                   onClick={() => setSelectedBooking(null)}
                 >
                   <svg
@@ -446,67 +446,67 @@ export default function CalendarPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                     Customer
                   </label>
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                     {selectedBooking.customer_name}
                   </div>
                   {selectedBooking.customer_email && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                       {selectedBooking.customer_email}
                     </div>
                   )}
                   {selectedBooking.customer_phone && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                       {selectedBooking.customer_phone}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                     Service
                   </label>
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                     {selectedBooking.service}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Date
                     </label>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                       {format(parseISO(selectedBooking.date), "MMM dd, yyyy")}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Time
                     </label>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                       {selectedBooking.time}
                     </div>
                   </div>
                 </div>
                 {selectedBooking.address && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Address
                     </label>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                       {selectedBooking.address}
                     </div>
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Status
                     </label>
                     <div className="mt-1">
                       <select
-                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
                         value={selectedBooking.status}
                         onChange={(e) =>
                           updateBookingStatus(
@@ -523,7 +523,7 @@ export default function CalendarPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment
                     </label>
                     <div className="mt-1">
@@ -536,19 +536,19 @@ export default function CalendarPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                     Amount
                   </label>
-                  <div className="mt-1 text-gray-900">
+                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
                     £{selectedBooking.amount.toFixed(2)}
                   </div>
                 </div>
                 {selectedBooking.notes && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Notes
                     </label>
-                    <div className="mt-1 text-gray-900 bg-gray-50 p-2 rounded text-sm">
+                    <div className="mt-1 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm transition-colors duration-300">
                       {selectedBooking.notes}
                     </div>
                   </div>
@@ -556,7 +556,7 @@ export default function CalendarPage() {
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
                   onClick={() => setSelectedBooking(null)}
                 >
                   Close
@@ -570,12 +570,12 @@ export default function CalendarPage() {
       {/* Multi-booking Modal */}
       {multiSlotBookings && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full transition-colors duration-300">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold">Bookings for this slot</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Bookings for this slot</h2>
                 <button
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors duration-300"
                   onClick={() => setMultiSlotBookings(null)}
                 >
                   <svg
@@ -597,17 +597,17 @@ export default function CalendarPage() {
                 {multiSlotBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="border rounded p-3 mb-2 bg-gray-50"
+                    className="border dark:border-gray-700 rounded p-3 mb-2 bg-gray-50 dark:bg-gray-700 transition-colors duration-300"
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="font-medium">
+                        <div className="font-medium text-gray-900 dark:text-white transition-colors duration-300">
                           {booking.customer_name}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {booking.service}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {booking.time}
                         </div>
                         <div className="flex space-x-1 mt-1">
@@ -624,7 +624,7 @@ export default function CalendarPage() {
                         </div>
                       </div>
                       <button
-                        className="ml-2 px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary-dark"
+                        className="ml-2 px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary-dark transition-colors duration-300"
                         onClick={() => {
                           setSelectedBooking(booking);
                           setMultiSlotBookings(null);
@@ -638,7 +638,7 @@ export default function CalendarPage() {
               </div>
               <div className="mt-6 flex justify-end">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
                   onClick={() => setMultiSlotBookings(null)}
                 >
                   Close
