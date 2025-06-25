@@ -22,12 +22,12 @@ type Booking = {
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(
-    format(new Date(), "yyyy-MM-dd"),
+    format(new Date(), "yyyy-MM-dd")
   );
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [view, setView] = useState<"week" | "day">("week");
   const [multiSlotBookings, setMultiSlotBookings] = useState<Booking[] | null>(
-    null,
+    null
   );
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,12 +71,12 @@ export default function CalendarPage() {
 
   const getBookingsForDate = (date: Date) => {
     let filteredBookings = bookings.filter((booking) =>
-      isSameDay(parseISO(booking.date), date),
+      isSameDay(parseISO(booking.date), date)
     );
 
     if (statusFilter !== "all") {
       filteredBookings = filteredBookings.filter(
-        (booking) => booking.status === statusFilter,
+        (booking) => booking.status === statusFilter
       );
     }
 
@@ -255,7 +255,7 @@ export default function CalendarPage() {
             className="p-2 rounded-lg hover:bg-gray-100"
             onClick={() =>
               setSelectedDate(
-                format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd"),
+                format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd")
               )
             }
           >
@@ -281,7 +281,7 @@ export default function CalendarPage() {
             className="p-2 rounded-lg hover:bg-gray-100"
             onClick={() =>
               setSelectedDate(
-                format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd"),
+                format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd")
               )
             }
           >
@@ -356,7 +356,7 @@ export default function CalendarPage() {
             </div>
             {weekDays.map((day) => {
               const bookings = getBookingsForDate(day).filter(
-                (booking) => parseInt(booking.time.split(":")[0]) === hour,
+                (booking) => parseInt(booking.time.split(":")[0]) === hour
               );
 
               return (
@@ -511,7 +511,7 @@ export default function CalendarPage() {
                         onChange={(e) =>
                           updateBookingStatus(
                             selectedBooking.id,
-                            e.target.value,
+                            e.target.value
                           )
                         }
                       >

@@ -778,7 +778,7 @@ export default function BookingsPage() {
                     <p className="text-sm text-gray-900">
                       {format(
                         parseISO(selectedBooking.date),
-                        "EEEE, MMMM d, yyyy",
+                        "EEEE, MMMM d, yyyy"
                       )}{" "}
                       at {selectedBooking.time}
                     </p>

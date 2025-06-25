@@ -81,7 +81,7 @@ export default function InvoicesPage() {
     invoice_date: format(new Date(), "yyyy-MM-dd"),
     due_date: format(
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      "yyyy-MM-dd",
+      "yyyy-MM-dd"
     ), // 30 days from now
     notes: "",
   });
@@ -137,10 +137,10 @@ export default function InvoicesPage() {
 
     try {
       const selectedBooking = bookings.find(
-        (b) => b.id === newInvoice.booking_id,
+        (b) => b.id === newInvoice.booking_id
       );
       const selectedCustomer = customers.find(
-        (c) => c.id === newInvoice.customer_id,
+        (c) => c.id === newInvoice.customer_id
       );
 
       if (!selectedBooking || !selectedCustomer) {
@@ -188,7 +188,7 @@ export default function InvoicesPage() {
           invoice_date: format(new Date(), "yyyy-MM-dd"),
           due_date: format(
             new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            "yyyy-MM-dd",
+            "yyyy-MM-dd"
           ),
           notes: "",
         });
@@ -227,7 +227,7 @@ export default function InvoicesPage() {
   const filteredBookings = newInvoice.customer_id
     ? bookings.filter(
         (b) =>
-          b.customer_id === newInvoice.customer_id && b.status === "completed",
+          b.customer_id === newInvoice.customer_id && b.status === "completed"
       )
     : [];
 
@@ -268,7 +268,7 @@ export default function InvoicesPage() {
     doc.text(
       `Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`,
       40,
-      y + 36,
+      y + 36
     );
 
     // Company Details
@@ -693,7 +693,7 @@ export default function InvoicesPage() {
                     <p className="font-medium">
                       {format(
                         new Date(selectedInvoice.invoice_date),
-                        "dd/MM/yyyy",
+                        "dd/MM/yyyy"
                       )}
                     </p>
                   </div>
@@ -703,7 +703,7 @@ export default function InvoicesPage() {
                       {selectedInvoice.due_date
                         ? format(
                             new Date(selectedInvoice.due_date),
-                            "dd/MM/yyyy",
+                            "dd/MM/yyyy"
                           )
                         : "N/A"}
                     </p>
@@ -974,16 +974,16 @@ export default function InvoicesPage() {
                   </h3>
                   {(() => {
                     const selectedBooking = bookings.find(
-                      (b) => b.id === newInvoice.booking_id,
+                      (b) => b.id === newInvoice.booking_id
                     );
 
                     if (!selectedBooking) return null;
 
                     const subtotal = Number(
-                      (selectedBooking.amount / 1.2).toFixed(2),
+                      (selectedBooking.amount / 1.2).toFixed(2)
                     );
                     const vatAmount = Number(
-                      (selectedBooking.amount - subtotal).toFixed(2),
+                      (selectedBooking.amount - subtotal).toFixed(2)
                     );
 
                     return (

@@ -116,7 +116,7 @@ export default function DayOffPage() {
       if (result.error) {
         console.error("Supabase error saving settings:", result.error);
         throw new Error(
-          `Failed to save Day Off settings: ${result.error.message}`,
+          `Failed to save Day Off settings: ${result.error.message}`
         );
       }
 
@@ -512,7 +512,7 @@ export default function DayOffPage() {
                           <p className="text-sm text-yellow-700 mt-1">
                             {settings.startDate &&
                               `From: ${new Date(
-                                settings.startDate,
+                                settings.startDate
                               ).toLocaleDateString("en-GB", {
                                 weekday: "long",
                                 year: "numeric",
@@ -522,7 +522,7 @@ export default function DayOffPage() {
                             {settings.startDate && settings.endDate && <br />}
                             {settings.endDate &&
                               `Until: ${new Date(
-                                settings.endDate,
+                                settings.endDate
                               ).toLocaleDateString("en-GB", {
                                 weekday: "long",
                                 year: "numeric",

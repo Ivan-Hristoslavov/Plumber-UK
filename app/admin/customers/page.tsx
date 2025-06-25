@@ -35,11 +35,11 @@ type Customer = {
 
 export default function CustomersPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null,
+    null
   );
   const [showAddModal, setShowAddModal] = useState(false);
   const [addType, setAddType] = useState<"individual" | "company">(
-    "individual",
+    "individual"
   );
   const [newCustomer, setNewCustomer] = useState({
     name: "",

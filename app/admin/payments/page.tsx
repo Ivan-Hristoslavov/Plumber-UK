@@ -55,7 +55,7 @@ export default function PaymentsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPaymentLinkModal, setShowPaymentLinkModal] = useState(false);
   const [processingPayment, setProcessingPayment] = useState<string | null>(
-    null,
+    null
   );
 
   const [filters, setFilters] = useState({
@@ -200,7 +200,7 @@ export default function PaymentsPage() {
 
           if (
             confirm(
-              `${message}\n\nWould you like to open the payment link in a new tab?`,
+              `${message}\n\nWould you like to open the payment link in a new tab?`
             )
           ) {
             window.open(data.checkout_url, "_blank");
@@ -616,7 +616,7 @@ export default function PaymentsPage() {
                       {payment.bookings?.date
                         ? format(
                             new Date(payment.bookings.date),
-                            "MMM dd, yyyy",
+                            "MMM dd, yyyy"
                           )
                         : ""}
                     </div>
@@ -729,7 +729,7 @@ export default function PaymentsPage() {
                   value={newPayment.booking_id}
                   onChange={(e) => {
                     const booking = filteredBookings.find(
-                      (b) => b.id === e.target.value,
+                      (b) => b.id === e.target.value
                     );
 
                     setNewPayment((prev) => ({
@@ -932,7 +932,7 @@ export default function PaymentsPage() {
                   value={paymentLink.booking_id}
                   onChange={(e) => {
                     const booking = filteredBookingsForLink.find(
-                      (b) => b.id === e.target.value,
+                      (b) => b.id === e.target.value
                     );
 
                     setPaymentLink((prev) => ({
@@ -1088,7 +1088,7 @@ export default function PaymentsPage() {
                   <p className="text-sm text-gray-900">
                     {format(
                       new Date(selectedPayment.payment_date),
-                      "MMM dd, yyyy",
+                      "MMM dd, yyyy"
                     )}
                   </p>
                 </div>
@@ -1124,7 +1124,7 @@ export default function PaymentsPage() {
                   <p className="text-sm text-gray-500">
                     {format(
                       new Date(selectedPayment.bookings.date),
-                      "MMM dd, yyyy",
+                      "MMM dd, yyyy"
                     )}
                   </p>
                 </div>
