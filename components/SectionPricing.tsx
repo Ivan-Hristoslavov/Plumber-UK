@@ -85,9 +85,12 @@ const additionalServices = [
 
 export function SectionPricing() {
   return (
-    <section className="relative py-24 overflow-hidden" id="pricing">
+    <section
+      className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500"
+      id="pricing"
+    >
       {/* Background with gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full" />
         <div className="absolute top-40 right-20 w-24 h-24 bg-purple-500 rounded-full" />
@@ -98,7 +101,7 @@ export function SectionPricing() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-800 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
             <svg
               className="w-4 h-4 mr-2"
               fill="none"
@@ -114,10 +117,10 @@ export function SectionPricing() {
             </svg>
             Transparent Pricing
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             FixMyLeak - Professional Rates
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Clear, competitive pricing with no hidden fees. Choose the service
             that best fits your needs.
           </p>
@@ -126,7 +129,7 @@ export function SectionPricing() {
         {/* Enhanced Pricing Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 justify-center max-w-6xl mx-auto mb-16">
           {/* Card 1: Call-out & Hourly Labour Rates */}
-          <div className="group relative bg-white rounded-3xl shadow-xl border border-gray-200 p-10 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
+          <div className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-600 p-10 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-yellow-100 to-orange-100 rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-500" />
@@ -150,96 +153,96 @@ export function SectionPricing() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                     Call-out & Hourly Labour Rates
                   </h3>
-                  <p className="text-blue-600 font-medium">
+                  <p className="text-blue-600 dark:text-blue-400 font-medium">
                     Flexible hourly bookings
                   </p>
                 </div>
               </div>
 
               {/* Enhanced Table */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 mb-6">
+              <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6 mb-6">
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="py-3 pr-4 font-bold text-gray-900 text-left">
+                      <tr className="border-b border-gray-200 dark:border-gray-500">
+                        <th className="py-3 pr-4 font-bold text-gray-900 dark:text-white text-left">
                           Day & Time
                         </th>
-                        <th className="py-3 pr-4 font-bold text-gray-900 text-left">
+                        <th className="py-3 pr-4 font-bold text-gray-900 dark:text-white text-left">
                           Call-out Fee
                         </th>
-                        <th className="py-3 font-bold text-gray-900 text-left">
+                        <th className="py-3 font-bold text-gray-900 dark:text-white text-left">
                           Labour Rate
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Mon-Fri 08:00-18:00
                         </td>
-                        <td className="py-3 pr-4 text-green-600 font-bold">
+                        <td className="py-4 pr-4 text-green-600 dark:text-green-400 font-bold text-lg transition-colors duration-300">
                           £80
                         </td>
-                        <td className="py-3 text-blue-600 font-bold">
+                        <td className="py-4 text-blue-600 dark:text-blue-400 font-bold text-lg transition-colors duration-300">
                           £60-£80
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Mon-Fri 18:00-08:00
                         </td>
-                        <td className="py-3 pr-4 text-orange-600 font-bold">
+                        <td className="py-4 pr-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £110
                         </td>
-                        <td className="py-3 text-purple-600 font-bold">
+                        <td className="py-4 text-purple-600 dark:text-purple-400 font-bold text-lg transition-colors duration-300">
                           £100-£120
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Saturday 08:00-18:00
                         </td>
-                        <td className="py-3 pr-4 text-orange-600 font-bold">
+                        <td className="py-4 pr-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £110
                         </td>
-                        <td className="py-3 text-blue-600 font-bold">
+                        <td className="py-4 text-blue-600 dark:text-blue-400 font-bold text-lg transition-colors duration-300">
                           £80-£100
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Saturday 18:00-08:00
                         </td>
-                        <td className="py-3 pr-4 text-red-600 font-bold">
+                        <td className="py-4 pr-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £130
                         </td>
-                        <td className="py-3 text-purple-600 font-bold">
+                        <td className="py-4 text-purple-600 dark:text-purple-400 font-bold text-lg transition-colors duration-300">
                           £100-£120
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Sunday (All day)
                         </td>
-                        <td className="py-3 pr-4 text-red-600 font-bold">
+                        <td className="py-4 pr-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £140
                         </td>
-                        <td className="py-3 text-purple-600 font-bold">
+                        <td className="py-4 text-purple-600 dark:text-purple-400 font-bold text-lg transition-colors duration-300">
                           £100-£130
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-3 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Bank Holidays (All day)
                         </td>
-                        <td className="py-3 pr-4 text-red-700 font-bold">
+                        <td className="py-4 pr-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £150
                         </td>
-                        <td className="py-3 text-red-600 font-bold">
+                        <td className="py-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £120-£140
                         </td>
                       </tr>
@@ -250,7 +253,7 @@ export function SectionPricing() {
 
               {/* Features */}
               <div className="space-y-3 mb-6">
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
                     className="w-4 h-4 mr-3 text-green-500"
                     fill="currentColor"
@@ -266,7 +269,7 @@ export function SectionPricing() {
                     Perfect for urgent repairs and smaller jobs
                   </span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
                     className="w-4 h-4 mr-3 text-green-500"
                     fill="currentColor"
@@ -282,7 +285,7 @@ export function SectionPricing() {
                     24/7 emergency availability
                   </span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
                     className="w-4 h-4 mr-3 text-green-500"
                     fill="currentColor"
@@ -303,15 +306,15 @@ export function SectionPricing() {
           </div>
 
           {/* Card 2: Full-Day Booking Rates */}
-          <div className="group relative bg-white rounded-3xl shadow-xl border border-gray-200 p-10 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
+          <div className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-10 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
             {/* Background Pattern */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-100 to-blue-100 rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-500" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-500" />
 
             <div className="relative z-10">
               {/* Header with Icon */}
               <div className="flex items-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mr-4 group-hover:rotate-12 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 dark:from-orange-400 dark:to-red-500 rounded-2xl flex items-center justify-center mr-4 group-hover:rotate-12 transition-all duration-300">
                   <svg
                     className="w-8 h-8 text-white"
                     fill="none"
@@ -327,51 +330,51 @@ export function SectionPricing() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
                     Full-Day Booking Rates
                   </h3>
-                  <p className="text-orange-600 font-medium">
+                  <p className="text-orange-600 dark:text-orange-400 font-medium transition-colors duration-300">
                     Better value for larger projects
                   </p>
                 </div>
               </div>
 
               {/* Enhanced Table */}
-              <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl p-6 mb-6">
+              <div className="bg-gradient-to-br from-gray-50 to-orange-50 dark:from-gray-800 dark:to-orange-900/20 rounded-2xl p-6 mb-6 transition-all duration-300">
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="py-3 pr-4 font-bold text-gray-900 text-left">
+                      <tr className="border-b border-gray-200 dark:border-gray-600">
+                        <th className="py-3 pr-4 font-bold text-gray-900 dark:text-white text-left transition-colors duration-300">
                           Day
                         </th>
-                        <th className="py-3 font-bold text-gray-900 text-left">
+                        <th className="py-3 font-bold text-gray-900 dark:text-white text-left transition-colors duration-300">
                           Full-Day Rate (Approx. 8h)
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-4 pr-4 font-medium text-gray-800">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Mon-Fri
                         </td>
-                        <td className="py-4 text-green-600 font-bold text-lg">
+                        <td className="py-4 text-green-600 dark:text-green-400 font-bold text-lg transition-colors duration-300">
                           £480 - £520
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-4 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Saturday
                         </td>
-                        <td className="py-4 text-orange-600 font-bold text-lg">
+                        <td className="py-4 text-orange-600 dark:text-orange-400 font-bold text-lg transition-colors duration-300">
                           £600 - £750
                         </td>
                       </tr>
-                      <tr className="hover:bg-white/50 transition-colors">
-                        <td className="py-4 pr-4 font-medium text-gray-800">
+                      <tr className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-4 pr-4 font-medium text-gray-800 dark:text-gray-200 transition-colors duration-300">
                           Sunday / Bank Holiday
                         </td>
-                        <td className="py-4 text-red-600 font-bold text-lg">
+                        <td className="py-4 text-red-600 dark:text-red-400 font-bold text-lg transition-colors duration-300">
                           £750 - £950
                         </td>
                       </tr>
@@ -382,9 +385,9 @@ export function SectionPricing() {
 
               {/* Features */}
               <div className="space-y-3 mb-6">
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
-                    className="w-4 h-4 mr-3 text-green-500"
+                    className="w-4 h-4 mr-3 text-green-500 dark:text-green-400 transition-colors duration-300"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -398,9 +401,9 @@ export function SectionPricing() {
                     Ideal for larger projects and planned maintenance
                   </span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
-                    className="w-4 h-4 mr-3 text-green-500"
+                    className="w-4 h-4 mr-3 text-green-500 dark:text-green-400 transition-colors duration-300"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -414,9 +417,9 @@ export function SectionPricing() {
                     Up to 30% savings compared to hourly rates
                   </span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                   <svg
-                    className="w-4 h-4 mr-3 text-green-500"
+                    className="w-4 h-4 mr-3 text-green-500 dark:text-green-400 transition-colors duration-300"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -436,9 +439,9 @@ export function SectionPricing() {
         </div>
 
         {/* Enhanced Explanatory Text */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 max-w-4xl mx-auto">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 max-w-4xl mx-auto transition-all duration-300">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 dark:from-yellow-400 dark:to-orange-400 rounded-xl flex items-center justify-center mr-4 transition-all duration-300">
               <svg
                 className="w-6 h-6 text-white"
                 fill="none"
@@ -453,16 +456,16 @@ export function SectionPricing() {
                 />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
               Important Information
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 dark:text-gray-300 transition-colors duration-300">
             <div className="space-y-4">
               <div className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0"
+                  className="w-5 h-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -481,7 +484,7 @@ export function SectionPricing() {
               </div>
               <div className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0"
+                  className="w-5 h-5 text-green-500 dark:text-green-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -502,7 +505,7 @@ export function SectionPricing() {
             <div className="space-y-4">
               <div className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-purple-500 mr-3 mt-0.5 flex-shrink-0"
+                  className="w-5 h-5 text-purple-500 dark:text-purple-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -521,7 +524,7 @@ export function SectionPricing() {
               </div>
               <div className="flex items-start">
                 <svg
-                  className="w-5 h-5 text-orange-500 mr-3 mt-0.5 flex-shrink-0"
+                  className="w-5 h-5 text-orange-500 dark:text-orange-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -541,8 +544,8 @@ export function SectionPricing() {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-            <p className="text-center text-gray-700 font-medium">
+          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-100 dark:border-blue-800 transition-all duration-300">
+            <p className="text-center text-gray-700 dark:text-gray-300 font-medium transition-colors duration-300">
               All prices are set based on average rates in{" "}
               <strong>South West London</strong> and remain competitive and
               fair.

@@ -241,15 +241,15 @@ export default function PaymentsPage() {
   const getStatusColor = (status: Payment["payment_status"]) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-800/50 text-green-800 dark:text-green-300";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-300";
       case "refunded":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-300";
       case "failed":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
     }
   };
 
@@ -367,101 +367,150 @@ export default function PaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-primary-light" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-        <div className="flex space-x-3">
-          <button
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-            onClick={() => setShowPaymentLinkModal(true)}
-          >
-            Send Payment Link
-          </button>
-          <button
-            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark"
-            onClick={() => setShowCreateModal(true)}
-          >
-            Record Payment
-          </button>
-        </div>
-      </div>
-
-      {/* Financial Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">
-                £{financialSummary.totalRevenue.toFixed(2)}
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Payments</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+              Manage and track all payment transactions.
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              onClick={() => setShowPaymentLinkModal(true)}
+            >
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-4 h-4 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                 />
               </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Pending Payments
-              </p>
-              <p className="text-2xl font-bold text-gray-900">
-                £{financialSummary.pendingPayments.toFixed(2)}
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
+              Create Payment Link
+            </button>
+            <button
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              onClick={() => setShowCreateModal(true)}
+            >
               <svg
-                className="w-6 h-6 text-yellow-600"
+                className="w-4 h-4 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                 />
               </svg>
+              Record Payment
+            </button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                  Status
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  value={filters.status}
+                  onChange={(e) =>
+                    setFilters({ ...filters, status: e.target.value })
+                  }
+                >
+                  <option value="all">All</option>
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                  <option value="refunded">Refunded</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                  Payment Method
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  value={filters.paymentMethod}
+                  onChange={(e) =>
+                    setFilters({ ...filters, paymentMethod: e.target.value })
+                  }
+                >
+                  <option value="all">All</option>
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex-1 md:max-w-sm">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                Search
+              </label>
+              <div className="relative">
+                <input
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  placeholder="Search by reference or customer..."
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) =>
+                    setFilters({ ...filters, search: e.target.value })
+                  }
+                />
+                <svg
+                  className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                 Total Payments
               </p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
                 {financialSummary.totalPayments}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full transition-colors duration-300">
               <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -477,19 +526,19 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                 Average Transaction
               </p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
                 £{financialSummary.averageTransaction.toFixed(2)}
               </p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-full">
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full transition-colors duration-300">
               <svg
-                className="w-6 h-6 text-purple-600"
+                className="w-6 h-6 text-purple-600 dark:text-purple-400 transition-colors duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -506,513 +555,482 @@ export default function PaymentsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-              value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value }))
-              }
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="paid">Paid</option>
-              <option value="refunded">Refunded</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Method
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-              value={filters.paymentMethod}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  paymentMethod: e.target.value,
-                }))
-              }
-            >
-              <option value="all">All Methods</option>
-              <option value="card">Card</option>
-              <option value="cash">Cash</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="cheque">Cheque</option>
-            </select>
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search
-            </label>
-            <input
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Search by customer name or reference..."
-              type="text"
-              value={filters.search}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, search: e.target.value }))
-              }
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Payments Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Service
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Method
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Reference
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPayments.map((payment) => (
-                <tr key={payment.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {payment.customers?.name || "Unknown Customer"}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {payment.customers?.email || ""}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {payment.bookings?.service || "N/A"}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {payment.bookings?.date
-                        ? format(
-                            new Date(payment.bookings.date),
-                            "MMM dd, yyyy"
-                          )
-                        : ""}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    £{payment.amount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {getPaymentMethodIcon(payment.payment_method)}
-                      <span className="ml-2 text-sm text-gray-900 capitalize">
-                        {payment.payment_method.replace("_", " ")}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.payment_status)}`}
-                    >
-                      {payment.payment_status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(payment.payment_date), "MMM dd, yyyy")}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {payment.reference || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      className="text-primary hover:text-primary-dark"
-                      onClick={() => setSelectedPayment(payment)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Create Payment Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Record Payment
-              </h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400" />
+            <span className="ml-3 text-gray-600 dark:text-gray-400 transition-colors duration-300">Loading payments...</span>
+          </div>
+        ) : payments.length === 0 ? (
+          <div className="text-center py-12">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 transition-colors duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">No payments found</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+              Get started by recording a new payment.
+            </p>
+            <div className="mt-6">
               <button
-                className="text-gray-400 hover:text-gray-600"
-                onClick={() => setShowCreateModal(false)}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                onClick={() => setShowCreateModal(true)}
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-4 h-4 mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M6 18L18 6M6 6l12 12"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
                   />
                 </svg>
+                Record Payment
               </button>
             </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+              <thead className="bg-gray-50 dark:bg-gray-700/50 transition-colors duration-300">
+                <tr>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Reference
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Customer
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Amount
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Method
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Status
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Date
+                  </th>
+                  <th
+                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    scope="col"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                {payments.map((payment) => (
+                  <tr
+                    key={payment.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                      {payment.reference || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      {payment.customers?.name || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white transition-colors duration-300">
+                      £{payment.amount.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      <div className="flex items-center">
+                        <span className="mr-2">{getPaymentMethodIcon(payment.payment_method)}</span>
+                        <span className="capitalize">{payment.payment_method.replace("_", " ")}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                          payment.payment_status
+                        )}`}
+                      >
+                        <span className="capitalize">{payment.payment_status}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      {format(new Date(payment.payment_date), "dd MMM yyyy")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <button
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 transition-colors duration-300"
+                        onClick={() => setSelectedPayment(payment)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-            {formError && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                {formError}
+      {/* Create Payment Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
+              onClick={() => setShowCreateModal(false)}
+            />
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
+                  Record New Payment
+                </h3>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Customer
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      value={newPayment.customer_id}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          customer_id: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select a customer</option>
+                      {customers.map((customer) => (
+                        <option key={customer.id} value={customer.id}>
+                          {customer.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking (Optional)
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      value={newPayment.booking_id}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          booking_id: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select a booking</option>
+                      {bookings
+                        .filter(
+                          (booking) =>
+                            booking.customer_id === newPayment.customer_id
+                        )
+                        .map((booking) => (
+                          <option key={booking.id} value={booking.id}>
+                            {booking.service} - {format(new Date(booking.date), "dd MMM yyyy")}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Amount
+                    </label>
+                    <div className="relative mt-1 rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm transition-colors duration-300">£</span>
+                      </div>
+                      <input
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={newPayment.amount}
+                        onChange={(e) =>
+                          setNewPayment({
+                            ...newPayment,
+                            amount: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Payment Method
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      value={newPayment.payment_method}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          payment_method: e.target.value as any,
+                        })
+                      }
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="cheque">Cheque</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Payment Date
+                    </label>
+                    <input
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="date"
+                      value={newPayment.payment_date}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          payment_date: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Reference (Optional)
+                    </label>
+                    <input
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      value={newPayment.reference}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          reference: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Notes (Optional)
+                    </label>
+                    <textarea
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      rows={3}
+                      value={newPayment.notes}
+                      onChange={(e) =>
+                        setNewPayment({
+                          ...newPayment,
+                          notes: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {formError && (
+                    <div className="p-4 mt-4 text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg transition-colors duration-300">
+                      {formError}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-
-            <form className="space-y-4" onSubmit={handleCreatePayment}>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer *
-                </label>
-                <select
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  value={newPayment.customer_id}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      customer_id: e.target.value,
-                      booking_id: "",
-                    }))
-                  }
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name} - {customer.email}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Booking (Optional)
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  value={newPayment.booking_id}
-                  onChange={(e) => {
-                    const booking = filteredBookings.find(
-                      (b) => b.id === e.target.value
-                    );
-
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      booking_id: e.target.value,
-                      amount: booking ? booking.amount.toString() : prev.amount,
-                    }));
-                  }}
-                >
-                  <option value="">Select Booking</option>
-                  {filteredBookings.map((booking) => (
-                    <option key={booking.id} value={booking.id}>
-                      {booking.service} -{" "}
-                      {format(new Date(booking.date), "MMM dd, yyyy")} - £
-                      {booking.amount}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount *
-                </label>
-                <input
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  step="0.01"
-                  type="number"
-                  value={newPayment.amount}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      amount: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Method
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  value={newPayment.payment_method}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      payment_method: e.target.value as any,
-                    }))
-                  }
-                >
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cheque">Cheque</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Date
-                </label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  type="date"
-                  value={newPayment.payment_date}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      payment_date: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reference
-                </label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Transaction reference..."
-                  type="text"
-                  value={newPayment.reference}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      reference: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes
-                </label>
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Additional notes..."
-                  rows={3}
-                  value={newPayment.notes}
-                  onChange={(e) =>
-                    setNewPayment((prev) => ({
-                      ...prev,
-                      notes: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-                  type="button"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  onClick={handleCreatePayment}
+                >
+                  Create Payment
+                </button>
+                <button
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowCreateModal(false)}
                 >
                   Cancel
                 </button>
-                <button
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark"
-                  type="submit"
-                >
-                  Record Payment
-                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Send Payment Link Modal */}
       {showPaymentLinkModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Send Payment Link
-              </h2>
-              <button
-                className="text-gray-400 hover:text-gray-600"
-                onClick={() => setShowPaymentLinkModal(false)}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M6 18L18 6M6 6l12 12"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {formError && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                {formError}
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
+              onClick={() => setShowPaymentLinkModal(false)}
+            />
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
+                  Create Payment Link
+                </h3>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Customer
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      value={paymentLink.customer_id}
+                      onChange={(e) =>
+                        setPaymentLink({
+                          ...paymentLink,
+                          customer_id: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select a customer</option>
+                      {customers.map((customer) => (
+                        <option key={customer.id} value={customer.id}>
+                          {customer.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking (Optional)
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      value={paymentLink.booking_id}
+                      onChange={(e) =>
+                        setPaymentLink({
+                          ...paymentLink,
+                          booking_id: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select a booking</option>
+                      {bookings
+                        .filter(
+                          (booking) =>
+                            booking.customer_id === paymentLink.customer_id
+                        )
+                        .map((booking) => (
+                          <option key={booking.id} value={booking.id}>
+                            {booking.service} - {format(new Date(booking.date), "dd MMM yyyy")}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Amount
+                    </label>
+                    <div className="relative mt-1 rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm transition-colors duration-300">£</span>
+                      </div>
+                      <input
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={paymentLink.amount}
+                        onChange={(e) =>
+                          setPaymentLink({
+                            ...paymentLink,
+                            amount: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Description
+                    </label>
+                    <textarea
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      rows={3}
+                      value={paymentLink.description}
+                      onChange={(e) =>
+                        setPaymentLink({
+                          ...paymentLink,
+                          description: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {formError && (
+                    <div className="p-4 mt-4 text-sm text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-lg transition-colors duration-300">
+                      {formError}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-
-            <form className="space-y-4" onSubmit={handleCreatePaymentLink}>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer *
-                </label>
-                <select
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  value={paymentLink.customer_id}
-                  onChange={(e) =>
-                    setPaymentLink((prev) => ({
-                      ...prev,
-                      customer_id: e.target.value,
-                      booking_id: "",
-                    }))
-                  }
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.name} - {customer.email}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Booking (Optional)
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  value={paymentLink.booking_id}
-                  onChange={(e) => {
-                    const booking = filteredBookingsForLink.find(
-                      (b) => b.id === e.target.value
-                    );
-
-                    setPaymentLink((prev) => ({
-                      ...prev,
-                      booking_id: e.target.value,
-                      amount: booking ? booking.amount.toString() : prev.amount,
-                      description: booking
-                        ? `Payment for ${booking.service}`
-                        : prev.description,
-                    }));
-                  }}
-                >
-                  <option value="">Select Booking</option>
-                  {filteredBookingsForLink.map((booking) => (
-                    <option key={booking.id} value={booking.id}>
-                      {booking.service} -{" "}
-                      {format(new Date(booking.date), "MMM dd, yyyy")} - £
-                      {booking.amount}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount *
-                </label>
-                <input
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  step="0.01"
-                  type="number"
-                  value={paymentLink.amount}
-                  onChange={(e) =>
-                    setPaymentLink((prev) => ({
-                      ...prev,
-                      amount: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Payment description..."
-                  type="text"
-                  value={paymentLink.description}
-                  onChange={(e) =>
-                    setPaymentLink((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  onClick={handleCreatePaymentLink}
                   disabled={processingPayment === "creating"}
-                  type="button"
+                >
+                  {processingPayment === "creating" ? (
+                    <>
+                      <svg
+                        className="w-4 h-4 mr-2 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Link"
+                  )}
+                </button>
+                <button
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowPaymentLinkModal(false)}
                 >
                   Cancel
                 </button>
-                <button
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  disabled={processingPayment === "creating"}
-                  type="submit"
-                >
-                  {processingPayment === "creating"
-                    ? "Creating..."
-                    : "Create Payment Link"}
-                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
