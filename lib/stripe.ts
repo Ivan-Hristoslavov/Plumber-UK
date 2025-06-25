@@ -1,15 +1,27 @@
 import Stripe from "stripe";
 import { loadStripe } from "@stripe/stripe-js";
 
-// Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-05-28.basil",
-});
+// Check if Stripe is configured
+const isStripeConfigured = !!process.env.STRIPE_SECRET_KEY;
+
+// Server-side Stripe instance (only if configured)
+export const stripe = isStripeConfigured 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: "2025-05-28.basil",
+    })
+  : null;
 
 // Client-side Stripe instance
 export const getStripe = () => {
-  return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+  if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+    console.warn("Stripe not configured - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY missing");
+    return null;
+  }
+  return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 };
+
+// Helper to check if Stripe is available
+export const isStripeAvailable = () => isStripeConfigured;
 
 // Payment status mapping
 export const STRIPE_TO_DB_STATUS = {

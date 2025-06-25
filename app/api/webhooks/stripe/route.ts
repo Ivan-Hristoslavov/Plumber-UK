@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { stripe, STRIPE_TO_DB_STATUS } from "../../../../lib/stripe";
+import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../../lib/stripe";
 import { supabase } from "../../../../lib/supabase";
 
 export async function POST(request: NextRequest) {
+  // Check if Stripe is configured
+  if (!isStripeAvailable() || !stripe) {
+    return NextResponse.json(
+      { error: "Stripe webhooks are not configured" },
+      { status: 503 },
+    );
+  }
+
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
-import { stripe, STRIPE_TO_DB_STATUS } from "../../../lib/stripe";
+import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
 
 // GET - Fetch all payments
 export async function GET() {
@@ -44,6 +44,14 @@ export async function POST(request: NextRequest) {
     const { type, ...paymentData } = body;
 
     if (type === "create_payment_link") {
+      // Check if Stripe is configured
+      if (!isStripeAvailable() || !stripe) {
+        return NextResponse.json(
+          { error: "Stripe is not configured. Please contact support for payment options." },
+          { status: 503 },
+        );
+      }
+
       // Create Stripe payment link
       const { customer_id, booking_id, amount, description } = paymentData;
 
