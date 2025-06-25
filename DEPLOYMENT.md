@@ -1,7 +1,7 @@
 # Deployment Guide - Plumber Booking System
 
 ## Project Structure Note
-**IMPORTANT**: This project has a specific directory structure where the Next.js application is located in the `ui/` directory. The `vercel.json` configuration files have been set up to handle this structure correctly.
+**UPDATED**: This project now has a standard Next.js structure with all files in the root directory. No special configuration needed!
 
 ## 🚀 Deployment Options
 
@@ -15,9 +15,8 @@
 ### Manual Vercel Setup
 1. Go to [vercel.com](https://vercel.com)
 2. Import your GitHub repository: `https://github.com/serenity-RapidFrame/plumber`
-3. **IMPORTANT**: Vercel should automatically detect the `vercel.json` configuration
-4. If not detected, manually set:
-   - **Root Directory**: `ui`
+3. Vercel will automatically detect Next.js configuration
+4. Default settings should work:
    - **Build Command**: `npm run build`
    - **Output Directory**: `.next`
    - **Install Command**: `npm install`
@@ -145,8 +144,8 @@ Add these secrets to your GitHub repository:
 ### Common Issues
 
 1. **Build Fails**
-   - Check all environment variables are set
-   - Verify Supabase connection
+   - Check Node.js version (use 18.x or 20.x)
+   - Verify all dependencies in `package.json`
    - Check for TypeScript errors
 
 2. **Deployment Succeeds but App Doesn't Work**
@@ -238,22 +237,19 @@ vercel --prod --force
 
 ### Netlify
 1. Connect your GitHub repository
-2. Set build settings:
-   - **Base directory**: `ui`
+2. Default settings should work:
    - **Build command**: `npm run build`
-   - **Publish directory**: `ui/.next`
+   - **Publish directory**: `.next`
 3. Add environment variables in Netlify dashboard
 
 ### Railway
 1. Connect GitHub repository
-2. Set root directory to `ui`
-3. Railway will auto-detect Next.js
-4. Add environment variables
+2. Railway will auto-detect Next.js
+3. Add environment variables
 
 ### DigitalOcean App Platform
 1. Create new app from GitHub
 2. Configure build settings:
-   - **Source Directory**: `ui`
    - **Build Command**: `npm run build`
    - **Run Command**: `npm start`
 
@@ -268,35 +264,21 @@ vercel --prod --force
 7. ✅ Verify webhook endpoints work
 8. ✅ Test responsive design on mobile
 
-## Common Issues and Solutions
+## Local Development
 
-### Build Fails
-- Check Node.js version (use 18.x or 20.x)
-- Verify all dependencies in `ui/package.json`
-- Check for TypeScript errors
+```bash
+# Install dependencies
+npm install
 
-### Environment Variables Not Working
-- Ensure variables are prefixed with `NEXT_PUBLIC_` for client-side access
-- Check variable names match exactly
-- Restart deployment after adding variables
+# Run development server
+npm run dev
 
-### Database Connection Issues
-- Verify Supabase URL and key are correct
-- Check Supabase project is active
-- Ensure database migrations are applied
+# Build for production
+npm run build
 
-### Stripe Integration Issues
-- Verify webhook endpoint is set correctly
-- Check Stripe keys are for the correct environment
-- Ensure webhook secret matches
-
-## Support
-
-If you encounter issues:
-1. Check the build logs in your deployment platform
-2. Verify all environment variables are set correctly
-3. Ensure the `vercel.json` configuration is correct
-4. Test locally with `cd ui && npm run dev`
+# Start production server
+npm start
+```
 
 ## Security Notes
 

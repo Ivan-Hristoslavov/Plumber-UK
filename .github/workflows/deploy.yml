@@ -19,16 +19,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: ui/package-lock.json
         
     - name: Install dependencies
-      run: |
-        cd ui
-        npm ci
+      run: npm ci
         
     - name: Create environment file
       run: |
-        cd ui
         echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
         echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
         echo "NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}" >> .env.local
@@ -40,14 +36,10 @@ jobs:
         echo "ADMIN_NAME=${{ secrets.ADMIN_NAME }}" >> .env.local
         
     - name: Build application
-      run: |
-        cd ui
-        npm run build
+      run: npm run build
         
     - name: Run tests (if available)
-      run: |
-        cd ui
-        npm test --if-present
+      run: npm test --if-present
         
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v25
