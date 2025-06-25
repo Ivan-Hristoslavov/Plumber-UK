@@ -7,12 +7,12 @@ export default function FooterMain() {
             © {new Date().getFullYear()} Fix my leak. All rights reserved.
           </div>
           <div className="text-sm text-gray-500">
-            Designed by{' '}
+            Designed by{" "}
             <a
-              href="https://google.com"
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-primary hover:text-primary-dark transition-colors"
+              href="https://google.com"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Serenity
             </a>
@@ -21,4 +21,4 @@ export default function FooterMain() {
       </div>
     </footer>
   );
-} 
+}

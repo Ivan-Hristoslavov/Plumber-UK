@@ -1,17 +1,21 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
-import { Inter } from 'next/font/google';
-import { Providers } from "./providers";
-import { fontSans } from "@/config/fonts";
-import LayoutMain from '@/components/LayoutMain';
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+import { Providers } from "./providers";
+
+import { fontSans } from "@/config/fonts";
+import LayoutMain from "@/components/LayoutMain";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'FIX MY LEAK - Professional Plumbing Services',
-  description: 'Professional plumbing services available 24/7 across the United Kingdom.',
-  keywords: 'plumbing, UK, emergency plumbing, professional plumber, plumbing services',
+  title: "FIX MY LEAK - Professional Plumbing Services",
+  description:
+    "Professional plumbing services available 24/7 across the United Kingdom.",
+  keywords:
+    "plumbing, UK, emergency plumbing, professional plumber, plumbing services",
   icons: {
     icon: "/favicon.ico",
   },
@@ -40,9 +44,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <LayoutMain>
-            {children}
-          </LayoutMain>
+          <LayoutMain>{children}</LayoutMain>
         </Providers>
       </body>
     </html>

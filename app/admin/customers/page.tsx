@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 type Customer = {
   id: string;
@@ -8,7 +8,7 @@ type Customer = {
   email: string;
   phone: string;
   address: string;
-  customer_type: 'individual' | 'company';
+  customer_type: "individual" | "company";
   company_name?: string;
   vat_number?: string;
   contact_person?: string;
@@ -34,24 +34,28 @@ type Customer = {
 };
 
 export default function CustomersPage() {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addType, setAddType] = useState<'individual' | 'company'>('individual');
+  const [addType, setAddType] = useState<"individual" | "company">(
+    "individual",
+  );
   const [newCustomer, setNewCustomer] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    companyName: '',
-    companyEmail: '',
-    companyPhone: '',
-    companyAddress: '',
-    vat: '',
-    contactPerson: '',
-    contactEmail: '',
-    contactPhone: '',
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    companyName: "",
+    companyEmail: "",
+    companyPhone: "",
+    companyAddress: "",
+    vat: "",
+    contactPerson: "",
+    contactEmail: "",
+    contactPhone: "",
   });
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,20 +67,23 @@ export default function CustomersPage() {
   const loadCustomers = async () => {
     try {
       setLoading(true);
-      console.log('Loading customers...');
-      const response = await fetch('/api/customers');
-      console.log('Response status:', response.status);
-      
+      console.log("Loading customers...");
+      const response = await fetch("/api/customers");
+
+      console.log("Response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Loaded customers:', data);
+
+        console.log("Loaded customers:", data);
         setCustomers(data);
       } else {
         const errorText = await response.text();
-        console.error('Failed to load customers:', response.status, errorText);
+
+        console.error("Failed to load customers:", response.status, errorText);
       }
     } catch (error) {
-      console.error('Error loading customers:', error);
+      console.error("Error loading customers:", error);
     } finally {
       setLoading(false);
     }
@@ -84,14 +91,20 @@ export default function CustomersPage() {
 
   const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
+    setFormError("");
 
     try {
       let customerData;
-      
-      if (addType === 'individual') {
-        if (!newCustomer.name || !newCustomer.email || !newCustomer.phone || !newCustomer.address) {
-          setFormError('Please fill in all required fields.');
+
+      if (addType === "individual") {
+        if (
+          !newCustomer.name ||
+          !newCustomer.email ||
+          !newCustomer.phone ||
+          !newCustomer.address
+        ) {
+          setFormError("Please fill in all required fields.");
+
           return;
         }
         customerData = {
@@ -99,11 +112,17 @@ export default function CustomersPage() {
           email: newCustomer.email,
           phone: newCustomer.phone,
           address: newCustomer.address,
-          customer_type: 'individual' as const,
+          customer_type: "individual" as const,
         };
       } else {
-        if (!newCustomer.companyName || !newCustomer.companyEmail || !newCustomer.companyPhone || !newCustomer.companyAddress) {
-          setFormError('Please fill in all required fields.');
+        if (
+          !newCustomer.companyName ||
+          !newCustomer.companyEmail ||
+          !newCustomer.companyPhone ||
+          !newCustomer.companyAddress
+        ) {
+          setFormError("Please fill in all required fields.");
+
           return;
         }
         customerData = {
@@ -111,7 +130,7 @@ export default function CustomersPage() {
           email: newCustomer.companyEmail,
           phone: newCustomer.companyPhone,
           address: newCustomer.companyAddress,
-          customer_type: 'company' as const,
+          customer_type: "company" as const,
           company_name: newCustomer.companyName,
           vat_number: newCustomer.vat || null,
           contact_person: newCustomer.contactPerson || null,
@@ -120,10 +139,10 @@ export default function CustomersPage() {
         };
       }
 
-      const response = await fetch('/api/customers', {
-        method: 'POST',
+      const response = await fetch("/api/customers", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(customerData),
       });
@@ -131,21 +150,32 @@ export default function CustomersPage() {
       if (response.ok) {
         // Reload customers list
         await loadCustomers();
-        
+
         // Reset form
         setShowAddModal(false);
-        setAddType('individual');
+        setAddType("individual");
         setNewCustomer({
-          name: '', email: '', phone: '', address: '',
-          companyName: '', companyEmail: '', companyPhone: '', companyAddress: '', vat: '', contactPerson: '', contactEmail: '', contactPhone: '',
+          name: "",
+          email: "",
+          phone: "",
+          address: "",
+          companyName: "",
+          companyEmail: "",
+          companyPhone: "",
+          companyAddress: "",
+          vat: "",
+          contactPerson: "",
+          contactEmail: "",
+          contactPhone: "",
         });
       } else {
         const error = await response.json();
-        setFormError(error.error || 'Failed to create customer');
+
+        setFormError(error.error || "Failed to create customer");
       }
     } catch (error) {
-      console.error('Error creating customer:', error);
-      setFormError('Failed to create customer');
+      console.error("Error creating customer:", error);
+      setFormError("Failed to create customer");
     }
   };
 
@@ -154,8 +184,8 @@ export default function CustomersPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Customers</h1>
         <button
-          onClick={() => setShowAddModal(true)}
           className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark"
+          onClick={() => setShowAddModal(true)}
         >
           Add Customer
         </button>
@@ -164,25 +194,38 @@ export default function CustomersPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Phone
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Address
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                <td className="px-6 py-4 text-center text-gray-500" colSpan={6}>
                   Loading customers...
                 </td>
               </tr>
             ) : customers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                  No customers found. Add your first customer using the button above.
+                <td className="px-6 py-4 text-center text-gray-500" colSpan={6}>
+                  No customers found. Add your first customer using the button
+                  above.
                 </td>
               </tr>
             ) : (
@@ -190,26 +233,39 @@ export default function CustomersPage() {
                 <tr key={customer.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {customer.name}
-                    {customer.customer_type === 'company' && customer.contact_person && (
-                      <div className="text-xs text-gray-500">Contact: {customer.contact_person}</div>
-                    )}
+                    {customer.customer_type === "company" &&
+                      customer.contact_person && (
+                        <div className="text-xs text-gray-500">
+                          Contact: {customer.contact_person}
+                        </div>
+                      )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      customer.customer_type === 'individual' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {customer.customer_type === 'individual' ? 'Individual' : 'Company'}
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        customer.customer_type === "individual"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {customer.customer_type === "individual"
+                        ? "Individual"
+                        : "Company"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.phone}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.address}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.phone}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.address}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
-                      onClick={() => setSelectedCustomer(customer)}
                       className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                      onClick={() => setSelectedCustomer(customer)}
                     >
                       View
                     </button>
@@ -227,149 +283,254 @@ export default function CustomersPage() {
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] relative">
             {/* Close button */}
             <button
+              aria-label="Close"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none"
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none"
-              aria-label="Close"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
-            <form className="p-8 space-y-6 overflow-y-auto max-h-[70vh]" onSubmit={handleAddCustomer}>
-              <h2 className="text-2xl font-bold mb-4 text-primary">Add Customer</h2>
+            <form
+              className="p-8 space-y-6 overflow-y-auto max-h-[70vh]"
+              onSubmit={handleAddCustomer}
+            >
+              <h2 className="text-2xl font-bold mb-4 text-primary">
+                Add Customer
+              </h2>
               <div className="flex space-x-2 mb-6">
                 <button
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-150 ${addType === "individual" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"}`}
                   type="button"
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-150 ${addType === 'individual' ? 'bg-primary text-white border-primary shadow' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
-                  onClick={() => setAddType('individual')}
+                  onClick={() => setAddType("individual")}
                 >
                   Individual
                 </button>
                 <button
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-150 ${addType === "company" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"}`}
                   type="button"
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-150 ${addType === 'company' ? 'bg-primary text-white border-primary shadow' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
-                  onClick={() => setAddType('company')}
+                  onClick={() => setAddType("company")}
                 >
                   Company
                 </button>
               </div>
-              {formError && <div className="text-red-600 text-sm mb-2">{formError}</div>}
-              {addType === 'individual' ? (
+              {formError && (
+                <div className="text-red-600 text-sm mb-2">{formError}</div>
+              )}
+              {addType === "individual" ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name<span className="text-red-500">*</span>
+                    </label>
                     <input
+                      required
                       className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                       value={newCustomer.name}
-                      onChange={e => setNewCustomer(nc => ({ ...nc, name: e.target.value }))}
-                      required
+                      onChange={(e) =>
+                        setNewCustomer((nc) => ({
+                          ...nc,
+                          name: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email<span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="email"
+                      required
                       className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                      type="email"
                       value={newCustomer.email}
-                      onChange={e => setNewCustomer(nc => ({ ...nc, email: e.target.value }))}
-                      required
+                      onChange={(e) =>
+                        setNewCustomer((nc) => ({
+                          ...nc,
+                          email: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone<span className="text-red-500">*</span>
+                    </label>
                     <input
+                      required
                       className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                       value={newCustomer.phone}
-                      onChange={e => setNewCustomer(nc => ({ ...nc, phone: e.target.value }))}
-                      required
+                      onChange={(e) =>
+                        setNewCustomer((nc) => ({
+                          ...nc,
+                          phone: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Address<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Address<span className="text-red-500">*</span>
+                    </label>
                     <input
+                      required
                       className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                       value={newCustomer.address}
-                      onChange={e => setNewCustomer(nc => ({ ...nc, address: e.target.value }))}
-                      required
+                      onChange={(e) =>
+                        setNewCustomer((nc) => ({
+                          ...nc,
+                          address: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="text-lg font-semibold text-gray-700 mb-2">Company Details</div>
+                  <div className="text-lg font-semibold text-gray-700 mb-2">
+                    Company Details
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Name<span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Name<span className="text-red-500">*</span>
+                      </label>
                       <input
+                        required
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyName}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, companyName: e.target.value }))}
-                        required
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            companyName: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Email<span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Email<span className="text-red-500">*</span>
+                      </label>
                       <input
-                        type="email"
+                        required
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        type="email"
                         value={newCustomer.companyEmail}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, companyEmail: e.target.value }))}
-                        required
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            companyEmail: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Phone<span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Phone<span className="text-red-500">*</span>
+                      </label>
                       <input
+                        required
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyPhone}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, companyPhone: e.target.value }))}
-                        required
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            companyPhone: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Company Address<span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Company Address<span className="text-red-500">*</span>
+                      </label>
                       <input
+                        required
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyAddress}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, companyAddress: e.target.value }))}
-                        required
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            companyAddress: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">VAT Number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        VAT Number
+                      </label>
                       <input
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.vat}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, vat: e.target.value }))}
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            vat: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
-                  <div className="text-lg font-semibold text-gray-700 mb-2">Contact Person (optional)</div>
+                  <div className="text-lg font-semibold text-gray-700 mb-2">
+                    Contact Person (optional)
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Person
+                      </label>
                       <input
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPerson}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, contactPerson: e.target.value }))}
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            contactPerson: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Email
+                      </label>
                       <input
-                        type="email"
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        type="email"
                         value={newCustomer.contactEmail}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, contactEmail: e.target.value }))}
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            contactEmail: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Phone
+                      </label>
                       <input
                         className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPhone}
-                        onChange={e => setNewCustomer(nc => ({ ...nc, contactPhone: e.target.value }))}
+                        onChange={(e) =>
+                          setNewCustomer((nc) => ({
+                            ...nc,
+                            contactPhone: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -377,15 +538,15 @@ export default function CustomersPage() {
               )}
               <div className="mt-8 flex justify-end space-x-2">
                 <button
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
                   className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark shadow"
+                  type="submit"
                 >
                   Add Customer
                 </button>
@@ -403,27 +564,52 @@ export default function CustomersPage() {
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold">Customer Details</h2>
                 <button
-                  onClick={() => setSelectedCustomer(null)}
                   className="text-gray-400 hover:text-gray-500"
+                  onClick={() => setSelectedCustomer(null)}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M6 18L18 6M6 6l12 12"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                    />
                   </svg>
                 </button>
               </div>
               <div className="space-y-2">
-                <div><span className="font-medium">Name:</span> {selectedCustomer.name}</div>
-                <div><span className="font-medium">Email:</span> {selectedCustomer.email}</div>
-                <div><span className="font-medium">Phone:</span> {selectedCustomer.phone}</div>
-                <div><span className="font-medium">Address:</span> {selectedCustomer.address}</div>
+                <div>
+                  <span className="font-medium">Name:</span>{" "}
+                  {selectedCustomer.name}
+                </div>
+                <div>
+                  <span className="font-medium">Email:</span>{" "}
+                  {selectedCustomer.email}
+                </div>
+                <div>
+                  <span className="font-medium">Phone:</span>{" "}
+                  {selectedCustomer.phone}
+                </div>
+                <div>
+                  <span className="font-medium">Address:</span>{" "}
+                  {selectedCustomer.address}
+                </div>
               </div>
               <div className="mt-4">
                 <h3 className="font-semibold mb-2">Bookings</h3>
                 <ul className="space-y-1">
-                  {selectedCustomer.bookings && selectedCustomer.bookings.length > 0 ? (
+                  {selectedCustomer.bookings &&
+                  selectedCustomer.bookings.length > 0 ? (
                     selectedCustomer.bookings.map((b) => (
                       <li key={b.id} className="text-sm text-gray-700">
-                        {b.date}: {b.service} (£{b.amount}) - <span className="capitalize">{b.status}</span> / <span className="capitalize">{b.paymentStatus}</span>
+                        {b.date}: {b.service} (£{b.amount}) -{" "}
+                        <span className="capitalize">{b.status}</span> /{" "}
+                        <span className="capitalize">{b.paymentStatus}</span>
                       </li>
                     ))
                   ) : (
@@ -434,10 +620,12 @@ export default function CustomersPage() {
               <div className="mt-4">
                 <h3 className="font-semibold mb-2">Payments</h3>
                 <ul className="space-y-1">
-                  {selectedCustomer.payments && selectedCustomer.payments.length > 0 ? (
+                  {selectedCustomer.payments &&
+                  selectedCustomer.payments.length > 0 ? (
                     selectedCustomer.payments.map((p) => (
                       <li key={p.id} className="text-sm text-gray-700">
-                        {p.date}: £{p.amount} - <span className="capitalize">{p.status}</span>
+                        {p.date}: £{p.amount} -{" "}
+                        <span className="capitalize">{p.status}</span>
                       </li>
                     ))
                   ) : (
@@ -447,8 +635,8 @@ export default function CustomersPage() {
               </div>
               <div className="mt-6 flex justify-end">
                 <button
-                  onClick={() => setSelectedCustomer(null)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  onClick={() => setSelectedCustomer(null)}
                 >
                   Close
                 </button>
@@ -459,4 +647,4 @@ export default function CustomersPage() {
       )}
     </div>
   );
-} 
+}

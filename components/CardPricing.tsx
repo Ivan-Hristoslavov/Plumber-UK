@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
 
 type PricingTier = {
   name: string;
@@ -13,40 +13,40 @@ type PricingTier = {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: 'Emergency Call Out',
-    description: '24/7 emergency plumbing services',
+    name: "Emergency Call Out",
+    description: "24/7 emergency plumbing services",
     price: 85,
     features: [
-      'Same day response',
-      'Available 24/7',
-      'First hour of work included',
-      'Parts not included',
-      'Free quote for additional work',
+      "Same day response",
+      "Available 24/7",
+      "First hour of work included",
+      "Parts not included",
+      "Free quote for additional work",
     ],
     isPopular: true,
   },
   {
-    name: 'Standard Service',
-    description: 'Regular plumbing maintenance and repairs',
+    name: "Standard Service",
+    description: "Regular plumbing maintenance and repairs",
     price: 65,
     features: [
-      'Next day appointment',
-      'Standard working hours',
-      'First hour of work included',
-      'Parts not included',
-      'Written quote provided',
+      "Next day appointment",
+      "Standard working hours",
+      "First hour of work included",
+      "Parts not included",
+      "Written quote provided",
     ],
   },
   {
-    name: 'Bathroom Installation',
-    description: 'Complete bathroom design and installation',
+    name: "Bathroom Installation",
+    description: "Complete bathroom design and installation",
     price: 2500,
     features: [
-      'Full bathroom design',
-      'Supply and installation',
-      'All fixtures included',
-      '5-year workmanship guarantee',
-      'Free initial consultation',
+      "Full bathroom design",
+      "Supply and installation",
+      "All fixtures included",
+      "5-year workmanship guarantee",
+      "Free initial consultation",
     ],
   },
 ];
@@ -59,6 +59,7 @@ export function CardPricing() {
     if (isSubscription && isAnnual) {
       return (price * 10).toFixed(2); // 2 months free for annual
     }
+
     return price.toFixed(2);
   };
 
@@ -79,7 +80,9 @@ export function CardPricing() {
             <div
               key={tier.name}
               className={`relative p-8 bg-white border rounded-2xl shadow-sm flex flex-col ${
-                tier.isPopular ? 'border-black ring-2 ring-black' : 'border-gray-200'
+                tier.isPopular
+                  ? "border-black ring-2 ring-black"
+                  : "border-gray-200"
               }`}
             >
               {tier.isPopular && (
@@ -88,14 +91,24 @@ export function CardPricing() {
                 </div>
               )}
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900">{tier.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {tier.name}
+                </h3>
                 <p className="mt-4 text-gray-500">{tier.description}</p>
                 <p className="mt-8">
-                  <span className="text-4xl font-bold text-gray-900">£{getPrice(tier.price)}</span>
-                  {tier.name === 'Bathroom Installation' ? (
-                    <span className="text-base font-medium text-gray-500"> starting from</span>
+                  <span className="text-4xl font-bold text-gray-900">
+                    £{getPrice(tier.price)}
+                  </span>
+                  {tier.name === "Bathroom Installation" ? (
+                    <span className="text-base font-medium text-gray-500">
+                      {" "}
+                      starting from
+                    </span>
                   ) : (
-                    <span className="text-base font-medium text-gray-500"> /hour</span>
+                    <span className="text-base font-medium text-gray-500">
+                      {" "}
+                      /hour
+                    </span>
                   )}
                 </p>
                 <ul className="mt-6 space-y-4">
@@ -105,14 +118,14 @@ export function CardPricing() {
                         <svg
                           className="h-6 w-6 text-black"
                           fill="none"
-                          viewBox="0 0 24 24"
                           stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
                           <path
+                            d="M5 13l4 4L19 7"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M5 13l4 4L19 7"
                           />
                         </svg>
                       </div>
@@ -123,12 +136,12 @@ export function CardPricing() {
               </div>
               <div className="mt-8">
                 <Link
-                  href="/book-now"
                   className={`block w-full rounded-full px-6 py-3 text-center text-sm font-semibold ${
                     tier.isPopular
-                      ? 'bg-black text-white hover:bg-gray-800'
-                      : 'bg-white text-black border border-black hover:bg-gray-50'
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "bg-white text-black border border-black hover:bg-gray-50"
                   } transition-colors`}
+                  href="/book-now"
                 >
                   Book Now
                 </Link>
@@ -139,14 +152,14 @@ export function CardPricing() {
 
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500">
-            * All prices are in GBP and include VAT. Parts and materials are charged separately.
+            * All prices are in GBP and include VAT. Parts and materials are
+            charged separately.
             <br />
             * Emergency call-out fee applies outside of standard working hours.
-            <br />
-            * Prices may vary based on location and job complexity.
+            <br />* Prices may vary based on location and job complexity.
           </p>
         </div>
       </div>
     </div>
   );
-} 
+}

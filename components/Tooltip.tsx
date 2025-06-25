@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 
 interface TooltipProps {
   content: string;
   children: React.ReactNode;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
   delay?: number;
 }
 
-export default function Tooltip({ 
-  content, 
-  children, 
-  position = 'top',
-  delay = 200 
+export default function Tooltip({
+  content,
+  children,
+  position = "top",
+  delay = 200,
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -27,29 +27,31 @@ export default function Tooltip({
     timeoutRef.current = setTimeout(() => {
       if (triggerRef.current) {
         const rect = triggerRef.current.getBoundingClientRect();
-        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-        
+        const scrollX =
+          window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY =
+          window.pageYOffset || document.documentElement.scrollTop;
+
         let x = rect.left + scrollX + rect.width / 2;
         let y = rect.top + scrollY;
-        
+
         switch (position) {
-          case 'top':
+          case "top":
             y = rect.top + scrollY - 10;
             break;
-          case 'bottom':
+          case "bottom":
             y = rect.bottom + scrollY + 10;
             break;
-          case 'left':
+          case "left":
             x = rect.left + scrollX - 10;
             y = rect.top + scrollY + rect.height / 2;
             break;
-          case 'right':
+          case "right":
             x = rect.right + scrollX + 10;
             y = rect.top + scrollY + rect.height / 2;
             break;
         }
-        
+
         setTooltipPosition({ x, y });
       }
       setIsVisible(true);
@@ -73,35 +75,33 @@ export default function Tooltip({
 
   const getTransformClasses = () => {
     switch (position) {
-      case 'top':
-        return 'transform -translate-x-1/2 -translate-y-full';
-      case 'bottom':
-        return 'transform -translate-x-1/2';
-      case 'left':
-        return 'transform -translate-x-full -translate-y-1/2';
-      case 'right':
-        return 'transform -translate-y-1/2';
+      case "top":
+        return "transform -translate-x-1/2 -translate-y-full";
+      case "bottom":
+        return "transform -translate-x-1/2";
+      case "left":
+        return "transform -translate-x-full -translate-y-1/2";
+      case "right":
+        return "transform -translate-y-1/2";
       default:
-        return 'transform -translate-x-1/2 -translate-y-full';
+        return "transform -translate-x-1/2 -translate-y-full";
     }
   };
 
   return (
-    <div 
+    <div
       ref={triggerRef}
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {children}
-      
+
       {isVisible && (
         <div
           ref={tooltipRef}
           className={`fixed z-[9999] pointer-events-none ${getTransformClasses()} transition-all duration-150 ease-out ${
-            showTooltip 
-              ? 'opacity-100 scale-100' 
-              : 'opacity-0 scale-95'
+            showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
           }`}
           style={{
             left: `${tooltipPosition.x}px`,
@@ -116,4 +116,4 @@ export default function Tooltip({
       )}
     </div>
   );
-} 
+}

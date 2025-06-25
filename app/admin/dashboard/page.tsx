@@ -37,7 +37,8 @@ const upcomingBookings = [];
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>(mockStats);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>(mockRecentActivity);
+  const [recentActivity, setRecentActivity] =
+    useState<RecentActivity[]>(mockRecentActivity);
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +50,8 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/dashboard/stats');
+      const response = await fetch("/api/dashboard/stats");
+
       if (response.ok) {
         const data = await response.json();
         // Ensure all stats properties exist with default values
@@ -62,14 +64,15 @@ export default function DashboardPage() {
           totalCustomers: data.stats?.total_customers || 0,
           pendingPayments: data.stats?.pending_payments || 0,
         };
+
         setStats(safeStats);
         setRecentActivity(data.recentActivity || []);
         setUpcomingBookings(data.upcomingBookings || []);
       } else {
-        console.error('Failed to load dashboard data');
+        console.error("Failed to load dashboard data");
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -167,8 +170,6 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Bookings"
-          value={stats.totalBookings || 0}
           change="+12%"
           color="bg-blue-100 text-blue-600"
           icon={
@@ -179,17 +180,17 @@ export default function DashboardPage() {
               viewBox="0 0 24 24"
             >
               <path
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
           }
+          title="Total Bookings"
+          value={stats.totalBookings || 0}
         />
         <StatCard
-          title="Pending Bookings"
-          value={stats.pendingBookings || 0}
           change="+3"
           color="bg-yellow-100 text-yellow-600"
           icon={
@@ -200,17 +201,17 @@ export default function DashboardPage() {
               viewBox="0 0 24 24"
             >
               <path
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
           }
+          title="Pending Bookings"
+          value={stats.pendingBookings || 0}
         />
         <StatCard
-          title="Total Revenue"
-          value={`£${(stats.totalRevenue || 0).toLocaleString()}`}
           change="+8%"
           color="bg-green-100 text-green-600"
           icon={
@@ -221,17 +222,17 @@ export default function DashboardPage() {
               viewBox="0 0 24 24"
             >
               <path
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
               />
             </svg>
           }
+          title="Total Revenue"
+          value={`£${(stats.totalRevenue || 0).toLocaleString()}`}
         />
         <StatCard
-          title="Total Customers"
-          value={stats.totalCustomers || 0}
           change="+5"
           color="bg-purple-100 text-purple-600"
           icon={
@@ -242,13 +243,15 @@ export default function DashboardPage() {
               viewBox="0 0 24 24"
             >
               <path
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
               />
             </svg>
           }
+          title="Total Customers"
+          value={stats.totalCustomers || 0}
         />
       </div>
 
@@ -266,7 +269,10 @@ export default function DashboardPage() {
               <div className="space-y-4 flex-1">
                 {recentActivity.length > 0 ? (
                   recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-3">
+                    <div
+                      key={activity.id}
+                      className="flex items-start space-x-3"
+                    >
                       <div
                         className={`p-2 rounded-full ${getStatusColor(activity.status)}`}
                       >
@@ -284,8 +290,18 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <svg
+                      className="w-12 h-12 text-gray-300 mx-auto mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
                     </svg>
                     <p className="text-gray-500 text-sm">No recent activity</p>
                   </div>
@@ -318,9 +334,13 @@ export default function DashboardPage() {
                     >
                       <div>
                         <p className="text-sm font-medium text-gray-900">
-                          {booking.customer?.name || booking.customer_name || 'Unknown Customer'}
+                          {booking.customer?.name ||
+                            booking.customer_name ||
+                            "Unknown Customer"}
                         </p>
-                        <p className="text-xs text-gray-500">{booking.service}</p>
+                        <p className="text-xs text-gray-500">
+                          {booking.service}
+                        </p>
                         <p className="text-xs text-gray-500">
                           {booking.date} at {booking.time}
                         </p>
@@ -338,10 +358,22 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-12 h-12 text-gray-300 mx-auto mb-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
                     </svg>
-                    <p className="text-gray-500 text-sm">No upcoming bookings</p>
+                    <p className="text-gray-500 text-sm">
+                      No upcoming bookings
+                    </p>
                   </div>
                 )}
               </div>
@@ -354,8 +386,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
