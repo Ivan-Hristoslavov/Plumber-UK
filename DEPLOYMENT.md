@@ -1,45 +1,73 @@
 # Deployment Guide - Plumber Booking System
 
-This guide explains how to deploy your plumber booking system using GitHub Actions.
+## Project Structure Note
+**IMPORTANT**: This project has a specific directory structure where the Next.js application is located in the `ui/` directory. The `vercel.json` configuration files have been set up to handle this structure correctly.
 
 ## 🚀 Deployment Options
 
 ### Option 1: Vercel Deployment (Recommended)
 
-1. **Create Vercel Account**
-   - Go to [vercel.com](https://vercel.com)
-   - Sign up with your GitHub account
+### Quick Setup
+1. Install Vercel CLI: `npm i -g vercel`
+2. Login: `vercel login`
+3. Deploy: `vercel --prod`
 
-2. **Import Project**
-   - Click "New Project"
-   - Import your `serenity-RapidFrame/plumber` repository
-   - Set root directory to `ui`
+### Manual Vercel Setup
+1. Go to [vercel.com](https://vercel.com)
+2. Import your GitHub repository: `https://github.com/serenity-RapidFrame/plumber`
+3. **IMPORTANT**: Vercel should automatically detect the `vercel.json` configuration
+4. If not detected, manually set:
+   - **Root Directory**: `ui`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `.next`
+   - **Install Command**: `npm install`
 
-3. **Configure Environment Variables in Vercel**
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://ilkalkvghslckvmpkxbb.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
-   STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
-   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
-   STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-   ADMIN_EMAIL=admin@yourdomain.com
-   ADMIN_PASSWORD=your_secure_password
-   ADMIN_NAME=Your Full Name
-   ```
+### Environment Variables (Vercel Dashboard)
+Add these in your Vercel project settings:
 
-4. **Get Vercel Tokens**
-   - Go to Vercel Dashboard → Settings → Tokens
-   - Create a new token
-   - Copy your Organization ID and Project ID
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-### Option 2: Other Platforms
+# Stripe
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-The system can also be deployed on:
-- **Netlify**: Use the build.yml workflow
-- **Railway**: Direct GitHub integration
-- **DigitalOcean App Platform**: Connect GitHub repo
-- **Heroku**: Use buildpacks for Next.js
+# Site Configuration
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+
+# Admin Configuration
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your_secure_password
+ADMIN_NAME=Admin Name
+```
+
+### GitHub Actions Deployment
+The repository includes GitHub Actions workflow for automatic deployment. Set up these secrets in your GitHub repository:
+
+1. Go to your repository settings
+2. Navigate to "Secrets and variables" → "Actions"
+3. Add these secrets:
+
+```bash
+# Vercel
+VERCEL_TOKEN=your_vercel_token
+ORG_ID=your_vercel_org_id
+PROJECT_ID=your_vercel_project_id
+
+# Environment variables (same as above)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your_secure_password
+ADMIN_NAME=Admin Name
+```
 
 ## 🔧 GitHub Secrets Setup
 
@@ -180,3 +208,100 @@ For deployment issues:
 4. Test locally before deploying
 
 **Happy Deploying! 🚀** 
+
+## Troubleshooting 404 Errors
+
+If you're getting 404 errors after deployment:
+
+### 1. Verify Directory Structure
+- Ensure `vercel.json` is in the root directory
+- Ensure `ui/vercel.json` exists in the ui directory
+- Check that the build is pointing to the correct directory
+
+### 2. Check Build Logs
+- Look for build errors in Vercel dashboard
+- Verify all dependencies are installed correctly
+- Check that environment variables are set
+
+### 3. Verify Routes
+- Ensure all pages are in `ui/app/` directory
+- Check that `ui/app/page.tsx` exists (homepage)
+- Verify middleware configuration if using custom routing
+
+### 4. Force Redeploy
+```bash
+# From root directory
+vercel --prod --force
+```
+
+## Alternative Deployment Platforms
+
+### Netlify
+1. Connect your GitHub repository
+2. Set build settings:
+   - **Base directory**: `ui`
+   - **Build command**: `npm run build`
+   - **Publish directory**: `ui/.next`
+3. Add environment variables in Netlify dashboard
+
+### Railway
+1. Connect GitHub repository
+2. Set root directory to `ui`
+3. Railway will auto-detect Next.js
+4. Add environment variables
+
+### DigitalOcean App Platform
+1. Create new app from GitHub
+2. Configure build settings:
+   - **Source Directory**: `ui`
+   - **Build Command**: `npm run build`
+   - **Run Command**: `npm start`
+
+## Post-Deployment Checklist
+
+1. ✅ Test homepage loads correctly
+2. ✅ Test booking form functionality
+3. ✅ Test admin login at `/admin/login`
+4. ✅ Verify Stripe payment integration
+5. ✅ Test Supabase database connection
+6. ✅ Check all environment variables are set
+7. ✅ Verify webhook endpoints work
+8. ✅ Test responsive design on mobile
+
+## Common Issues and Solutions
+
+### Build Fails
+- Check Node.js version (use 18.x or 20.x)
+- Verify all dependencies in `ui/package.json`
+- Check for TypeScript errors
+
+### Environment Variables Not Working
+- Ensure variables are prefixed with `NEXT_PUBLIC_` for client-side access
+- Check variable names match exactly
+- Restart deployment after adding variables
+
+### Database Connection Issues
+- Verify Supabase URL and key are correct
+- Check Supabase project is active
+- Ensure database migrations are applied
+
+### Stripe Integration Issues
+- Verify webhook endpoint is set correctly
+- Check Stripe keys are for the correct environment
+- Ensure webhook secret matches
+
+## Support
+
+If you encounter issues:
+1. Check the build logs in your deployment platform
+2. Verify all environment variables are set correctly
+3. Ensure the `vercel.json` configuration is correct
+4. Test locally with `cd ui && npm run dev`
+
+## Security Notes
+
+- Never commit `.env` files to version control
+- Use strong passwords for admin accounts
+- Regularly rotate API keys
+- Monitor webhook endpoints for unusual activity
+- Keep dependencies updated 
