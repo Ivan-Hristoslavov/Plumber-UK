@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminProfileData } from "@/components/AdminProfileData";
 
 type DashboardStats = {
   totalBookings: number;
@@ -158,7 +159,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
-            Welcome back, Plamen! Here's what's happening today.
+            Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
           </p>
         </div>
         <div className="flex items-center space-x-3">

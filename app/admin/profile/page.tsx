@@ -1,6 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { ServiceAreasManager } from "@/components/ServiceAreasManager";
+import { AdminPricingManager } from "@/components/AdminPricingManager";
+import { AdminGalleryManager } from "@/components/AdminGalleryManager";
+import { AdminReviewsManager } from '@/components/AdminReviewsManager';
 
 type ProfileData = {
   // Personal Information
@@ -8,6 +13,13 @@ type ProfileData = {
   lastName: string;
   email: string;
   phone: string;
+  about: string;
+
+  // About Me Customization
+  yearsOfExperience: string;
+  specializations: string;
+  certifications: string;
+  responseTime: string;
 
   // Business Information
   businessName: string;
@@ -41,17 +53,24 @@ type PasswordData = {
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<
-    "personal" | "business" | "security"
+    "personal" | "business" | "security" | "areas" | "pricing" | "gallery" | "reviews"
   >("personal");
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const { profile: dbProfile, loading } = useAdminProfile();
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: "Plamen",
     lastName: "Zhelev",
     email: "plamen@fixmyleak.co.uk",
     phone: "+44 7700 900123",
+    about: "",
+
+    yearsOfExperience: "10+",
+    specializations: "Emergency repairs, Boiler installations, Bathroom plumbing",
+    certifications: "Gas Safe Registered, City & Guilds Level 3",
+    responseTime: "45 minutes",
 
     businessName: "Fix My Leak Ltd",
     businessAddress: "123 Plumbing Street",
@@ -80,23 +99,83 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    // Load profile data from localStorage
-    const savedProfile = localStorage.getItem("adminProfile");
+    // Load profile data from database
+    if (dbProfile && !loading) {
+      const [firstName, ...lastNameParts] = dbProfile.name.split(' ');
+      const lastName = lastNameParts.join(' ');
+      
+      setProfileData({
+        firstName: firstName || "Plamen",
+        lastName: lastName || "Zhelev",
+        email: dbProfile.email || "plamen@fixmyleak.co.uk",
+        phone: dbProfile.phone || "+44 7700 900123",
+        about: dbProfile.about || "",
 
-    if (savedProfile) {
-      setProfileData({ ...profileData, ...JSON.parse(savedProfile) });
+        yearsOfExperience: dbProfile.years_of_experience || "10+",
+        specializations: dbProfile.specializations || "Emergency repairs, Boiler installations, Bathroom plumbing",
+        certifications: dbProfile.certifications || "Gas Safe Registered, City & Guilds Level 3",
+        responseTime: dbProfile.response_time || "45 minutes",
+
+        businessName: dbProfile.company_name || "Fix My Leak Ltd",
+        businessAddress: dbProfile.company_address || "123 Plumbing Street",
+        businessCity: "London",
+        businessPostcode: "SW1A 1AA",
+        businessPhone: dbProfile.phone || "0800 123 4567",
+        businessEmail: dbProfile.email || "info@fixmyleak.co.uk",
+        vatNumber: "GB123456789",
+        registrationNumber: "12345678",
+
+        bankName: dbProfile.bank_name || "Barclays Bank",
+        accountNumber: dbProfile.account_number || "12345678",
+        sortCode: dbProfile.sort_code || "20-00-00",
+
+        gasRegNumber: dbProfile.gas_safe_number || "GAS123456",
+        insuranceProvider: dbProfile.insurance_provider || "Zurich Insurance",
+        insurancePolicyNumber: "POL123456789",
+
+        avatar: "",
+      });
     }
-  }, []);
+  }, [dbProfile, loading]);
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // Save to localStorage (in production, this would be an API call)
-      localStorage.setItem("adminProfile", JSON.stringify(profileData));
+      // Prepare the data for the API
+      const profileUpdate = {
+        name: `${profileData.firstName} ${profileData.lastName}`,
+        email: profileData.email,
+        phone: profileData.phone,
+        about: profileData.about,
+        years_of_experience: profileData.yearsOfExperience,
+        specializations: profileData.specializations,
+        certifications: profileData.certifications,
+        response_time: profileData.responseTime,
+        company_name: profileData.businessName,
+        company_address: profileData.businessAddress,
+        bank_name: profileData.bankName,
+        account_number: profileData.accountNumber,
+        sort_code: profileData.sortCode,
+        gas_safe_number: profileData.gasRegNumber,
+        insurance_provider: profileData.insuranceProvider,
+      };
+
+      const response = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileUpdate),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update profile");
+      }
+
       setSaveMessage("Profile updated successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       setSaveMessage("Error updating profile");
+      console.error("Error updating profile:", error);
     } finally {
       setIsSaving(false);
     }
@@ -137,6 +216,10 @@ export default function ProfilePage() {
     { id: "personal", name: "Personal Info", icon: "👤" },
     { id: "business", name: "Business Info", icon: "🏢" },
     { id: "security", name: "Security", icon: "🔒" },
+    { id: "areas", name: "Service Areas", icon: "🗺️" },
+    { id: "pricing", name: "Pricing", icon: "💷" },
+    { id: "gallery", name: "Gallery", icon: "📸" },
+    { id: "reviews", name: "Reviews", icon: "📋" },
   ];
 
   return (
@@ -320,6 +403,106 @@ export default function ProfilePage() {
                         })
                       }
                     />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      About Me
+                    </label>
+                    <textarea
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      rows={6}
+                      placeholder="Tell your story... Share your experience, qualifications, and what makes you unique as a plumber."
+                      value={profileData.about}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          about: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
+                      This will be displayed on your public profile page.
+                    </p>
+                  </div>
+
+                  {/* About Me Customization Fields */}
+                  <div className="md:col-span-2">
+                    <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+                      About Me Customization
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                          Years of Experience
+                        </label>
+                        <input
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          type="text"
+                          placeholder="e.g., 10+ years"
+                          value={profileData.yearsOfExperience}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              yearsOfExperience: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                          Response Time
+                        </label>
+                        <input
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          type="text"
+                          placeholder="e.g., 45 minutes"
+                          value={profileData.responseTime}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              responseTime: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                          Specializations
+                        </label>
+                        <input
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          type="text"
+                          placeholder="e.g., Emergency repairs, Boiler installations, Bathroom plumbing"
+                          value={profileData.specializations}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              specializations: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                          Certifications
+                        </label>
+                        <input
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          type="text"
+                          placeholder="e.g., Gas Safe Registered, City & Guilds Level 3"
+                          value={profileData.certifications}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              certifications: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 transition-colors duration-300">
+                      These fields help customize how your information appears on the public website.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -689,169 +872,110 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
                   Security Settings
                 </h3>
-
-                {/* Current Password Info */}
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                        Password
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Last changed 30 days ago
-                      </p>
-                    </div>
-                    <button
-                      className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 rounded-lg transition-colors duration-300"
-                      onClick={() => setShowPasswordForm(!showPasswordForm)}
-                    >
-                      {showPasswordForm ? "Cancel" : "Change Password"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Change Password Form */}
-                {showPasswordForm && (
-                  <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                    <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                      Change Password
-                    </h4>
-                    <div className="space-y-4">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Current Password
-                        </label>
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                          type="password"
-                          value={passwordData.currentPassword}
-                          onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              currentPassword: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          New Password
-                        </label>
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                          type="password"
-                          value={passwordData.newPassword}
-                          onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              newPassword: e.target.value,
-                            })
-                          }
-                        />
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Password must be at least 8 characters long
+                        <h4 className="text-md font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                          Change Password
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                          Update your account password for enhanced security.
                         </p>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Confirm New Password
-                        </label>
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                          type="password"
-                          value={passwordData.confirmPassword}
-                          onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              confirmPassword: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
-                          onClick={() => setShowPasswordForm(false)}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
-                          disabled={
-                            isSaving ||
-                            !passwordData.currentPassword ||
-                            !passwordData.newPassword ||
-                            !passwordData.confirmPassword
-                          }
-                          onClick={handleChangePassword}
-                        >
-                          {isSaving ? (
-                            <>
-                              <svg
-                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  fill="currentColor"
-                                />
-                              </svg>
-                              Changing...
-                            </>
-                          ) : (
-                            "Change Password"
-                          )}
-                        </button>
-                      </div>
+                      <button
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-300"
+                        onClick={() => setShowPasswordForm(!showPasswordForm)}
+                      >
+                        {showPasswordForm ? "Cancel" : "Change Password"}
+                      </button>
                     </div>
-                  </div>
-                )}
 
-                {/* Security Information */}
-                <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6">
-                  <div className="flex items-start">
-                    <svg
-                      className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        clipRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        fillRule="evenodd"
-                      />
-                    </svg>
-                    <div>
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                        Security Tips
-                      </h4>
-                      <ul className="text-sm text-blue-800 dark:text-blue-200 mt-2 space-y-1">
-                        <li>
-                          • Use a strong password with at least 8 characters
-                        </li>
-                        <li>
-                          • Include uppercase, lowercase, numbers, and special
-                          characters
-                        </li>
-                        <li>• Don't share your password with anyone</li>
-                        <li>• Change your password regularly</li>
-                        <li>• Log out when using shared computers</li>
-                      </ul>
-                    </div>
+                    {showPasswordForm && (
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                            Current Password
+                          </label>
+                          <input
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            type="password"
+                            value={passwordData.currentPassword}
+                            onChange={(e) =>
+                              setPasswordData({
+                                ...passwordData,
+                                currentPassword: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                            New Password
+                          </label>
+                          <input
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            type="password"
+                            value={passwordData.newPassword}
+                            onChange={(e) =>
+                              setPasswordData({
+                                ...passwordData,
+                                newPassword: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                            Confirm New Password
+                          </label>
+                          <input
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            type="password"
+                            value={passwordData.confirmPassword}
+                            onChange={(e) =>
+                              setPasswordData({
+                                ...passwordData,
+                                confirmPassword: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                            disabled={isSaving}
+                            onClick={handleChangePassword}
+                          >
+                            {isSaving ? "Changing..." : "Change Password"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Service Areas Tab */}
+          {activeTab === "areas" && (
+            <ServiceAreasManager />
+          )}
+
+          {/* Pricing Tab */}
+          {activeTab === "pricing" && (
+            <AdminPricingManager />
+          )}
+
+          {/* Gallery Tab */}
+          {activeTab === "gallery" && (
+            <AdminGalleryManager />
+          )}
+
+          {/* Reviews Tab */}
+          {activeTab === "reviews" && (
+            <AdminReviewsManager />
           )}
         </div>
       </div>

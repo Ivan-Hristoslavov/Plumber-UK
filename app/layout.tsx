@@ -7,55 +7,62 @@ import { Providers } from "./providers";
 
 import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
+import { getAdminProfile } from "@/lib/admin-profile";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "FixMyLeak - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea",
-  description:
-    "Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. 45-minute response time. Gas Safe registered with 10+ years experience.",
-  keywords: [
-    "emergency plumber London",
-    "plumber Clapham",
-    "plumber Chelsea", 
-    "plumber Battersea",
-    "plumber Balham",
-    "plumber Wandsworth",
-    "plumber Streatham",
-    "leak detection London",
-    "same day plumber",
-    "Gas Safe plumber",
-    "emergency callout London",
-    "boiler repair London",
-    "bathroom installation London"
-  ],
-  icons: {
-    icon: "/favicon.ico",
-  },
-  openGraph: {
-    title: "FixMyLeak - Emergency Plumber London | Same Day Service",
-    description: "Professional emergency plumber covering South West London with 45-minute response time. Gas Safe registered.",
-    type: "website",
-    locale: "en_GB",
-    siteName: "FixMyLeak",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "FixMyLeak - Emergency Plumber London",
-    description: "Professional emergency plumber covering South West London with same-day service.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getAdminProfile();
+  const companyName = profile?.company_name || "FixMyLeak";
+  const adminName = profile?.name || "Professional Plumber";
+  
+  return {
+    title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
+    description:
+      `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. 45-minute response time. Gas Safe registered with 10+ years experience.`,
+    keywords: [
+      "emergency plumber London",
+      "plumber Clapham",
+      "plumber Chelsea", 
+      "plumber Battersea",
+      "plumber Balham",
+      "plumber Wandsworth",
+      "plumber Streatham",
+      "leak detection London",
+      "same day plumber",
+      "Gas Safe plumber",
+      "emergency callout London",
+      "boiler repair London",
+      "bathroom installation London"
+    ],
+    icons: {
+      icon: "/favicon.ico",
+    },
+    openGraph: {
+      title: `${companyName} - Emergency Plumber London | Same Day Service`,
+      description: `Professional emergency plumber covering South West London with 45-minute response time. Gas Safe registered.`,
+      type: "website",
+      locale: "en_GB",
+      siteName: companyName,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${companyName} - Emergency Plumber London`,
+      description: `Professional emergency plumber covering South West London with same-day service.`,
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-};
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

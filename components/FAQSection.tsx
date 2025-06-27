@@ -1,41 +1,10 @@
 "use client";
 
 import { useState } from "react";
-
-const faqItems = [
-  {
-    question: "What areas do you cover?",
-    answer:
-      "We provide plumbing services across the entire United Kingdom, with 24/7 emergency coverage in major cities.",
-  },
-  {
-    question: "Are your plumbers qualified?",
-    answer:
-      "Yes, all our plumbers are fully qualified, Gas Safe registered, and undergo regular training to maintain the highest standards.",
-  },
-  {
-    question: "Do you offer emergency services?",
-    answer:
-      "Yes, we provide 24/7 emergency plumbing services. Our emergency team is always on call to handle urgent situations.",
-  },
-  {
-    question: "What are your payment terms?",
-    answer:
-      "We accept all major credit cards, bank transfers, and cash payments. Payment is due upon completion of work.",
-  },
-  {
-    question: "How quickly can you respond to emergencies?",
-    answer:
-      "For emergency calls, we aim to respond within 30-60 minutes in major cities and within 2 hours in rural areas.",
-  },
-  {
-    question: "Do you provide warranties on your work?",
-    answer:
-      "Yes, we provide comprehensive warranties on all our work. Parts come with manufacturer warranties, and our workmanship is guaranteed for 12 months.",
-  },
-];
+import { useFAQ } from "@/hooks/useFAQ";
 
 export function FAQSection() {
+  const { faqItems, isLoading, error } = useFAQ();
   const [openItems, setOpenItems] = useState<number[]>([]);
 
   const toggleItem = (index: number) => {
@@ -43,6 +12,35 @@ export function FAQSection() {
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="text-gray-600 dark:text-gray-300">Loading FAQ...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || faqItems.length === 0) {
+    return (
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              {error ? "Error loading FAQ" : "No FAQ items available yet."}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
@@ -59,7 +57,7 @@ export function FAQSection() {
         <div className="space-y-4">
           {faqItems.map((item, index) => (
             <div
-              key={index}
+              key={item.id}
               className="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600 overflow-hidden"
             >
               <button

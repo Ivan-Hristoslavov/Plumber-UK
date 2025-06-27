@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import NavigationNavbar from "./NavigationNavbar";
 import { ButtonCallNow } from "./ButtonCallNow";
+import { AdminProfileData } from "@/components/AdminProfileData";
 
 import { supabase } from "@/lib/supabase";
 
@@ -269,7 +270,9 @@ export default function LayoutMain({
                   </svg>
                   <div>
                     <p className="text-gray-300">Emergency 24/7</p>
-                    <p className="text-white font-semibold">0800 123 4567</p>
+                    <p className="text-white font-semibold">
+                      <AdminProfileData type="phone" fallback="0800 123 4567" />
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -288,7 +291,9 @@ export default function LayoutMain({
                   </svg>
                   <div>
                     <p className="text-gray-300">Email Us</p>
-                    <p className="text-white">hello@fixmyleak.com</p>
+                    <p className="text-white">
+                      <AdminProfileData type="email" fallback="hello@fixmyleak.com" />
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -324,7 +329,7 @@ export default function LayoutMain({
           <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
               <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} FixMyLeak. All rights reserved. Licensed & Insured
+                © {new Date().getFullYear()} <AdminProfileData type="company_name" fallback="FixMyLeak" />. All rights reserved. Licensed & Insured
                 Plumbers.
               </p>
               <p className="text-gray-400 text-sm">

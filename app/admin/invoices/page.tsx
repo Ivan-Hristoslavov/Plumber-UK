@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { jsPDF } from "jspdf";
+import { useAdminProfile } from "@/hooks/useAdminProfile";
 
 import Tooltip from "../../../components/Tooltip";
 
@@ -74,6 +75,8 @@ export default function InvoicesPage() {
   >("idle");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [emailingId, setEmailingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState("");
+  const { profile: dbProfile } = useAdminProfile();
 
   const [newInvoice, setNewInvoice] = useState({
     customer_id: "",
@@ -85,7 +88,6 @@ export default function InvoicesPage() {
     ), // 30 days from now
     notes: "",
   });
-  const [formError, setFormError] = useState("");
 
   // Load data on component mount
   useEffect(() => {
@@ -154,8 +156,9 @@ export default function InvoicesPage() {
       const vatAmount = Number((selectedBooking.amount - subtotal).toFixed(2));
 
       const invoiceData = {
+        booking_id: selectedBooking.id,
         customer_id: newInvoice.customer_id,
-        booking_id: newInvoice.booking_id,
+        invoice_number: `INV-${Date.now()}`,
         invoice_date: newInvoice.invoice_date,
         due_date: newInvoice.due_date,
         subtotal: subtotal,
@@ -163,10 +166,10 @@ export default function InvoicesPage() {
         vat_amount: vatAmount,
         total_amount: selectedBooking.amount,
         status: "pending",
-        company_name: "FixMyLeak Ltd",
-        company_address: "London, UK",
-        company_phone: "+44 7700 123456",
-        company_email: "admin@fixmyleak.com",
+        company_name: dbProfile?.company_name || "FixMyLeak Ltd",
+        company_address: dbProfile?.company_address || "London, UK",
+        company_phone: dbProfile?.phone || "+44 7700 123456",
+        company_email: dbProfile?.email || "admin@fixmyleak.com",
         company_vat_number: "GB987654321",
         notes: newInvoice.notes || null,
       };

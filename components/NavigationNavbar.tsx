@@ -11,6 +11,8 @@ import { ThemeToggle } from "./ThemeToggle";
 const navigation = [
   { name: "Home", href: "#home" },
   { name: "Pricing", href: "#pricing" },
+  { name: "Gallery", href: "#gallery" },
+  { name: "Reviews", href: "#reviews" },
   { name: "About", href: "#about" },
   { name: "Service Areas", href: "#areas" },
   { name: "FAQ", href: "#faq" },

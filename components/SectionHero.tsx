@@ -1,6 +1,11 @@
 "use client";
 
+import { ButtonCallNow } from "./ButtonCallNow";
+import { useAreas } from "@/hooks/useAreas";
+
 export function SectionHero() {
+  const { areas, loading: areasLoading } = useAreas();
+
   return (
     <section
       className="relative min-h-screen flex items-start justify-center overflow-hidden py-8"
@@ -35,15 +40,6 @@ export function SectionHero() {
 
           {/* Trust Badges - Simple clean row */}
           <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-10 gap-y-2">
-            <div className="flex items-center">
-              <div className="w-5 h-5 mr-2 text-green-400">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-white text-sm font-medium">Gas Safe Registered</span>
-            </div>
-            
             <div className="flex items-center">
               <div className="w-5 h-5 mr-2 text-blue-400">
                 <svg viewBox="0 0 20 20" fill="currentColor">
@@ -89,28 +85,37 @@ export function SectionHero() {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-4xl mx-auto">
-            {[
-              { name: "Clapham", postcode: "SW4" },
-              { name: "Balham", postcode: "SW12" },
-              { name: "Battersea", postcode: "SW8" },
-              { name: "Wandsworth", postcode: "SW18" },
-              { name: "Chelsea", postcode: "SW3" },
-              { name: "Streatham", postcode: "SW16" },
-            ].map((area) => (
-              <div
-                key={area.name}
-                className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30"
-              >
-                <div className="flex justify-center mb-1">
-                  <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+            {areasLoading ? (
+              // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-white/10 backdrop-blur-md rounded-lg py-3 px-2 text-center animate-pulse"
+                >
+                  <div className="flex justify-center mb-1">
+                    <div className="w-5 h-5 bg-white/20 rounded"></div>
+                  </div>
+                  <div className="h-4 bg-white/20 rounded mb-1"></div>
+                  <div className="h-3 bg-white/20 rounded w-8 mx-auto"></div>
                 </div>
-                <div className="text-white font-medium">{area.name}</div>
-                <div className="text-blue-200 text-xs">{area.postcode}</div>
-              </div>
-            ))}
+              ))
+            ) : (
+              areas.map((area) => (
+                <div
+                  key={area.id}
+                  className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30"
+                >
+                  <div className="flex justify-center mb-1">
+                    <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-white font-medium">{area.name}</div>
+                  <div className="text-blue-200 text-xs">{area.postcode}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

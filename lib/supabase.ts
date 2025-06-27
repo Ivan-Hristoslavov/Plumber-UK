@@ -341,6 +341,7 @@ export type Database = {
           password: string;
           company_name: string | null;
           company_address: string | null;
+          about: string | null;
           bank_name: string | null;
           account_number: string | null;
           sort_code: string | null;
@@ -357,6 +358,7 @@ export type Database = {
           password: string;
           company_name?: string | null;
           company_address?: string | null;
+          about?: string | null;
           bank_name?: string | null;
           account_number?: string | null;
           sort_code?: string | null;
@@ -373,6 +375,7 @@ export type Database = {
           password?: string;
           company_name?: string | null;
           company_address?: string | null;
+          about?: string | null;
           bank_name?: string | null;
           account_number?: string | null;
           sort_code?: string | null;
