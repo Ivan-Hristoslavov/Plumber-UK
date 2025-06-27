@@ -31,31 +31,47 @@ export function ReviewForm() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 transition-colors duration-500" id="leave-review">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 relative overflow-hidden" id="leave-review">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%), 
+                           radial-gradient(circle at 75% 75%, #8b5cf6 0%, transparent 50%),
+                           radial-gradient(circle at 50% 50%, #06b6d4 0%, transparent 50%)`
+        }}></div>
+      </div>
+      
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header with Glassmorphism */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-500/20 dark:bg-blue-400/20 rounded-full text-white dark:text-blue-200 text-sm font-medium mb-6 backdrop-blur-sm">
+          <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 rounded-full text-white dark:text-blue-200 text-sm font-medium mb-6 backdrop-blur-sm border border-white/20">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
             </svg>
             Share Your Experience
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+          <h2 className="text-4xl font-bold text-white mb-4 transition-colors duration-300">
             Leave a Review
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
+          <p className="text-xl text-white/80 max-w-3xl mx-auto transition-colors duration-300">
             Help others by sharing your experience with our plumbing services
           </p>
         </div>
 
-        {/* Review Form with Glassmorphism */}
+        {/* Review Form with Enhanced Glassmorphism */}
         <div className="relative">
           {/* Background decorative elements */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-3xl transform rotate-1"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-3xl transform -rotate-1"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-3xl transform rotate-1"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-3xl transform -rotate-1"></div>
           
-          <form onSubmit={handleSubmit} className="relative bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-2xl border border-white/20 dark:border-white/10 transition-colors duration-300">
+          <form onSubmit={handleSubmit} className="relative bg-white/10 dark:bg-white/5 backdrop-blur-xl rounded-3xl p-8 md:p-12 shadow-2xl border border-white/20 dark:border-white/10 transition-colors duration-300">
             {/* Success/Error Messages */}
             {success && (
               <div className="mb-8 p-4 bg-green-500/20 dark:bg-green-400/20 border border-green-400/40 dark:border-green-300/40 rounded-2xl backdrop-blur-sm">
@@ -90,7 +106,7 @@ export function ReviewForm() {
                     type="text"
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium backdrop-blur-sm"
+                    className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/30 dark:border-white/20 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium backdrop-blur-sm"
                     placeholder="Enter your full name"
                     required
                   />
@@ -112,7 +128,7 @@ export function ReviewForm() {
                     type="email"
                     value={form.email}
                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium backdrop-blur-sm"
+                    className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/30 dark:border-white/20 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium backdrop-blur-sm"
                     placeholder="your@email.com"
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-4">
@@ -129,7 +145,7 @@ export function ReviewForm() {
               <label className="block text-sm font-semibold text-white dark:text-white mb-4 transition-colors duration-300">
                 Rate Your Experience
               </label>
-              <div className="flex items-center justify-center gap-2 p-6 bg-yellow-500/10 dark:bg-yellow-400/10 rounded-2xl border border-yellow-400/20 dark:border-yellow-300/20 backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-2 p-6 bg-white/5 dark:bg-white/5 rounded-2xl border border-white/20 dark:border-white/10 backdrop-blur-sm">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <button
                     type="button"
@@ -138,7 +154,7 @@ export function ReviewForm() {
                     className={`group relative w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 backdrop-blur-sm ${
                       form.rating > i 
                         ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/30' 
-                        : 'bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 border border-white/20 dark:border-white/10'
+                        : 'bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 border border-white/30 dark:border-white/20'
                     }`}
                     aria-label={`Rate ${i + 1} stars`}
                   >
@@ -171,7 +187,7 @@ export function ReviewForm() {
                   value={form.message}
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   rows={6}
-                  className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium resize-none backdrop-blur-sm"
+                  className="w-full px-4 py-4 bg-white/10 dark:bg-white/5 border border-white/30 dark:border-white/20 rounded-2xl text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium resize-none backdrop-blur-sm"
                   placeholder="Tell us about your experience with our plumbing services. What did you like? How was our response time and service quality?"
                   required
                 />
