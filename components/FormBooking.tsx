@@ -193,18 +193,18 @@ export function FormBooking() {
 
   return (
     <div className="space-y-6">
-      {/* Form Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-4">
+      {/* Form Header with Glassmorphism */}
+      <div className="text-center mb-8 p-6 rounded-2xl bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-white/20 dark:border-white/10">
+        <div className="inline-flex items-center px-4 py-2 bg-blue-500/20 dark:bg-blue-400/20 rounded-full text-white dark:text-blue-200 text-sm font-medium mb-4 backdrop-blur-sm">
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-4 0h4m-4 0a1 1 0 01-1-1V3a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1m-4 0H8m4 0V3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
           </svg>
           Book a Service
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-2xl font-bold text-white dark:text-white mb-2">
           Schedule Your Plumbing Service
         </h3>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-white/80 dark:text-white/70">
           Fill out the form below and we'll contact you within 45 minutes to confirm your appointment
         </p>
       </div>
@@ -214,7 +214,7 @@ export function FormBooking() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="group">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="name"
             >
               Full Name *
@@ -222,7 +222,7 @@ export function FormBooking() {
             <div className="relative">
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 group-hover:border-white/30 dark:group-hover:border-white/20 font-medium"
                 id="name"
                 name="name"
                 placeholder="Enter your full name"
@@ -230,7 +230,7 @@ export function FormBooking() {
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-4">
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5 text-white/60 dark:text-white/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -248,7 +248,7 @@ export function FormBooking() {
 
           <div className="group">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="email"
             >
               Email Address *
@@ -256,7 +256,7 @@ export function FormBooking() {
             <div className="relative">
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 group-hover:border-white/30 dark:group-hover:border-white/20 font-medium"
                 id="email"
                 name="email"
                 placeholder="your.email@example.com"
@@ -264,7 +264,7 @@ export function FormBooking() {
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-4">
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5 text-white/60 dark:text-white/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -282,7 +282,7 @@ export function FormBooking() {
 
           <div className="group">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="phone"
             >
               Phone Number *
@@ -290,7 +290,7 @@ export function FormBooking() {
             <div className="relative">
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 group-hover:border-white/30 dark:group-hover:border-white/20 font-medium"
                 id="phone"
                 name="phone"
                 placeholder="+44 7XXX XXXXXX"
@@ -298,7 +298,7 @@ export function FormBooking() {
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-4">
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5 text-white/60 dark:text-white/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -316,7 +316,7 @@ export function FormBooking() {
 
           <div className="group md:col-span-2">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="address"
             >
               Service Address *
@@ -324,7 +324,7 @@ export function FormBooking() {
             <div className="relative">
               <textarea
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 group-hover:border-white/30 dark:group-hover:border-white/20 font-medium resize-none"
                 id="address"
                 name="address"
                 placeholder="Enter the full address where service is needed"
@@ -332,7 +332,7 @@ export function FormBooking() {
               />
               <div className="absolute top-3 right-4">
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5 text-white/60 dark:text-white/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -357,17 +357,17 @@ export function FormBooking() {
 
         {/* Service Selection */}
         <div className="space-y-4">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          <label className="block text-sm font-semibold text-white dark:text-white mb-3">
             Select Service Type *
           </label>
           <div className="grid grid-cols-1 gap-4">
             {services.map((service) => (
               <div
                 key={service.id}
-                className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
+                className={`relative p-4 rounded-xl border cursor-pointer transition-all duration-300 transform hover:scale-[1.02] backdrop-blur-sm ${
                   selectedService === service.id
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/20"
-                    : "border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    ? "border-blue-400 dark:border-blue-300 bg-blue-500/20 dark:bg-blue-400/20 shadow-lg shadow-blue-500/20"
+                    : "border-white/20 dark:border-white/10 hover:border-white/40 dark:hover:border-white/20 hover:bg-white/5 dark:hover:bg-white/5"
                 }`}
                 onClick={() => setSelectedService(service.id)}
               >
@@ -382,13 +382,13 @@ export function FormBooking() {
                 <div className="flex items-center space-x-4">
                   <div className="text-2xl">{service.icon}</div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                    <h4 className="font-semibold text-white dark:text-white text-base mb-1">
                       {service.name}
                     </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-sm text-white/70 dark:text-white/60 mb-2">
                       {service.description}
                     </p>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 dark:bg-white/10 text-white dark:text-white backdrop-blur-sm">
                       {service.price}
                     </span>
                   </div>
@@ -397,7 +397,7 @@ export function FormBooking() {
                       selectedService === service.id ? "opacity-100 scale-100" : "opacity-0 scale-75"
                     }`}
                   >
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
                       <svg
                         className="w-4 h-4 text-white"
                         fill="none"
@@ -423,7 +423,7 @@ export function FormBooking() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="group">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="preferred-date"
             >
               Preferred Date *
@@ -431,7 +431,7 @@ export function FormBooking() {
             <div className="relative">
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium [color-scheme:dark]"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white group-hover:border-white/30 dark:group-hover:border-white/20 font-medium [color-scheme:dark]"
                 defaultValue={defaultDate}
                 id="preferred-date"
                 min={minDate}
@@ -443,7 +443,7 @@ export function FormBooking() {
 
           <div className="group">
             <label
-              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-semibold text-white dark:text-white mb-2"
               htmlFor="timeSlot"
             >
               Preferred Time *
@@ -451,17 +451,17 @@ export function FormBooking() {
             <div className="relative">
               <select
                 required
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white group-hover:border-white/30 dark:group-hover:border-white/20 font-medium appearance-none"
                 id="timeSlot"
                 name="timeSlot"
               >
-                <option className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white" value="">
+                <option className="bg-gray-800 text-white" value="">
                   Select a time slot
                 </option>
                 {timeSlots.map((slot) => (
                   <option
                     key={slot}
-                    className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="bg-gray-800 text-white"
                     value={slot}
                   >
                     {slot}
@@ -470,7 +470,7 @@ export function FormBooking() {
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                 <svg
-                  className="w-5 h-5 text-gray-400"
+                  className="w-5 h-5 text-white/60 dark:text-white/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -490,14 +490,14 @@ export function FormBooking() {
         {/* Problem Description */}
         <div className="group">
           <label
-            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-semibold text-white dark:text-white mb-2"
             htmlFor="description"
           >
             Problem Description (Optional)
           </label>
           <div className="relative">
             <textarea
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-white/20 dark:border-white/10 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white dark:text-white placeholder-white/60 dark:placeholder-white/50 group-hover:border-white/30 dark:group-hover:border-white/20 font-medium resize-none"
               id="description"
               name="description"
               placeholder="Please describe your plumbing issue in detail..."
@@ -505,7 +505,7 @@ export function FormBooking() {
             />
             <div className="absolute top-3 right-4">
               <svg
-                className="w-5 h-5 text-gray-400"
+                className="w-5 h-5 text-white/60 dark:text-white/50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -522,17 +522,17 @@ export function FormBooking() {
         </div>
 
         {/* Emergency Option */}
-        <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-4">
+        <div className="bg-red-500/20 dark:bg-red-400/20 border border-red-400/30 dark:border-red-300/30 rounded-xl p-4 backdrop-blur-sm">
           <div className="flex items-center">
             <input
-              className="h-5 w-5 rounded border-red-300 text-red-600 focus:ring-red-500 bg-white dark:bg-gray-700"
+              className="h-5 w-5 rounded border-red-300 text-red-600 focus:ring-red-500 bg-white/10 dark:bg-white/5"
               id="isEmergency"
               name="isEmergency"
               type="checkbox"
             />
             <label className="ml-3 flex items-center" htmlFor="isEmergency">
               <svg
-                className="w-5 h-5 text-red-500 mr-2"
+                className="w-5 h-5 text-red-400 dark:text-red-300 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -544,7 +544,7 @@ export function FormBooking() {
                   strokeWidth={2}
                 />
               </svg>
-              <span className="text-sm font-medium text-red-800 dark:text-red-200">
+              <span className="text-sm font-medium text-white dark:text-white">
                 This is an emergency (45min response time)
               </span>
             </label>
@@ -554,10 +554,10 @@ export function FormBooking() {
         {/* Status Message */}
         {submitMessage && (
           <div
-            className={`p-6 rounded-xl border-2 backdrop-blur-sm ${
+            className={`p-6 rounded-xl border backdrop-blur-sm ${
               submitStatus === "success"
-                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200"
-                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200"
+                ? "bg-green-500/20 dark:bg-green-400/20 border-green-400/40 dark:border-green-300/40 text-green-100 dark:text-green-200 shadow-lg shadow-green-500/20"
+                : "bg-red-500/20 dark:bg-red-400/20 border-red-400/30 dark:border-red-300/30 text-red-100 dark:text-red-200"
             }`}
           >
             {submitStatus === "success" ? (
@@ -565,7 +565,7 @@ export function FormBooking() {
                 {/* Success Icon with Animation */}
                 <div className="flex justify-center mb-4">
                   <div className="relative">
-                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
+                    <div className="w-16 h-16 bg-green-500 dark:bg-green-400 rounded-full flex items-center justify-center animate-pulse">
                       <svg
                         className="w-8 h-8 text-white"
                         fill="none"
@@ -580,25 +580,25 @@ export function FormBooking() {
                         />
                       </svg>
                     </div>
-                    <div className="absolute inset-0 w-16 h-16 bg-green-400 rounded-full animate-ping opacity-20" />
+                    <div className="absolute inset-0 w-16 h-16 bg-green-400 dark:bg-green-300 rounded-full animate-ping opacity-20" />
                   </div>
                 </div>
 
                 {/* Success Title */}
-                <h3 className="text-lg font-bold text-green-800 dark:text-green-200 mb-2">
+                <h3 className="text-lg font-bold text-green-100 dark:text-green-200 mb-2">
                   🎉 Booking Request Sent Successfully!
                 </h3>
 
                 {/* Success Message */}
-                <p className="text-sm text-green-700 dark:text-green-300 mb-4 leading-relaxed">
+                <p className="text-sm text-green-200 dark:text-green-300 mb-4 leading-relaxed">
                   {submitMessage}
                 </p>
 
                 {/* Additional Info */}
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                <div className="bg-green-600/30 dark:bg-green-500/30 rounded-lg p-3 border border-green-400/30 dark:border-green-300/30 backdrop-blur-sm">
                   <div className="flex items-center justify-center mb-2">
                     <svg
-                      className="w-5 h-5 text-green-600 dark:text-green-400 mr-2"
+                      className="w-5 h-5 text-green-300 dark:text-green-200 mr-2"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -610,11 +610,11 @@ export function FormBooking() {
                         strokeWidth={2}
                       />
                     </svg>
-                    <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                    <span className="text-sm font-semibold text-green-200 dark:text-green-100">
                       Next Steps
                     </span>
                   </div>
-                  <ul className="text-sm text-green-600 dark:text-green-400 space-y-1">
+                  <ul className="text-sm text-green-300 dark:text-green-200 space-y-1">
                     <li>✓ Your booking details have been saved</li>
                     <li>✓ We will call you within 45 minutes</li>
                     <li>✓ We'll confirm your appointment time</li>
@@ -627,7 +627,7 @@ export function FormBooking() {
             ) : (
               <div className="flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-red-500"
+                  className="w-5 h-5 mr-2 text-red-400 dark:text-red-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -647,10 +647,10 @@ export function FormBooking() {
 
         {/* Submit Button */}
         <button
-          className={`w-full px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${
+          className={`w-full px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl backdrop-blur-sm ${
             isSubmitting
-              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+              ? "bg-gray-500/50 dark:bg-gray-400/50 text-gray-300 dark:text-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-600"
           }`}
           disabled={isSubmitting}
           type="submit"
@@ -692,9 +692,9 @@ export function FormBooking() {
           )}
         </button>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+        <p className="text-sm text-white/60 dark:text-white/50 text-center">
           * Required fields. For emergencies, call us directly at{" "}
-          <strong className="text-gray-900 dark:text-white">07541777225</strong>
+          <strong className="text-white dark:text-white">07541777225</strong>
         </p>
       </form>
     </div>
