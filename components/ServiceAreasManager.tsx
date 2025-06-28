@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 interface Area {
   id: number;
@@ -14,6 +15,7 @@ interface Area {
 }
 
 export function ServiceAreasManager() {
+  const { showSuccess, showError } = useToast();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -96,9 +98,18 @@ export function ServiceAreasManager() {
         setEditingArea(null);
         resetForm();
         loadAreas();
+        
+        if (editingArea) {
+          showSuccess(ToastMessages.areas.areaUpdated.title, ToastMessages.areas.areaUpdated.message);
+        } else {
+          showSuccess(ToastMessages.areas.areaAdded.title, ToastMessages.areas.areaAdded.message);
+        }
+      } else {
+        showError(ToastMessages.areas.error.title, ToastMessages.areas.error.message);
       }
     } catch (error) {
       console.error("Error saving area:", error);
+      showError(ToastMessages.areas.error.title, ToastMessages.areas.error.message);
     }
   };
 
@@ -128,9 +139,13 @@ export function ServiceAreasManager() {
 
       if (response.ok) {
         loadAreas();
+        showSuccess(ToastMessages.areas.areaDeleted.title, ToastMessages.areas.areaDeleted.message);
+      } else {
+        showError(ToastMessages.areas.error.title, ToastMessages.areas.error.message);
       }
     } catch (error) {
       console.error("Error deleting area:", error);
+      showError(ToastMessages.areas.error.title, ToastMessages.areas.error.message);
     }
   };
 
@@ -160,8 +175,10 @@ export function ServiceAreasManager() {
       });
 
       loadAreas();
+      showSuccess(ToastMessages.areas.areaUpdated.title, "Area order updated successfully!");
     } catch (error) {
       console.error("Error moving area:", error);
+      showError(ToastMessages.areas.error.title, ToastMessages.areas.error.message);
     }
   };
 

@@ -6,6 +6,8 @@ import { ServiceAreasManager } from "@/components/ServiceAreasManager";
 import { AdminPricingManager } from "@/components/AdminPricingManager";
 import { AdminGalleryManager } from "@/components/AdminGalleryManager";
 import { AdminReviewsManager } from '@/components/AdminReviewsManager';
+import { MarkdownEditor } from "@/components/MarkdownEditor";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 type ProfileData = {
   // Personal Information
@@ -59,6 +61,7 @@ export default function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const { profile: dbProfile, loading } = useAdminProfile();
+  const { showSuccess, showError } = useToast();
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: "Plamen",
@@ -171,10 +174,9 @@ export default function ProfilePage() {
         throw new Error(error.error || "Failed to update profile");
       }
 
-      setSaveMessage("Profile updated successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showSuccess(ToastMessages.profile.updated.title, ToastMessages.profile.updated.message);
     } catch (error) {
-      setSaveMessage("Error updating profile");
+      showError(ToastMessages.profile.error.title, ToastMessages.profile.error.message);
       console.error("Error updating profile:", error);
     } finally {
       setIsSaving(false);
@@ -183,30 +185,36 @@ export default function ProfilePage() {
 
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setSaveMessage("New passwords do not match");
-
+      showError(ToastMessages.general.validationError.title, "New password and confirmation do not match.");
       return;
     }
 
-    if (passwordData.newPassword.length < 8) {
-      setSaveMessage("Password must be at least 8 characters long");
-
+    if (passwordData.newPassword.length < 6) {
+      showError(ToastMessages.general.validationError.title, "Password must be at least 6 characters long.");
       return;
     }
 
     setIsSaving(true);
     try {
-      // In production, this would be an API call to change password
-      setSaveMessage("Password changed successfully!");
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+      const response = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to change password");
+      }
+
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setShowPasswordForm(false);
-      setTimeout(() => setSaveMessage(""), 3000);
+      showSuccess(ToastMessages.profile.passwordChanged.title, ToastMessages.profile.passwordChanged.message);
     } catch (error) {
-      setSaveMessage("Error changing password");
+      showError(ToastMessages.profile.error.title, ToastMessages.profile.error.message);
     } finally {
       setIsSaving(false);
     }
@@ -408,15 +416,12 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       About Me
                     </label>
-                    <textarea
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      rows={6}
-                      placeholder="Tell your story... Share your experience, qualifications, and what makes you unique as a plumber."
+                    <MarkdownEditor
                       value={profileData.about}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setProfileData({
                           ...profileData,
-                          about: e.target.value,
+                          about: value,
                         })
                       }
                     />

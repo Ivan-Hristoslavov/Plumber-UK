@@ -4,17 +4,18 @@ import React, { useState } from "react";
 import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
 import { GalleryItem, GallerySection } from "@/types";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 export function AdminGalleryManager() {
   const { galleryItems, loading, error, addGalleryItem, updateGalleryItem, deleteGalleryItem } = useGallery();
   const { gallerySections, isLoading: sectionsLoading, error: sectionsError, addGallerySection, updateGallerySection, deleteGallerySection } = useGallerySections();
+  const { showSuccess, showError } = useToast();
   
   const [activeTab, setActiveTab] = useState<'items' | 'sections'>('items');
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
   const [editingSection, setEditingSection] = useState<GallerySection | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddSectionForm, setShowAddSectionForm] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
 
   const defaultItem = {
     title: "",
@@ -44,18 +45,16 @@ export function AdminGalleryManager() {
     try {
       if (editingItem) {
         await updateGalleryItem(editingItem.id, formData);
-        setSaveMessage("Gallery item updated successfully!");
+        showSuccess(ToastMessages.gallery.itemUpdated.title, ToastMessages.gallery.itemUpdated.message);
         setEditingItem(null);
       } else {
         await addGalleryItem(formData);
-        setSaveMessage("Gallery item added successfully!");
+        showSuccess(ToastMessages.gallery.itemAdded.title, ToastMessages.gallery.itemAdded.message);
         setShowAddForm(false);
       }
       setFormData({ ...defaultItem });
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (err) {
-      setSaveMessage("Error saving gallery item");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
     }
   };
 
@@ -80,11 +79,9 @@ export function AdminGalleryManager() {
     if (confirm("Are you sure you want to delete this gallery item?")) {
       try {
         await deleteGalleryItem(id);
-        setSaveMessage("Gallery item deleted successfully!");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showSuccess(ToastMessages.gallery.itemDeleted.title, ToastMessages.gallery.itemDeleted.message);
       } catch (err) {
-        setSaveMessage("Error deleting gallery item");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
       }
     }
   };
@@ -93,18 +90,16 @@ export function AdminGalleryManager() {
     try {
       if (editingSection) {
         await updateGallerySection(editingSection.id, sectionFormData);
-        setSaveMessage("Gallery section updated successfully!");
+        showSuccess(ToastMessages.gallery.sectionUpdated.title, ToastMessages.gallery.sectionUpdated.message);
         setEditingSection(null);
       } else {
         await addGallerySection(sectionFormData);
-        setSaveMessage("Gallery section added successfully!");
+        showSuccess(ToastMessages.gallery.sectionAdded.title, ToastMessages.gallery.sectionAdded.message);
         setShowAddSectionForm(false);
       }
       setSectionFormData({ ...defaultSection });
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (err) {
-      setSaveMessage("Error saving gallery section");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
     }
   };
 
@@ -124,11 +119,9 @@ export function AdminGalleryManager() {
     if (confirm("Are you sure you want to delete this gallery section? This will remove the section from all gallery items.")) {
       try {
         await deleteGallerySection(id);
-        setSaveMessage("Gallery section deleted successfully!");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showSuccess(ToastMessages.gallery.sectionDeleted.title, ToastMessages.gallery.sectionDeleted.message);
       } catch (err) {
-        setSaveMessage("Error deleting gallery section");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
       }
     }
   };
@@ -193,24 +186,6 @@ export function AdminGalleryManager() {
           {activeTab === 'items' ? 'Add New Item' : 'Add New Section'}
         </button>
       </div>
-
-      {/* Save Message */}
-      {saveMessage && (
-        <div className={`p-4 rounded-lg ${
-          saveMessage.includes("Error") 
-            ? "bg-red-50 text-red-700 border border-red-200" 
-            : "bg-green-50 text-green-700 border border-green-200"
-        }`}>
-          {saveMessage}
-        </div>
-      )}
-
-      {/* Error Message */}
-      {(error || sectionsError) && (
-        <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg">
-          {error || sectionsError}
-        </div>
-      )}
 
       {/* Gallery Items Tab */}
       {activeTab === 'items' && (

@@ -1,9 +1,11 @@
 "use client";
 import { useState } from 'react';
 import { useReviews } from '@/hooks/useReviews';
+import { useToast, ToastMessages } from "@/components/Toast";
 
 export function ReviewForm() {
   const { addReview } = useReviews();
+  const { showSuccess, showError } = useToast();
   const [form, setForm] = useState({ name: '', email: '', message: '', rating: 0 });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
@@ -16,15 +18,15 @@ export function ReviewForm() {
     setSuccess('');
     try {
       if (!form.name || !form.message) {
-        setError('Name and message are required.');
+        showError(ToastMessages.general.validationError.title, 'Name and message are required.');
         setSubmitting(false);
         return;
       }
       await addReview(form);
-      setSuccess('Thank you for your review! It will appear after approval.');
+      showSuccess(ToastMessages.reviews.submitted.title, ToastMessages.reviews.submitted.message);
       setForm({ name: '', email: '', message: '', rating: 0 });
     } catch (err: any) {
-      setError(err.message || 'Error submitting review.');
+      showError(ToastMessages.reviews.error.title, err.message || ToastMessages.reviews.error.message);
     } finally {
       setSubmitting(false);
     }

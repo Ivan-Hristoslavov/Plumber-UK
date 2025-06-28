@@ -3,13 +3,14 @@
 import React, { useState } from "react";
 import { useFAQ } from "@/hooks/useFAQ";
 import { FAQItem } from "@/types";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 export function AdminFAQManager() {
   const { faqItems, isLoading, error, addFAQItem, updateFAQItem, deleteFAQItem } = useFAQ(true);
+  const { showSuccess, showError } = useToast();
   
   const [editingItem, setEditingItem] = useState<FAQItem | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
 
   const defaultItem = {
     question: "",
@@ -24,18 +25,16 @@ export function AdminFAQManager() {
     try {
       if (editingItem) {
         await updateFAQItem(editingItem.id, formData);
-        setSaveMessage("FAQ item updated successfully!");
+        showSuccess(ToastMessages.faq.itemUpdated.title, ToastMessages.faq.itemUpdated.message);
         setEditingItem(null);
       } else {
         await addFAQItem(formData);
-        setSaveMessage("FAQ item added successfully!");
+        showSuccess(ToastMessages.faq.itemAdded.title, ToastMessages.faq.itemAdded.message);
         setShowAddForm(false);
       }
       setFormData({ ...defaultItem });
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (err) {
-      setSaveMessage("Error saving FAQ item");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showError(ToastMessages.faq.error.title, ToastMessages.faq.error.message);
     }
   };
 
@@ -54,11 +53,9 @@ export function AdminFAQManager() {
     if (confirm("Are you sure you want to delete this FAQ item?")) {
       try {
         await deleteFAQItem(id);
-        setSaveMessage("FAQ item deleted successfully!");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showSuccess(ToastMessages.faq.itemDeleted.title, ToastMessages.faq.itemDeleted.message);
       } catch (err) {
-        setSaveMessage("Error deleting FAQ item");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showError(ToastMessages.faq.error.title, ToastMessages.faq.error.message);
       }
     }
   };
@@ -93,17 +90,6 @@ export function AdminFAQManager() {
           Add New FAQ
         </button>
       </div>
-
-      {/* Save Message */}
-      {saveMessage && (
-        <div className={`p-3 rounded-lg ${
-          saveMessage.includes("Error") 
-            ? "bg-red-100 text-red-700" 
-            : "bg-green-100 text-green-700"
-        }`}>
-          {saveMessage}
-        </div>
-      )}
 
       {/* Existing FAQ Items */}
       <div className="space-y-4">

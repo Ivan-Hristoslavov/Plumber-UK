@@ -60,7 +60,9 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<'general' | 'pricing' | 'gallery' | 'areas' | 'faq'>('general');
+  const [activeTab, setActiveTab] = useState<
+    "general" | "pricing" | "gallery" | "areas" | "faq"
+  >("general");
   const { profile: dbProfile } = useAdminProfile();
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     // Update settings with data from admin profile
     if (dbProfile) {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         businessName: dbProfile.company_name || prev.businessName,
         businessEmail: dbProfile.email || prev.businessEmail,
@@ -83,9 +85,7 @@ export default function AdminSettingsPage() {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("admin_settings")
-        .select("*");
+      const { data, error } = await supabase.from("admin_settings").select("*");
 
       if (error) {
         console.error("Error loading settings:", error);
@@ -101,7 +101,7 @@ export default function AdminSettingsPage() {
         }
       });
 
-      setSettings(prev => ({ ...prev, ...settingsMap }));
+      setSettings((prev) => ({ ...prev, ...settingsMap }));
     } catch (error) {
       console.error("Error loading settings:", error);
     } finally {
@@ -110,17 +110,15 @@ export default function AdminSettingsPage() {
   };
 
   const saveSetting = async (key: string, value: any) => {
-    const { error } = await supabase
-      .from("admin_settings")
-      .upsert(
-        {
-          key,
-          value: JSON.stringify(value),
-        },
-        {
-          onConflict: "key",
-        }
-      );
+    const { error } = await supabase.from("admin_settings").upsert(
+      {
+        key,
+        value: JSON.stringify(value),
+      },
+      {
+        onConflict: "key",
+      }
+    );
 
     if (error) {
       throw error;
@@ -150,14 +148,14 @@ export default function AdminSettingsPage() {
   };
 
   const handleInputChange = (key: keyof SettingsState, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   const toggleWorkingDay = (day: string) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       workingDays: prev.workingDays.includes(day)
-        ? prev.workingDays.filter(d => d !== day)
+        ? prev.workingDays.filter((d) => d !== day)
         : [...prev.workingDays, day],
     }));
   };
@@ -185,19 +183,19 @@ export default function AdminSettingsPage() {
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
-            { id: 'general', name: 'General Settings', icon: '⚙️' },
-            { id: 'pricing', name: 'Pricing Cards', icon: '💰' },
-            { id: 'gallery', name: 'Gallery', icon: '🖼️' },
-            { id: 'areas', name: 'Service Areas', icon: '📍' },
-            { id: 'faq', name: 'FAQ', icon: '❓' },
+            { id: "general", name: "General Settings", icon: "⚙️" },
+            { id: "pricing", name: "Pricing Cards", icon: "💰" },
+            { id: "gallery", name: "Gallery", icon: "🖼️" },
+            { id: "areas", name: "Service Areas", icon: "📍" },
+            { id: "faq", name: "FAQ", icon: "❓" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300"
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -208,12 +206,14 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'general' && (
+      {activeTab === "general" && (
         <div className="space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Settings</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                Settings
+              </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
                 Manage your business settings and preferences.
               </p>
@@ -363,104 +363,39 @@ export default function AdminSettingsPage() {
                   Working Days
                 </label>
                 <div className="flex flex-wrap gap-4">
-                  {["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].map(
-                    (day) => (
-                      <label
-                        key={day}
-                        className="inline-flex items-center space-x-2 cursor-pointer"
-                      >
-                        <input
-                          checked={settings.workingDays.includes(day)}
-                          className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
-                          type="checkbox"
-                          onChange={() => toggleWorkingDay(day)}
-                        />
-                        <span className="text-sm text-gray-700 dark:text-gray-300 capitalize transition-colors duration-300">
-                          {day}
-                        </span>
-                      </label>
-                    )
-                  )}
+                  {[
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                    "sunday",
+                  ].map((day) => (
+                    <label
+                      key={day}
+                      className="inline-flex items-center space-x-2 cursor-pointer"
+                    >
+                      <input
+                        checked={settings.workingDays.includes(day)}
+                        className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
+                        type="checkbox"
+                        onChange={() => toggleWorkingDay(day)}
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize transition-colors duration-300">
+                        {day}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Day Off Settings */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
-              Day Off Settings
-            </h2>
-            <div className="space-y-6">
-              <div className="flex items-center space-x-3">
-                <input
-                  checked={settings.dayOffEnabled}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  id="dayOffEnabled"
-                  type="checkbox"
-                  onChange={(e) =>
-                    handleInputChange("dayOffEnabled", e.target.checked)
-                  }
-                />
-                <label
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                  htmlFor="dayOffEnabled"
-                >
-                  Enable Day Off Banner
-                </label>
-              </div>
 
-              {settings.dayOffEnabled && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Day Off Message
-                    </label>
-                    <textarea
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
-                      rows={3}
-                      value={settings.dayOffMessage}
-                      onChange={(e) =>
-                        handleInputChange("dayOffMessage", e.target.value)
-                      }
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                        Start Date
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
-                        type="date"
-                        value={settings.dayOffStartDate}
-                        onChange={(e) =>
-                          handleInputChange("dayOffStartDate", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                        End Date
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
-                        type="date"
-                        value={settings.dayOffEndDate}
-                        onChange={(e) =>
-                          handleInputChange("dayOffEndDate", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Notifications */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+          {/* Notifications 
+          {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
               Notifications
             </h2>
@@ -508,13 +443,14 @@ export default function AdminSettingsPage() {
               </label>
             </div>
           </div>
+          */}
         </div>
       )}
 
-      {activeTab === 'pricing' && <AdminPricingManager />}
-      {activeTab === 'gallery' && <AdminGalleryManager />}
-      {activeTab === 'areas' && <ServiceAreasManager />}
-      {activeTab === 'faq' && <AdminFAQManager />}
+      {activeTab === "pricing" && <AdminPricingManager />}
+      {activeTab === "gallery" && <AdminGalleryManager />}
+      {activeTab === "areas" && <ServiceAreasManager />}
+      {activeTab === "faq" && <AdminFAQManager />}
     </div>
   );
 }

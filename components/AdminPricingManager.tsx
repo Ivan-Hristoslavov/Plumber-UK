@@ -3,12 +3,13 @@
 import React, { useState } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
 import { PricingCard, PricingCardTableRow, PricingCardNote } from "@/types";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 export function AdminPricingManager() {
   const { pricingCards, loading, error, addPricingCard, updatePricingCard, deletePricingCard } = usePricingCards();
+  const { showSuccess, showError } = useToast();
   const [editingCard, setEditingCard] = useState<PricingCard | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
 
   const defaultCard = {
     title: "",
@@ -29,18 +30,16 @@ export function AdminPricingManager() {
     try {
       if (editingCard) {
         await updatePricingCard(editingCard.id, formData);
-        setSaveMessage("Card updated successfully!");
+        showSuccess(ToastMessages.pricing.cardUpdated.title, ToastMessages.pricing.cardUpdated.message);
         setEditingCard(null);
       } else {
         await addPricingCard(formData);
-        setSaveMessage("Card added successfully!");
+        showSuccess(ToastMessages.pricing.cardAdded.title, ToastMessages.pricing.cardAdded.message);
         setShowAddForm(false);
       }
       setFormData(defaultCard);
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (err) {
-      setSaveMessage("Error saving card");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showError(ToastMessages.pricing.error.title, ToastMessages.pricing.error.message);
     }
   };
 
@@ -61,11 +60,9 @@ export function AdminPricingManager() {
     if (confirm("Are you sure you want to delete this pricing card?")) {
       try {
         await deletePricingCard(id);
-        setSaveMessage("Card deleted successfully!");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showSuccess(ToastMessages.pricing.cardDeleted.title, ToastMessages.pricing.cardDeleted.message);
       } catch (err) {
-        setSaveMessage("Error deleting card");
-        setTimeout(() => setSaveMessage(""), 3000);
+        showError(ToastMessages.pricing.error.title, ToastMessages.pricing.error.message);
       }
     }
   };
@@ -200,24 +197,6 @@ export function AdminPricingManager() {
           Add New Card
         </button>
       </div>
-
-      {/* Save Message */}
-      {saveMessage && (
-        <div className={`p-4 rounded-lg ${
-          saveMessage.includes("Error") 
-            ? "bg-red-50 text-red-700 border border-red-200" 
-            : "bg-green-50 text-green-700 border border-green-200"
-        }`}>
-          {saveMessage}
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg">
-          {error}
-        </div>
-      )}
 
       {/* Existing Cards List */}
       <div className="space-y-4">

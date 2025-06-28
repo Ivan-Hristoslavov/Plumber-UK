@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Inter } from "next/font/google";
 
 import { Providers } from "./providers";
+import { ToastProvider } from "@/components/Toast";
 
 import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
@@ -87,7 +88,9 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "system", enableSystem: true, themes: ["light", "dark"] }}>
-          <LayoutMain>{children}</LayoutMain>
+          <ToastProvider>
+            <LayoutMain>{children}</LayoutMain>
+          </ToastProvider>
         </Providers>
       </body>
     </html>

@@ -1,8 +1,10 @@
 "use client";
 import { useReviews } from "@/hooks/useReviews";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 export function AdminReviewsManager() {
   const { reviews, isLoading, error, approveReview, deleteReview, refetch } = useReviews(true);
+  const { showSuccess, showError } = useToast();
 
   if (isLoading) return <div className="py-8 text-center">Loading reviews...</div>;
   if (error) return <div className="py-8 text-center text-red-600">{error}</div>;

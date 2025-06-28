@@ -162,14 +162,6 @@ export default function DashboardPage() {
             Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">
-            Export Report
-          </button>
-          <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300">
-            New Booking
-          </button>
-        </div>
       </div>
 
       {/* Stats Grid */}

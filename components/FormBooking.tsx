@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 type Service = {
   id: string;
@@ -37,7 +38,8 @@ const timeSlots = [
   "16:00 - 18:00",
 ];
 
-export function FormBooking() {
+export default function FormBooking() {
+  const { showSuccess, showError } = useToast();
   const [selectedService, setSelectedService] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
@@ -83,7 +85,9 @@ export function FormBooking() {
         !data.preferredDate ||
         !data.timeSlot
       ) {
-        throw new Error("Please fill in all required fields");
+        showError(ToastMessages.general.validationError.title, "Please fill in all required fields");
+        setIsSubmitting(false);
+        return;
       }
 
       console.log("Submitting booking data:", data);
@@ -166,25 +170,20 @@ export function FormBooking() {
       console.log("Created booking:", newBooking);
 
       // Success!
-      setSubmitStatus("success");
-      setSubmitMessage(
-        "Your booking request has been sent successfully! We have received your details and will contact you within 45 minutes to confirm your appointment.",
-      );
+      showSuccess(ToastMessages.bookings.submitted.title, ToastMessages.bookings.submitted.message);
 
       // Reset form after a delay
       setTimeout(() => {
-        setSubmitStatus("idle");
-        setSubmitMessage("");
         setSelectedService("");
         (e.target as HTMLFormElement).reset();
-      }, 5000);
+      }, 2000);
     } catch (error) {
       console.error("Error submitting booking:", error);
-      setSubmitStatus("error");
-      setSubmitMessage(
+      showError(
+        ToastMessages.bookings.error.title,
         error instanceof Error
           ? error.message
-          : "An unexpected error occurred. Please try again.",
+          : ToastMessages.bookings.error.message
       );
     } finally {
       setIsSubmitting(false);

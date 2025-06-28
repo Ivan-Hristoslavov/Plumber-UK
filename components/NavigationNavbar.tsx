@@ -387,11 +387,11 @@ export default function NavigationNavbar() {
                   )}
                 </div>
               ))}
-              
-              {/* Theme Toggle */}
-              <div className="ml-2">
-                <ThemeToggle size="md" />
-              </div>
+            </div>
+
+            {/* Theme Toggle - Far Right */}
+            <div className="hidden lg:block">
+              <ThemeToggle size="md" />
             </div>
 
             {/* Mobile Menu Button */}

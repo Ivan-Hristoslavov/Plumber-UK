@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import { supabase } from "@/lib/supabase";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 type DayOffSettings = {
   isEnabled: boolean;
@@ -13,6 +13,8 @@ type DayOffSettings = {
 };
 
 export default function DayOffPage() {
+  const { showSuccess, showError } = useToast();
+
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
 
@@ -129,7 +131,6 @@ export default function DayOffPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    setSaveMessage("");
 
     try {
       console.log("Starting to save Day Off settings:", settings);
@@ -138,15 +139,13 @@ export default function DayOffPage() {
       await saveDayOffSettings();
 
       console.log("Day Off settings saved successfully");
-      setSaveMessage("Settings saved successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
+      showSuccess(ToastMessages.profile.dayOffSaved.title, ToastMessages.profile.dayOffSaved.message);
     } catch (error) {
       console.error("Failed to save settings:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
 
-      setSaveMessage(`Error saving settings: ${errorMessage}`);
-      setTimeout(() => setSaveMessage(""), 5000);
+      showError(ToastMessages.profile.error.title, `Error saving settings: ${errorMessage}`);
     } finally {
       setIsSaving(false);
     }
@@ -480,77 +479,74 @@ export default function DayOffPage() {
                 Banner Preview
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                This is how the banner will appear to customers.
+                This is exactly how the banner will appear to customers.
               </p>
             </div>
 
             <div className="p-6">
-              <div className="bg-yellow-400 border border-yellow-500 rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3">
-                    <svg
-                      className="h-5 w-5 text-yellow-800 dark:text-yellow-400 mt-0.5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        clipRule="evenodd"
-                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                        fillRule="evenodd"
-                      />
-                    </svg>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2">
-                        Day Off Notice
-                      </h3>
-                      <p className="text-yellow-700 dark:text-yellow-300 leading-relaxed">
+              {/* Exact copy of client day off banner */}
+              <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 animate-gradient-x rounded-lg">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex items-center justify-between py-2">
+                    <div className="flex items-center space-x-3 flex-1">
+                      <div className="w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center animate-pulse">
+                        <svg
+                          className="h-3 w-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            clipRule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            fillRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                        {settings.startDate &&
+                        new Date() < new Date(settings.startDate)
+                          ? "Upcoming Day Off"
+                          : "Day Off Notice"}
+                      </span>
+                      <span className="text-xs text-amber-800 font-medium">
                         {settings.message}
-                      </p>
+                      </span>
                       {(settings.startDate || settings.endDate) && (
-                        <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
-                            📅 Schedule:
-                          </p>
-                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                        <div className="hidden lg:flex items-center bg-amber-500/40 rounded-full px-3 py-1">
+                          <span className="text-xs font-semibold text-amber-900">
+                            📅{" "}
                             {settings.startDate &&
-                              `From: ${new Date(
-                                settings.startDate
-                              ).toLocaleDateString("en-GB", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}`}
-                            {settings.startDate && settings.endDate && <br />}
+                              `From: ${new Date(settings.startDate).toLocaleDateString("en-GB")}`}
+                            {settings.startDate &&
+                              settings.endDate &&
+                              " • "}
                             {settings.endDate &&
-                              `Until: ${new Date(
-                                settings.endDate
-                              ).toLocaleDateString("en-GB", {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}`}
-                          </p>
+                              `Until: ${new Date(settings.endDate).toLocaleDateString("en-GB")}`}
+                          </span>
                         </div>
                       )}
                     </div>
-                  </div>
-                  <button className="flex-shrink-0 text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-500">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                    <button
+                      className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-600 text-amber-900 hover:text-white transition-all duration-200 flex items-center justify-center group"
+                      onClick={() => {
+                        // This is just for preview - doesn't actually dismiss
+                      }}
                     >
-                      <path
-                        d="M6 18L18 6M6 6l12 12"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        className="h-3 w-3 group-hover:rotate-90 transition-transform duration-200"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
