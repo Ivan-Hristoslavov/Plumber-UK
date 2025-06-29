@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
@@ -10,13 +10,13 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Home", href: "#home" },
-  { name: "Services", href: "#pricing" },
+  { name: "Services", href: "#services" },
   { 
     name: "About", 
     href: "#about",
     dropdown: [
-      { name: "Our Story", href: "#about" },
-      { name: "Service Areas", href: "#areas" },
+      { name: "Our Story", href: "#our-story" },
+      { name: "Service Areas", href: "#service-areas" },
       { name: "Gallery", href: "#gallery" }
     ]
   },
@@ -49,6 +49,7 @@ export default function NavigationNavbar() {
   );
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Check if day off banner is enabled
@@ -174,7 +175,7 @@ export default function NavigationNavbar() {
   useEffect(() => {
     const handleScrollSpy = () => {
       const allSections = [
-        "home", "pricing", "about", "areas", "gallery", "faq", "reviews", "contact"
+        "home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"
       ];
       
       const currentSection = allSections.find((section) => {
@@ -191,33 +192,58 @@ export default function NavigationNavbar() {
 
       if (currentSection) {
         setActiveSection(currentSection);
+        // Update URL without page reload
+        if (pathname === "/") {
+          router.replace(`/#${currentSection}`, { scroll: false });
+        }
       }
     };
+
+    // Check if there's a hash in the URL on initial load
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
+        setActiveSection(hash);
+      }
+    }
 
     window.addEventListener("scroll", handleScrollSpy);
     // Initial check when component mounts
     handleScrollSpy();
 
     return () => window.removeEventListener("scroll", handleScrollSpy);
-  }, []);
+  }, [pathname, router]);
 
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
-    e.preventDefault();
-    const targetId = href.substring(1);
-    const element = document.getElementById(targetId);
+    // If it's an anchor link (starts with #), prevent default and scroll
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const element = document.getElementById(targetId);
 
-    if (element) {
-      // Close mobile menu and dropdowns if open
-      setIsMobileMenuOpen(false);
-      setOpenDropdown(null);
-      // Scroll to the element with offset for the navbar
-      const yOffset = -80; // Adjust based on your navbar height
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      if (element) {
+        // Close mobile menu and dropdowns if open
+        setIsMobileMenuOpen(false);
+        setOpenDropdown(null);
+        
+        // Update URL to reflect the section
+        if (pathname === "/") {
+          router.replace(`/#${targetId}`, { scroll: false });
+        } else {
+          router.push(`/#${targetId}`);
+        }
+        
+        // Scroll to the element with offset for the navbar
+        const yOffset = -80; // Adjust based on your navbar height
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
     }
+    // If it's a regular link (like /privacy, /terms), let it navigate normally
+    // The default behavior will handle the navigation
   };
 
   const isActiveDropdown = (item: any) => {

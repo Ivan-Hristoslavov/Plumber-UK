@@ -1,20 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { Suspense } from "react";
-import LayoutMain from "@/components/LayoutMain";
 import { SectionHero } from "@/components/SectionHero";
 import { SectionPricing } from "@/components/SectionPricing";
 import { FAQSection } from "@/components/FAQSection";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { GallerySection } from "@/components/GallerySection";
-import FooterMain from "@/components/FooterMain";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
 import { useAreas } from "@/hooks/useAreas";
 import FormBooking from "@/components/FormBooking";
 import { ReviewForm } from "@/components/ReviewForm";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import SectionContact from "@/components/SectionContact";
 
 export default function HomePage() {
   const { areas, loading: areasLoading } = useAreas();
@@ -25,12 +23,47 @@ export default function HomePage() {
       <SectionHero />
 
       {/* Pricing Section */}
-      <SectionPricing />
+      <section id="services">
+        <SectionPricing />
+      </section>
 
       {/* About Section */}
       <section
-        className="py-20 bg-white dark:bg-gray-900 transition-colors duration-500"
+        className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500"
         id="about"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+              About Us
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              Professional Plumbing Services
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
+              Trusted plumbing services across South West London with rapid response times and professional expertise
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Story Section */}
+      <section
+        className="py-20 bg-white dark:bg-gray-900 transition-colors duration-500"
+        id="our-story"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -256,7 +289,7 @@ export default function HomePage() {
       {/* Service Areas Section */}
       <section
         className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500"
-        id="areas"
+        id="service-areas"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -404,9 +437,6 @@ export default function HomePage() {
       {/* Gallery Section */}
       <GallerySection />
 
-      {/* Gallery Section */}
-      <GallerySection />
-
       {/* FAQ Section */}
       <FAQSection />
 
@@ -414,247 +444,7 @@ export default function HomePage() {
       <ReviewsSection />
 
       {/* Contact Section */}
-      <section
-        className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 relative overflow-hidden transition-colors duration-500"
-        id="contact"
-      >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%), 
-                             radial-gradient(circle at 75% 75%, #8b5cf6 0%, transparent 50%),
-                             radial-gradient(circle at 50% 50%, #06b6d4 0%, transparent 50%)`,
-            }}
-          ></div>
-        </div>
-
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div
-            className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "2s" }}
-          ></div>
-          <div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "4s" }}
-          ></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 rounded-full text-white dark:text-blue-200 text-sm font-medium mb-6 backdrop-blur-sm border border-white/20">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  Get In Touch
-                </div>
-                <h2 className="text-4xl font-bold text-white mb-6 transition-colors duration-300">
-                  Ready to Fix Your Plumbing?
-                </h2>
-                <p className="text-xl text-white/80 leading-relaxed transition-colors duration-300">
-                  Contact us today for fast, reliable plumbing services. We're
-                  available 24/7 for emergencies.
-                </p>
-              </div>
-
-              {/* Contact Methods */}
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4 p-4 bg-white/10 dark:bg-white/5 rounded-2xl backdrop-blur-sm border border-white/20 dark:border-white/10">
-                  <div className="w-12 h-12 bg-green-500/80 dark:bg-green-600/80 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white transition-colors duration-300">
-                      Phone
-                    </h3>
-                    <p className="text-white/70 transition-colors duration-300">
-                      Call us anytime, 24/7 emergency service
-                    </p>
-                    <a
-                      href="tel:+447700900123"
-                      className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-300"
-                    >
-                      <AdminProfileData
-                        type="phone"
-                        fallback="+44 7700 900123"
-                      />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4 p-4 bg-white/10 dark:bg-white/5 rounded-2xl backdrop-blur-sm border border-white/20 dark:border-white/10">
-                  <div className="w-12 h-12 bg-blue-500/80 dark:bg-blue-600/80 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white transition-colors duration-300">
-                      Email
-                    </h3>
-                    <p className="text-white/70 transition-colors duration-300">
-                      Send us your questions anytime
-                    </p>
-                    <a
-                      href="mailto:plamen@fixmyleak.co.uk"
-                      className="text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-300"
-                    >
-                      <AdminProfileData
-                        type="email"
-                        fallback="plamen@fixmyleak.co.uk"
-                      />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4 p-4 bg-white/10 dark:bg-white/5 rounded-2xl backdrop-blur-sm border border-white/20 dark:border-white/10">
-                  <div className="w-12 h-12 bg-purple-500/80 dark:bg-purple-600/80 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                      <path
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white transition-colors duration-300">
-                      Service Area
-                    </h3>
-                    <p className="text-white/70 transition-colors duration-300">
-                      South West London coverage
-                    </p>
-                    <p className="text-blue-300 font-semibold">
-                      <AdminProfileData
-                        type="service_areas"
-                        fallback="Clapham, Balham, Chelsea, Wandsworth, Battersea"
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Credentials */}
-              <div className="bg-white/10 dark:bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/20 dark:border-white/10 transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-white mb-4 transition-colors duration-300">
-                  Professional Credentials
-                </h3>
-                <div className="flex flex-wrap gap-2 pt-4">
-                  <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">
-                    <svg
-                      className="w-4 h-4 mr-1 text-yellow-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="text-white/90 text-xs font-medium">
-                      Fully Qualified
-                    </span>
-                  </div>
-                  <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">
-                    <svg
-                      className="w-4 h-4 mr-1 text-blue-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        clipRule="evenodd"
-                        d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"
-                        fillRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-white/90 text-xs font-medium">
-                      Public Liability
-                    </span>
-                  </div>
-                  <div className="flex items-center bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/30">
-                    <svg
-                      className="w-4 h-4 mr-1 text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        clipRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        fillRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-white/90 text-xs font-medium">
-                      Gas Safe:{" "}
-                      <AdminProfileData
-                        type="gas_safe_number"
-                        fallback="GAS123456"
-                      />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Booking Form */}
-            <div className="relative">
-              {/* Background decorative elements for form */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-3xl transform rotate-1"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-3xl transform -rotate-1"></div>
-
-              <div className="relative bg-white/10 dark:bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-white/10 transition-colors duration-300">
-                <FormBooking />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <SectionContact />
 
       {/* Review Form Section */}
       <ReviewForm />

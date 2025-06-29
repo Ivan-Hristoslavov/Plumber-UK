@@ -73,7 +73,7 @@ export function SectionHero() {
         </div>
 
         {/* Areas We Cover */}
-        <div id="service-areas" className="w-full mb-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+        <div className="w-full mb-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
           <div className="text-center mb-4">
             <h3 className="text-xl font-semibold text-white mb-1">Areas We Cover</h3>
             <div className="flex items-center justify-center text-green-400 text-sm mb-4">

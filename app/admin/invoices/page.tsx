@@ -9,29 +9,10 @@ import { SendInvoiceModal } from "@/components/SendInvoiceModal";
 import { useToast, ToastMessages } from "@/components/Toast";
 
 import Tooltip from "../../../components/Tooltip";
+import { Invoice as BaseInvoice, Customer, Booking } from "@/types";
 
-type Invoice = {
-  id: string;
-  booking_id: string | null;
-  customer_id: string | null;
-  invoice_number: string;
-  invoice_date: string;
-  due_date: string | null;
-  subtotal: number;
-  vat_rate: number;
-  vat_amount: number;
-  total_amount: number;
-  status: "pending" | "sent" | "paid" | "overdue" | "cancelled";
-  sent_date: string | null;
-  paid_date: string | null;
-  company_name: string;
-  company_address: string;
-  company_phone: string;
-  company_email: string;
-  company_vat_number: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
+// Extended Invoice type with nested customer and booking data for display
+type Invoice = BaseInvoice & {
   customer?: {
     name: string;
     email: string;
@@ -44,26 +25,6 @@ type Invoice = {
     time: string;
     description?: string;
   };
-};
-
-type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  address: string;
-  phone: string;
-  customer_type: string;
-};
-
-type Booking = {
-  id: string;
-  customer_id: string;
-  service: string;
-  date: string;
-  time: string;
-  amount: number;
-  status: string;
-  description?: string;
 };
 
 export default function InvoicesPage() {
@@ -106,7 +67,8 @@ export default function InvoicesPage() {
 
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
-        setBookings(bookingsData.bookings || []);
+        console.log("Bookings data:", bookingsData); // Debug log
+        setBookings(bookingsData.bookings || bookingsData || []);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -116,16 +78,13 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleCreateInvoice = async (invoiceData: any) => {
+  const handleCreateInvoice = async (invoiceData: FormData) => {
     try {
       setCreatingInvoice(true);
       
       const response = await fetch("/api/invoices", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(invoiceData),
+        body: invoiceData, // No need for Content-Type header with FormData
       });
 
       if (response.ok) {

@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readFile } from "fs/promises";
 import { supabase } from "@/lib/supabase";
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
 
 // POST - Send invoice email
 export async function POST(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -40,6 +37,16 @@ export async function POST(
         { error: "Customer email not found" },
         { status: 400 }
       );
+    }
+
+    // Parse image attachments if they exist
+    let imageAttachments: { filename: string; path: string }[] = [];
+    if (invoice.image_attachments) {
+      try {
+        imageAttachments = JSON.parse(invoice.image_attachments);
+      } catch (error) {
+        console.error("Error parsing image attachments:", error);
+      }
     }
 
     // Create Stripe payment link if requested
@@ -80,15 +87,59 @@ export async function POST(
       }
     }
 
+    // Prepare email attachments from images
+    const emailAttachments: { filename: string; content: Buffer; contentType: string }[] = [];
+    
+    for (const attachment of imageAttachments) {
+      try {
+        const fileContent = await readFile(attachment.path);
+        const contentType = getContentType(attachment.filename);
+        
+        emailAttachments.push({
+          filename: attachment.filename,
+          content: fileContent,
+          contentType: contentType
+        });
+      } catch (error) {
+        console.error(`Error reading attachment ${attachment.filename}:`, error);
+        // Continue with other attachments if one fails
+      }
+    }
+
     // Prepare email content
     const emailSubject = `Invoice ${invoice.invoice_number} from ${invoice.company_name}`;
-    const emailBody = generateEmailBody(invoice, paymentLink);
+    const emailBody = generateEmailBody(invoice, paymentLink, imageAttachments.length > 0);
 
     // Here you would integrate with your email service (SendGrid, Nodemailer, etc.)
-    // For now, we'll simulate sending the email
+    // For now, we'll simulate sending the email with attachments info
     console.log("Sending email to:", invoice.customer.email);
     console.log("Subject:", emailSubject);
     console.log("Body:", emailBody);
+    console.log("Attachments:", emailAttachments.map(att => ({ 
+      filename: att.filename, 
+      size: att.content.length,
+      type: att.contentType 
+    })));
+    
+    // Example of how you would send email with nodemailer:
+    /*
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransporter({
+      // Your email service config
+    });
+    
+    await transporter.sendMail({
+      from: invoice.company_email,
+      to: invoice.customer.email,
+      subject: emailSubject,
+      text: emailBody,
+      attachments: emailAttachments.map(att => ({
+        filename: att.filename,
+        content: att.content,
+        contentType: att.contentType
+      }))
+    });
+    */
     
     // Simulate email sending delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -113,6 +164,7 @@ export async function POST(
       message: "Invoice email sent successfully",
       recipient: invoice.customer.email,
       paymentLink: paymentLink,
+      attachments: emailAttachments.length,
     });
   } catch (error) {
     console.error("Error sending invoice email:", error);
@@ -123,7 +175,24 @@ export async function POST(
   }
 }
 
-function generateEmailBody(invoice: any, paymentLink: string | null): string {
+function getContentType(filename: string): string {
+  const ext = filename.toLowerCase().split('.').pop();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+function generateEmailBody(invoice: any, paymentLink: string | null, hasAttachments: boolean): string {
   const customerName = invoice.customer?.name || "Valued Customer";
   const invoiceDate = new Date(invoice.invoice_date).toLocaleDateString("en-GB");
   const dueDate = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString("en-GB") : "Upon receipt";
@@ -139,10 +208,12 @@ Invoice Details:
 - Invoice Number: ${invoice.invoice_number}
 - Invoice Date: ${invoiceDate}
 - Due Date: ${dueDate}
-- Service: ${invoice.booking?.service || 'Plumbing Service'}
+- Service: ${invoice.booking?.service || invoice.manual_service || 'Plumbing Service'}
 - Total Amount: £${invoice.total_amount.toFixed(2)}
 
 ${invoice.notes ? `Additional Notes:\n${invoice.notes}\n\n` : ''}
+
+${hasAttachments ? 'Please see the attached images related to the work completed.\n\n' : ''}
 
 Payment Information:
 ${paymentLink ? 

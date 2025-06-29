@@ -2,30 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  address: string;
-  phone: string;
-}
-
-interface Booking {
-  id: string;
-  customer_id: string;
-  service: string;
-  date: string;
-  time: string;
-  amount: number;
-  status: string;
-  description?: string;
-}
+import { Customer, Booking } from "@/types";
 
 interface CreateInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (invoiceData: any) => Promise<void>;
+  onSubmit: (invoiceData: FormData) => Promise<void>;
   customers: Customer[];
   bookings: Booking[];
   isLoading?: boolean;
@@ -51,6 +33,7 @@ export function CreateInvoiceModal({
     manual_amount: "",
     manual_description: ""
   });
+  const [attachedImages, setAttachedImages] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [useManualEntry, setUseManualEntry] = useState(false);
 
@@ -80,6 +63,42 @@ export function CreateInvoiceModal({
       vatAmount,
       totalAmount
     };
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Validate file types and sizes
+    const validFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB max
+      
+      if (!isValidType) {
+        setErrors(prev => ({ ...prev, images: 'Please select only image files' }));
+        return false;
+      }
+      
+      if (!isValidSize) {
+        setErrors(prev => ({ ...prev, images: 'Image files must be under 10MB' }));
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Limit to 5 images total
+    const totalImages = attachedImages.length + validFiles.length;
+    if (totalImages > 5) {
+      setErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }));
+      return;
+    }
+
+    setAttachedImages(prev => [...prev, ...validFiles]);
+    setErrors(prev => ({ ...prev, images: '' }));
+  };
+
+  const removeImage = (index: number) => {
+    setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -123,30 +142,38 @@ export function CreateInvoiceModal({
 
     const { subtotal, vatAmount, totalAmount } = calculateTotals();
 
-    const invoiceData = {
-      customer_id: formData.customer_id,
-      booking_id: useManualEntry ? null : formData.booking_id,
-      invoice_date: formData.invoice_date,
-      due_date: formData.due_date,
-      subtotal,
-      vat_rate: 20.0,
-      vat_amount: vatAmount,
-      total_amount: totalAmount,
-      status: "pending",
-      company_name: dbProfile?.company_name || "FixMyLeak Ltd",
-      company_address: dbProfile?.company_address || "London, UK",
-      company_phone: dbProfile?.phone || "+44 7700 123456",
-      company_email: dbProfile?.email || "admin@fixmyleak.com",
-      company_vat_number: "GB123456789",
-      notes: formData.notes || null,
-      // Manual entry data
-      ...(useManualEntry && {
-        manual_service: formData.manual_service,
-        manual_description: formData.manual_description
-      })
-    };
+    // Create FormData object to handle file uploads
+    const formDataToSend = new FormData();
+    
+    // Add all form fields
+    formDataToSend.append('customer_id', formData.customer_id);
+    formDataToSend.append('booking_id', useManualEntry ? '' : formData.booking_id);
+    formDataToSend.append('invoice_date', formData.invoice_date);
+    formDataToSend.append('due_date', formData.due_date);
+    formDataToSend.append('subtotal', subtotal.toString());
+    formDataToSend.append('vat_rate', '20.0');
+    formDataToSend.append('vat_amount', vatAmount.toString());
+    formDataToSend.append('total_amount', totalAmount.toString());
+    formDataToSend.append('status', 'pending');
+    formDataToSend.append('company_name', dbProfile?.company_name || "FixMyLeak Ltd");
+    formDataToSend.append('company_address', dbProfile?.company_address || "London, UK");
+    formDataToSend.append('company_phone', dbProfile?.phone || "+44 7700 123456");
+    formDataToSend.append('company_email', dbProfile?.email || "admin@fixmyleak.com");
+    formDataToSend.append('company_vat_number', "GB123456789");
+    formDataToSend.append('notes', formData.notes || '');
 
-    await onSubmit(invoiceData);
+    // Manual entry data
+    if (useManualEntry) {
+      formDataToSend.append('manual_service', formData.manual_service);
+      formDataToSend.append('manual_description', formData.manual_description);
+    }
+
+    // Add images
+    attachedImages.forEach((file, index) => {
+      formDataToSend.append(`images`, file);
+    });
+
+    await onSubmit(formDataToSend);
   };
 
   const resetForm = () => {
@@ -160,6 +187,7 @@ export function CreateInvoiceModal({
       manual_amount: "",
       manual_description: ""
     });
+    setAttachedImages([]);
     setErrors({});
     setUseManualEntry(false);
   };
@@ -233,7 +261,7 @@ export function CreateInvoiceModal({
               disabled={isLoading}
             >
               <option value="">Select a customer</option>
-              {customers.map(customer => (
+              {customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.name} - {customer.email}
                 </option>
@@ -244,7 +272,7 @@ export function CreateInvoiceModal({
             )}
           </div>
 
-          {/* Service Selection Toggle */}
+          {/* Booking or Manual Entry Selection */}
           <div>
             <div className="flex items-center space-x-4 mb-4">
               <label className="flex items-center">
@@ -276,7 +304,7 @@ export function CreateInvoiceModal({
             {!useManualEntry ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Booking *
+                  Completed Booking *
                 </label>
                 <select
                   value={formData.booking_id}
@@ -289,11 +317,16 @@ export function CreateInvoiceModal({
                   disabled={isLoading || !formData.customer_id}
                 >
                   <option value="">
-                    {!formData.customer_id ? "Select a customer first" : "Select a booking"}
+                    {!formData.customer_id 
+                      ? "Please select a customer first" 
+                      : filteredBookings.length === 0 
+                        ? "No completed bookings available" 
+                        : "Select a booking"
+                    }
                   </option>
-                  {filteredBookings.map(booking => (
+                  {filteredBookings.map((booking) => (
                     <option key={booking.id} value={booking.id}>
-                      {booking.service} - {new Date(booking.date).toLocaleDateString()} - £{booking.amount}
+                      {booking.service} - {booking.date} - £{booking.amount.toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -311,7 +344,7 @@ export function CreateInvoiceModal({
                     type="text"
                     value={formData.manual_service}
                     onChange={(e) => setFormData({ ...formData, manual_service: e.target.value })}
-                    placeholder="e.g., Emergency leak repair"
+                    placeholder="e.g., Emergency pipe repair"
                     className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       errors.manual_service 
                         ? 'border-red-300 dark:border-red-600' 
@@ -360,6 +393,83 @@ export function CreateInvoiceModal({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Image Attachments */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Attach Images (Optional)
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              These images will be sent with the invoice email (Max 5 images, 10MB each)
+            </p>
+            
+            <div className="space-y-4">
+              {/* File Input */}
+              <div className="flex items-center justify-center w-full">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG up to 10MB</p>
+                  </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isLoading || attachedImages.length >= 5}
+                  />
+                </label>
+              </div>
+
+              {/* Error Message */}
+              {errors.images && (
+                <p className="text-red-500 text-xs">{errors.images}</p>
+              )}
+
+              {/* Preview of attached images */}
+              {attachedImages.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Attached Images ({attachedImages.length}/5)
+                  </h5>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {attachedImages.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">
+                              {file.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="text-red-500 hover:text-red-700 transition-colors p-1"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {(file.size / 1024 / 1024).toFixed(1)} MB
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Dates */}

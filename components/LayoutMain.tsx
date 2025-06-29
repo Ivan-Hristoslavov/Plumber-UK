@@ -357,12 +357,6 @@ export default function LayoutMain({
               >
                 Terms of Service
               </a>
-              <a
-                className="text-gray-400 hover:text-blue-400 text-sm transition-colors"
-                href="/sitemap"
-              >
-                Sitemap
-              </a>
             </div>
           </div>
         </div>

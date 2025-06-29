@@ -7,6 +7,7 @@ import { AdminPricingManager } from "@/components/AdminPricingManager";
 import { AdminGalleryManager } from "@/components/AdminGalleryManager";
 import { ServiceAreasManager } from "@/components/ServiceAreasManager";
 import { AdminFAQManager } from "@/components/AdminFAQManager";
+import { useToast, ToastMessages } from "@/components/Toast";
 
 type AdminSetting = {
   id: string;
@@ -17,42 +18,62 @@ type AdminSetting = {
 };
 
 type SettingsState = {
+  // Business Information
   businessName: string;
   businessEmail: string;
   businessPhone: string;
   businessAddress: string;
+  businessCity: string;
+  businessPostcode: string;
+  vatNumber: string;
+  registrationNumber: string;
+
+  // Pricing
   emergencyRate: string;
   standardRate: string;
+
+  // Working Hours
+  workingHoursStart: string;
+  workingHoursEnd: string;
+  workingDays: string[];
+
+  // Day Off Settings
   dayOffEnabled: boolean;
   dayOffMessage: string;
   dayOffStartDate: string;
   dayOffEndDate: string;
+
+  // Website Settings
   emailNotifications: boolean;
   smsNotifications: boolean;
   autoConfirmBookings: boolean;
-  workingHoursStart: string;
-  workingHoursEnd: string;
-  workingDays: string[];
 };
 
 const defaultSettings: SettingsState = {
   businessName: "Fix My Leak",
   businessEmail: "info@fixmyleak.com",
   businessPhone: "+44 7700 900123",
-  businessAddress: "London, UK",
+  businessAddress: "123 Plumbing Street",
+  businessCity: "London",
+  businessPostcode: "SW1A 1AA",
+  vatNumber: "GB123456789",
+  registrationNumber: "12345678",
+
   emergencyRate: "150",
   standardRate: "75",
-  dayOffEnabled: false,
-  dayOffMessage:
-    "Limited service hours today. Emergency services available 24/7.",
-  dayOffStartDate: "",
-  dayOffEndDate: "",
-  emailNotifications: true,
-  smsNotifications: false,
-  autoConfirmBookings: false,
+
   workingHoursStart: "08:00",
   workingHoursEnd: "18:00",
   workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+
+  dayOffEnabled: false,
+  dayOffMessage: "Limited service hours today. Emergency services available 24/7.",
+  dayOffStartDate: "",
+  dayOffEndDate: "",
+
+  emailNotifications: true,
+  smsNotifications: false,
+  autoConfirmBookings: false,
 };
 
 export default function AdminSettingsPage() {
@@ -61,9 +82,10 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "general" | "pricing" | "gallery" | "areas" | "faq"
-  >("general");
+    "business" | "working-hours" | "pricing" | "gallery" | "areas" | "faq"
+  >("business");
   const { profile: dbProfile } = useAdminProfile();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     loadSettings();
@@ -136,11 +158,11 @@ export default function AdminSettingsPage() {
         await saveSetting(key, value);
       }
 
-      setMessage("Settings saved successfully!");
+      showSuccess(ToastMessages.profile.updated.title, "Settings saved successfully!");
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
       console.error("Error saving settings:", error);
-      setMessage("Error saving settings. Please try again.");
+      showError(ToastMessages.profile.error.title, "Error saving settings. Please try again.");
       setTimeout(() => setMessage(""), 3000);
     } finally {
       setSaving(false);
@@ -172,10 +194,10 @@ export default function AdminSettingsPage() {
     <div className="p-6 space-y-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-          Settings & Content Management
+          Business Settings
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2 transition-colors duration-300">
-          Manage your business settings, pricing, gallery, and website content.
+          Manage your business information, working hours, pricing, and website content.
         </p>
       </div>
 
@@ -183,7 +205,8 @@ export default function AdminSettingsPage() {
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
-            { id: "general", name: "General Settings", icon: "⚙️" },
+            { id: "business", name: "Business Info", icon: "🏢" },
+            { id: "working-hours", name: "Working Hours", icon: "⏰" },
             { id: "pricing", name: "Pricing Cards", icon: "💰" },
             { id: "gallery", name: "Gallery", icon: "🖼️" },
             { id: "areas", name: "Service Areas", icon: "📍" },
@@ -206,16 +229,16 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "general" && (
+      {activeTab === "business" && (
         <div className="space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-                Settings
+                Business Information
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
-                Manage your business settings and preferences.
+                Manage your business details and company information.
               </p>
             </div>
             <button
@@ -230,18 +253,8 @@ export default function AdminSettingsPage() {
                 </>
               ) : (
                 <>
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M5 13l4 4L19 7"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                   </svg>
                   Save Settings
                 </>
@@ -265,20 +278,18 @@ export default function AdminSettingsPage() {
           {/* Business Information */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
-              Business Information
+              Company Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                   Business Name
                 </label>
                 <input
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                   type="text"
                   value={settings.businessName}
-                  onChange={(e) =>
-                    handleInputChange("businessName", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("businessName", e.target.value)}
                 />
               </div>
               <div>
@@ -286,12 +297,10 @@ export default function AdminSettingsPage() {
                   Business Email
                 </label>
                 <input
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                   type="email"
                   value={settings.businessEmail}
-                  onChange={(e) =>
-                    handleInputChange("businessEmail", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("businessEmail", e.target.value)}
                 />
               </div>
               <div>
@@ -299,34 +308,151 @@ export default function AdminSettingsPage() {
                   Business Phone
                 </label>
                 <input
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                   type="tel"
                   value={settings.businessPhone}
-                  onChange={(e) =>
-                    handleInputChange("businessPhone", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("businessPhone", e.target.value)}
                 />
               </div>
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                   Business Address
                 </label>
                 <input
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                   type="text"
                   value={settings.businessAddress}
-                  onChange={(e) =>
-                    handleInputChange("businessAddress", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("businessAddress", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  City
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="text"
+                  value={settings.businessCity}
+                  onChange={(e) => handleInputChange("businessCity", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  Postcode
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="text"
+                  value={settings.businessPostcode}
+                  onChange={(e) => handleInputChange("businessPostcode", e.target.value)}
                 />
               </div>
             </div>
           </div>
 
+          {/* Company Registration */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+              Company Registration
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  VAT Number
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="text"
+                  placeholder="GB123456789"
+                  value={settings.vatNumber}
+                  onChange={(e) => handleInputChange("vatNumber", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  Company Registration Number
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="text"
+                  placeholder="12345678"
+                  value={settings.registrationNumber}
+                  onChange={(e) => handleInputChange("registrationNumber", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing Rates */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+              Service Rates
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  Standard Rate (£/hour)
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="number"
+                  value={settings.standardRate}
+                  onChange={(e) => handleInputChange("standardRate", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  Emergency Rate (£/hour)
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  type="number"
+                  value={settings.emergencyRate}
+                  onChange={(e) => handleInputChange("emergencyRate", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "working-hours" && (
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                Working Hours
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+                Set your working hours and available days for bookings.
+              </p>
+            </div>
+            <button
+              className="flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+              disabled={saving}
+              onClick={handleSave}
+            >
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                  </svg>
+                  Save Settings
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Working Hours */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
-              Working Hours
+              Business Hours
             </h2>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -335,12 +461,10 @@ export default function AdminSettingsPage() {
                     Start Time
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                     type="time"
                     value={settings.workingHoursStart}
-                    onChange={(e) =>
-                      handleInputChange("workingHoursStart", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("workingHoursStart", e.target.value)}
                   />
                 </div>
                 <div>
@@ -348,12 +472,10 @@ export default function AdminSettingsPage() {
                     End Time
                   </label>
                   <input
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                     type="time"
                     value={settings.workingHoursEnd}
-                    onChange={(e) =>
-                      handleInputChange("workingHoursEnd", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("workingHoursEnd", e.target.value)}
                   />
                 </div>
               </div>
@@ -393,11 +515,74 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Day Off Settings */}
-
-          {/* Notifications 
-          {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
-              Notifications
+              Day Off Settings
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <label className="inline-flex items-center cursor-pointer">
+                  <input
+                    checked={settings.dayOffEnabled}
+                    className="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
+                    type="checkbox"
+                    onChange={(e) => handleInputChange("dayOffEnabled", e.target.checked)}
+                  />
+                  <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    Enable Day Off Mode
+                  </span>
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8 transition-colors duration-300">
+                  Show a banner on your website when you're not available
+                </p>
+              </div>
+
+              {settings.dayOffEnabled && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Day Off Message
+                    </label>
+                    <textarea
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 resize-none"
+                      rows={3}
+                      value={settings.dayOffMessage}
+                      onChange={(e) => handleInputChange("dayOffMessage", e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        Start Date
+                      </label>
+                      <input
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        type="date"
+                        value={settings.dayOffStartDate}
+                        onChange={(e) => handleInputChange("dayOffStartDate", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        End Date
+                      </label>
+                      <input
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        type="date"
+                        value={settings.dayOffEndDate}
+                        onChange={(e) => handleInputChange("dayOffEndDate", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Website Settings */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+              Website Settings
             </h2>
             <div className="space-y-4">
               <label className="flex items-center space-x-2 cursor-pointer">
@@ -405,12 +590,10 @@ export default function AdminSettingsPage() {
                   checked={settings.emailNotifications}
                   className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
                   type="checkbox"
-                  onChange={(e) =>
-                    handleInputChange("emailNotifications", e.target.checked)
-                  }
+                  onChange={(e) => handleInputChange("emailNotifications", e.target.checked)}
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                  Enable email notifications
+                  Enable email notifications for bookings
                 </span>
               </label>
 
@@ -419,12 +602,10 @@ export default function AdminSettingsPage() {
                   checked={settings.smsNotifications}
                   className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
                   type="checkbox"
-                  onChange={(e) =>
-                    handleInputChange("smsNotifications", e.target.checked)
-                  }
+                  onChange={(e) => handleInputChange("smsNotifications", e.target.checked)}
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                  Enable SMS notifications
+                  Enable SMS notifications for bookings
                 </span>
               </label>
 
@@ -433,17 +614,14 @@ export default function AdminSettingsPage() {
                   checked={settings.autoConfirmBookings}
                   className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
                   type="checkbox"
-                  onChange={(e) =>
-                    handleInputChange("autoConfirmBookings", e.target.checked)
-                  }
+                  onChange={(e) => handleInputChange("autoConfirmBookings", e.target.checked)}
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                  Auto-confirm bookings
+                  Automatically confirm new bookings
                 </span>
               </label>
             </div>
           </div>
-          */}
         </div>
       )}
 

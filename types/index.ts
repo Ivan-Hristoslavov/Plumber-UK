@@ -26,6 +26,70 @@ export type AdminProfile = {
   updated_at: string;
 };
 
+export type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  customer_type: 'individual' | 'company';
+  company_name?: string;
+  vat_number?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Booking = {
+  id: string;
+  customer_id?: string;
+  customer_name: string;
+  customer_email?: string;
+  customer_phone?: string;
+  service: string;
+  date: string;
+  time: string;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'pending';
+  payment_status: 'pending' | 'paid' | 'refunded';
+  amount: number;
+  address?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Invoice = {
+  id: string;
+  booking_id?: string;
+  customer_id?: string;
+  invoice_number: string;
+  invoice_date: string;
+  due_date?: string;
+  subtotal: number;
+  vat_rate: number;
+  vat_amount: number;
+  total_amount: number;
+  status: 'pending' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  sent_date?: string;
+  paid_date?: string;
+  company_name: string;
+  company_address: string;
+  company_phone: string;
+  company_email: string;
+  company_vat_number?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  // Optional fields for manual invoice creation
+  manual_description?: string;
+  customer_name?: string;
+  customer_email?: string;
+  customer_address?: string;
+};
+
 export type PricingCard = {
   id: number;
   admin_id: string;

@@ -29,7 +29,10 @@ export async function GET() {
       );
     }
 
-    // Get upcoming bookings
+    // Get upcoming bookings from today onwards (including today)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
     const { data: upcomingBookings, error: bookingsError } = await supabase
       .from("bookings")
       .select(
@@ -38,9 +41,11 @@ export async function GET() {
         customer:customers(name, email)
       `,
       )
-      .gte("date", new Date().toISOString().split("T")[0])
+      .gte("date", today.toISOString().split("T")[0]) // From today onwards
+      .in("status", ["pending", "scheduled"]) // Only pending and scheduled bookings
       .order("date", { ascending: true })
-      .limit(5);
+      .order("time", { ascending: true })
+      .limit(10);
 
     if (bookingsError) {
       return NextResponse.json(

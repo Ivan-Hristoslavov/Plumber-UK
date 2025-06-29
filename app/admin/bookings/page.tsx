@@ -114,6 +114,30 @@ export default function BookingsPage() {
     }
   };
 
+  const handleCompleteBooking = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .update({
+          status: "completed",
+          payment_status: "paid"
+        })
+        .eq("id", bookingId);
+
+      if (error) {
+        console.error("Error completing booking:", error);
+        alert("Error completing booking: " + error.message);
+      } else {
+        loadBookings(); // Reload bookings
+        setSelectedBooking(null); // Close modal
+        alert("Booking completed successfully!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error completing booking");
+    }
+  };
+
   const getStatusColor = (status: Booking["status"]) => {
     switch (status) {
       case "scheduled":
@@ -749,33 +773,33 @@ export default function BookingsPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium text-gray-900 dark:text-white transition-colors duration-300">
                       {selectedBooking.customer_name}
                     </h4>
                     {selectedBooking.customer_email && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         {selectedBooking.customer_email}
                       </p>
                     )}
                     {selectedBooking.customer_phone && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         {selectedBooking.customer_phone}
                       </p>
                     )}
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Service</p>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">Service</p>
+                    <p className="text-sm text-gray-900 dark:text-white transition-colors duration-300">
                       {selectedBooking.service}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Date & Time
                     </p>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-gray-900 dark:text-white transition-colors duration-300">
                       {format(
                         parseISO(selectedBooking.date),
                         "EEEE, MMMM d, yyyy"
@@ -786,10 +810,10 @@ export default function BookingsPage() {
 
                   {selectedBooking.address && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                         Address
                       </p>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-sm text-gray-900 dark:text-white transition-colors duration-300">
                         {selectedBooking.address}
                       </p>
                     </div>
@@ -797,7 +821,7 @@ export default function BookingsPage() {
 
                   <div className="flex justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                         Status
                       </p>
                       <span
@@ -807,7 +831,7 @@ export default function BookingsPage() {
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                         Payment
                       </p>
                       <span
@@ -819,16 +843,16 @@ export default function BookingsPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Amount</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">Amount</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors duration-300">
                       £{selectedBooking.amount}
                     </p>
                   </div>
 
                   {selectedBooking.notes && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Notes</p>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">Notes</p>
+                      <p className="text-sm text-gray-900 dark:text-white transition-colors duration-300">
                         {selectedBooking.notes}
                       </p>
                     </div>
@@ -836,15 +860,24 @@ export default function BookingsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
+                {selectedBooking.status !== "completed" && (
+                  <button
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-700 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    type="button"
+                    onClick={() => handleCompleteBooking(selectedBooking.id)}
+                  >
+                    Complete Booking
+                  </button>
+                )}
                 <button
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-700 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                 >
                   Edit Booking
                 </button>
                 <button
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                   onClick={() => setSelectedBooking(null)}
                 >

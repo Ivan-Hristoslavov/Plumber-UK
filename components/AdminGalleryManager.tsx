@@ -17,6 +17,13 @@ export function AdminGalleryManager() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddSectionForm, setShowAddSectionForm] = useState(false);
 
+  // Image file states
+  const [beforeImage, setBeforeImage] = useState<File | null>(null);
+  const [afterImage, setAfterImage] = useState<File | null>(null);
+  const [beforeImagePreview, setBeforeImagePreview] = useState<string>("");
+  const [afterImagePreview, setAfterImagePreview] = useState<string>("");
+  const [imageErrors, setImageErrors] = useState<{before?: string; after?: string}>({});
+
   const defaultItem = {
     title: "",
     description: "",
@@ -41,20 +48,116 @@ export function AdminGalleryManager() {
   const [formData, setFormData] = useState(defaultItem);
   const [sectionFormData, setSectionFormData] = useState(defaultSection);
 
+  const handleImageUpload = (file: File, type: 'before' | 'after') => {
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      setImageErrors(prev => ({ ...prev, [type]: 'Please select an image file' }));
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      setImageErrors(prev => ({ ...prev, [type]: 'Image must be under 10MB' }));
+      return;
+    }
+
+    // Clear error and set file
+    setImageErrors(prev => ({ ...prev, [type]: undefined }));
+    
+    if (type === 'before') {
+      setBeforeImage(file);
+      setBeforeImagePreview(URL.createObjectURL(file));
+    } else {
+      setAfterImage(file);
+      setAfterImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const clearImage = (type: 'before' | 'after') => {
+    if (type === 'before') {
+      setBeforeImage(null);
+      setBeforeImagePreview("");
+      if (editingItem) {
+        setFormData(prev => ({ ...prev, before_image_url: "" }));
+      }
+    } else {
+      setAfterImage(null);
+      setAfterImagePreview("");
+      if (editingItem) {
+        setFormData(prev => ({ ...prev, after_image_url: "" }));
+      }
+    }
+  };
+
+  const uploadImages = async (): Promise<{beforeUrl: string; afterUrl: string}> => {
+    const formDataUpload = new FormData();
+    
+    if (beforeImage) {
+      formDataUpload.append('beforeImage', beforeImage);
+    }
+    if (afterImage) {
+      formDataUpload.append('afterImage', afterImage);
+    }
+
+    // If editing and no new images, keep existing URLs
+    if (!beforeImage && !afterImage && editingItem) {
+      return {
+        beforeUrl: formData.before_image_url,
+        afterUrl: formData.after_image_url
+      };
+    }
+
+    const response = await fetch('/api/gallery/upload-images', {
+      method: 'POST',
+      body: formDataUpload
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload images');
+    }
+
+    const result = await response.json();
+    return {
+      beforeUrl: result.beforeUrl || formData.before_image_url,
+      afterUrl: result.afterUrl || formData.after_image_url
+    };
+  };
+
   const handleSave = async () => {
     try {
+      // Validate required images for new items
+      if (!editingItem && (!beforeImage || !afterImage)) {
+        showError("Validation Error", "Both before and after images are required");
+        return;
+      }
+
+      // Upload images first
+      const { beforeUrl, afterUrl } = await uploadImages();
+
+      const itemData = {
+        ...formData,
+        before_image_url: beforeUrl,
+        after_image_url: afterUrl
+      };
+
       if (editingItem) {
-        await updateGalleryItem(editingItem.id, formData);
+        await updateGalleryItem(editingItem.id, itemData);
         showSuccess(ToastMessages.gallery.itemUpdated.title, ToastMessages.gallery.itemUpdated.message);
         setEditingItem(null);
       } else {
-        await addGalleryItem(formData);
+        await addGalleryItem(itemData);
         showSuccess(ToastMessages.gallery.itemAdded.title, ToastMessages.gallery.itemAdded.message);
         setShowAddForm(false);
       }
+      
+      // Reset form and images
       setFormData({ ...defaultItem });
+      setBeforeImage(null);
+      setAfterImage(null);
+      setBeforeImagePreview("");
+      setAfterImagePreview("");
+      setImageErrors({});
     } catch (err) {
-      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
+      showError(ToastMessages.gallery.error.title, err instanceof Error ? err.message : ToastMessages.gallery.error.message);
     }
   };
 
@@ -72,6 +175,14 @@ export function AdminGalleryManager() {
       order: item.order,
       is_featured: item.is_featured,
     });
+    
+    // Set existing image previews
+    setBeforeImagePreview(item.before_image_url);
+    setAfterImagePreview(item.after_image_url);
+    setBeforeImage(null);
+    setAfterImage(null);
+    setImageErrors({});
+    
     setShowAddForm(true);
   };
 
@@ -90,16 +201,16 @@ export function AdminGalleryManager() {
     try {
       if (editingSection) {
         await updateGallerySection(editingSection.id, sectionFormData);
-        showSuccess(ToastMessages.gallery.sectionUpdated.title, ToastMessages.gallery.sectionUpdated.message);
+        showSuccess("Section updated successfully!", "The gallery section has been updated.");
         setEditingSection(null);
       } else {
         await addGallerySection(sectionFormData);
-        showSuccess(ToastMessages.gallery.sectionAdded.title, ToastMessages.gallery.sectionAdded.message);
+        showSuccess("Section added successfully!", "A new gallery section has been created.");
         setShowAddSectionForm(false);
       }
       setSectionFormData({ ...defaultSection });
     } catch (err) {
-      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
+      showError("Error", "Failed to save gallery section. Please try again.");
     }
   };
 
@@ -116,17 +227,17 @@ export function AdminGalleryManager() {
   };
 
   const handleDeleteSection = async (id: number) => {
-    if (confirm("Are you sure you want to delete this gallery section? This will remove the section from all gallery items.")) {
+    if (confirm("Are you sure you want to delete this gallery section?")) {
       try {
         await deleteGallerySection(id);
-        showSuccess(ToastMessages.gallery.sectionDeleted.title, ToastMessages.gallery.sectionDeleted.message);
+        showSuccess("Section deleted successfully!", "The gallery section has been removed.");
       } catch (err) {
-        showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
+        showError("Error", "Failed to delete gallery section. Please try again.");
       }
     }
   };
 
-  if (loading) {
+  if (loading || sectionsLoading) {
     return (
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -175,6 +286,11 @@ export function AdminGalleryManager() {
               setShowAddForm(true);
               setEditingItem(null);
               setFormData({ ...defaultItem });
+              setBeforeImage(null);
+              setAfterImage(null);
+              setBeforeImagePreview("");
+              setAfterImagePreview("");
+              setImageErrors({});
             } else {
               setShowAddSectionForm(true);
               setEditingSection(null);
@@ -356,52 +472,114 @@ export function AdminGalleryManager() {
               </div>
             </div>
 
-            {/* Right Column */}
+            {/* Right Column - Image Uploads */}
             <div className="space-y-4">
+              {/* Before Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Before Image URL *
+                  Before Image * {editingItem && "(leave empty to keep current)"}
                 </label>
-                <input
-                  type="url"
-                  value={formData.before_image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, before_image_url: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/before.jpg"
-                />
-                {formData.before_image_url && (
-                  <img 
-                    src={formData.before_image_url} 
-                    alt="Before preview" 
-                    className="mt-2 w-full h-32 object-cover rounded"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                )}
+                
+                <div className="space-y-3">
+                  {/* File Input */}
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                      <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                        <svg className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span> Before image
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'before')}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Error Message */}
+                  {imageErrors.before && (
+                    <p className="text-red-500 text-xs">{imageErrors.before}</p>
+                  )}
+
+                  {/* Preview */}
+                  {beforeImagePreview && (
+                    <div className="relative">
+                      <img 
+                        src={beforeImagePreview} 
+                        alt="Before preview" 
+                        className="w-full h-32 object-cover rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => clearImage('before')}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
+              {/* After Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  After Image URL *
+                  After Image * {editingItem && "(leave empty to keep current)"}
                 </label>
-                <input
-                  type="url"
-                  value={formData.after_image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, after_image_url: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/after.jpg"
-                />
-                {formData.after_image_url && (
-                  <img 
-                    src={formData.after_image_url} 
-                    alt="After preview" 
-                    className="mt-2 w-full h-32 object-cover rounded"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                )}
+                
+                <div className="space-y-3">
+                  {/* File Input */}
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                      <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                        <svg className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span> After image
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'after')}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Error Message */}
+                  {imageErrors.after && (
+                    <p className="text-red-500 text-xs">{imageErrors.after}</p>
+                  )}
+
+                  {/* Preview */}
+                  {afterImagePreview && (
+                    <div className="relative">
+                      <img 
+                        src={afterImagePreview} 
+                        alt="After preview" 
+                        className="w-full h-32 object-cover rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => clearImage('after')}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -433,6 +611,11 @@ export function AdminGalleryManager() {
                 setShowAddForm(false);
                 setEditingItem(null);
                 setFormData({ ...defaultItem });
+                setBeforeImage(null);
+                setAfterImage(null);
+                setBeforeImagePreview("");
+                setAfterImagePreview("");
+                setImageErrors({});
               }}
               className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
             >
@@ -506,7 +689,7 @@ export function AdminGalleryManager() {
                     value={sectionFormData.name}
                     onChange={(e) => setSectionFormData(prev => ({ ...prev, name: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., Bathroom Renovation"
+                    placeholder="e.g., Bathroom Projects"
                   />
                 </div>
 
@@ -518,7 +701,7 @@ export function AdminGalleryManager() {
                     type="color"
                     value={sectionFormData.color}
                     onChange={(e) => setSectionFormData(prev => ({ ...prev, color: e.target.value }))}
-                    className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg"
+                    className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -531,6 +714,7 @@ export function AdminGalleryManager() {
                     value={sectionFormData.order}
                     onChange={(e) => setSectionFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    min="0"
                   />
                 </div>
 
@@ -543,7 +727,7 @@ export function AdminGalleryManager() {
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="section_is_active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                    Active Section
+                    Active
                   </label>
                 </div>
               </div>
@@ -557,10 +741,11 @@ export function AdminGalleryManager() {
                   onChange={(e) => setSectionFormData(prev => ({ ...prev, description: e.target.value }))}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Optional description for this section..."
+                  placeholder="Describe this gallery section..."
                 />
               </div>
 
+              {/* Form Actions */}
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleSaveSection}
