@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
@@ -10,10 +10,24 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Home", href: "#home" },
-  { name: "Pricing", href: "#pricing" },
-  { name: "About", href: "#about" },
-  { name: "Service Areas", href: "#areas" },
-  { name: "FAQ", href: "#faq" },
+  { name: "Services", href: "#services" },
+  { 
+    name: "About", 
+    href: "#about",
+    dropdown: [
+      { name: "Our Story", href: "#our-story" },
+      { name: "Service Areas", href: "#service-areas" },
+      { name: "Gallery", href: "#gallery" }
+    ]
+  },
+  { 
+    name: "Support", 
+    href: "#faq",
+    dropdown: [
+      { name: "FAQ", href: "#faq" },
+      { name: "Reviews", href: "#reviews" }
+    ]
+  },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -33,7 +47,9 @@ export default function NavigationNavbar() {
   const [dayOffSettings, setDayOffSettings] = useState<DayOffSettings | null>(
     null,
   );
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Check if day off banner is enabled
@@ -158,8 +174,11 @@ export default function NavigationNavbar() {
 
   useEffect(() => {
     const handleScrollSpy = () => {
-      const sections = navigation.map((item) => item.href.substring(1));
-      const currentSection = sections.find((section) => {
+      const allSections = [
+        "home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"
+      ];
+      
+      const currentSection = allSections.find((section) => {
         const element = document.getElementById(section);
 
         if (element) {
@@ -173,32 +192,63 @@ export default function NavigationNavbar() {
 
       if (currentSection) {
         setActiveSection(currentSection);
+        // Update URL without page reload
+        if (pathname === "/") {
+          router.replace(`/#${currentSection}`, { scroll: false });
+        }
       }
     };
+
+    // Check if there's a hash in the URL on initial load
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
+        setActiveSection(hash);
+      }
+    }
 
     window.addEventListener("scroll", handleScrollSpy);
     // Initial check when component mounts
     handleScrollSpy();
 
     return () => window.removeEventListener("scroll", handleScrollSpy);
-  }, []);
+  }, [pathname, router]);
 
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
-    e.preventDefault();
-    const targetId = href.substring(1);
-    const element = document.getElementById(targetId);
+    // If it's an anchor link (starts with #), prevent default and scroll
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const element = document.getElementById(targetId);
 
-    if (element) {
-      // Close mobile menu if open
-      setIsMobileMenuOpen(false);
-      // Scroll to the element with offset for the navbar
-      const yOffset = -80; // Adjust based on your navbar height
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      if (element) {
+        // Close mobile menu and dropdowns if open
+        setIsMobileMenuOpen(false);
+        setOpenDropdown(null);
+        
+        // Update URL to reflect the section
+        if (pathname === "/") {
+          router.replace(`/#${targetId}`, { scroll: false });
+        } else {
+          router.push(`/#${targetId}`);
+        }
+        
+        // Scroll to the element with offset for the navbar
+        const yOffset = -80; // Adjust based on your navbar height
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
     }
+    // If it's a regular link (like /privacy, /terms), let it navigate normally
+    // The default behavior will handle the navigation
+  };
+
+  const isActiveDropdown = (item: any) => {
+    if (!item.dropdown) return false;
+    return item.dropdown.some((subItem: any) => activeSection === subItem.href.substring(1));
   };
 
   return (
@@ -296,34 +346,83 @@ export default function NavigationNavbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-1">
               {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  className={`relative px-6 py-3 text-sm font-semibold transition-all duration-500 rounded-full hover:scale-110 transform hover:-translate-y-1 ${
-                    activeSection === item.href.substring(1)
-                      ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg hover:shadow-xl hover:bg-blue-700 dark:hover:bg-blue-600"
-                      : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
-                  }`}
-                  href={item.href}
-                  onClick={(e) => handleClick(e, item.href)}
-                >
-                  {item.name}
-                  {activeSection === item.href.substring(1) && (
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-lg" />
+                <div key={item.name} className="relative group">
+                  {item.dropdown ? (
+                    <>
+                      <button
+                        className={`relative px-4 py-3 text-sm font-semibold transition-all duration-500 rounded-full hover:scale-110 transform hover:-translate-y-1 flex items-center gap-1 ${
+                          isActiveDropdown(item)
+                            ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg hover:shadow-xl hover:bg-blue-700 dark:hover:bg-blue-600"
+                            : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
+                        }`}
+                        onMouseEnter={() => setOpenDropdown(item.name)}
+                        onMouseLeave={() => setOpenDropdown(null)}
+                      >
+                        {item.name}
+                        <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                        </svg>
+                        {isActiveDropdown(item) && (
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-lg" />
+                        )}
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      <div
+                        className={`absolute top-full left-0 mt-2 w-48 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50 transition-all duration-300 ${
+                          openDropdown === item.name ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+                        }`}
+                        onMouseEnter={() => setOpenDropdown(item.name)}
+                        onMouseLeave={() => setOpenDropdown(null)}
+                      >
+                        <div className="py-2">
+                          {item.dropdown.map((subItem) => (
+                            <Link
+                              key={subItem.name}
+                              href={subItem.href}
+                              onClick={(e) => handleClick(e, subItem.href)}
+                              className={`block px-4 py-3 text-sm font-medium transition-all duration-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 ${
+                                activeSection === subItem.href.substring(1)
+                                  ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                                  : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                              }`}
+                            >
+                              {subItem.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      className={`relative px-4 py-3 text-sm font-semibold transition-all duration-500 rounded-full hover:scale-110 transform hover:-translate-y-1 ${
+                        activeSection === item.href.substring(1)
+                          ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg hover:shadow-xl hover:bg-blue-700 dark:hover:bg-blue-600"
+                          : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
+                      }`}
+                      href={item.href}
+                      onClick={(e) => handleClick(e, item.href)}
+                    >
+                      {item.name}
+                      {activeSection === item.href.substring(1) && (
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-lg" />
+                      )}
+                    </Link>
                   )}
-                </Link>
+                </div>
               ))}
-              
-              {/* Theme Toggle */}
-              <div className="ml-2">
-                <ThemeToggle size="md" />
-              </div>
+            </div>
+
+            {/* Theme Toggle - Far Right */}
+            <div className="hidden lg:block">
+              <ThemeToggle size="md" />
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-3 rounded-full transition-all duration-500 hover:scale-110 transform hover:-translate-y-1 text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 shadow-lg hover:shadow-xl"
+              className="lg:hidden p-3 rounded-full transition-all duration-500 hover:scale-110 transform hover:-translate-y-1 text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 shadow-lg hover:shadow-xl"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <svg
@@ -359,30 +458,57 @@ export default function NavigationNavbar() {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden transition-all duration-300 overflow-hidden ${
+          className={`lg:hidden transition-all duration-300 overflow-hidden ${
             isMobileMenuOpen
               ? "max-h-96 opacity-100 mt-4 pb-4"
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col space-y-3 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50">
+          <div className="flex flex-col space-y-2 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50">
             {navigation.map((item, index) => (
-              <Link
-                key={item.name}
-                className={`px-6 py-4 text-base font-semibold rounded-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 ${
-                  activeSection === item.href.substring(1)
-                    ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg"
-                    : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
-                }`}
-                href={item.href}
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={(e) => {
-                  handleClick(e, item.href);
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                {item.name}
-              </Link>
+              <div key={item.name}>
+                {item.dropdown ? (
+                  <>
+                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide px-4 py-2">
+                      {item.name}
+                    </div>
+                    {item.dropdown.map((subItem) => (
+                      <Link
+                        key={subItem.name}
+                        className={`px-6 py-3 text-base font-semibold rounded-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 block ${
+                          activeSection === subItem.href.substring(1)
+                            ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg"
+                            : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
+                        }`}
+                        href={subItem.href}
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                        onClick={(e) => {
+                          handleClick(e, subItem.href);
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        {subItem.name}
+                      </Link>
+                    ))}
+                  </>
+                ) : (
+                  <Link
+                    className={`px-6 py-4 text-base font-semibold rounded-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 block ${
+                      activeSection === item.href.substring(1)
+                        ? "text-white bg-blue-600 dark:bg-blue-500 shadow-lg"
+                        : "text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-500 hover:shadow-lg"
+                    }`}
+                    href={item.href}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                    onClick={(e) => {
+                      handleClick(e, item.href);
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    {item.name}
+                  </Link>
+                )}
+              </div>
             ))}
             
             {/* Mobile Theme Toggle */}

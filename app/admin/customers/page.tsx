@@ -559,12 +559,12 @@ export default function CustomersPage() {
       {/* Customer Details Modal */}
       {selectedCustomer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full transition-colors duration-300">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold">Customer Details</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customer Details</h2>
                 <button
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors duration-300"
                   onClick={() => setSelectedCustomer(null)}
                 >
                   <svg
@@ -584,58 +584,58 @@ export default function CustomersPage() {
               </div>
               <div className="space-y-2">
                 <div>
-                  <span className="font-medium">Name:</span>{" "}
-                  {selectedCustomer.name}
+                  <span className="font-medium text-gray-900 dark:text-white transition-colors duration-300">Name:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{selectedCustomer.name}</span>
                 </div>
                 <div>
-                  <span className="font-medium">Email:</span>{" "}
-                  {selectedCustomer.email}
+                  <span className="font-medium text-gray-900 dark:text-white transition-colors duration-300">Email:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{selectedCustomer.email}</span>
                 </div>
                 <div>
-                  <span className="font-medium">Phone:</span>{" "}
-                  {selectedCustomer.phone}
+                  <span className="font-medium text-gray-900 dark:text-white transition-colors duration-300">Phone:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{selectedCustomer.phone}</span>
                 </div>
                 <div>
-                  <span className="font-medium">Address:</span>{" "}
-                  {selectedCustomer.address}
+                  <span className="font-medium text-gray-900 dark:text-white transition-colors duration-300">Address:</span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{selectedCustomer.address}</span>
                 </div>
               </div>
               <div className="mt-4">
-                <h3 className="font-semibold mb-2">Bookings</h3>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white transition-colors duration-300">Bookings</h3>
                 <ul className="space-y-1">
                   {selectedCustomer.bookings &&
                   selectedCustomer.bookings.length > 0 ? (
                     selectedCustomer.bookings.map((b) => (
-                      <li key={b.id} className="text-sm text-gray-700">
+                      <li key={b.id} className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
                         {b.date}: {b.service} (£{b.amount}) -{" "}
                         <span className="capitalize">{b.status}</span> /{" "}
                         <span className="capitalize">{b.paymentStatus}</span>
                       </li>
                     ))
                   ) : (
-                    <li className="text-sm text-gray-500">No bookings found</li>
+                    <li className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">No bookings found</li>
                   )}
                 </ul>
               </div>
               <div className="mt-4">
-                <h3 className="font-semibold mb-2">Payments</h3>
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white transition-colors duration-300">Payments</h3>
                 <ul className="space-y-1">
                   {selectedCustomer.payments &&
                   selectedCustomer.payments.length > 0 ? (
                     selectedCustomer.payments.map((p) => (
-                      <li key={p.id} className="text-sm text-gray-700">
+                      <li key={p.id} className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300">
                         {p.date}: £{p.amount} -{" "}
                         <span className="capitalize">{p.status}</span>
                       </li>
                     ))
                   ) : (
-                    <li className="text-sm text-gray-500">No payments found</li>
+                    <li className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">No payments found</li>
                   )}
                 </ul>
               </div>
               <div className="mt-6 flex justify-end">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
                   onClick={() => setSelectedCustomer(null)}
                 >
                   Close

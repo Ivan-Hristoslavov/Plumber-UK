@@ -362,13 +362,14 @@ export default function CalendarPage() {
               return (
                 <div
                   key={day.toString()}
-                  className="p-2 border-r dark:border-gray-700 min-h-[100px] relative transition-colors duration-300"
+                  className="p-2 border-r dark:border-gray-700 min-h-[120px] relative transition-colors duration-300"
                 >
                   {bookings.length > 0 && (
-                    <>
+                    <div className="space-y-1">
+                      {/* Show first booking */}
                       <button
                         key={bookings[0].id}
-                        className={`w-full p-2 mb-2 text-left rounded-lg transition-colors duration-300 ${
+                        className={`w-full p-2 text-left rounded-lg transition-all duration-300 transform hover:scale-105 ${
                           bookings[0].status === "completed"
                             ? "bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800"
                             : bookings[0].status === "cancelled"
@@ -379,16 +380,16 @@ export default function CalendarPage() {
                         }`}
                         onClick={() => setSelectedBooking(bookings[0])}
                       >
-                        <div className="text-sm font-medium dark:text-white transition-colors duration-300">
+                        <div className="text-sm font-medium dark:text-white transition-colors duration-300 truncate">
                           {bookings[0].customer_name}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300 truncate">
                           {bookings[0].service}
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {bookings[0].time}
                         </div>
-                        <div className="flex space-x-1 mt-1">
+                        <div className="flex flex-wrap gap-1 mt-1">
                           <span
                             className={`px-1.5 py-0.5 rounded text-xs ${getStatusColor(bookings[0].status)}`}
                           >
@@ -401,15 +402,44 @@ export default function CalendarPage() {
                           </span>
                         </div>
                       </button>
+                      
+                      {/* Show additional bookings indicator */}
                       {bookings.length > 1 && (
-                        <button
-                          className="w-full p-1 text-xs text-center rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300"
-                          onClick={() => setMultiSlotBookings(bookings)}
-                        >
-                          +{bookings.length - 1} more
-                        </button>
+                        <div className="space-y-1">
+                          {bookings.slice(1, 3).map((booking) => (
+                            <button
+                              key={booking.id}
+                              className={`w-full p-1.5 text-left rounded-md transition-all duration-300 text-xs ${
+                                booking.status === "completed"
+                                  ? "bg-green-100 dark:bg-green-800/40 hover:bg-green-200 dark:hover:bg-green-800/60 border border-green-300 dark:border-green-700"
+                                  : booking.status === "cancelled"
+                                    ? "bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 border border-red-300 dark:border-red-700"
+                                    : booking.status === "pending"
+                                      ? "bg-yellow-100 dark:bg-yellow-800/40 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300 dark:border-yellow-700"
+                                      : "bg-blue-100 dark:bg-blue-800/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 border border-blue-300 dark:border-blue-700"
+                              }`}
+                              onClick={() => setSelectedBooking(booking)}
+                            >
+                              <div className="font-medium dark:text-white truncate">
+                                {booking.customer_name}
+                              </div>
+                              <div className="text-gray-600 dark:text-gray-300 truncate">
+                                {booking.time}
+                              </div>
+                            </button>
+                          ))}
+                          
+                          {bookings.length > 3 && (
+                            <button
+                              className="w-full p-1.5 text-xs text-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300 text-gray-700 dark:text-gray-300 font-medium"
+                              onClick={() => setMultiSlotBookings(bookings)}
+                            >
+                              +{bookings.length - 3} more bookings
+                            </button>
+                          )}
+                        </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               );

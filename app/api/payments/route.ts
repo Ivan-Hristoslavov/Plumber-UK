@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
-import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
+import { createCheckoutSession, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
 
 // GET - Fetch all payments
 export async function GET() {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     if (type === "create_payment_link") {
       // Check if Stripe is configured
-      if (!isStripeAvailable() || !stripe) {
+      if (!isStripeAvailable()) {
         return NextResponse.json(
           { error: "Stripe is not configured. Please contact support for payment options." },
           { status: 503 },
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Create Stripe payment link
-      const { customer_id, booking_id, amount, description } = paymentData;
+      const { customer_id, booking_id, amount, description, currency = "gbp" } = paymentData;
 
       // Get customer and booking details
       const { data: customer } = await supabase
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
             payment_status: "pending",
             payment_date: new Date().toISOString().split("T")[0],
             reference: null, // Will be updated with session ID
-            notes: "Stripe Checkout Session created",
+            notes: `Stripe Checkout Session created (${currency.toUpperCase()})`,
           },
         ])
         .select()
@@ -108,41 +108,24 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create Stripe Checkout Session
-      const baseUrl =
-        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-      const productName =
-        description ||
-        (booking ? `Payment for ${booking.service}` : "Service Payment");
+      // Create Stripe Checkout Session using helper function
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const productName = description || (booking ? `Payment for ${booking.service}` : "Service Payment");
 
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "gbp",
-              product_data: {
-                name: productName,
-                description: booking
-                  ? `Service: ${booking.service} | Date: ${booking.date}`
-                  : "Payment for services",
-              },
-              unit_amount: Math.round(amount * 100), // Convert to pence
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/payment/cancel?payment_id=${payment.id}`,
-        customer_email: customer.email,
+      const session = await createCheckoutSession({
+        amount,
+        currency,
+        description: productName,
+        customerEmail: customer.email,
+        successUrl: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${baseUrl}/payment/cancel?payment_id=${payment.id}`,
         metadata: {
           customer_id,
           booking_id: booking_id || "",
           payment_id: payment.id,
           customer_name: customer.name,
+          currency,
         },
-        expires_at: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // Expires in 24 hours
       });
 
       // Update payment record with session ID
@@ -150,7 +133,7 @@ export async function POST(request: NextRequest) {
         .from("payments")
         .update({
           reference: session.id,
-          notes: `Stripe Checkout Session: ${session.id}`,
+          notes: `Stripe Checkout Session: ${session.id} (${currency.toUpperCase()})`,
         })
         .eq("id", payment.id);
 
@@ -160,6 +143,7 @@ export async function POST(request: NextRequest) {
           checkout_url: session.url,
           session_id: session.id,
           expires_at: session.expires_at,
+          currency: currency.toUpperCase(),
         },
         { status: 201 },
       );

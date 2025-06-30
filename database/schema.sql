@@ -36,11 +36,25 @@ CREATE TABLE IF NOT EXISTS admin_profile (
     phone VARCHAR(50) NOT NULL,
     company_name VARCHAR(255),
     company_address TEXT,
+    about TEXT,
     bank_name VARCHAR(255),
     account_number VARCHAR(50),
     sort_code VARCHAR(20),
     gas_safe_number VARCHAR(50),
     insurance_provider VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create pricing cards table
+CREATE TABLE IF NOT EXISTS pricing_cards (
+    id SERIAL PRIMARY KEY,
+    admin_id UUID REFERENCES admin_profile(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    subtitle TEXT,
+    table_rows JSONB NOT NULL DEFAULT '[]',
+    notes JSONB NOT NULL DEFAULT '[]',
+    "order" INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

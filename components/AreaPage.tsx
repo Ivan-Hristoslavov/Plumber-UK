@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormBooking } from "./FormBooking";
+import FormBooking from "./FormBooking";
 import { ButtonCallNow } from "./ButtonCallNow";
 
 interface AreaPageProps {
