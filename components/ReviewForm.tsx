@@ -10,27 +10,100 @@ export function ReviewForm() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [submitResult, setSubmitResult] = useState<null | { success: boolean; message: string }>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
     setSuccess('');
+    setSubmitResult(null);
+    
     try {
       if (!form.name || !form.message) {
         showError(ToastMessages.general.validationError.title, 'Name and message are required.');
         setSubmitting(false);
         return;
       }
+      
       await addReview(form);
       showSuccess(ToastMessages.reviews.submitted.title, ToastMessages.reviews.submitted.message);
-      setForm({ name: '', email: '', message: '', rating: 0 });
+      
+      // Show success state
+      setSubmitResult({ 
+        success: true, 
+        message: "Thank you for your review! Your feedback has been submitted and is awaiting approval. It will be published on our website once reviewed by our team." 
+      });
+      
+      // Reset form and success state after 5 seconds
+      setTimeout(() => {
+        setSubmitResult(null);
+        setForm({ name: '', email: '', message: '', rating: 0 });
+        setSuccess('');
+        setError('');
+      }, 5000);
+      
     } catch (err: any) {
       showError(ToastMessages.reviews.error.title, err.message || ToastMessages.reviews.error.message);
+      setSubmitResult({ 
+        success: false, 
+        message: "There was an error submitting your review. Please try again or contact us directly." 
+      });
+      
+      // Reset error state after 5 seconds
+      setTimeout(() => {
+        setSubmitResult(null);
+      }, 5000);
     } finally {
       setSubmitting(false);
     }
   };
+
+  // Show success/error result state
+  if (submitResult) {
+    return (
+      <section className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500" id="leave-review">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`flex flex-col items-center justify-center min-h-[500px] w-full rounded-3xl shadow-lg bg-white dark:bg-gray-900 p-8 transition-colors duration-300 ${submitResult.success ? 'border-green-400' : 'border-red-400'} border-2`}>
+            <svg
+              className={`w-20 h-20 mb-8 ${submitResult.success ? 'text-green-500' : 'text-red-500'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {submitResult.success ? (
+                <>
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </>
+              ) : (
+                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              )}
+            </svg>
+            <h2 className={`text-3xl font-bold mb-6 text-center ${submitResult.success ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+              {submitResult.success ? 'Review Submitted!' : 'Submission Error'}
+            </h2>
+            <p className="text-lg text-gray-700 dark:text-gray-300 text-center mb-4 max-w-2xl leading-relaxed">
+              {submitResult.message}
+            </p>
+            {submitResult.success && (
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-6">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+                This form will reset in 5 seconds
+              </div>
+            )}
+            <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
+              <div className={`h-2 rounded-full ${submitResult.success ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} style={{width: '100%'}}></div>
+            </div>
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center">
+              {submitResult.success ? 'Thank you for choosing our services!' : 'Please try again or contact us for assistance.'}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500" id="leave-review">

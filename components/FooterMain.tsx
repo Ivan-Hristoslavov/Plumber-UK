@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 
 // Import navigation structure from NavigationNavbar
 const navigation = [
@@ -38,25 +39,21 @@ type ServiceArea = {
   slug: string;
 };
 
-type BusinessData = {
-  businessName: string;
-  businessEmail: string;
-  businessPhone: string;
-  businessAddress: string;
-};
-
 export default function FooterMain() {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
-  const [businessData, setBusinessData] = useState<BusinessData>({
-    businessName: "Fix My Leak",
-    businessEmail: "info@fixmyleak.com",
-    businessPhone: "+44 7541777225",
-    businessAddress: "London, UK"
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
   const router = useRouter();
+  const adminProfile = useAdminProfile();
+
+  // Get business data from admin profile
+  const businessData = {
+    businessName: adminProfile?.company_name || "Fix My Leak",
+    businessEmail: adminProfile?.email || "info@fixmyleak.com",
+    businessPhone: adminProfile?.phone || "+44 7541777225",
+    businessAddress: adminProfile?.company_address || "London, UK"
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,41 +63,6 @@ export default function FooterMain() {
         if (areasResponse.ok) {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
-        }
-
-        // Fetch business settings
-        const settingsResponse = await fetch('/api/admin/settings');
-        if (settingsResponse.ok) {
-          const data = await settingsResponse.json();
-          const settings: { [key: string]: any } = {};
-          
-          data.settings?.forEach((setting: any) => {
-            try {
-              settings[setting.key] = typeof setting.value === 'string' 
-                ? JSON.parse(setting.value) 
-                : setting.value;
-            } catch {
-              settings[setting.key] = setting.value;
-            }
-          });
-
-          setBusinessData(prev => ({
-            businessName: settings.businessName || prev.businessName,
-            businessEmail: settings.businessEmail || prev.businessEmail,
-            businessPhone: settings.businessPhone || prev.businessPhone,
-            businessAddress: settings.businessAddress || prev.businessAddress
-          }));
-        }
-
-        // Fetch admin profile for additional data
-        const profileResponse = await fetch('/api/admin/profile');
-        if (profileResponse.ok) {
-          const profile = await profileResponse.json();
-          setBusinessData(prev => ({
-            ...prev,
-            businessEmail: profile.email || prev.businessEmail,
-            businessPhone: profile.phone || prev.businessPhone
-          }));
         }
       } catch (error) {
         console.error('Error fetching footer data:', error);

@@ -43,6 +43,8 @@ export default function BookingsPage() {
     address: "",
     notes: "",
   });
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [bookingToComplete, setBookingToComplete] = useState<string | null>(null);
 
   // Load bookings from Supabase
   useEffect(() => {
@@ -115,6 +117,13 @@ export default function BookingsPage() {
   };
 
   const handleCompleteBooking = async (bookingId: string) => {
+    setShowCompleteModal(true);
+    setBookingToComplete(bookingId);
+  };
+
+  const confirmCompleteBooking = async () => {
+    if (!bookingToComplete) return;
+
     try {
       const { error } = await supabase
         .from("bookings")
@@ -122,7 +131,7 @@ export default function BookingsPage() {
           status: "completed",
           payment_status: "paid"
         })
-        .eq("id", bookingId);
+        .eq("id", bookingToComplete);
 
       if (error) {
         console.error("Error completing booking:", error);
@@ -130,6 +139,8 @@ export default function BookingsPage() {
       } else {
         loadBookings(); // Reload bookings
         setSelectedBooking(null); // Close modal
+        setShowCompleteModal(false);
+        setBookingToComplete(null);
         alert("Booking completed successfully!");
       }
     } catch (error) {
@@ -898,15 +909,15 @@ export default function BookingsPage() {
               onClick={() => setShowNewBookingModal(false)}
             />
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <form onSubmit={handleCreateBooking}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
                       Create New Booking
                     </h3>
                     <button
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
                       type="button"
                       onClick={() => setShowNewBookingModal(false)}
                     >
@@ -928,12 +939,12 @@ export default function BookingsPage() {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
                         Customer Name *
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="text"
                         value={newBooking.customerName}
                         onChange={(e) =>
@@ -947,11 +958,11 @@ export default function BookingsPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Email
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="email"
                           value={newBooking.customerEmail}
                           onChange={(e) =>
@@ -963,11 +974,11 @@ export default function BookingsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Phone
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="tel"
                           value={newBooking.customerPhone}
                           onChange={(e) =>
@@ -981,12 +992,12 @@ export default function BookingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Service *
                       </label>
                       <select
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         value={newBooking.service}
                         onChange={(e) =>
                           setNewBooking((prev) => ({
@@ -996,41 +1007,23 @@ export default function BookingsPage() {
                         }
                       >
                         <option value="">Select a service</option>
-                        <option value="Call-out & Hourly Labour Rates">
-                          Call-out & Hourly Labour Rates
-                        </option>
-                        <option value="Full-Day Booking Rates">
-                          Full-Day Booking Rates
-                        </option>
-                        <option value="Boiler Service">Boiler Service</option>
-                        <option value="Bathroom Installation">
-                          Bathroom Installation
-                        </option>
                         <option value="Leak Detection">Leak Detection</option>
-                        <option value="Emergency Call Out">
-                          Emergency Call Out
-                        </option>
-                        <option value="Gas Safety Certificate">
-                          Gas Safety Certificate
-                        </option>
-                        <option value="Power Flushing">Power Flushing</option>
-                        <option value="Radiator Installation">
-                          Radiator Installation
-                        </option>
-                        <option value="Drainage Services">
-                          Drainage Services
-                        </option>
+                        <option value="Pipe Repair">Pipe Repair</option>
+                        <option value="Drain Cleaning">Drain Cleaning</option>
+                        <option value="Emergency Plumbing">Emergency Plumbing</option>
+                        <option value="Boiler Service">Boiler Service</option>
+                        <option value="Bathroom Installation">Bathroom Installation</option>
                       </select>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Date *
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="date"
                           value={newBooking.date}
                           onChange={(e) =>
@@ -1042,12 +1035,12 @@ export default function BookingsPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Time *
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="time"
                           value={newBooking.time}
                           onChange={(e) =>
@@ -1061,15 +1054,15 @@ export default function BookingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Amount (£) *
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="0"
-                        step="0.01"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="number"
+                        step="0.01"
+                        min="0"
                         value={newBooking.amount}
                         onChange={(e) =>
                           setNewBooking((prev) => ({
@@ -1081,12 +1074,12 @@ export default function BookingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Address
                       </label>
-                      <textarea
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows={2}
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        type="text"
                         value={newBooking.address}
                         onChange={(e) =>
                           setNewBooking((prev) => ({
@@ -1098,11 +1091,11 @@ export default function BookingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Notes
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         rows={3}
                         value={newBooking.notes}
                         onChange={(e) =>
@@ -1116,15 +1109,15 @@ export default function BookingsPage() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                   <button
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="submit"
                   >
                     Create Booking
                   </button>
                   <button
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="button"
                     onClick={() => setShowNewBookingModal(false)}
                   >
@@ -1132,6 +1125,85 @@ export default function BookingsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Booking Modal */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              onClick={() => setShowCompleteModal(false)}
+            />
+
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                    Confirm Completion
+                  </h3>
+                  <button
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
+                    type="button"
+                    onClick={() => setShowCompleteModal(false)}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M6 18L18 6M6 6l12 12"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                        Mark Booking as Completed
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                        Are you sure you want to mark this booking as completed? This will also mark the payment as paid.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
+                <button
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-500 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  type="button"
+                  onClick={confirmCompleteBooking}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Complete Booking
+                </button>
+                <button
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  type="button"
+                  onClick={() => setShowCompleteModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

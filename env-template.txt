@@ -7,11 +7,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_SECRET_KEY=111
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
+# SendGrid Configuration (SMTP)
+SENDGRID_SMTP_PASSWORD=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
+
 # Admin Credentials
-ADMIN_EMAIL=admin@fixmyleak.com
+ADMIN_EMAIL=hristoslavov.ivanov@gmail.com
 ADMIN_PASSWORD=your-secure-password-here
 ADMIN_NAME=Your Full Name

@@ -7,6 +7,7 @@ import { AdminPricingManager } from "@/components/AdminPricingManager";
 import { AdminGalleryManager } from "@/components/AdminGalleryManager";
 import { ServiceAreasManager } from "@/components/ServiceAreasManager";
 import { AdminFAQManager } from "@/components/AdminFAQManager";
+import { AdminLegalManager } from "@/components/AdminLegalManager";
 import { useToast, ToastMessages } from "@/components/Toast";
 
 type AdminSetting = {
@@ -82,7 +83,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "business" | "working-hours" | "pricing" | "gallery" | "areas" | "faq"
+    "business" | "working-hours" | "pricing" | "gallery" | "areas" | "faq" | "legal"
   >("business");
   const { profile: dbProfile } = useAdminProfile();
   const { showSuccess, showError } = useToast();
@@ -182,6 +183,16 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  const tabs = [
+    { id: "business", name: "Business Info", icon: "🏢" },
+    { id: "working-hours", name: "Working Hours", icon: "🕒" },
+    { id: "pricing", name: "Pricing", icon: "💰" },
+    { id: "gallery", name: "Gallery", icon: "🖼️" },
+    { id: "areas", name: "Service Areas", icon: "📍" },
+    { id: "faq", name: "FAQ", icon: "❓" },
+    { id: "legal", name: "Legal", icon: "📋" },
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -201,24 +212,17 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: "business", name: "Business Info", icon: "🏢" },
-            { id: "working-hours", name: "Working Hours", icon: "⏰" },
-            { id: "pricing", name: "Pricing Cards", icon: "💰" },
-            { id: "gallery", name: "Gallery", icon: "🖼️" },
-            { id: "areas", name: "Service Areas", icon: "📍" },
-            { id: "faq", name: "FAQ", icon: "❓" },
-          ].map((tab) => (
+        <nav className="-mb-px flex space-x-8 overflow-x-auto">
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-300 ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -629,6 +633,7 @@ export default function AdminSettingsPage() {
       {activeTab === "gallery" && <AdminGalleryManager />}
       {activeTab === "areas" && <ServiceAreasManager />}
       {activeTab === "faq" && <AdminFAQManager />}
+      {activeTab === "legal" && <AdminLegalManager />}
     </div>
   );
 }

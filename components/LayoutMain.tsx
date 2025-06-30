@@ -6,13 +6,16 @@ import { usePathname } from "next/navigation";
 import NavigationNavbar from "./NavigationNavbar";
 import { ButtonCallNow } from "./ButtonCallNow";
 import { AdminProfileData } from "@/components/AdminProfileData";
+import { AdminProfile } from "@/lib/admin-profile";
 
 import { supabase } from "@/lib/supabase";
 
 export default function LayoutMain({
   children,
+  adminProfile,
 }: {
   children: React.ReactNode;
+  adminProfile: AdminProfile | null;
 }) {
   const [hasDayOffBanner, setHasDayOffBanner] = useState(false);
   const pathname = usePathname();
@@ -63,7 +66,7 @@ export default function LayoutMain({
           const today = new Date(
             now.getFullYear(),
             now.getMonth(),
-            now.getDate(),
+            now.getDate()
           );
 
           let withinRange = true;
@@ -292,7 +295,10 @@ export default function LayoutMain({
                   <div>
                     <p className="text-gray-300">Email Us</p>
                     <p className="text-white">
-                      <AdminProfileData type="email" fallback="hello@fixmyleak.com" />
+                      <AdminProfileData
+                        type="email"
+                        fallback="hello@fixmyleak.com"
+                      />
                     </p>
                   </div>
                 </div>
@@ -329,21 +335,12 @@ export default function LayoutMain({
           <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
               <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} <AdminProfileData type="company_name" fallback="FixMyLeak" />. All rights reserved. Licensed & Insured
-                Plumbers.
-              </p>
-              <p className="text-gray-400 text-sm">
-                Developed by{" "}
-                <a
-                  className="text-blue-400 hover:text-blue-300 transition-colors"
-                  href="https://serenity.rapid-frame.co.uk/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Serenity Web Studio
-                </a>
+                © {new Date().getFullYear()}{" "}
+                <AdminProfileData type="company_name" fallback="FixMyLeak" />.
+                All rights reserved. Licensed & Insured Plumbers.
               </p>
             </div>
+
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a
                 className="text-gray-400 hover:text-blue-400 text-sm transition-colors"
@@ -357,6 +354,19 @@ export default function LayoutMain({
               >
                 Terms of Service
               </a>
+            </div>
+            <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+              <p className="text-gray-400 text-sm">
+                Developed by{" "}
+                <a
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                  href="https://serenity.rapid-frame.co.uk/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Serenity Web Studio
+                </a>
+              </p>
             </div>
           </div>
         </div>

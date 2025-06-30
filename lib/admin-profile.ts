@@ -17,6 +17,8 @@ export interface AdminProfile {
   sort_code: string;
   gas_safe_number: string;
   insurance_provider: string;
+  terms_and_conditions?: string;
+  privacy_policy?: string;
   created_at: string;
   updated_at: string;
 }

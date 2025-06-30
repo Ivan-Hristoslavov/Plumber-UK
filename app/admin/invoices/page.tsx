@@ -103,7 +103,7 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleSendInvoice = async (includePaymentLink: boolean) => {
+  const handleSendInvoice = async (includePaymentLink: boolean, currency: string = "gbp") => {
     if (!selectedInvoice) return;
 
     try {
@@ -114,7 +114,7 @@ export default function InvoicesPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ includePaymentLink }),
+        body: JSON.stringify({ includePaymentLink, currency }),
       });
 
       if (response.ok) {
@@ -124,7 +124,7 @@ export default function InvoicesPage() {
         setSelectedInvoice(null);
         
         const message = includePaymentLink 
-          ? `Invoice sent with payment link to ${result.recipient}`
+          ? `Invoice sent with payment link (${currency.toUpperCase()}) to ${result.recipient}`
           : `Invoice sent to ${result.recipient}`;
         
         showSuccess(ToastMessages.invoices.emailSent.title, message);
@@ -554,47 +554,83 @@ export default function InvoicesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
                         {/* Download PDF Button */}
-                        <button
-                          onClick={() => handleDownloadInvoice(invoice)}
-                          disabled={downloadingId === invoice.id}
-                          className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-50"
-                          title="Download PDF"
-                        >
-                          {downloadingId === invoice.id ? (
-                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          )}
-                        </button>
+                        <Tooltip content="Download PDF">
+                          <button
+                            onClick={() => handleDownloadInvoice(invoice)}
+                            disabled={downloadingId === invoice.id}
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Download PDF"
+                          >
+                            {downloadingId === invoice.id ? (
+                              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            )}
+                          </button>
+                        </Tooltip>
 
                         {/* Send Email Button */}
-                        {invoice.status === "pending" && (
+                        <Tooltip content="Send via Email">
                           <button
                             onClick={() => {
                               setSelectedInvoice(invoice);
                               setShowSendModal(true);
                             }}
                             disabled={sendingId === invoice.id}
-                            className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 disabled:opacity-50"
-                            title="Send Invoice"
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Send via Email"
                           >
                             {sendingId === invoice.id ? (
-                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                               </svg>
                             ) : (
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                               </svg>
                             )}
                           </button>
-                        )}
+                        </Tooltip>
+
+                        {/* Edit Button */}
+                        <Tooltip content="Edit Invoice">
+                          <button
+                            onClick={() => {
+                              // Add edit functionality here
+                              console.log("Edit invoice:", invoice.id);
+                            }}
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all duration-200"
+                            title="Edit Invoice"
+                          >
+                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </Tooltip>
+
+                        {/* Delete Button */}
+                        <Tooltip content="Delete Invoice">
+                          <button
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this invoice?")) {
+                                // Add delete functionality here
+                                console.log("Delete invoice:", invoice.id);
+                              }
+                            }}
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                            title="Delete Invoice"
+                          >
+                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>

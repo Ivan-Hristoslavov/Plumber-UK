@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import FormBooking from "@/components/FormBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
+import { useToast, ToastMessages } from "@/components/Toast";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 
 type ServiceArea = {
   id: number;
@@ -23,18 +25,22 @@ type BusinessSettings = {
 };
 
 export default function SectionContact() {
+  const { showSuccess, showError } = useToast();
+  const adminProfile = useAdminProfile();
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
-  const [businessSettings, setBusinessSettings] = useState<BusinessSettings>({
-    businessName: "Fix My Leak",
-    businessEmail: "info@fixmyleak.com", 
-    businessPhone: "+44 7541777225",
-    businessAddress: "London, UK",
-    emergencyRate: "150",
-    standardRate: "75",
-    responseTime: "45 minutes"
-  });
   const [isLoading, setIsLoading] = useState(true);
   const { workingHours } = useWorkingHours();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<null | { success: boolean; message: string }>(null);
+
+  // Get business data from admin profile
+  const businessData = {
+    businessName: adminProfile?.company_name || "Fix My Leak",
+    businessEmail: adminProfile?.email || "info@fixmyleak.com",
+    businessPhone: adminProfile?.phone || "+44 7541777225",
+    businessAddress: adminProfile?.company_address || "London, UK",
+    responseTime: adminProfile?.response_time || "45 minutes"
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,7 +52,7 @@ export default function SectionContact() {
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
         }
 
-        // Fetch business settings from admin_settings
+        // Fetch business settings for rates
         const settingsResponse = await fetch('/api/admin/settings');
         if (settingsResponse.ok) {
           const data = await settingsResponse.json();
@@ -62,25 +68,8 @@ export default function SectionContact() {
             }
           });
 
-          setBusinessSettings(prev => ({
-            businessName: settings.businessName || prev.businessName,
-            businessEmail: settings.businessEmail || prev.businessEmail,
-            businessPhone: settings.businessPhone || prev.businessPhone,
-            businessAddress: settings.businessAddress || prev.businessAddress,
-            emergencyRate: settings.emergencyRate || prev.emergencyRate,
-            standardRate: settings.standardRate || prev.standardRate,
-            responseTime: prev.responseTime // Keep default, will be updated from admin_profile
-          }));
-        }
-
-        // Fetch admin profile for response_time
-        const profileResponse = await fetch('/api/admin/profile');
-        if (profileResponse.ok) {
-          const profile = await profileResponse.json();
-          setBusinessSettings(prev => ({
-            ...prev,
-            responseTime: profile.response_time || prev.responseTime
-          }));
+          // Store rates in component state if needed
+          // For now, we'll use default values
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -149,11 +138,11 @@ export default function SectionContact() {
                   </div>
                 ) : (
                   <>
-                    <a href={`tel:${businessSettings.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
-                      {businessSettings.businessPhone}
+                    <a href={`tel:${businessData.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
+                      {businessData.businessPhone}
                     </a>
                     <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      From £{businessSettings.emergencyRate}/hour
+                      From £150/hour
                     </div>
                   </>
                 )}
@@ -178,11 +167,11 @@ export default function SectionContact() {
                   </div>
                 ) : (
                   <>
-                    <a href={`tel:${businessSettings.businessPhone}`} className="text-green-600 dark:text-green-400 font-bold text-lg hover:text-green-700 dark:hover:text-green-300 transition-colors">
-                      {businessSettings.businessPhone}
+                    <a href={`tel:${businessData.businessPhone}`} className="text-green-600 dark:text-green-400 font-bold text-lg hover:text-green-700 dark:hover:text-green-300 transition-colors">
+                      {businessData.businessPhone}
                     </a>
                     <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      From £{businessSettings.standardRate}/hour
+                      From £75/hour
                     </div>
                   </>
                 )}
@@ -207,11 +196,11 @@ export default function SectionContact() {
                   </div>
                 ) : (
                   <>
-                    <a href={`mailto:${businessSettings.businessEmail}`} className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-sm break-all">
-                      {businessSettings.businessEmail}
+                    <a href={`mailto:${businessData.businessEmail}`} className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-sm break-all">
+                      {businessData.businessEmail}
                     </a>
                     <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      Response within {businessSettings.responseTime}
+                      Response within {businessData.responseTime}
                     </div>
                   </>
                 )}

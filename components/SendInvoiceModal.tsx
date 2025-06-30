@@ -5,7 +5,7 @@ import { useState } from "react";
 interface SendInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (includePaymentLink: boolean) => Promise<void>;
+  onConfirm: (includePaymentLink: boolean, selectedCurrency: string) => Promise<void>;
   invoice: {
     id: string;
     invoice_number: string;
@@ -26,12 +26,23 @@ export function SendInvoiceModal({
   isLoading = false 
 }: SendInvoiceModalProps) {
   const [includePaymentLink, setIncludePaymentLink] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("gbp");
 
   if (!isOpen) return null;
 
   const handleConfirm = async () => {
-    await onConfirm(includePaymentLink);
+    await onConfirm(includePaymentLink, selectedCurrency);
   };
+
+  const currencies = [
+    { code: "gbp", name: "British Pound (£)", symbol: "£" },
+    { code: "usd", name: "US Dollar ($)", symbol: "$" },
+    { code: "eur", name: "Euro (€)", symbol: "€" },
+    { code: "cad", name: "Canadian Dollar (C$)", symbol: "C$" },
+    { code: "aud", name: "Australian Dollar (A$)", symbol: "A$" },
+  ];
+
+  const selectedCurrencyData = currencies.find(c => c.code === selectedCurrency) || currencies[0];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -105,11 +116,35 @@ export function SendInvoiceModal({
                   Include Stripe payment link
                 </span>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Customer will receive a secure payment link for £{invoice.total_amount.toFixed(2)} 
+                  Customer will receive a secure payment link for {selectedCurrencyData.symbol}{invoice.total_amount.toFixed(2)} 
                   that they can use to pay online immediately.
                 </p>
               </div>
             </label>
+
+            {/* Currency Selection */}
+            {includePaymentLink && (
+              <div className="mt-4 ml-7">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Payment Currency
+                </label>
+                <select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                  disabled={isLoading}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                >
+                  {currencies.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Note: Amount will be converted from £{invoice.total_amount.toFixed(2)} to {selectedCurrencyData.symbol} at current exchange rates.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Warning */}

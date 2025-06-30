@@ -4,43 +4,65 @@ import { useState, useEffect } from "react";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { usePricingCardsForBooking, type BookingService } from "@/hooks/usePricingCardsForBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 
 export default function FormBooking() {
   const { showSuccess, showError } = useToast();
   const { services, isLoading: isLoadingServices } = usePricingCardsForBooking();
   const { timeSlots, isLoading: isLoadingTimeSlots } = useWorkingHours();
+  const adminProfile = useAdminProfile();
   const [selectedService, setSelectedService] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formKey] = useState(() => Math.random().toString(36));
-  const [businessPhone, setBusinessPhone] = useState("+44 7541777225");
-  const [isLoadingPhone, setIsLoadingPhone] = useState(true);
+  const [submitResult, setSubmitResult] = useState<null | { success: boolean; message: string }>(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+
+  // Get business phone from admin profile
+  const businessPhone = adminProfile?.phone || "+44 7541777225";
 
   // Get today's date for the minimum date and default value
   const today = new Date();
   const minDate = today.toISOString().split("T")[0];
   const defaultDate = minDate;
 
+  // Check availability when date changes
   useEffect(() => {
-    const fetchBusinessPhone = async () => {
-      try {
-        const response = await fetch('/api/admin/profile');
-        if (response.ok) {
-          const profile = await response.json();
-          setBusinessPhone(profile.phone || "+44 7541777225");
-        }
-      } catch (error) {
-        console.error('Error fetching business phone:', error);
-      } finally {
-        setIsLoadingPhone(false);
-      }
-    };
+    if (selectedDate) {
+      checkAvailability(selectedDate);
+    }
+  }, [selectedDate]);
 
-    fetchBusinessPhone();
-  }, []);
+  const checkAvailability = async (date: string) => {
+    setIsCheckingAvailability(true);
+    try {
+      const response = await fetch(`/api/bookings/availability?date=${date}`);
+      if (response.ok) {
+        const data = await response.json();
+        const bookedTimeSlots = data.bookedTimes.map((slot: any) => slot.time);
+        setBookedTimes(bookedTimeSlots);
+      } else {
+        console.error("Failed to check availability");
+        setBookedTimes([]);
+      }
+    } catch (error) {
+      console.error("Error checking availability:", error);
+      setBookedTimes([]);
+    } finally {
+      setIsCheckingAvailability(false);
+    }
+  };
+
+  const isTimeSlotBooked = (timeSlot: string) => {
+    const timeOnly = timeSlot.split(" - ")[0];
+    return bookedTimes.includes(timeOnly);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitResult(null);
 
     try {
       const formData = new FormData(e.currentTarget);
@@ -67,6 +89,13 @@ export default function FormBooking() {
         !data.timeSlot
       ) {
         showError(ToastMessages.general.validationError.title, "Please fill in all required fields");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check if selected time slot is booked
+      if (isTimeSlotBooked(data.timeSlot)) {
+        showError("Time Slot Unavailable", "This time slot is no longer available. Please select a different time.");
         setIsSubmitting(false);
         return;
       }
@@ -140,16 +169,24 @@ export default function FormBooking() {
 
       if (!bookingResponse.ok) {
         const errorData = await bookingResponse.json();
-        throw new Error(errorData.error || "Failed to create booking");
+        if (errorData.conflict) {
+          showError("Time Slot Conflict", errorData.message);
+        } else {
+          throw new Error(errorData.error || "Failed to create booking");
+        }
+        setIsSubmitting(false);
+        return;
       }
 
       showSuccess(ToastMessages.bookings.submitted.title, ToastMessages.bookings.submitted.message);
-
-      // Reset form after a delay
+      setSubmitResult({ success: true, message: "Your booking request was sent successfully! We'll contact you soon." });
       setTimeout(() => {
+        setSubmitResult(null);
         setSelectedService("");
+        setSelectedDate("");
+        setBookedTimes([]);
         (e.target as HTMLFormElement).reset();
-      }, 2000);
+      }, 5000);
     } catch (error) {
       console.error("Error submitting booking:", error);
       showError(
@@ -158,10 +195,34 @@ export default function FormBooking() {
           ? error.message
           : ToastMessages.bookings.error.message
       );
+      setSubmitResult({ success: false, message: "There was an error sending your booking request. Please try again or call us directly." });
+      setTimeout(() => setSubmitResult(null), 5000);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (submitResult) {
+    return (
+      <div className={`flex flex-col items-center justify-center min-h-[500px] w-full rounded-xl shadow-lg bg-white dark:bg-gray-800 p-8 transition-colors duration-300 ${submitResult.success ? 'border-green-400' : 'border-red-400'} border-2`}>
+        <svg
+          className={`w-16 h-16 mb-6 ${submitResult.success ? 'text-green-500' : 'text-red-500'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          {submitResult.success ? (
+            <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+          ) : (
+            <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+          )}
+        </svg>
+        <h2 className={`text-2xl font-bold mb-4 ${submitResult.success ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>{submitResult.success ? 'Success!' : 'Error'}</h2>
+        <p className="text-lg text-gray-700 dark:text-gray-300 text-center mb-2">{submitResult.message}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">This message will disappear in 5 seconds.</p>
+      </div>
+    );
+  }
 
   return (
     <form key={formKey} className="space-y-6" onSubmit={handleSubmit}>
@@ -342,12 +403,18 @@ export default function FormBooking() {
                 min={minDate}
                 name="preferred-date"
                 type="date"
+                onChange={(e) => setSelectedDate(e.target.value)}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="timeSlot">
                 Time Slot *
+                {isCheckingAvailability && (
+                  <span className="ml-2 text-xs text-blue-500">
+                    Checking availability...
+                  </span>
+                )}
               </label>
               {isLoadingTimeSlots ? (
                 <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-12"></div>
@@ -359,12 +426,25 @@ export default function FormBooking() {
                   name="timeSlot"
                 >
                   <option value="">Select time slot</option>
-                  {timeSlots.map((slot: string) => (
-                    <option key={slot} value={slot}>
-                      {slot}
-                    </option>
-                  ))}
+                  {timeSlots.map((slot: string) => {
+                    const isBooked = isTimeSlotBooked(slot);
+                    return (
+                      <option 
+                        key={slot} 
+                        value={slot}
+                        disabled={isBooked}
+                        style={isBooked ? { color: '#9CA3AF', backgroundColor: '#F3F4F6' } : {}}
+                      >
+                        {slot} {isBooked ? '(Booked)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
+              )}
+              {selectedDate && bookedTimes.length > 0 && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                  {bookedTimes.length} time slot{bookedTimes.length > 1 ? 's' : ''} already booked for this date
+                </p>
               )}
             </div>
           </div>
@@ -425,13 +505,9 @@ export default function FormBooking() {
         <div className="text-center mt-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             * Required fields. Emergency? Call{" "}
-            {isLoadingPhone ? (
-              <span className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded w-24 h-4 inline-block"></span>
-            ) : (
-              <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                {businessPhone}
-              </a>
-            )}
+            <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
+              {businessPhone}
+            </a>
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
             We'll contact you within 45 minutes to confirm your booking

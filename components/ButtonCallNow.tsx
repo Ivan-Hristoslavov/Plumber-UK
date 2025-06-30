@@ -1,18 +1,18 @@
 "use client";
 
-import { useAdminProfile } from '@/hooks/useAdminProfile';
+import { useAdminProfile } from "@/hooks/useAdminProfile";
 
 export function ButtonCallNow() {
   const { profile, loading, error } = useAdminProfile();
-  
+
   // Use fallback phone number if profile is not available
   const phone = profile?.phone || "0800 123 4567";
-  
+
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center">
       <a
         aria-label="Call Now"
-        className="flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-colors group mb-2"
+        className="animate-pulse flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-colors group mb-2"
         href={`tel:${phone}`}
       >
         <svg
@@ -30,11 +30,8 @@ export function ButtonCallNow() {
         </svg>
       </a>
       <div className="text-center">
-        <p className="text-xs font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-lg border border-gray-200 dark:border-gray-700">
-          10 min Free
-        </p>
-        <p className="text-xs font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-lg border border-gray-200 dark:border-gray-700 mt-1">
-          Consultation
+        <p className="rounded-full text-xs font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 shadow-lg border border-gray-200 dark:border-gray-700">
+          10 min Free <br /> Consultation
         </p>
       </div>
     </div>

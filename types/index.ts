@@ -22,6 +22,8 @@ export type AdminProfile = {
   certifications?: string;
   service_areas?: string;
   response_time?: string;
+  terms_and_conditions?: string;
+  privacy_policy?: string;
   created_at: string;
   updated_at: string;
 };

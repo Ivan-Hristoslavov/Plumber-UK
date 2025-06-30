@@ -79,9 +79,12 @@ export default function PaymentsPage() {
     booking_id: "",
     amount: "",
     description: "",
+    currency: "gbp",
   });
 
   const [formError, setFormError] = useState("");
+  const [paymentLinkResult, setPaymentLinkResult] = useState<any>(null);
+  const [showPaymentLinkResult, setShowPaymentLinkResult] = useState(false);
 
   // Load data on component mount
   useEffect(() => {
@@ -171,8 +174,7 @@ export default function PaymentsPage() {
     setFormError("");
 
     if (!paymentLink.customer_id || !paymentLink.amount) {
-      setFormError("Please fill in all required fields.");
-
+      setFormError("Please fill in all required fields");
       return;
     }
 
@@ -192,47 +194,34 @@ export default function PaymentsPage() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const result = await response.json();
+        setShowPaymentLinkModal(false);
+        setPaymentLink({
+          customer_id: "",
+          booking_id: "",
+          amount: "",
+          description: "",
+          currency: "gbp",
+        });
 
-        if (data.checkout_url) {
-          // Show success message with payment link
-          const message = `Payment link created successfully!\n\nCheckout URL: ${data.checkout_url}\n\nExpires: ${new Date(data.expires_at * 1000).toLocaleString()}\n\nYou can copy this link and send it to the customer.`;
-
-          if (
-            confirm(
-              `${message}\n\nWould you like to open the payment link in a new tab?`
-            )
-          ) {
-            window.open(data.checkout_url, "_blank");
-          }
-
-          // Copy to clipboard
-          navigator.clipboard
-            .writeText(data.checkout_url)
-            .then(() => {
-              alert("Payment link copied to clipboard!");
-            })
-            .catch(() => {
-              console.log("Could not copy to clipboard");
-            });
-
-          await loadData();
-          setShowPaymentLinkModal(false);
-          setPaymentLink({
-            customer_id: "",
-            booking_id: "",
-            amount: "",
-            description: "",
-          });
+        // Copy link to clipboard
+        if (result.checkout_url) {
+          await navigator.clipboard.writeText(result.checkout_url);
         }
+
+        // Show success modal
+        setPaymentLinkResult(result);
+        setShowPaymentLinkResult(true);
+        
+        // Reload payments
+        loadData();
       } else {
         const error = await response.json();
-
         setFormError(error.error || "Failed to create payment link");
       }
     } catch (error) {
       console.error("Error creating payment link:", error);
-      setFormError("Failed to create payment link");
+      setFormError("An unexpected error occurred");
     } finally {
       setProcessingPayment(null);
     }
@@ -948,23 +937,41 @@ export default function PaymentsPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
-                    <div className="relative mt-1 rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm transition-colors duration-300">£</span>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      <div className="col-span-1">
+                        <select
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          value={paymentLink.currency}
+                          onChange={(e) =>
+                            setPaymentLink({
+                              ...paymentLink,
+                              currency: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="gbp">£ GBP</option>
+                          <option value="usd">$ USD</option>
+                          <option value="eur">€ EUR</option>
+                          <option value="cad">C$ CAD</option>
+                          <option value="aud">A$ AUD</option>
+                        </select>
                       </div>
-                      <input
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={paymentLink.amount}
-                        onChange={(e) =>
-                          setPaymentLink({
-                            ...paymentLink,
-                            amount: e.target.value,
-                          })
-                        }
-                      />
+                      <div className="col-span-2">
+                        <input
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={paymentLink.amount}
+                          onChange={(e) =>
+                            setPaymentLink({
+                              ...paymentLink,
+                              amount: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                   <div>

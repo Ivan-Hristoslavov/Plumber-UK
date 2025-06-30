@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { ToastProvider } from "@/components/Toast";
 import HashNavigation from "@/components/HashNavigation";
+import { AdminProfileProvider } from "@/components/AdminProfileContext";
 
 import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
@@ -73,11 +74,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch admin profile data once at the layout level
+  const adminProfile = await getAdminProfile();
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -90,8 +94,10 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "system", enableSystem: true, themes: ["light", "dark"] }}>
           <ToastProvider>
-            <HashNavigation />
-            <LayoutMain>{children}</LayoutMain>
+            <AdminProfileProvider adminProfile={adminProfile}>
+              <HashNavigation />
+              <LayoutMain adminProfile={adminProfile}>{children}</LayoutMain>
+            </AdminProfileProvider>
           </ToastProvider>
         </Providers>
       </body>
