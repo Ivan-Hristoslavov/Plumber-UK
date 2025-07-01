@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import FormBooking from "@/components/FormBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 
@@ -27,8 +28,9 @@ type BusinessSettings = {
 export default function SectionContact() {
   const { showSuccess, showError } = useToast();
   const adminProfile = useAdminProfile();
+  const { settings: adminSettings, isLoading: isLoadingSettings } = useAdminSettings();
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAreas, setIsLoadingAreas] = useState(true);
   const { workingHours } = useWorkingHours();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<null | { success: boolean; message: string }>(null);
@@ -43,42 +45,21 @@ export default function SectionContact() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchServiceAreas = async () => {
       try {
-        // Fetch service areas
         const areasResponse = await fetch('/api/areas');
         if (areasResponse.ok) {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
         }
-
-        // Fetch business settings for rates
-        const settingsResponse = await fetch('/api/admin/settings');
-        if (settingsResponse.ok) {
-          const data = await settingsResponse.json();
-          const settings: { [key: string]: any } = {};
-          
-          data.settings?.forEach((setting: any) => {
-            try {
-              settings[setting.key] = typeof setting.value === 'string' 
-                ? JSON.parse(setting.value) 
-                : setting.value;
-            } catch {
-              settings[setting.key] = setting.value;
-            }
-          });
-
-          // Store rates in component state if needed
-          // For now, we'll use default values
-        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching service areas:', error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingAreas(false);
       }
     };
 
-    fetchData();
+    fetchServiceAreas();
   }, []);
 
   const formatWorkingHours = () => {
@@ -131,7 +112,7 @@ export default function SectionContact() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Emergency 24/7</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Urgent plumbing repairs</p>
-                {isLoading ? (
+                {isLoadingSettings ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
@@ -140,10 +121,10 @@ export default function SectionContact() {
                   <>
                     <a href={`tel:${businessData.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
                       {businessData.businessPhone}
-                    </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                </a>
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                       From £150/hour
-                    </div>
+                </div>
                   </>
                 )}
               </div>
@@ -160,7 +141,7 @@ export default function SectionContact() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Regular Service</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{formatWorkingHours()}</p>
-                {isLoading ? (
+                {isLoadingSettings ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
@@ -169,10 +150,10 @@ export default function SectionContact() {
                   <>
                     <a href={`tel:${businessData.businessPhone}`} className="text-green-600 dark:text-green-400 font-bold text-lg hover:text-green-700 dark:hover:text-green-300 transition-colors">
                       {businessData.businessPhone}
-                    </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                </a>
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                       From £75/hour
-                    </div>
+                </div>
                   </>
                 )}
               </div>
@@ -189,7 +170,7 @@ export default function SectionContact() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Email Us</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Quick quotes & inquiries</p>
-                {isLoading ? (
+                {isLoadingSettings ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
@@ -198,10 +179,10 @@ export default function SectionContact() {
                   <>
                     <a href={`mailto:${businessData.businessEmail}`} className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-sm break-all">
                       {businessData.businessEmail}
-                    </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                </a>
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                       Response within {businessData.responseTime}
-                    </div>
+                </div>
                   </>
                 )}
               </div>
@@ -219,7 +200,7 @@ export default function SectionContact() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Coverage Areas</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">South West London</p>
-                {isLoading ? (
+                {isLoadingAreas ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>

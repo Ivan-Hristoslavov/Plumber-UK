@@ -4,12 +4,21 @@ import { useState, useEffect } from "react";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { usePricingCardsForBooking, type BookingService } from "@/hooks/usePricingCardsForBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+
+type DayOffSettings = {
+  isEnabled: boolean;
+  message: string;
+  startDate: string;
+  endDate: string;
+};
 
 export default function FormBooking() {
   const { showSuccess, showError } = useToast();
   const { services, isLoading: isLoadingServices } = usePricingCardsForBooking();
   const { timeSlots, isLoading: isLoadingTimeSlots } = useWorkingHours();
+  const { settings: adminSettings, isLoading: isLoadingSettings } = useAdminSettings();
   const adminProfile = useAdminProfile();
   const [selectedService, setSelectedService] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,6 +35,29 @@ export default function FormBooking() {
   const today = new Date();
   const minDate = today.toISOString().split("T")[0];
   const defaultDate = minDate;
+
+  // Check if a date is in day off period
+  const isDateInDayOff = (date: string) => {
+    const dayOffSettings = adminSettings?.dayOffSettings;
+    if (!dayOffSettings || !dayOffSettings.isEnabled) return false;
+    
+    const checkDate = new Date(date);
+    const startDate = dayOffSettings.startDate ? new Date(dayOffSettings.startDate) : null;
+    const endDate = dayOffSettings.endDate ? new Date(dayOffSettings.endDate) : null;
+
+    if (startDate && checkDate < startDate) return false;
+    if (endDate && checkDate > endDate) return false;
+    
+    return true;
+  };
+
+  // Get max date considering day off periods
+  const getMaxDate = () => {
+    // Default to 3 months from now
+    const defaultMaxDate = new Date();
+    defaultMaxDate.setMonth(defaultMaxDate.getMonth() + 3);
+    return defaultMaxDate.toISOString().split("T")[0];
+  };
 
   // Check availability when date changes
   useEffect(() => {
@@ -54,10 +86,22 @@ export default function FormBooking() {
     }
   };
 
+  // Normalize time to HH:mm
+  function normalizeTime(str: string) {
+    // Взимаме само първите 5 символа, ако е във формат HH:mm или HH:mm:SS
+    // Ако е във формат '18:00 - 19:00', взимаме първата част
+    const time = str.split(" - ")[0].trim();
+    // Ако е HH:mm:SS -> HH:mm
+    if (time.length >= 5) return time.slice(0,5);
+    return time;
+  }
+
   const isTimeSlotBooked = (timeSlot: string) => {
-    const timeOnly = timeSlot.split(" - ")[0];
-    return bookedTimes.includes(timeOnly);
+    const slotTime = normalizeTime(timeSlot);
+    return bookedTimes.some(t => normalizeTime(t) === slotTime);
   };
+
+  const availableTimeSlots = timeSlots.filter((slot: string) => !isTimeSlotBooked(slot));
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -96,6 +140,13 @@ export default function FormBooking() {
       // Check if selected time slot is booked
       if (isTimeSlotBooked(data.timeSlot)) {
         showError("Time Slot Unavailable", "This time slot is no longer available. Please select a different time.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check if date is in day off period (allow emergency bookings)
+      if (isDateInDayOff(data.preferredDate) && !data.isEmergency) {
+        showError("Day Off Period", "Regular bookings are not available on this date. You can still book emergency services.");
         setIsSubmitting(false);
         return;
       }
@@ -225,28 +276,28 @@ export default function FormBooking() {
   }
 
   return (
-    <form key={formKey} className="space-y-6" onSubmit={handleSubmit}>
+    <form key={formKey} className="space-y-4" onSubmit={handleSubmit}>
       
       {/* Grid Layout for Form Fields */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Left Column - Personal Details */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">1</span>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Your Details</h4>
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">Your Details</h4>
           </div>
           
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="name">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="name">
               Full Name *
             </label>
             <input
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
               id="name"
               name="name"
               placeholder="Your full name"
@@ -255,14 +306,14 @@ export default function FormBooking() {
           </div>
 
           {/* Email and Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="email">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
                 Email *
               </label>
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
                 id="email"
                 name="email"
                 placeholder="your@email.com"
@@ -271,12 +322,12 @@ export default function FormBooking() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="phone">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="phone">
                 Phone *
               </label>
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
                 id="phone"
                 name="phone"
                 placeholder="+44 7XXX XXXXXX"
@@ -287,64 +338,64 @@ export default function FormBooking() {
 
           {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="address">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="address">
               Service Address *
             </label>
             <textarea
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none text-sm"
               id="address"
               name="address"
               placeholder="Full address where service is needed"
-              rows={3}
+              rows={2}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="description">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="description">
               Problem Description
             </label>
             <textarea
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none text-sm"
               id="description"
               name="description"
               placeholder="Describe your plumbing issue..."
-              rows={3}
+              rows={2}
             />
           </div>
         </div>
 
         {/* Right Column - Service & Schedule */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           
           {/* Service Selection */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <span className="text-green-600 dark:text-green-400 font-bold text-sm">2</span>
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-7 h-7 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                <span className="text-green-600 dark:text-green-400 font-bold text-xs">2</span>
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Service & Schedule</h4>
+              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Service & Schedule</h4>
             </div>
             
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Select Service *
               </label>
               {isLoadingServices ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-20"></div>
+                    <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-16"></div>
                   ))}
                 </div>
               ) : (
-                <div className="space-y-3 max-h-72 overflow-y-auto">
+                <div className="space-y-2 max-h-48 overflow-y-auto">
                   {services.map((service: BookingService) => (
                     <div
                       key={service.id}
-                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-sm ${
                         selectedService === service.id
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
                           : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                       onClick={() => setSelectedService(service.id)}
@@ -358,24 +409,24 @@ export default function FormBooking() {
                         onChange={(e) => setSelectedService(e.target.value)}
                       />
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
-                          <span className="text-2xl">{service.icon}</span>
+                        <div className="flex items-center space-x-2 flex-1">
+                          <span className="text-lg">{service.icon}</span>
                           <div className="flex-1 min-w-0">
-                            <h5 className="font-semibold text-gray-900 dark:text-white text-sm">
+                            <h5 className="font-medium text-gray-900 dark:text-white text-xs">
                               {service.name}
                             </h5>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-1">
                               {service.description}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-3 py-1 rounded-full whitespace-nowrap">
+                          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full whitespace-nowrap">
                             {service.price}
                           </span>
                           {selectedService === service.id && (
                             <div className="text-blue-500">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                               </svg>
                             </div>
@@ -390,76 +441,91 @@ export default function FormBooking() {
           </div>
 
           {/* Date and Time */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="preferred-date">
-                Preferred Date *
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="preferred-date">
+                Date *
               </label>
               <input
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark] text-sm"
                 defaultValue={defaultDate}
                 id="preferred-date"
                 min={minDate}
+                max={getMaxDate()}
                 name="preferred-date"
                 type="date"
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
+              {selectedDate && isDateInDayOff(selectedDate) && (
+                <div className="mt-1 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-amber-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div>
+                      <p className="text-xs font-medium text-amber-800 dark:text-amber-200">Day Off Period</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">Emergency only</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="timeSlot">
-                Time Slot *
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="timeSlot">
+                Time *
                 {isCheckingAvailability && (
-                  <span className="ml-2 text-xs text-blue-500">
-                    Checking availability...
+                  <span className="ml-1 text-xs text-blue-500">
+                    Checking...
                   </span>
                 )}
               </label>
               {isLoadingTimeSlots ? (
-                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-12"></div>
+                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-9"></div>
               ) : (
-                <select
-                  required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none"
-                  id="timeSlot"
-                  name="timeSlot"
-                >
-                  <option value="">Select time slot</option>
-                  {timeSlots.map((slot: string) => {
-                    const isBooked = isTimeSlotBooked(slot);
-                    return (
-                      <option 
-                        key={slot} 
-                        value={slot}
-                        disabled={isBooked}
-                        style={isBooked ? { color: '#9CA3AF', backgroundColor: '#F3F4F6' } : {}}
-                      >
-                        {slot} {isBooked ? '(Booked)' : ''}
-                      </option>
-                    );
-                  })}
-                </select>
-              )}
-              {selectedDate && bookedTimes.length > 0 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  {bookedTimes.length} time slot{bookedTimes.length > 1 ? 's' : ''} already booked for this date
-                </p>
+                <>
+                  <select
+                    required
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none text-sm"
+                    id="timeSlot"
+                    name="timeSlot"
+                    disabled={availableTimeSlots.length === 0}
+                  >
+                    <option value="">Select time slot</option>
+                    {timeSlots.map((slot: string) => {
+                      const isBooked = isTimeSlotBooked(slot);
+                      return (
+                        <option 
+                          key={slot} 
+                          value={slot}
+                          disabled={isBooked}
+                          style={isBooked ? { color: '#9CA3AF', backgroundColor: '#F3F4F6' } : {}}
+                        >
+                          {slot} {isBooked ? '(Booked)' : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  {availableTimeSlots.length === 0 && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">No available time slots for this date.</p>
+                  )}
+                </>
               )}
             </div>
           </div>
 
           {/* Emergency Option */}
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
             <div className="flex items-center">
               <input
-                className="h-5 w-5 rounded border-red-300 text-red-600 focus:ring-red-500"
+                className="h-4 w-4 rounded border-red-300 text-red-600 focus:ring-red-500"
                 id="isEmergency"
                 name="isEmergency"
                 type="checkbox"
               />
-              <label className="ml-3 flex items-center text-sm font-medium" htmlFor="isEmergency">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="ml-2 flex items-center text-xs font-medium" htmlFor="isEmergency">
+                <svg className="w-4 h-4 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                 </svg>
                 <span className="text-red-700 dark:text-red-300">
@@ -467,52 +533,52 @@ export default function FormBooking() {
                 </span>
               </label>
             </div>
-            <p className="text-xs text-red-600 dark:text-red-400 mt-2 ml-8">
-              Select this for urgent plumbing emergencies requiring immediate attention
+            <p className="text-xs text-red-600 dark:text-red-400 mt-1 ml-6">
+              Select for urgent plumbing emergencies
             </p>
           </div>
         </div>
       </div>
 
       {/* Submit Button */}
-      <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-center">
         <button
-          className={`w-full px-8 py-4 rounded-xl font-bold text-white text-lg transition-all ${
+          className={`px-8 py-3 rounded-lg font-semibold text-white text-base transition-all ${
             isSubmitting
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02] shadow-md hover:shadow-lg"
           }`}
           disabled={isSubmitting}
           type="submit"
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center">
-              <svg className="w-5 h-5 mr-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
               </svg>
-              Sending Your Request...
+              Sending...
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
               </svg>
-              Send Booking Request
+              Send Request
             </div>
           )}
         </button>
+      </div>
 
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            * Required fields. Emergency? Call{" "}
-            <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
-              {businessPhone}
-            </a>
-          </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-            We'll contact you within 45 minutes to confirm your booking
-          </p>
-        </div>
+      <div className="text-center">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          * Required fields. Emergency? Call{" "}
+          <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
+            {businessPhone}
+          </a>
+        </p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          We'll contact you within 45 minutes to confirm your booking
+        </p>
       </div>
     </form>
   );

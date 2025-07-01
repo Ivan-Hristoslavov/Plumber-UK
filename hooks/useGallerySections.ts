@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GallerySection } from '@/types';
 
+// Global cache to prevent multiple API calls
+let gallerySectionsCache: GallerySection[] | null = null;
+let cachePromise: Promise<GallerySection[]> | null = null;
+
 export function useGallerySections() {
-  const [gallerySections, setGallerySections] = useState<GallerySection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [gallerySections, setGallerySections] = useState<GallerySection[]>(gallerySectionsCache || []);
+  const [isLoading, setIsLoading] = useState(!gallerySectionsCache);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const fetchGallerySections = async () => {
     try {
@@ -18,7 +23,9 @@ export function useGallerySections() {
         throw new Error(data.error || 'Failed to fetch gallery sections');
       }
 
-      setGallerySections(data.gallerySections || []);
+      const sections = data.gallerySections || [];
+      gallerySectionsCache = sections; // Update cache
+      setGallerySections(sections);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -96,7 +103,47 @@ export function useGallerySections() {
   };
 
   useEffect(() => {
-    fetchGallerySections();
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have cached data, use it
+    if (gallerySectionsCache) {
+      setGallerySections(gallerySectionsCache);
+      setIsLoading(false);
+      return;
+    }
+
+    // If there's already a request in progress, wait for it
+    if (cachePromise) {
+      cachePromise.then(data => {
+        setGallerySections(data);
+        setIsLoading(false);
+      }).catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+      });
+      return;
+    }
+
+    // Make the API call
+    cachePromise = fetch('/api/gallery-sections')
+      .then(response => response.json())
+      .then(data => {
+        if (!data.gallerySections) {
+          throw new Error("Failed to fetch gallery sections");
+        }
+        const sections = data.gallerySections || [];
+        gallerySectionsCache = sections;
+        setGallerySections(sections);
+        setIsLoading(false);
+        return sections;
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+        cachePromise = null; // Reset promise on error
+        throw err;
+      });
   }, []);
 
   return {

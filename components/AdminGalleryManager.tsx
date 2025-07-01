@@ -5,11 +5,14 @@ import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
 import { GalleryItem, GallerySection } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
+import { useConfirmation } from "@/hooks/useConfirmation";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export function AdminGalleryManager() {
   const { galleryItems, loading, error, addGalleryItem, updateGalleryItem, deleteGalleryItem } = useGallery();
   const { gallerySections, isLoading: sectionsLoading, error: sectionsError, addGallerySection, updateGallerySection, deleteGallerySection } = useGallerySections();
   const { showSuccess, showError } = useToast();
+  const { confirm, modalProps } = useConfirmation();
   
   const [activeTab, setActiveTab] = useState<'items' | 'sections'>('items');
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
@@ -187,13 +190,22 @@ export function AdminGalleryManager() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this gallery item?")) {
-      try {
-        await deleteGalleryItem(id);
-        showSuccess(ToastMessages.gallery.itemDeleted.title, ToastMessages.gallery.itemDeleted.message);
-      } catch (err) {
-        showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
-      }
+    try {
+      await confirm(
+        {
+          title: "Delete Gallery Item",
+          message: "Are you sure you want to delete this gallery item? This action cannot be undone.",
+          confirmText: "Delete",
+          cancelText: "Cancel",
+          isDestructive: true
+        },
+        async () => {
+          await deleteGalleryItem(id);
+          showSuccess(ToastMessages.gallery.itemDeleted.title, ToastMessages.gallery.itemDeleted.message);
+        }
+      );
+    } catch (err) {
+      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
     }
   };
 
@@ -227,13 +239,22 @@ export function AdminGalleryManager() {
   };
 
   const handleDeleteSection = async (id: number) => {
-    if (confirm("Are you sure you want to delete this gallery section?")) {
-      try {
-        await deleteGallerySection(id);
-        showSuccess("Section deleted successfully!", "The gallery section has been removed.");
-      } catch (err) {
-        showError("Error", "Failed to delete gallery section. Please try again.");
-      }
+    try {
+      await confirm(
+        {
+          title: "Delete Gallery Section",
+          message: "Are you sure you want to delete this gallery section? All items in this section will be moved to 'No Section'.",
+          confirmText: "Delete",
+          cancelText: "Cancel", 
+          isDestructive: true
+        },
+        async () => {
+          await deleteGallerySection(id);
+          showSuccess("Section deleted successfully!", "The gallery section has been removed.");
+        }
+      );
+    } catch (err) {
+      showError("Error", "Failed to delete gallery section. Please try again.");
     }
   };
 
@@ -768,6 +789,9 @@ export function AdminGalleryManager() {
           )}
         </>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal {...modalProps} />
     </div>
   );
 } 

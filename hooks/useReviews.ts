@@ -1,11 +1,17 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Review } from '@/types';
 
+// Global cache to prevent multiple API calls
+let reviewsCache: { [key: string]: Review[] } = {};
+let cachePromises: { [key: string]: Promise<Review[]> | null } = {};
+
 export function useReviews(adminMode = false) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = adminMode ? 'admin' : 'public';
+  const [reviews, setReviews] = useState<Review[]>(reviewsCache[cacheKey] || []);
+  const [isLoading, setIsLoading] = useState(!reviewsCache[cacheKey]);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const fetchReviews = async () => {
     try {
@@ -14,7 +20,9 @@ export function useReviews(adminMode = false) {
       const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reviews');
-      setReviews(data.reviews || []);
+      const reviewsData = data.reviews || [];
+      reviewsCache[cacheKey] = reviewsData; // Update cache
+      setReviews(reviewsData);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -54,7 +62,50 @@ export function useReviews(adminMode = false) {
     await fetchReviews();
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have cached data, use it
+    if (reviewsCache[cacheKey]) {
+      setReviews(reviewsCache[cacheKey]);
+      setIsLoading(false);
+      return;
+    }
+
+    // If there's already a request in progress, wait for it
+    if (cachePromises[cacheKey]) {
+      cachePromises[cacheKey]!.then(data => {
+        setReviews(data);
+        setIsLoading(false);
+      }).catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+      });
+      return;
+    }
+
+    // Make the API call
+    const url = adminMode ? '/api/reviews?all=1' : '/api/reviews';
+    cachePromises[cacheKey] = fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.reviews) {
+          throw new Error("Failed to fetch reviews");
+        }
+        const reviewsData = data.reviews || [];
+        reviewsCache[cacheKey] = reviewsData;
+        setReviews(reviewsData);
+        setIsLoading(false);
+        return reviewsData;
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+        cachePromises[cacheKey] = null; // Reset promise on error
+        throw err;
+      });
+  }, [adminMode, cacheKey]);
 
   return { reviews, isLoading, error, addReview, approveReview, deleteReview, refetch: fetchReviews };
 } 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAdminSettings } from './useAdminSettings';
 
 export type WorkingHours = {
   workingHoursStart: string;
@@ -7,14 +8,8 @@ export type WorkingHours = {
 };
 
 export function useWorkingHours() {
-  const [workingHours, setWorkingHours] = useState<WorkingHours>({
-    workingHoursStart: "08:00",
-    workingHoursEnd: "18:00",
-    workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"]
-  });
+  const { settings, isLoading: settingsLoading, error: settingsError } = useAdminSettings();
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
   const generateTimeSlots = (startTime: string, endTime: string): string[] => {
     const slots: string[] = [];
@@ -30,58 +25,22 @@ export function useWorkingHours() {
     return slots;
   };
 
-  const fetchWorkingHours = async () => {
-    try {
-      setIsLoading(true);
-      
-      const response = await fetch('/api/admin/settings');
-      if (!response.ok) {
-        throw new Error('Failed to fetch working hours');
-      }
-      
-      const responseData = await response.json();
-      const data = responseData.settings || [];
-      const settings: { [key: string]: any } = {};
-      
-      data.forEach((setting: any) => {
-        try {
-          settings[setting.key] = typeof setting.value === 'string' 
-            ? JSON.parse(setting.value) 
-            : setting.value;
-        } catch {
-          settings[setting.key] = setting.value;
-        }
-      });
-
-      const hours: WorkingHours = {
-        workingHoursStart: settings.workingHoursStart || "08:00",
-        workingHoursEnd: settings.workingHoursEnd || "18:00",
-        workingDays: settings.workingDays || ["monday", "tuesday", "wednesday", "thursday", "friday"]
-      };
-
-      setWorkingHours(hours);
-      
-      // Generate time slots
-      const slots = generateTimeSlots(hours.workingHoursStart, hours.workingHoursEnd);
-      setTimeSlots(slots);
-      
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchWorkingHours();
-  }, []);
+    if (!settingsLoading && settings) {
+      // Generate time slots when settings are loaded
+      const slots = generateTimeSlots(settings.workingHoursStart, settings.workingHoursEnd);
+      setTimeSlots(slots);
+    }
+  }, [settings, settingsLoading]);
 
   return {
-    workingHours,
+    workingHours: {
+      workingHoursStart: settings.workingHoursStart,
+      workingHoursEnd: settings.workingHoursEnd,
+      workingDays: settings.workingDays
+    },
     timeSlots,
-    isLoading,
-    error,
-    refetch: fetchWorkingHours
+    isLoading: settingsLoading,
+    error: settingsError
   };
 } 

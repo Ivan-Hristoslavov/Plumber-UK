@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GalleryItem } from "@/types";
 
+// Global cache to prevent multiple API calls
+let galleryCache: GalleryItem[] | null = null;
+let cachePromise: Promise<GalleryItem[]> | null = null;
+
 export function useGallery() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(galleryCache || []);
+  const [loading, setLoading] = useState(!galleryCache);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const fetchGalleryItems = async () => {
     try {
@@ -16,7 +21,9 @@ export function useGallery() {
         throw new Error(data.error || "Failed to fetch gallery items");
       }
 
-      setGalleryItems(data.galleryItems || []);
+      const items = data.galleryItems || [];
+      galleryCache = items; // Update cache
+      setGalleryItems(items);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -88,7 +95,47 @@ export function useGallery() {
   };
 
   useEffect(() => {
-    fetchGalleryItems();
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have cached data, use it
+    if (galleryCache) {
+      setGalleryItems(galleryCache);
+      setLoading(false);
+      return;
+    }
+
+    // If there's already a request in progress, wait for it
+    if (cachePromise) {
+      cachePromise.then(data => {
+        setGalleryItems(data);
+        setLoading(false);
+      }).catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
+      });
+      return;
+    }
+
+    // Make the API call
+    cachePromise = fetch("/api/gallery")
+      .then(response => response.json())
+      .then(data => {
+        if (!data.galleryItems) {
+          throw new Error("Failed to fetch gallery items");
+        }
+        const items = data.galleryItems || [];
+        galleryCache = items;
+        setGalleryItems(items);
+        setLoading(false);
+        return items;
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
+        cachePromise = null; // Reset promise on error
+        throw err;
+      });
   }, []);
 
   return {

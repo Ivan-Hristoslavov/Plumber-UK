@@ -18,12 +18,14 @@ const navigation = [
       { name: "Gallery", href: "#gallery" }
     ]
   },
+  { name: "Pricing", href: "#pricing" },
   { 
     name: "Support", 
     href: "#faq",
     dropdown: [
       { name: "FAQ", href: "#faq" },
-      { name: "Reviews", href: "#reviews" }
+      { name: "Reviews", href: "#reviews" },
+      { name: "Blog", href: "/blog" }
     ]
   },
   { name: "Contact", href: "#contact" },
@@ -78,7 +80,7 @@ export default function FooterMain() {
     // Check if there's a hash in the URL on initial load
     if (typeof window !== "undefined" && window.location.hash) {
       const hash = window.location.hash.substring(1);
-      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
+      if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
         setActiveSection(hash);
       }
     }
@@ -87,7 +89,7 @@ export default function FooterMain() {
     const handleHashChange = () => {
       if (typeof window !== "undefined" && window.location.hash) {
         const hash = window.location.hash.substring(1);
-        if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
+        if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
           setActiveSection(hash);
         }
       }
@@ -126,7 +128,7 @@ export default function FooterMain() {
   };
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 dark:bg-gray-900 dark:border-gray-800 transition-colors duration-300">
+    <footer className="bg-white/40 dark:bg-gray-900/40 backdrop-blur shadow-lg border-t border-white/20 dark:border-gray-800/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
