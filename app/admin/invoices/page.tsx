@@ -5,8 +5,11 @@ import { format } from "date-fns";
 import { jsPDF } from "jspdf";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { CreateInvoiceModal } from "@/components/CreateInvoiceModal";
+import { EditInvoiceModal } from "@/components/EditInvoiceModal";
 import { SendInvoiceModal } from "@/components/SendInvoiceModal";
 import { useToast, ToastMessages } from "@/components/Toast";
+import { useConfirmation } from "@/hooks/useConfirmation";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 import Tooltip from "../../../components/Tooltip";
 import { Invoice as BaseInvoice, Customer, Booking } from "@/types";
@@ -38,8 +41,12 @@ export default function InvoicesPage() {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { profile: dbProfile } = useAdminProfile();
   const { showSuccess, showError } = useToast();
+  const { confirm, modalProps } = useConfirmation();
 
   // Load data on component mount
   useEffect(() => {
@@ -153,6 +160,66 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleEditInvoice = async (invoiceId: string, invoiceData: FormData) => {
+    try {
+      setEditingInvoice(true);
+      
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: "PUT",
+        body: invoiceData,
+      });
+
+      if (response.ok) {
+        await loadData(); // Reload invoices
+        setShowEditModal(false);
+        setSelectedInvoice(null);
+        showSuccess("Invoice Updated", "The invoice has been updated successfully.");
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update invoice");
+      }
+    } catch (error) {
+      console.error("Error updating invoice:", error);
+      showError("Update Failed", error instanceof Error ? error.message : "Failed to update invoice");
+    } finally {
+      setEditingInvoice(false);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    try {
+      await confirm(
+        {
+          title: "Delete Invoice",
+          message: "Are you sure you want to delete this invoice? This action cannot be undone.",
+          confirmText: "Delete",
+          cancelText: "Cancel",
+          isDestructive: true
+        },
+        async () => {
+          setDeletingId(invoiceId);
+          
+          const response = await fetch(`/api/invoices/${invoiceId}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            await loadData(); // Reload invoices
+            showSuccess("Invoice Deleted", "The invoice has been deleted successfully.");
+          } else {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to delete invoice");
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      showError("Delete Failed", error instanceof Error ? error.message : "Failed to delete invoice");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const getStatusColor = (status: Invoice["status"]) => {
     switch (status) {
       case "pending":
@@ -187,192 +254,195 @@ export default function InvoicesPage() {
     }
   };
 
-  // PDF generation function (keeping the existing one but improved)
+  // PDF generation function (improved with better spacing and layout)
   function generateInvoicePDF(invoice: Invoice) {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
     let y = 60;
 
     // UK Invoice Header - Company Branding
     doc.setFillColor(59, 130, 246); // Blue header
-    doc.rect(0, 0, pageWidth, 80, "F");
+    doc.rect(0, 0, pageWidth, 100, "F");
     
     // Company Logo/Name
-    doc.setFontSize(28);
+    doc.setFontSize(32);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.text(invoice.company_name || "FixMyLeak Ltd", 40, 45);
+    doc.text(invoice.company_name || "FixMyLeak Ltd", margin, 50);
     
     // UK Address format
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text(invoice.company_address || "London, UK", 40, 65);
+    doc.text(invoice.company_address || "London, UK", margin, 75);
 
     // Invoice Title & Details - Right aligned
-    y = 100;
-    doc.setFontSize(24);
+    y = 120;
+    doc.setFontSize(28);
     doc.setTextColor(59, 130, 246);
     doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", pageWidth - 150, y);
+    doc.text("INVOICE", pageWidth - 180, y);
     
     // Invoice metadata
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setTextColor(60, 60, 60);
     doc.setFont("helvetica", "normal");
-    y += 25;
-    doc.text(`Invoice No: ${invoice.invoice_number}`, pageWidth - 150, y);
-    y += 15;
-    doc.text(`Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`, pageWidth - 150, y);
-    y += 15;
+    y += 30;
+    doc.text(`Invoice No: ${invoice.invoice_number}`, pageWidth - 180, y);
+    y += 20;
+    doc.text(`Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`, pageWidth - 180, y);
+    y += 20;
     if (invoice.due_date) {
-      doc.text(`Due Date: ${format(new Date(invoice.due_date), "dd/MM/yyyy")}`, pageWidth - 150, y);
+      doc.text(`Due Date: ${format(new Date(invoice.due_date), "dd/MM/yyyy")}`, pageWidth - 180, y);
     }
 
     // Company Details Section (UK Format)
-    y = 160;
-    doc.setFontSize(12);
+    y = 180;
+    doc.setFontSize(14);
     doc.setTextColor(34, 34, 34);
     doc.setFont("helvetica", "bold");
-    doc.text("From:", 40, y);
+    doc.text("From:", margin, y);
     
-    y += 20;
+    y += 25;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text(invoice.company_name || "FixMyLeak Ltd", 40, y);
+    doc.setFontSize(16);
+    doc.text(invoice.company_name || "FixMyLeak Ltd", margin, y);
     
-    y += 18;
+    y += 25;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     
-    // Multi-line address handling
+    // Multi-line address handling with better spacing
     const addressLines = (invoice.company_address || "London, UK").split('\n');
     addressLines.forEach(line => {
-      doc.text(line, 40, y);
-      y += 12;
+      doc.text(line, margin, y);
+      y += 16;
     });
     
-    // UK Business details
-    doc.text(`Tel: ${invoice.company_phone || "+44 7700 123456"}`, 40, y);
-    y += 12;
-    doc.text(`Email: ${invoice.company_email || "admin@fixmyleak.com"}`, 40, y);
-    y += 12;
+    // UK Business details with better spacing
+    y += 5;
+    doc.text(`Tel: ${invoice.company_phone || "+44 7700 123456"}`, margin, y);
+    y += 16;
+    doc.text(`Email: ${invoice.company_email || "admin@fixmyleak.com"}`, margin, y);
+    y += 16;
     
     // VAT Number (UK requirement)
     if (invoice.company_vat_number) {
-      doc.text(`VAT Reg No: ${invoice.company_vat_number}`, 40, y);
-      y += 12;
+      doc.text(`VAT Reg No: ${invoice.company_vat_number}`, margin, y);
+      y += 16;
     }
     
     // Gas Safe Registration (UK plumbing requirement)
     if (dbProfile?.gas_safe_number) {
-      doc.text(`Gas Safe Reg: ${dbProfile.gas_safe_number}`, 40, y);
+      doc.text(`Gas Safe Reg: ${dbProfile.gas_safe_number}`, margin, y);
     }
 
-    // Customer Details Section (Bill To)
-    y = 160;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Bill To:", pageWidth - 250, y);
-    
-    y += 20;
-    doc.setFont("helvetica", "bold");
+    // Customer Details Section (Bill To) - Reset y position for right column
+    let customerY = 180;
     doc.setFontSize(14);
-    doc.text(invoice.customer?.name || "Customer", pageWidth - 250, y);
+    doc.setFont("helvetica", "bold");
+    doc.text("Bill To:", pageWidth - 280, customerY);
     
-    y += 18;
+    customerY += 25;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text(invoice.customer?.name || "Customer", pageWidth - 280, customerY);
+    
+    customerY += 25;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     
     if (invoice.customer?.email) {
-      doc.text(invoice.customer.email, pageWidth - 250, y);
-      y += 12;
+      doc.text(invoice.customer.email, pageWidth - 280, customerY);
+      customerY += 16;
     }
     
     if (invoice.customer?.address) {
       const customerAddressLines = invoice.customer.address.split('\n');
       customerAddressLines.forEach(line => {
-        doc.text(line, pageWidth - 250, y);
-        y += 12;
+        doc.text(line, pageWidth - 280, customerY);
+        customerY += 16;
       });
     }
 
-    // Service Details Table (UK Style)
-    y = 300;
+    // Service Details Table (UK Style) - Move down to avoid overlap
+    y = 380;
     
     // Table header
     doc.setFillColor(248, 250, 252);
-    doc.rect(40, y, pageWidth - 80, 25, "F");
+    doc.rect(margin, y, pageWidth - (margin * 2), 30, "F");
     doc.setDrawColor(226, 232, 240);
-    doc.rect(40, y, pageWidth - 80, 25);
+    doc.rect(margin, y, pageWidth - (margin * 2), 30);
     
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(51, 65, 85);
-    doc.text("Description", 50, y + 16);
-    doc.text("Date", pageWidth - 280, y + 16);
-    doc.text("Amount", pageWidth - 120, y + 16, { align: "right" });
+    doc.text("Description", margin + 10, y + 20);
+    doc.text("Date", pageWidth - 280, y + 20);
+    doc.text("Amount", pageWidth - 80, y + 20, { align: "right" });
     
     // Service row
-    y += 25;
+    y += 30;
     doc.setDrawColor(226, 232, 240);
-    doc.rect(40, y, pageWidth - 80, 30);
+    doc.rect(margin, y, pageWidth - (margin * 2), 40);
     
     doc.setFont("helvetica", "normal");
     doc.setTextColor(71, 85, 105);
-    doc.text(invoice.booking?.service || "Plumbing Service", 50, y + 12);
+    doc.setFontSize(11);
+    doc.text(invoice.booking?.service || invoice.manual_description || "Plumbing Service", margin + 10, y + 15);
     if (invoice.booking?.date) {
-      doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 280, y + 12);
+      doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 280, y + 15);
     }
     
     // Service location
     if (invoice.customer?.address) {
-      doc.setFontSize(9);
+      doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Location: ${invoice.customer.address.split('\n')[0]}`, 50, y + 25);
+      doc.text(`Location: ${invoice.customer.address.split('\n')[0]}`, margin + 10, y + 30);
     }
     
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.setTextColor(71, 85, 105);
-    doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 120, y + 16, { align: "right" });
+    doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, y + 15, { align: "right" });
 
     // UK VAT Calculation Section
-    y += 60;
+    y += 80;
     doc.setDrawColor(226, 232, 240);
-    doc.line(pageWidth - 250, y, pageWidth - 40, y);
+    doc.line(pageWidth - 280, y, pageWidth - margin, y);
     
-    y += 20;
+    y += 25;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text("Subtotal (excl. VAT)", pageWidth - 200, y);
-    doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 120, y, { align: "right" });
+    doc.setFontSize(12);
+    doc.text("Subtotal (excl. VAT)", pageWidth - 220, y);
+    doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
     
-    y += 18;
-    doc.text(`VAT @ ${invoice.vat_rate}%`, pageWidth - 200, y);
-    doc.text(`£${invoice.vat_amount.toFixed(2)}`, pageWidth - 120, y, { align: "right" });
+    y += 22;
+    doc.text(`VAT @ ${invoice.vat_rate}%`, pageWidth - 220, y);
+    doc.text(`£${invoice.vat_amount.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
     
     // Total
-    y += 25;
+    y += 30;
     doc.setDrawColor(59, 130, 246);
     doc.setLineWidth(2);
-    doc.line(pageWidth - 250, y - 5, pageWidth - 40, y - 5);
+    doc.line(pageWidth - 280, y - 8, pageWidth - margin, y - 8);
     
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
+    doc.setFontSize(16);
     doc.setTextColor(59, 130, 246);
-    doc.text("TOTAL", pageWidth - 200, y);
-    doc.text(`£${invoice.total_amount.toFixed(2)}`, pageWidth - 120, y, { align: "right" });
+    doc.text("TOTAL", pageWidth - 220, y);
+    doc.text(`£${invoice.total_amount.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
 
     // Payment Terms (UK Standard)
-    y += 50;
+    y += 60;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.setTextColor(51, 65, 85);
-    doc.text("Payment Terms", 40, y);
+    doc.text("Payment Terms", margin, y);
     
-    y += 20;
+    y += 25;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setTextColor(71, 85, 105);
     
     const paymentTerms = [
@@ -383,34 +453,34 @@ export default function InvoicesPage() {
     ];
     
     paymentTerms.forEach(term => {
-      doc.text(`• ${term}`, 40, y);
-      y += 14;
+      doc.text(`• ${term}`, margin, y);
+      y += 18;
     });
 
     // Notes section
     if (invoice.notes) {
-      y += 20;
+      y += 25;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.text("Notes", 40, y);
+      doc.setFontSize(14);
+      doc.text("Notes", margin, y);
       
-      y += 20;
+      y += 25;
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       
       const noteLines = invoice.notes.split('\n');
       noteLines.forEach(line => {
-        doc.text(line, 40, y);
-        y += 14;
+        doc.text(line, margin, y);
+        y += 18;
       });
     }
 
     // Footer (UK Legal Requirements)
-    const footerY = pageHeight - 80;
+    const footerY = pageHeight - 100;
     doc.setDrawColor(226, 232, 240);
-    doc.line(40, footerY, pageWidth - 40, footerY);
+    doc.line(margin, footerY, pageWidth - margin, footerY);
     
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
     doc.setFont("helvetica", "normal");
     
@@ -422,8 +492,8 @@ export default function InvoicesPage() {
       footerText += ` • Gas Safe: ${dbProfile.gas_safe_number}`;
     }
     
-    doc.text(footerText, pageWidth / 2, footerY + 15, { align: "center" });
-    doc.text("Thank you for choosing our services", pageWidth / 2, footerY + 30, { align: "center" });
+    doc.text(footerText, pageWidth / 2, footerY + 20, { align: "center" });
+    doc.text("Thank you for choosing our services", pageWidth / 2, footerY + 35, { align: "center" });
 
     // Save the PDF
     doc.save(`Invoice-${invoice.invoice_number}.pdf`);
@@ -602,10 +672,11 @@ export default function InvoicesPage() {
                         <Tooltip content="Edit Invoice">
                           <button
                             onClick={() => {
-                              // Add edit functionality here
-                              console.log("Edit invoice:", invoice.id);
+                              setSelectedInvoice(invoice);
+                              setShowEditModal(true);
                             }}
-                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all duration-200"
+                            disabled={editingInvoice}
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Edit Invoice"
                           >
                             <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -617,18 +688,21 @@ export default function InvoicesPage() {
                         {/* Delete Button */}
                         <Tooltip content="Delete Invoice">
                           <button
-                            onClick={() => {
-                              if (confirm("Are you sure you want to delete this invoice?")) {
-                                // Add delete functionality here
-                                console.log("Delete invoice:", invoice.id);
-                              }
-                            }}
-                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                            onClick={() => handleDeleteInvoice(invoice.id)}
+                            disabled={deletingId === invoice.id}
+                            className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Delete Invoice"
                           >
-                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            {deletingId === invoice.id ? (
+                              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
                           </button>
                         </Tooltip>
                       </div>
@@ -651,6 +725,20 @@ export default function InvoicesPage() {
         isLoading={creatingInvoice}
       />
 
+      {/* Edit Invoice Modal */}
+      <EditInvoiceModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedInvoice(null);
+        }}
+        onSubmit={handleEditInvoice}
+        invoice={selectedInvoice}
+        customers={customers}
+        bookings={bookings}
+        isLoading={editingInvoice}
+      />
+
       {/* Send Invoice Modal */}
       {selectedInvoice && (
         <SendInvoiceModal
@@ -664,6 +752,9 @@ export default function InvoicesPage() {
           isLoading={sendingId === selectedInvoice.id}
         />
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal {...modalProps} />
     </div>
   );
 }

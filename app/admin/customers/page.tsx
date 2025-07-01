@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { EditCustomerModal } from "@/components/EditCustomerModal";
 
 type Customer = {
   id: string;
@@ -38,6 +39,8 @@ export default function CustomersPage() {
     null
   );
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [addType, setAddType] = useState<"individual" | "company">(
     "individual"
   );
@@ -179,6 +182,29 @@ export default function CustomersPage() {
     }
   };
 
+  const handleEditCustomer = async (customerId: string, customerData: any) => {
+    try {
+      const response = await fetch(`/api/customers/${customerId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(customerData),
+      });
+
+      if (response.ok) {
+        await loadCustomers();
+        setShowEditModal(false);
+        setEditingCustomer(null);
+      } else {
+        const error = await response.json();
+        console.error("Failed to update customer:", error);
+      }
+    } catch (error) {
+      console.error("Error updating customer:", error);
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -263,12 +289,23 @@ export default function CustomersPage() {
                     {customer.address}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
-                      onClick={() => setSelectedCustomer(customer)}
-                    >
-                      View
-                    </button>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+                        onClick={() => setSelectedCustomer(customer)}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                        onClick={() => {
+                          setEditingCustomer(customer);
+                          setShowEditModal(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -645,6 +682,18 @@ export default function CustomersPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Customer Modal */}
+      <EditCustomerModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingCustomer(null);
+        }}
+        onSubmit={handleEditCustomer}
+        customer={editingCustomer}
+        isLoading={false}
+      />
     </div>
   );
 }

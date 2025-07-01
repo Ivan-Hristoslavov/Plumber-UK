@@ -3,6 +3,8 @@ import { readFile } from "fs/promises";
 import { supabase } from "@/lib/supabase";
 import { createPaymentLink, isStripeAvailable } from "@/lib/stripe";
 import { sendEmail, EmailAttachment } from "@/lib/sendgrid-smtp";
+import { jsPDF } from "jspdf";
+import { format } from "date-fns";
 
 // POST - Send invoice email
 export async function POST(
@@ -96,8 +98,18 @@ export async function POST(
       );
     }
 
-    // Prepare email attachments from images
+    // Generate PDF invoice
+    const pdfBuffer = generateInvoicePDF(invoice);
+    
+    // Prepare email attachments from images and PDF
     const emailAttachments: EmailAttachment[] = [];
+    
+    // Add PDF invoice as attachment
+    emailAttachments.push({
+      filename: `Invoice-${invoice.invoice_number}.pdf`,
+      content: pdfBuffer,
+      contentType: 'application/pdf'
+    });
     
     for (const attachment of imageAttachments) {
       try {
@@ -127,7 +139,7 @@ export async function POST(
       }
     }
 
-    console.log(`Total attachments prepared: ${emailAttachments.length}`);
+    console.log(`Total attachments prepared: ${emailAttachments.length} (including PDF)`);
 
     // Prepare email content
     const emailSubject = `Invoice ${invoice.invoice_number} from ${invoice.company_name}`;
@@ -237,6 +249,243 @@ function getContentType(filename: string): string {
   }
 }
 
+function generateInvoicePDF(invoice: any): Buffer {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  let y = 60;
+
+  // UK Invoice Header - Company Branding
+  doc.setFillColor(59, 130, 246); // Blue header
+  doc.rect(0, 0, pageWidth, 100, "F");
+  
+  // Company Logo/Name
+  doc.setFontSize(32);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text(invoice.company_name || "FixMyLeak Ltd", margin, 50);
+  
+  // UK Address format
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text(invoice.company_address || "London, UK", margin, 75);
+
+  // Invoice Title & Details - Right aligned
+  y = 120;
+  doc.setFontSize(28);
+  doc.setTextColor(59, 130, 246);
+  doc.setFont("helvetica", "bold");
+  doc.text("INVOICE", pageWidth - 180, y);
+  
+  // Invoice metadata
+  doc.setFontSize(12);
+  doc.setTextColor(60, 60, 60);
+  doc.setFont("helvetica", "normal");
+  y += 30;
+  doc.text(`Invoice No: ${invoice.invoice_number}`, pageWidth - 180, y);
+  y += 20;
+  doc.text(`Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`, pageWidth - 180, y);
+  y += 20;
+  if (invoice.due_date) {
+    doc.text(`Due Date: ${format(new Date(invoice.due_date), "dd/MM/yyyy")}`, pageWidth - 180, y);
+  }
+
+  // Company Details Section (UK Format)
+  y = 180;
+  doc.setFontSize(14);
+  doc.setTextColor(34, 34, 34);
+  doc.setFont("helvetica", "bold");
+  doc.text("From:", margin, y);
+  
+  y += 25;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(invoice.company_name || "FixMyLeak Ltd", margin, y);
+  
+  y += 25;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  
+  // Multi-line address handling with better spacing
+  const addressLines = (invoice.company_address || "London, UK").split('\n');
+  addressLines.forEach((line: string) => {
+    doc.text(line, margin, y);
+    y += 16;
+  });
+  
+  // UK Business details with better spacing
+  y += 5;
+  doc.text(`Tel: ${invoice.company_phone || "+44 7700 123456"}`, margin, y);
+  y += 16;
+  doc.text(`Email: ${invoice.company_email || "admin@fixmyleak.com"}`, margin, y);
+  y += 16;
+  
+  // VAT Number (UK requirement)
+  if (invoice.company_vat_number) {
+    doc.text(`VAT Reg No: ${invoice.company_vat_number}`, margin, y);
+    y += 16;
+  }
+
+  // Customer Details Section (Bill To) - Reset y position for right column
+  let customerY = 180;
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Bill To:", pageWidth - 280, customerY);
+  
+  customerY += 25;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(invoice.customer?.name || "Customer", pageWidth - 280, customerY);
+  
+  customerY += 25;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  
+  if (invoice.customer?.email) {
+    doc.text(invoice.customer.email, pageWidth - 280, customerY);
+    customerY += 16;
+  }
+  
+  if (invoice.customer?.address) {
+    const customerAddressLines = invoice.customer.address.split('\n');
+    customerAddressLines.forEach((line: string) => {
+      doc.text(line, pageWidth - 280, customerY);
+      customerY += 16;
+    });
+  }
+
+  // Service Details Table (UK Style) - Move down to avoid overlap
+  y = 380;
+  
+  // Table header
+  doc.setFillColor(248, 250, 252);
+  doc.rect(margin, y, pageWidth - (margin * 2), 30, "F");
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(margin, y, pageWidth - (margin * 2), 30);
+  
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(51, 65, 85);
+  doc.text("Description", margin + 10, y + 20);
+  doc.text("Date", pageWidth - 280, y + 20);
+  doc.text("Amount", pageWidth - 80, y + 20, { align: "right" });
+  
+  // Service row
+  y += 30;
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(margin, y, pageWidth - (margin * 2), 40);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  doc.setFontSize(11);
+  doc.text(invoice.booking?.service || invoice.manual_description || "Plumbing Service", margin + 10, y + 15);
+  if (invoice.booking?.date) {
+    doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 280, y + 15);
+  }
+  
+  // Service location
+  if (invoice.customer?.address) {
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Location: ${invoice.customer.address.split('\n')[0]}`, margin + 10, y + 30);
+  }
+  
+  doc.setFontSize(12);
+  doc.setTextColor(71, 85, 105);
+  doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, y + 15, { align: "right" });
+
+  // UK VAT Calculation Section
+  y += 80;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(pageWidth - 280, y, pageWidth - margin, y);
+  
+  y += 25;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text("Subtotal (excl. VAT)", pageWidth - 220, y);
+  doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
+  
+  y += 22;
+  doc.text(`VAT @ ${invoice.vat_rate}%`, pageWidth - 220, y);
+  doc.text(`£${invoice.vat_amount.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
+  
+  // Total
+  y += 30;
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(2);
+  doc.line(pageWidth - 280, y - 8, pageWidth - margin, y - 8);
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(59, 130, 246);
+  doc.text("TOTAL", pageWidth - 220, y);
+  doc.text(`£${invoice.total_amount.toFixed(2)}`, pageWidth - 80, y, { align: "right" });
+
+  // Payment Terms (UK Standard)
+  y += 60;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(51, 65, 85);
+  doc.text("Payment Terms", margin, y);
+  
+  y += 25;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(71, 85, 105);
+  
+  const paymentTerms = [
+    `Payment due within 30 days of invoice date`,
+    `Late payment charges may apply after due date`,
+    `Bank transfer preferred - details available on request`,
+    `Cheques payable to: ${invoice.company_name || "FixMyLeak Ltd"}`
+  ];
+  
+  paymentTerms.forEach((term: string) => {
+    doc.text(`• ${term}`, margin, y);
+    y += 18;
+  });
+
+  // Notes section
+  if (invoice.notes) {
+    y += 25;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("Notes", margin, y);
+    
+    y += 25;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    
+    const noteLines = invoice.notes.split('\n');
+    noteLines.forEach((line: string) => {
+      doc.text(line, margin, y);
+      y += 18;
+    });
+  }
+
+  // Footer (UK Legal Requirements)
+  const footerY = pageHeight - 100;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(margin, footerY, pageWidth - margin, footerY);
+  
+  doc.setFontSize(9);
+  doc.setTextColor(100, 116, 139);
+  doc.setFont("helvetica", "normal");
+  
+  let footerText = `${invoice.company_name || "FixMyLeak Ltd"} • ${invoice.company_address || "London, UK"}`;
+  if (invoice.company_vat_number) {
+    footerText += ` • VAT Reg: ${invoice.company_vat_number}`;
+  }
+  
+  doc.text(footerText, pageWidth / 2, footerY + 20, { align: "center" });
+  doc.text("Thank you for choosing our services", pageWidth / 2, footerY + 35, { align: "center" });
+
+  // Return PDF as buffer
+  const pdfOutput = doc.output('arraybuffer');
+  return Buffer.from(pdfOutput);
+}
+
 function generateEmailBody(invoice: any, paymentLink: string | null, hasAttachments: boolean, currency: string): string {
   const customerName = invoice.customer?.name || "Valued Customer";
   const invoiceDate = new Date(invoice.invoice_date).toLocaleDateString("en-GB");
@@ -258,7 +507,7 @@ Dear ${customerName},
 
 Thank you for choosing ${invoice.company_name} for your plumbing needs.
 
-Please find attached your invoice for the services provided:
+Please find attached your invoice PDF and details for the services provided:
 
 Invoice Details:
 - Invoice Number: ${invoice.invoice_number}
@@ -340,7 +589,7 @@ function generateEmailHtml(invoice: any, paymentLink: string | null, hasAttachme
         
         <p>Thank you for choosing ${invoice.company_name} for your plumbing needs.</p>
         
-        <p>Please find your invoice details below:</p>
+        <p>Please find your invoice PDF attached and details below:</p>
         
         <div class="invoice-details">
             <h3>Invoice Details:</h3>

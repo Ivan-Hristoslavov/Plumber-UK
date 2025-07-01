@@ -9,13 +9,9 @@ import { GallerySection } from "@/components/GallerySection";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
 import { useAreas } from "@/hooks/useAreas";
-import FormBooking from "@/components/FormBooking";
 import { ReviewForm } from "@/components/ReviewForm";
-import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import SectionContact from "@/components/SectionContact";
-import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingCTA } from "@/components/FloatingCTA";
-import { SectionDivider } from "@/components/SectionDivider";
 
 export default function HomePage() {
   const { areas, loading: areasLoading } = useAreas();
@@ -25,14 +21,10 @@ export default function HomePage() {
       {/* Hero Section */}
       <SectionHero />
 
-      <SectionDivider variant="wave" color="blue" />
-
       {/* Pricing Section */}
       <section id="services">
         <SectionPricing />
       </section>
-
-      <SectionDivider variant="diagonal" color="purple" />
 
       {/* About Section */}
       <section
@@ -61,7 +53,8 @@ export default function HomePage() {
               Professional Plumbing Services
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
-              Trusted plumbing services across South West London with rapid response times and professional expertise
+              Trusted plumbing services across South West London with rapid
+              response times and professional expertise
             </p>
           </div>
         </div>
@@ -287,7 +280,6 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
-
             </div>
           </div>
         </div>
@@ -444,17 +436,11 @@ export default function HomePage() {
       {/* Gallery Section */}
       <GallerySection />
 
-      <SectionDivider variant="dots" color="green" />
-
       {/* FAQ Section */}
       <FAQSection />
 
-      <SectionDivider variant="simple" color="orange" />
-
       {/* Reviews Section */}
       <ReviewsSection />
-
-      <SectionDivider variant="wave" color="blue" />
 
       {/* Contact Section */}
       <SectionContact />
