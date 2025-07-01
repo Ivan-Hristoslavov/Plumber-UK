@@ -1,11 +1,17 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FAQItem } from '@/types';
 
+// Global cache to prevent multiple API calls
+let faqCache: { [key: string]: FAQItem[] } = {};
+let cachePromises: { [key: string]: Promise<FAQItem[]> | null } = {};
+
 export function useFAQ(adminMode = false) {
-  const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = adminMode ? 'admin' : 'public';
+  const [faqItems, setFaqItems] = useState<FAQItem[]>(faqCache[cacheKey] || []);
+  const [isLoading, setIsLoading] = useState(!faqCache[cacheKey]);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const fetchFAQItems = async () => {
     try {
@@ -14,7 +20,9 @@ export function useFAQ(adminMode = false) {
       const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch FAQ items');
-      setFaqItems(data.faqItems || []);
+      const faqData = data.faqItems || [];
+      faqCache[cacheKey] = faqData; // Update cache
+      setFaqItems(faqData);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -54,7 +62,50 @@ export function useFAQ(adminMode = false) {
     await fetchFAQItems();
   };
 
-  useEffect(() => { fetchFAQItems(); }, []);
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have cached data, use it
+    if (faqCache[cacheKey]) {
+      setFaqItems(faqCache[cacheKey]);
+      setIsLoading(false);
+      return;
+    }
+
+    // If there's already a request in progress, wait for it
+    if (cachePromises[cacheKey]) {
+      cachePromises[cacheKey]!.then(data => {
+        setFaqItems(data);
+        setIsLoading(false);
+      }).catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+      });
+      return;
+    }
+
+    // Make the API call
+    const url = adminMode ? '/api/faq?all=1' : '/api/faq';
+    cachePromises[cacheKey] = fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.faqItems) {
+          throw new Error("Failed to fetch FAQ items");
+        }
+        const faqData = data.faqItems || [];
+        faqCache[cacheKey] = faqData;
+        setFaqItems(faqData);
+        setIsLoading(false);
+        return faqData;
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+        cachePromises[cacheKey] = null; // Reset promise on error
+        throw err;
+      });
+  }, [adminMode, cacheKey]);
 
   return { faqItems, isLoading, error, addFAQItem, updateFAQItem, deleteFAQItem, refetch: fetchFAQItems };
 } 

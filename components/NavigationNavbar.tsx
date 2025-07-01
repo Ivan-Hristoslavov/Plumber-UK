@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
@@ -20,12 +20,14 @@ const navigation = [
       { name: "Gallery", href: "#gallery" }
     ]
   },
+  { name: "Pricing", href: "#pricing" },
   { 
     name: "Support", 
     href: "#faq",
     dropdown: [
       { name: "FAQ", href: "#faq" },
-      { name: "Reviews", href: "#reviews" }
+      { name: "Reviews", href: "#reviews" },
+      { name: "Blog", href: "/blog" }
     ]
   },
   { name: "Contact", href: "#contact" },
@@ -41,6 +43,7 @@ type DayOffSettings = {
 
 export default function NavigationNavbar() {
   const { scrollDirection, isScrolled } = useScrollDirection();
+  const { settings } = useAdminSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [hasDayOffBanner, setHasDayOffBanner] = useState(false);
@@ -52,33 +55,17 @@ export default function NavigationNavbar() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if day off banner is enabled
-    const checkDayOffBanner = async () => {
+    // Check if day off banner is enabled using cached settings
+    const checkDayOffBanner = () => {
       try {
-        const { data, error } = await supabase
-          .from("admin_settings")
-          .select("key, value")
-          .eq("key", "dayOffSettings")
-          .single();
-
-        if (error) {
-          console.error("Error loading day off settings:", error);
-          if (error.code === "PGRST116") {
-            console.log("No Day Off settings found");
-          }
+        const dayOffData = settings?.dayOffSettings;
+        
+        if (!dayOffData) {
           setHasDayOffBanner(false);
-
           return;
         }
 
-        if (!data?.value) {
-          setHasDayOffBanner(false);
-
-          return;
-        }
-
-        const dayOffData = data.value;
-        const settings = {
+        const dayOffSettings = {
           isEnabled: dayOffData.isEnabled || false,
           message:
             dayOffData.message ||
@@ -88,10 +75,10 @@ export default function NavigationNavbar() {
         };
 
         // Create unique key for this specific day off period
-        const dayOffKey = `dayOff_${settings.startDate}_${settings.endDate}`;
+        const dayOffKey = `dayOff_${dayOffSettings.startDate}_${dayOffSettings.endDate}`;
         const dismissed = sessionStorage.getItem(`dismissed_${dayOffKey}`);
 
-        if (settings.isEnabled && dismissed !== "true") {
+        if (dayOffSettings.isEnabled && dismissed !== "true") {
           // Check date range
           const now = new Date();
           const today = new Date(
@@ -102,8 +89,8 @@ export default function NavigationNavbar() {
 
           let isInRange = true;
 
-          if (settings.startDate) {
-            const startDate = new Date(settings.startDate);
+          if (dayOffSettings.startDate) {
+            const startDate = new Date(dayOffSettings.startDate);
             // Show banner one day before start date
             const dayBeforeStart = new Date(startDate);
 
@@ -112,14 +99,14 @@ export default function NavigationNavbar() {
             if (today < dayBeforeStart) isInRange = false;
           }
 
-          if (settings.endDate) {
-            const endDate = new Date(settings.endDate);
+          if (dayOffSettings.endDate) {
+            const endDate = new Date(dayOffSettings.endDate);
 
             if (today > endDate) isInRange = false;
           }
 
           if (isInRange) {
-            setDayOffSettings({ ...settings, dayOffKey });
+            setDayOffSettings({ ...dayOffSettings, dayOffKey });
             setHasDayOffBanner(true);
           } else {
             setHasDayOffBanner(false);
@@ -133,7 +120,10 @@ export default function NavigationNavbar() {
       }
     };
 
-    checkDayOffBanner();
+    // Only check when settings are loaded
+    if (settings) {
+      checkDayOffBanner();
+    }
 
     // Clean up old dismissed day off periods (older than 30 days)
     const cleanupOldDismissals = () => {
@@ -162,20 +152,33 @@ export default function NavigationNavbar() {
 
     cleanupOldDismissals();
 
-    // Listen for storage changes (for session dismissal)
-    const handleStorageChange = () => {
-      checkDayOffBanner();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  }, [settings]);
 
   useEffect(() => {
+    // Throttle function to limit how often the scroll handler runs
+    const throttle = (func: () => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout | null = null;
+      let lastExecTime = 0;
+      
+      return () => {
+        const currentTime = Date.now();
+        
+        if (currentTime - lastExecTime > delay) {
+          func();
+          lastExecTime = currentTime;
+        } else {
+          if (timeoutId) clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            func();
+            lastExecTime = Date.now();
+          }, delay - (currentTime - lastExecTime));
+        }
+      };
+    };
+
     const handleScrollSpy = () => {
       const allSections = [
-        "home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"
+        "home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"
       ];
       
       const currentSection = allSections.find((section) => {
@@ -202,16 +205,19 @@ export default function NavigationNavbar() {
     // Check if there's a hash in the URL on initial load
     if (typeof window !== "undefined" && window.location.hash) {
       const hash = window.location.hash.substring(1);
-      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
+      if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
         setActiveSection(hash);
       }
     }
 
-    window.addEventListener("scroll", handleScrollSpy);
+    // Throttle scroll handler to run at most every 200ms
+    const throttledHandleScrollSpy = throttle(handleScrollSpy, 200);
+    
+    window.addEventListener("scroll", throttledHandleScrollSpy);
     // Initial check when component mounts
     handleScrollSpy();
 
-    return () => window.removeEventListener("scroll", handleScrollSpy);
+    return () => window.removeEventListener("scroll", throttledHandleScrollSpy);
   }, [pathname, router]);
 
   const handleClick = (
@@ -252,7 +258,7 @@ export default function NavigationNavbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur bg-white/40 dark:bg-gray-900/40 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-700">
       {/* Day Off Banner - Integrated */}
       {hasDayOffBanner && (
         <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 animate-gradient-x">

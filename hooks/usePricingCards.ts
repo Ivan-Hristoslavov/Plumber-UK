@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PricingCard } from "@/types";
 
+// Global cache to prevent multiple API calls
+let pricingCardsCache: PricingCard[] | null = null;
+let cachePromise: Promise<PricingCard[]> | null = null;
+
 export function usePricingCards() {
-  const [pricingCards, setPricingCards] = useState<PricingCard[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pricingCards, setPricingCards] = useState<PricingCard[]>(pricingCardsCache || []);
+  const [loading, setLoading] = useState(!pricingCardsCache);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const fetchPricingCards = async () => {
     try {
@@ -16,7 +21,9 @@ export function usePricingCards() {
         throw new Error(data.error || "Failed to fetch pricing cards");
       }
 
-      setPricingCards(data.pricingCards || []);
+      const cards = data.pricingCards || [];
+      pricingCardsCache = cards; // Update cache
+      setPricingCards(cards);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -88,7 +95,47 @@ export function usePricingCards() {
   };
 
   useEffect(() => {
-    fetchPricingCards();
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // If we have cached data, use it
+    if (pricingCardsCache) {
+      setPricingCards(pricingCardsCache);
+      setLoading(false);
+      return;
+    }
+
+    // If there's already a request in progress, wait for it
+    if (cachePromise) {
+      cachePromise.then(data => {
+        setPricingCards(data);
+        setLoading(false);
+      }).catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
+      });
+      return;
+    }
+
+    // Make the API call
+    cachePromise = fetch("/api/pricing-cards")
+      .then(response => response.json())
+      .then(data => {
+        if (!data.pricingCards) {
+          throw new Error("Failed to fetch pricing cards");
+        }
+        const cards = data.pricingCards || [];
+        pricingCardsCache = cards;
+        setPricingCards(cards);
+        setLoading(false);
+        return cards;
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
+        cachePromise = null; // Reset promise on error
+        throw err;
+      });
   }, []);
 
   return {

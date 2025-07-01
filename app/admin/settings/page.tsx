@@ -8,6 +8,7 @@ import { AdminGalleryManager } from "@/components/AdminGalleryManager";
 import { ServiceAreasManager } from "@/components/ServiceAreasManager";
 import { AdminFAQManager } from "@/components/AdminFAQManager";
 import { AdminLegalManager } from "@/components/AdminLegalManager";
+import { GoogleCalendarIntegration } from "@/components/GoogleCalendarIntegration";
 import { useToast, ToastMessages } from "@/components/Toast";
 
 type AdminSetting = {
@@ -83,7 +84,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<
-    "business" | "working-hours" | "pricing" | "gallery" | "areas" | "faq" | "legal"
+    "business" | "working-hours" | "pricing" | "gallery" | "areas" | "faq" | "legal" | "connections"
   >("business");
   const { profile: dbProfile } = useAdminProfile();
   const { showSuccess, showError } = useToast();
@@ -191,6 +192,7 @@ export default function AdminSettingsPage() {
     { id: "areas", name: "Service Areas", icon: "📍" },
     { id: "faq", name: "FAQ", icon: "❓" },
     { id: "legal", name: "Legal", icon: "📋" },
+    { id: "connections", name: "Connections", icon: "🔗" },
   ];
 
   if (loading) {
@@ -634,6 +636,25 @@ export default function AdminSettingsPage() {
       {activeTab === "areas" && <ServiceAreasManager />}
       {activeTab === "faq" && <AdminFAQManager />}
       {activeTab === "legal" && <AdminLegalManager />}
+      
+      {activeTab === "connections" && (
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                Connections & Integrations
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+                Connect your business with external services and platforms.
+              </p>
+            </div>
+          </div>
+
+          {/* Google Calendar Integration */}
+          <GoogleCalendarIntegration />
+        </div>
+      )}
     </div>
   );
 }

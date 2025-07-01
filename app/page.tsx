@@ -13,6 +13,9 @@ import FormBooking from "@/components/FormBooking";
 import { ReviewForm } from "@/components/ReviewForm";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import SectionContact from "@/components/SectionContact";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { FloatingCTA } from "@/components/FloatingCTA";
+import { SectionDivider } from "@/components/SectionDivider";
 
 export default function HomePage() {
   const { areas, loading: areasLoading } = useAreas();
@@ -22,10 +25,14 @@ export default function HomePage() {
       {/* Hero Section */}
       <SectionHero />
 
+      <SectionDivider variant="wave" color="blue" />
+
       {/* Pricing Section */}
       <section id="services">
         <SectionPricing />
       </section>
+
+      <SectionDivider variant="diagonal" color="purple" />
 
       {/* About Section */}
       <section
@@ -437,17 +444,26 @@ export default function HomePage() {
       {/* Gallery Section */}
       <GallerySection />
 
+      <SectionDivider variant="dots" color="green" />
+
       {/* FAQ Section */}
       <FAQSection />
 
+      <SectionDivider variant="simple" color="orange" />
+
       {/* Reviews Section */}
       <ReviewsSection />
+
+      <SectionDivider variant="wave" color="blue" />
 
       {/* Contact Section */}
       <SectionContact />
 
       {/* Review Form Section */}
       <ReviewForm />
+
+      {/* Floating Elements */}
+      <FloatingCTA />
     </main>
   );
 }

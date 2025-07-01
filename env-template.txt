@@ -14,6 +14,12 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 # SendGrid Configuration (SMTP)
 SENDGRID_SMTP_PASSWORD=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
 
+# Google Calendar Integration
+# Получете тези стойности от Google Cloud Console
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+
 # Admin Credentials
 ADMIN_EMAIL=hristoslavov.ivanov@gmail.com
 ADMIN_PASSWORD=your-secure-password-here

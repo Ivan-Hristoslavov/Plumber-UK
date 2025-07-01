@@ -31,7 +31,7 @@ export function ButtonCallNow() {
       </a>
       <div className="text-center">
         <p className="rounded-full text-xs font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 shadow-lg border border-gray-200 dark:border-gray-700">
-          10 min Free <br /> Consultation
+          10 Min Free <br /> Consultation
         </p>
       </div>
     </div>

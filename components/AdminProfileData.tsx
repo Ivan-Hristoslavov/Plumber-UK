@@ -1,6 +1,6 @@
 "use client";
 
-import { useAdminProfile } from '@/hooks/useAdminProfile';
+import { useAdminProfile } from '@/components/AdminProfileContext';
 import { AdminProfile } from '@/types';
 
 interface AdminProfileDataProps {
@@ -10,13 +10,9 @@ interface AdminProfileDataProps {
 }
 
 export function AdminProfileData({ type, fallback = '', className }: AdminProfileDataProps) {
-  const { profile, loading, error } = useAdminProfile();
+  const profile = useAdminProfile();
 
-  if (loading) {
-    return <span className={className}>{fallback}</span>;
-  }
-
-  if (error || !profile) {
+  if (!profile) {
     return <span className={className}>{fallback}</span>;
   }
 
