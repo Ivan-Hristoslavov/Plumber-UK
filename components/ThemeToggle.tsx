@@ -10,7 +10,7 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ size = "md", className = "" }: ThemeToggleProps) {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   // Размери за различните размери
   const sizes = {
@@ -36,10 +36,16 @@ export function ThemeToggle({ size = "md", className = "" }: ThemeToggleProps) {
   }
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    // If current theme is system, switch to the opposite of resolved theme
+    if (theme === "system") {
+      setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    } else {
+      setTheme(theme === "dark" ? "light" : "dark");
+    }
   };
 
-  const isDark = theme === "dark";
+  // Use resolvedTheme to determine the actual theme being displayed
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
@@ -67,7 +73,7 @@ export function ThemeToggle({ size = "md", className = "" }: ThemeToggleProps) {
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {/* Слънце иконка */}
+      {/* Слънце иконка - показва се когато темата е светла (за да покаже, че можеш да смениш на тъмна) */}
       <div className={`
         absolute 
         inset-0 
@@ -78,7 +84,7 @@ export function ThemeToggle({ size = "md", className = "" }: ThemeToggleProps) {
         transition-all 
         duration-500 
         ease-in-out
-        ${isDark ? "opacity-0 rotate-180 scale-50" : "opacity-100 rotate-0 scale-100"}
+        ${!isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 rotate-180 scale-50"}
       `}>
         <svg 
           className={`${iconSizes[size]} drop-shadow-sm`} 
@@ -89,7 +95,7 @@ export function ThemeToggle({ size = "md", className = "" }: ThemeToggleProps) {
         </svg>
       </div>
 
-      {/* Луна иконка */}
+      {/* Луна иконка - показва се когато темата е тъмна (за да покаже, че можеш да смениш на светла) */}
       <div className={`
         absolute 
         inset-0 

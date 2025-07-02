@@ -92,7 +92,7 @@ export default async function RootLayout({
           inter.className,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "system", enableSystem: true, themes: ["light", "dark"] }}>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light", enableSystem: true, themes: ["light", "dark"] }}>
           <ToastProvider>
             <AdminProfileProvider adminProfile={adminProfile}>
               <HashNavigation />

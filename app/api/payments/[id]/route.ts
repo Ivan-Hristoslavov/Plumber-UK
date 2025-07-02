@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 import { supabase } from "../../../../lib/supabase";
 
@@ -10,13 +12,15 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const supabase = createRouteHandlerClient({ cookies });
+
     const { data: payment, error } = await supabase
       .from("payments")
       .select(
         `
         *,
-        customers(name, email),
-        bookings(service, date, customer_name)
+        customers!inner(name, email),
+        bookings(service, date)
       `,
       )
       .eq("id", id)
@@ -43,17 +47,44 @@ export async function GET(
 // PUT - Update payment
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-
   try {
+    const { id } = await params;
     const body = await request.json();
+    const supabase = createRouteHandlerClient({ cookies });
 
+    const {
+      customer_id,
+      booking_id,
+      amount,
+      payment_method,
+      payment_date,
+      reference,
+      notes,
+      payment_status,
+    } = body;
+
+    // Validate required fields
+    if (!customer_id || !amount || !payment_method || !payment_date || !payment_status) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Update the payment
     const { data: payment, error } = await supabase
       .from("payments")
       .update({
-        ...body,
+        customer_id,
+        booking_id,
+        amount: parseFloat(amount),
+        payment_method,
+        payment_date,
+        reference,
+        notes,
+        payment_status,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -61,16 +92,19 @@ export async function PUT(
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error("Error updating payment:", error);
+      return NextResponse.json(
+        { error: "Failed to update payment" },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json(payment);
+    return NextResponse.json({ payment });
   } catch (error) {
     console.error("Error updating payment:", error);
-
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
