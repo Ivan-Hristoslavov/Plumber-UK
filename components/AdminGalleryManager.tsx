@@ -9,14 +9,30 @@ import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export function AdminGalleryManager() {
-  const { galleryItems, loading, error, addGalleryItem, updateGalleryItem, deleteGalleryItem } = useGallery();
-  const { gallerySections, isLoading: sectionsLoading, error: sectionsError, addGallerySection, updateGallerySection, deleteGallerySection } = useGallerySections();
+  const {
+    galleryItems,
+    loading,
+    error,
+    addGalleryItem,
+    updateGalleryItem,
+    deleteGalleryItem,
+  } = useGallery();
+  const {
+    gallerySections,
+    isLoading: sectionsLoading,
+    error: sectionsError,
+    addGallerySection,
+    updateGallerySection,
+    deleteGallerySection,
+  } = useGallerySections();
   const { showSuccess, showError } = useToast();
   const { confirm, modalProps } = useConfirmation();
-  
-  const [activeTab, setActiveTab] = useState<'items' | 'sections'>('items');
+
+  const [activeTab, setActiveTab] = useState<"items" | "sections">("items");
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
-  const [editingSection, setEditingSection] = useState<GallerySection | null>(null);
+  const [editingSection, setEditingSection] = useState<GallerySection | null>(
+    null
+  );
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddSectionForm, setShowAddSectionForm] = useState(false);
 
@@ -25,7 +41,10 @@ export function AdminGalleryManager() {
   const [afterImage, setAfterImage] = useState<File | null>(null);
   const [beforeImagePreview, setBeforeImagePreview] = useState<string>("");
   const [afterImagePreview, setAfterImagePreview] = useState<string>("");
-  const [imageErrors, setImageErrors] = useState<{before?: string; after?: string}>({});
+  const [imageErrors, setImageErrors] = useState<{
+    before?: string;
+    after?: string;
+  }>({});
 
   const defaultItem = {
     title: "",
@@ -51,22 +70,29 @@ export function AdminGalleryManager() {
   const [formData, setFormData] = useState(defaultItem);
   const [sectionFormData, setSectionFormData] = useState(defaultSection);
 
-  const handleImageUpload = (file: File, type: 'before' | 'after') => {
+  const handleImageUpload = (file: File, type: "before" | "after") => {
     // Validate file
-    if (!file.type.startsWith('image/')) {
-      setImageErrors(prev => ({ ...prev, [type]: 'Please select an image file' }));
+    if (!file.type.startsWith("image/")) {
+      setImageErrors((prev) => ({
+        ...prev,
+        [type]: "Please select an image file",
+      }));
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      setImageErrors(prev => ({ ...prev, [type]: 'Image must be under 10MB' }));
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
+      setImageErrors((prev) => ({
+        ...prev,
+        [type]: "Image must be under 10MB",
+      }));
       return;
     }
 
     // Clear error and set file
-    setImageErrors(prev => ({ ...prev, [type]: undefined }));
-    
-    if (type === 'before') {
+    setImageErrors((prev) => ({ ...prev, [type]: undefined }));
+
+    if (type === "before") {
       setBeforeImage(file);
       setBeforeImagePreview(URL.createObjectURL(file));
     } else {
@@ -75,53 +101,56 @@ export function AdminGalleryManager() {
     }
   };
 
-  const clearImage = (type: 'before' | 'after') => {
-    if (type === 'before') {
+  const clearImage = (type: "before" | "after") => {
+    if (type === "before") {
       setBeforeImage(null);
       setBeforeImagePreview("");
       if (editingItem) {
-        setFormData(prev => ({ ...prev, before_image_url: "" }));
+        setFormData((prev) => ({ ...prev, before_image_url: "" }));
       }
     } else {
       setAfterImage(null);
       setAfterImagePreview("");
       if (editingItem) {
-        setFormData(prev => ({ ...prev, after_image_url: "" }));
+        setFormData((prev) => ({ ...prev, after_image_url: "" }));
       }
     }
   };
 
-  const uploadImages = async (): Promise<{beforeUrl: string; afterUrl: string}> => {
+  const uploadImages = async (): Promise<{
+    beforeUrl: string;
+    afterUrl: string;
+  }> => {
     const formDataUpload = new FormData();
-    
+
     if (beforeImage) {
-      formDataUpload.append('beforeImage', beforeImage);
+      formDataUpload.append("beforeImage", beforeImage);
     }
     if (afterImage) {
-      formDataUpload.append('afterImage', afterImage);
+      formDataUpload.append("afterImage", afterImage);
     }
 
     // If editing and no new images, keep existing URLs
     if (!beforeImage && !afterImage && editingItem) {
       return {
         beforeUrl: formData.before_image_url,
-        afterUrl: formData.after_image_url
+        afterUrl: formData.after_image_url,
       };
     }
 
-    const response = await fetch('/api/gallery/upload-images', {
-      method: 'POST',
-      body: formDataUpload
+    const response = await fetch("/api/gallery/upload-images", {
+      method: "POST",
+      body: formDataUpload,
     });
 
     if (!response.ok) {
-      throw new Error('Failed to upload images');
+      throw new Error("Failed to upload images");
     }
 
     const result = await response.json();
     return {
       beforeUrl: result.beforeUrl || formData.before_image_url,
-      afterUrl: result.afterUrl || formData.after_image_url
+      afterUrl: result.afterUrl || formData.after_image_url,
     };
   };
 
@@ -129,14 +158,17 @@ export function AdminGalleryManager() {
     try {
       // Validate required images for new items
       if (!editingItem && (!beforeImage || !afterImage)) {
-        showError("Validation Error", "Both before and after images are required");
+        showError(
+          "Validation Error",
+          "Both before and after images are required"
+        );
         return;
       }
 
       // Upload images first (only if new images are provided)
       let beforeUrl = formData.before_image_url;
       let afterUrl = formData.after_image_url;
-      
+
       if (beforeImage || afterImage) {
         const uploadResult = await uploadImages();
         beforeUrl = uploadResult.beforeUrl || beforeUrl;
@@ -146,20 +178,28 @@ export function AdminGalleryManager() {
       const itemData = {
         ...formData,
         before_image_url: beforeUrl,
-        after_image_url: afterUrl
+        after_image_url: afterUrl,
       };
-
       if (editingItem) {
-        await updateGalleryItem(editingItem.id, itemData);
-        showSuccess(ToastMessages.gallery.itemUpdated.title, ToastMessages.gallery.itemUpdated.message);
+        await updateGalleryItem(Number(editingItem.id), itemData);
+        showSuccess(
+          ToastMessages.gallery.itemUpdated.title,
+          ToastMessages.gallery.itemUpdated.message
+        );
         setEditingItem(null);
         setShowAddForm(false);
       } else {
-        await addGalleryItem(itemData);
-        showSuccess(ToastMessages.gallery.itemAdded.title, ToastMessages.gallery.itemAdded.message);
+        await addGalleryItem({
+          ...itemData,
+          is_active: true,
+          image_url: beforeUrl, // Using before_image_url as the primary image_url
+        });
+        showSuccess(
+          ToastMessages.gallery.itemAdded.title,
+          ToastMessages.gallery.itemAdded.message
+        );
         setShowAddForm(false);
       }
-      
       // Reset form and images
       setFormData({ ...defaultItem });
       setBeforeImage(null);
@@ -168,7 +208,10 @@ export function AdminGalleryManager() {
       setAfterImagePreview("");
       setImageErrors({});
     } catch (err) {
-      showError(ToastMessages.gallery.error.title, err instanceof Error ? err.message : ToastMessages.gallery.error.message);
+      showError(
+        ToastMessages.gallery.error.title,
+        err instanceof Error ? err.message : ToastMessages.gallery.error.message
+      );
     }
   };
 
@@ -177,23 +220,23 @@ export function AdminGalleryManager() {
     setFormData({
       title: item.title,
       description: item.description || "",
-      before_image_url: item.before_image_url,
-      after_image_url: item.after_image_url,
-      project_type: item.project_type || "",
-      location: item.location || "",
-      completion_date: item.completion_date || "",
+      before_image_url: item.image_url,
+      after_image_url: item.image_url,
+      project_type: "",
+      location: "",
+      completion_date: "",
       section_id: item.section_id,
       order: item.order,
-      is_featured: item.is_featured,
+      is_featured: false,
     });
-    
+
     // Set existing image previews
-    setBeforeImagePreview(item.before_image_url);
-    setAfterImagePreview(item.after_image_url);
+    setBeforeImagePreview(item.image_url);
+    setAfterImagePreview(item.image_url);
     setBeforeImage(null);
     setAfterImage(null);
     setImageErrors({});
-    
+
     setShowAddForm(true);
   };
 
@@ -202,30 +245,43 @@ export function AdminGalleryManager() {
       await confirm(
         {
           title: "Delete Gallery Item",
-          message: "Are you sure you want to delete this gallery item? This action cannot be undone.",
+          message:
+            "Are you sure you want to delete this gallery item? This action cannot be undone.",
           confirmText: "Delete",
           cancelText: "Cancel",
-          isDestructive: true
+          isDestructive: true,
         },
         async () => {
           await deleteGalleryItem(id);
-          showSuccess(ToastMessages.gallery.itemDeleted.title, ToastMessages.gallery.itemDeleted.message);
+          showSuccess(
+            ToastMessages.gallery.itemDeleted.title,
+            ToastMessages.gallery.itemDeleted.message
+          );
         }
       );
     } catch (err) {
-      showError(ToastMessages.gallery.error.title, ToastMessages.gallery.error.message);
+      showError(
+        ToastMessages.gallery.error.title,
+        ToastMessages.gallery.error.message
+      );
     }
   };
 
   const handleSaveSection = async () => {
     try {
       if (editingSection) {
-        await updateGallerySection(editingSection.id, sectionFormData);
-        showSuccess("Section updated successfully!", "The gallery section has been updated.");
+        await updateGallerySection(Number(editingSection.id), sectionFormData);
+        showSuccess(
+          "Section updated successfully!",
+          "The gallery section has been updated."
+        );
         setEditingSection(null);
       } else {
         await addGallerySection(sectionFormData);
-        showSuccess("Section added successfully!", "A new gallery section has been created.");
+        showSuccess(
+          "Section added successfully!",
+          "A new gallery section has been created."
+        );
         setShowAddSectionForm(false);
       }
       setSectionFormData({ ...defaultSection });
@@ -251,14 +307,18 @@ export function AdminGalleryManager() {
       await confirm(
         {
           title: "Delete Gallery Section",
-          message: "Are you sure you want to delete this gallery section? All items in this section will be moved to 'No Section'.",
+          message:
+            "Are you sure you want to delete this gallery section? All items in this section will be moved to 'No Section'.",
           confirmText: "Delete",
-          cancelText: "Cancel", 
-          isDestructive: true
+          cancelText: "Cancel",
+          isDestructive: true,
         },
         async () => {
           await deleteGallerySection(id);
-          showSuccess("Section deleted successfully!", "The gallery section has been removed.");
+          showSuccess(
+            "Section deleted successfully!",
+            "The gallery section has been removed."
+          );
         }
       );
     } catch (err) {
@@ -284,25 +344,25 @@ export function AdminGalleryManager() {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Gallery Management
         </h3>
-        
+
         {/* Tabs */}
         <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button
-            onClick={() => setActiveTab('items')}
+            onClick={() => setActiveTab("items")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'items'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              activeTab === "items"
+                ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             Gallery Items
           </button>
           <button
-            onClick={() => setActiveTab('sections')}
+            onClick={() => setActiveTab("sections")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'sections'
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              activeTab === "sections"
+                ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             }`}
           >
             Sections
@@ -311,7 +371,7 @@ export function AdminGalleryManager() {
 
         <button
           onClick={() => {
-            if (activeTab === 'items') {
+            if (activeTab === "items") {
               setShowAddForm(true);
               setEditingItem(null);
               setFormData({ ...defaultItem });
@@ -328,353 +388,460 @@ export function AdminGalleryManager() {
           }}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          {activeTab === 'items' ? 'Add New Item' : 'Add New Section'}
+          {activeTab === "items" ? "Add New Item" : "Add New Section"}
         </button>
       </div>
 
       {/* Gallery Items Tab */}
-      {activeTab === 'items' && (
+      {activeTab === "items" && (
         <>
           {/* Existing Gallery Items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {galleryItems.map((item) => (
-          <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white">{item.title}</h4>
-                {item.project_type && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.project_type}</p>
-                )}
-                {item.is_featured && (
-                  <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full mt-1">
-                    Featured
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-            
-            {/* Preview Images */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Before</p>
-                {item.before_image_url ? (
-                  <img 
-                    src={item.before_image_url} 
-                    alt="Before" 
-                    className="w-full h-20 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-500">No image</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {item.title}
+                    </h4>
+                    {item.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {item.description}
+                      </p>
+                    )}
                   </div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">After</p>
-                {item.after_image_url ? (
-                  <img 
-                    src={item.after_image_url} 
-                    alt="After" 
-                    className="w-full h-20 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
-                    <span className="text-xs text-gray-500">No image</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(item)}
+                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(Number(item.id))}
+                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                    >
+                      Delete
+                    </button>
                   </div>
-                )}
-              </div>
-            </div>
-            
-            {item.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                {item.description}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+                </div>
 
-      {/* Add/Edit Form */}
-      {showAddForm && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            {editingItem ? "Edit Gallery Item" : "Add New Gallery Item"}
-          </h4>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Bathroom Renovation in Clapham"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Section
-                </label>
-                <select
-                  value={formData.section_id || ""}
-                  onChange={(e) => setFormData(prev => ({ ...prev, section_id: e.target.value || undefined }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">No specific section</option>
-                  {gallerySections.map((section) => (
-                    <option key={section.id} value={section.id}>
-                      {section.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Project Type
-                </label>
-                <input
-                  type="text"
-                  value={formData.project_type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, project_type: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Bathroom, Kitchen, Leak Repair"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Clapham, Battersea"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Completion Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.completion_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, completion_date: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="is_featured"
-                  checked={formData.is_featured}
-                  onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="is_featured" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Featured Item
-                </label>
-              </div>
-            </div>
-
-            {/* Right Column - Image Uploads */}
-            <div className="space-y-4">
-              {/* Before Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Before Image * {editingItem && "(leave empty to keep current)"}
-                </label>
-                
-                <div className="space-y-3">
-                  {/* File Input */}
-                  <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
-                      <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                        <svg className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          <span className="font-semibold">Click to upload</span> Before image
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'before')}
-                        className="hidden"
+                {/* Preview Images */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Before</p>
+                    {item.before_image_url ? (
+                      <img
+                        src={item.before_image_url}
+                        alt="Before"
+                        className="w-full h-20 object-cover rounded"
                       />
+                    ) : (
+                      <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+                        <span className="text-xs text-gray-500">No image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">After</p>
+                    {item.after_image_url ? (
+                      <img
+                        src={item.after_image_url}
+                        alt="After"
+                        className="w-full h-20 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+                        <span className="text-xs text-gray-500">No image</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {item.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                    {item.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Add/Edit Form */}
+          {showAddForm && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {editingItem ? "Edit Gallery Item" : "Add New Gallery Item"}
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Bathroom Renovation in Clapham"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Section
+                    </label>
+                    <select
+                      value={formData.section_id || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          section_id: e.target.value || undefined,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">No specific section</option>
+                      {gallerySections.map((section) => (
+                        <option key={section.id} value={section.id}>
+                          {section.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Project Type
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.project_type}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          project_type: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Bathroom, Kitchen, Leak Repair"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          location: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Clapham, Battersea"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Completion Date
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.completion_date}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          completion_date: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="is_featured"
+                      checked={formData.is_featured}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          is_featured: e.target.checked,
+                        }))
+                      }
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor="is_featured"
+                      className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      Featured Item
                     </label>
                   </div>
+                </div>
 
-                  {/* Error Message */}
-                  {imageErrors.before && (
-                    <p className="text-red-500 text-xs">{imageErrors.before}</p>
-                  )}
+                {/* Right Column - Image Uploads */}
+                <div className="space-y-4">
+                  {/* Before Image Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Before Image *{" "}
+                      {editingItem && "(leave empty to keep current)"}
+                    </label>
 
-                  {/* Preview */}
-                  {beforeImagePreview && (
-                    <div className="relative">
-                      <img 
-                        src={beforeImagePreview} 
-                        alt="Before preview" 
-                        className="w-full h-32 object-cover rounded"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => clearImage('before')}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                    <div className="space-y-3">
+                      {/* File Input */}
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                          <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                            <svg
+                              className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              />
+                            </svg>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>{" "}
+                              Before image
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              e.target.files?.[0] &&
+                              handleImageUpload(e.target.files[0], "before")
+                            }
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Error Message */}
+                      {imageErrors.before && (
+                        <p className="text-red-500 text-xs">
+                          {imageErrors.before}
+                        </p>
+                      )}
+
+                      {/* Preview */}
+                      {beforeImagePreview && (
+                        <div className="relative">
+                          <img
+                            src={beforeImagePreview}
+                            alt="Before preview"
+                            className="w-full h-32 object-cover rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => clearImage("before")}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+
+                  {/* After Image Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      After Image *{" "}
+                      {editingItem && "(leave empty to keep current)"}
+                    </label>
+
+                    <div className="space-y-3">
+                      {/* File Input */}
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                          <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                            <svg
+                              className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              />
+                            </svg>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-semibold">
+                                Click to upload
+                              </span>{" "}
+                              After image
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              e.target.files?.[0] &&
+                              handleImageUpload(e.target.files[0], "after")
+                            }
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Error Message */}
+                      {imageErrors.after && (
+                        <p className="text-red-500 text-xs">
+                          {imageErrors.after}
+                        </p>
+                      )}
+
+                      {/* Preview */}
+                      {afterImagePreview && (
+                        <div className="relative">
+                          <img
+                            src={afterImagePreview}
+                            alt="After preview"
+                            className="w-full h-32 object-cover rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => clearImage("after")}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* After Image Upload */}
-              <div>
+              {/* Description - Full Width */}
+              <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  After Image * {editingItem && "(leave empty to keep current)"}
+                  Description
                 </label>
-                
-                <div className="space-y-3">
-                  {/* File Input */}
-                  <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
-                      <div className="flex flex-col items-center justify-center pt-2 pb-2">
-                        <svg className="w-6 h-6 mb-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          <span className="font-semibold">Click to upload</span> After image
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'after')}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Describe the project, challenges, and results..."
+                />
+              </div>
 
-                  {/* Error Message */}
-                  {imageErrors.after && (
-                    <p className="text-red-500 text-xs">{imageErrors.after}</p>
-                  )}
-
-                  {/* Preview */}
-                  {afterImagePreview && (
-                    <div className="relative">
-                      <img 
-                        src={afterImagePreview} 
-                        alt="After preview" 
-                        className="w-full h-32 object-cover rounded"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => clearImage('after')}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                </div>
+              {/* Form Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {editingItem ? "Update Item" : "Add Item"}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setEditingItem(null);
+                    setFormData({ ...defaultItem });
+                    setBeforeImage(null);
+                    setAfterImage(null);
+                    setBeforeImagePreview("");
+                    setAfterImagePreview("");
+                    setImageErrors({});
+                  }}
+                  className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-          </div>
-
-          {/* Description - Full Width */}
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe the project, challenges, and results..."
-            />
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={handleSave}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {editingItem ? "Update Item" : "Add Item"}
-            </button>
-            <button
-              onClick={() => {
-                setShowAddForm(false);
-                setEditingItem(null);
-                setFormData({ ...defaultItem });
-                setBeforeImage(null);
-                setAfterImage(null);
-                setBeforeImagePreview("");
-                setAfterImagePreview("");
-                setImageErrors({});
-              }}
-              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+          )}
         </>
       )}
 
       {/* Gallery Sections Tab */}
-      {activeTab === 'sections' && (
+      {activeTab === "sections" && (
         <>
           {/* Existing Gallery Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gallerySections.map((section) => (
-              <div key={section.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <div
+                key={section.id}
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+              >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">{section.title}</h4>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {section.title}
+                    </h4>
                     {section.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{section.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {section.description}
+                      </p>
                     )}
                     <div className="flex items-center gap-2 mt-2">
-                      <div 
-                        className="w-4 h-4 rounded-full" 
+                      <div
+                        className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: section.color }}
                       ></div>
-                      <span className="text-xs text-gray-500">Order: {section.order}</span>
+                      <span className="text-xs text-gray-500">
+                        Order: {section.order}
+                      </span>
                       {!section.is_active && (
                         <span className="inline-block px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
                           Inactive
@@ -690,7 +857,7 @@ export function AdminGalleryManager() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteSection(section.id)}
+                      onClick={() => handleDeleteSection(Number(section.id))}
                       className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                     >
                       Delete
@@ -705,7 +872,9 @@ export function AdminGalleryManager() {
           {showAddSectionForm && (
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                {editingSection ? "Edit Gallery Section" : "Add New Gallery Section"}
+                {editingSection
+                  ? "Edit Gallery Section"
+                  : "Add New Gallery Section"}
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -716,7 +885,12 @@ export function AdminGalleryManager() {
                   <input
                     type="text"
                     value={sectionFormData.title}
-                    onChange={(e) => setSectionFormData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) =>
+                      setSectionFormData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Bathroom Projects"
                   />
@@ -729,7 +903,12 @@ export function AdminGalleryManager() {
                   <input
                     type="color"
                     value={sectionFormData.color}
-                    onChange={(e) => setSectionFormData(prev => ({ ...prev, color: e.target.value }))}
+                    onChange={(e) =>
+                      setSectionFormData((prev) => ({
+                        ...prev,
+                        color: e.target.value,
+                      }))
+                    }
                     className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -741,7 +920,12 @@ export function AdminGalleryManager() {
                   <input
                     type="number"
                     value={sectionFormData.order}
-                    onChange={(e) => setSectionFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setSectionFormData((prev) => ({
+                        ...prev,
+                        order: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     min="0"
                   />
@@ -752,10 +936,18 @@ export function AdminGalleryManager() {
                     type="checkbox"
                     id="section_is_active"
                     checked={sectionFormData.is_active}
-                    onChange={(e) => setSectionFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                    onChange={(e) =>
+                      setSectionFormData((prev) => ({
+                        ...prev,
+                        is_active: e.target.checked,
+                      }))
+                    }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="section_is_active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="section_is_active"
+                    className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                  >
                     Active
                   </label>
                 </div>
@@ -767,7 +959,12 @@ export function AdminGalleryManager() {
                 </label>
                 <textarea
                   value={sectionFormData.description}
-                  onChange={(e) => setSectionFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setSectionFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Describe this gallery section..."
@@ -802,4 +999,4 @@ export function AdminGalleryManager() {
       <ConfirmationModal {...modalProps} />
     </div>
   );
-} 
+}

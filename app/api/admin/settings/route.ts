@@ -42,12 +42,11 @@ export async function GET(request: NextRequest) {
           { status: 500 },
         );
       }
-
       // Convert array of settings to object format
-      const settingsObject = data.reduce((acc, setting) => {
+      const settingsObject = data?.reduce((acc, setting) => {
         acc[setting.key] = setting.value;
         return acc;
-      }, {});
+      }, {}) || {};
 
       return NextResponse.json(settingsObject);
     }

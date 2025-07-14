@@ -6,7 +6,9 @@ let galleryCache: GalleryItem[] | null = null;
 let cachePromise: Promise<GalleryItem[]> | null = null;
 
 export function useGallery() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(galleryCache || []);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(
+    galleryCache || []
+  );
   const [loading, setLoading] = useState(!galleryCache);
   const [error, setError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
@@ -33,7 +35,9 @@ export function useGallery() {
     }
   };
 
-  const addGalleryItem = async (itemData: Omit<GalleryItem, "id" | "admin_id" | "created_at" | "updated_at">) => {
+  const addGalleryItem = async (
+    itemData: Omit<GalleryItem, "id" | "admin_id" | "created_at" | "updated_at">
+  ) => {
     try {
       const response = await fetch("/api/gallery", {
         method: "POST",
@@ -47,14 +51,17 @@ export function useGallery() {
         throw new Error(data.error || "Failed to add gallery item");
       }
 
-      setGalleryItems(prev => [...prev, data.galleryItem]);
+      setGalleryItems((prev) => [...prev, data.galleryItem]);
       return data.galleryItem;
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
-  const updateGalleryItem = async (id: number, itemData: Partial<GalleryItem>) => {
+  const updateGalleryItem = async (
+    id: number,
+    itemData: Partial<GalleryItem>
+  ) => {
     try {
       const response = await fetch(`/api/gallery/${id}`, {
         method: "PUT",
@@ -67,9 +74,10 @@ export function useGallery() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to update gallery item");
       }
-
-      setGalleryItems(prev =>
-        prev.map(item => (item.id === id ? data.galleryItem : item))
+      setGalleryItems((prev) =>
+        prev.map((item) =>
+          Number(item.id) === Number(id) ? data.galleryItem : item
+        )
       );
       return data.galleryItem;
     } catch (err) {
@@ -88,7 +96,7 @@ export function useGallery() {
         throw new Error(data.error || "Failed to delete gallery item");
       }
 
-      setGalleryItems(prev => prev.filter(item => item.id !== id));
+      setGalleryItems((prev) => prev.filter((item) => item.id !== String(id)));
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : "An error occurred");
     }
@@ -107,20 +115,22 @@ export function useGallery() {
 
     // If there's already a request in progress, wait for it
     if (cachePromise) {
-      cachePromise.then(data => {
-        setGalleryItems(data);
-        setLoading(false);
-      }).catch(err => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        setLoading(false);
-      });
+      cachePromise
+        .then((data) => {
+          setGalleryItems(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : "Unknown error");
+          setLoading(false);
+        });
       return;
     }
 
     // Make the API call
     cachePromise = fetch("/api/gallery")
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (!data.galleryItems) {
           throw new Error("Failed to fetch gallery items");
         }
@@ -130,8 +140,8 @@ export function useGallery() {
         setLoading(false);
         return items;
       })
-      .catch(err => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Unknown error");
         setLoading(false);
         cachePromise = null; // Reset promise on error
         throw err;
@@ -147,4 +157,4 @@ export function useGallery() {
     updateGalleryItem,
     deleteGalleryItem,
   };
-} 
+}

@@ -1,4 +1,4 @@
-import { SVGProps } from "react";
+import { ReactNode, SVGProps } from "react";
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -20,6 +20,15 @@ export type AdminProfile = {
   insurance_provider?: string;
   created_at: string;
   updated_at: string;
+  years_of_experience: string;
+  certifications: string;
+  response_time: string;
+  service_areas: string;
+  service_areas_description: string;
+  service_areas_image: string;
+  service_areas_image_alt: string;
+  service_areas_image_description: string;
+  service_areas_image_title: string;
 };
 
 export type Customer = {
@@ -77,6 +86,8 @@ export type Invoice = {
   company_email: string;
   company_vat_number?: string;
   notes?: string;
+  manual_service?: string;
+  manual_description?: string;
   image_attachments?: any; // JSONB field
   created_at: string;
   updated_at: string;
@@ -118,6 +129,7 @@ export type PricingCardNote = {
 };
 
 export type GallerySection = {
+  color: string;
   id: string;
   title: string;
   description?: string;
@@ -128,6 +140,12 @@ export type GallerySection = {
 };
 
 export type GalleryItem = {
+  completion_date: any;
+  location: any;
+  project_type: any;
+  is_featured: any;
+  after_image_url: any;
+  before_image_url: any;
   id: string;
   section_id?: string;
   title: string;
@@ -141,6 +159,9 @@ export type GalleryItem = {
 };
 
 export type Review = {
+  name: ReactNode;
+  email: ReactNode;
+  message: ReactNode;
   id: string;
   customer_name: string;
   customer_email?: string;

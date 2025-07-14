@@ -36,7 +36,7 @@ export function AdminReviewsManager() {
             <div className="flex gap-2 mt-4">
               {!review.is_approved && (
                 <button
-                  onClick={async () => { await approveReview(review.id, true); }}
+                  onClick={async () => { await approveReview(Number(review.id), true); }}
                   className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
                 >
                   Approve
@@ -46,7 +46,7 @@ export function AdminReviewsManager() {
                 <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs">Approved</span>
               )}
               <button
-                onClick={async () => { if(confirm('Delete this review?')) await deleteReview(review.id); }}
+                onClick={async () => { if(confirm('Delete this review?')) await deleteReview(Number(review.id)); }}
                 className="px-4 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
               >
                 Delete
