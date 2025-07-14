@@ -21,7 +21,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <SectionHero />
 
-      {/* Pricing Section */}
+      {/* Services Section */}
       <section id="services">
         <SectionPricing />
       </section>
@@ -208,12 +208,6 @@ export default function HomePage() {
                         <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
                           Specializations
                         </p>
-                        <p className="text-sm text-amber-700 dark:text-amber-300">
-                          <AdminProfileData
-                            type="specializations"
-                            fallback="Emergency repairs, Boiler installations"
-                          />
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -364,6 +358,9 @@ export default function HomePage() {
                   </div>
 
                   <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors duration-300">
+                    {area.postcode}
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 transition-colors duration-300">
                     {area.description}
                   </p>
 
@@ -426,8 +423,7 @@ export default function HomePage() {
             </p>
             <p className="text-sm text-blue-700 dark:text-blue-300 font-medium transition-colors duration-300">
               We aim to arrive within{" "}
-              <AdminProfileData type="response_time" fallback="45 minutes" />{" "}
-              for emergency callouts in our main service areas.
+              45 minutes for emergency callouts in our main service areas.
             </p>
           </div>
         </div>

@@ -11,33 +11,23 @@ export async function PUT(
     const { id } = await params;
     
     const { 
-      name, 
-      description, 
-      price, 
-      features, 
-      is_popular, 
-      order, 
-      is_active,
-      button_text,
-      button_link,
+      title, 
+      subtitle, 
       table_headers,
-      table_rows
+      table_rows,
+      notes,
+      order
     } = body;
 
     const { data: pricingCard, error } = await supabase
       .from("pricing_cards")
       .update({
-        name,
-        description,
-        price,
-        features,
-        is_popular,
-        order,
-        is_active,
-        button_text,
-        button_link,
+        title,
+        subtitle,
         table_headers,
         table_rows,
+        notes,
+        order,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)

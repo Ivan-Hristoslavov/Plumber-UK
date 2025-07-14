@@ -193,11 +193,11 @@ export function SectionHero() {
           </a>
           <a
             className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center w-full sm:w-auto justify-center"
-            href="#pricing"
+            href="#services"
             onClick={(e) => {
               e.preventDefault();
               document
-                .getElementById("pricing")
+                .getElementById("services")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
           >

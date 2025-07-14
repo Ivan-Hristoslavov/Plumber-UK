@@ -4,10 +4,13 @@ import React, { useState } from "react";
 import { useFAQ } from "@/hooks/useFAQ";
 import { FAQItem } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
+import { useConfirmation } from "@/hooks/useConfirmation";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export function AdminFAQManager() {
   const { faqItems, isLoading, error, addFAQItem, updateFAQItem, deleteFAQItem } = useFAQ(true);
   const { showSuccess, showError } = useToast();
+  const { confirm, modalProps } = useConfirmation();
   
   const [editingItem, setEditingItem] = useState<FAQItem | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -50,13 +53,22 @@ export function AdminFAQManager() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this FAQ item?")) {
-      try {
+    try {
+      await confirm(
+        {
+          title: "Delete FAQ Item",
+          message: "Are you sure you want to delete this FAQ item? This action cannot be undone.",
+          confirmText: "Delete",
+          cancelText: "Cancel",
+          isDestructive: true
+        },
+        async () => {
         await deleteFAQItem(id);
         showSuccess(ToastMessages.faq.itemDeleted.title, ToastMessages.faq.itemDeleted.message);
+        }
+      );
       } catch (err) {
         showError(ToastMessages.faq.error.title, ToastMessages.faq.error.message);
-      }
     }
   };
 
@@ -212,6 +224,9 @@ export function AdminFAQManager() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal {...modalProps} />
     </div>
   );
 } 

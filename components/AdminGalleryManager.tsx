@@ -35,13 +35,13 @@ export function AdminGalleryManager() {
     project_type: "",
     location: "",
     completion_date: "",
-    section_id: undefined as number | undefined,
+    section_id: undefined as string | undefined,
     order: 0,
     is_featured: false,
   };
 
   const defaultSection = {
-    name: "",
+    title: "",
     description: "",
     color: "#3B82F6",
     order: 0,
@@ -133,8 +133,15 @@ export function AdminGalleryManager() {
         return;
       }
 
-      // Upload images first
-      const { beforeUrl, afterUrl } = await uploadImages();
+      // Upload images first (only if new images are provided)
+      let beforeUrl = formData.before_image_url;
+      let afterUrl = formData.after_image_url;
+      
+      if (beforeImage || afterImage) {
+        const uploadResult = await uploadImages();
+        beforeUrl = uploadResult.beforeUrl || beforeUrl;
+        afterUrl = uploadResult.afterUrl || afterUrl;
+      }
 
       const itemData = {
         ...formData,
@@ -146,6 +153,7 @@ export function AdminGalleryManager() {
         await updateGalleryItem(editingItem.id, itemData);
         showSuccess(ToastMessages.gallery.itemUpdated.title, ToastMessages.gallery.itemUpdated.message);
         setEditingItem(null);
+        setShowAddForm(false);
       } else {
         await addGalleryItem(itemData);
         showSuccess(ToastMessages.gallery.itemAdded.title, ToastMessages.gallery.itemAdded.message);
@@ -229,7 +237,7 @@ export function AdminGalleryManager() {
   const handleEditSection = (section: GallerySection) => {
     setEditingSection(section);
     setSectionFormData({
-      name: section.name,
+      title: section.title,
       description: section.description || "",
       color: section.color,
       order: section.order,
@@ -429,13 +437,13 @@ export function AdminGalleryManager() {
                 </label>
                 <select
                   value={formData.section_id || ""}
-                  onChange={(e) => setFormData(prev => ({ ...prev, section_id: e.target.value ? parseInt(e.target.value) : undefined }))}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section_id: e.target.value || undefined }))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">No specific section</option>
                   {gallerySections.map((section) => (
                     <option key={section.id} value={section.id}>
-                      {section.name}
+                      {section.title}
                     </option>
                   ))}
                 </select>
@@ -657,7 +665,7 @@ export function AdminGalleryManager() {
               <div key={section.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">{section.name}</h4>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">{section.title}</h4>
                     {section.description && (
                       <p className="text-sm text-gray-600 dark:text-gray-400">{section.description}</p>
                     )}
@@ -703,12 +711,12 @@ export function AdminGalleryManager() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Section Name *
+                    Section Title *
                   </label>
                   <input
                     type="text"
-                    value={sectionFormData.name}
-                    onChange={(e) => setSectionFormData(prev => ({ ...prev, name: e.target.value }))}
+                    value={sectionFormData.title}
+                    onChange={(e) => setSectionFormData(prev => ({ ...prev, title: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Bathroom Projects"
                   />

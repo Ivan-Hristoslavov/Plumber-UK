@@ -80,11 +80,11 @@ export default function PaymentsPage() {
     customer_id: "",
     booking_id: "",
     amount: "",
-    payment_method: "cash" as const,
+    payment_method: "cash" as "cash" | "card" | "bank_transfer" | "cheque",
     payment_date: "",
     reference: "",
     notes: "",
-    payment_status: "pending" as const,
+    payment_status: "pending" as "pending" | "paid" | "refunded" | "failed",
   });
 
   const [paymentLink, setPaymentLink] = useState({
@@ -98,23 +98,10 @@ export default function PaymentsPage() {
   const [formError, setFormError] = useState("");
   const [paymentLinkResult, setPaymentLinkResult] = useState<any>(null);
   const [showPaymentLinkResult, setShowPaymentLinkResult] = useState(false);
-  const [showActionsDropdown, setShowActionsDropdown] = useState<string | null>(null);
 
   // Load data on component mount
   useEffect(() => {
     loadData();
-  }, []);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      setShowActionsDropdown(null);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
   }, []);
 
   const loadData = async () => {
@@ -128,19 +115,16 @@ export default function PaymentsPage() {
 
       if (paymentsRes.ok) {
         const paymentsData = await paymentsRes.json();
-
         setPayments(paymentsData);
       }
 
       if (customersRes.ok) {
         const customersData = await customersRes.json();
-
         setCustomers(customersData);
       }
 
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
-
         setBookings(bookingsData.bookings || []);
       }
     } catch (error) {
@@ -156,7 +140,6 @@ export default function PaymentsPage() {
 
     if (!newPayment.customer_id || !newPayment.amount) {
       setFormError("Please fill in all required fields.");
-
       return;
     }
 
@@ -186,7 +169,6 @@ export default function PaymentsPage() {
         });
       } else {
         const error = await response.json();
-
         setFormError(error.error || "Failed to create payment");
       }
     } catch (error) {
@@ -266,7 +248,6 @@ export default function PaymentsPage() {
       payment_status: payment.payment_status,
     });
     setShowEditModal(true);
-    setShowActionsDropdown(null);
   };
 
   const handleUpdatePayment = async (e: React.FormEvent) => {
@@ -274,31 +255,24 @@ export default function PaymentsPage() {
     setFormError("");
 
     if (!editPayment.customer_id || !editPayment.amount) {
-      setFormError("Please fill in all required fields");
+      setFormError("Please fill in all required fields.");
       return;
     }
 
     try {
-      setProcessingPayment("updating");
-
       const response = await fetch(`/api/payments/${editPayment.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          customer_id: editPayment.customer_id,
-          booking_id: editPayment.booking_id || null,
+          ...editPayment,
           amount: parseFloat(editPayment.amount),
-          payment_method: editPayment.payment_method,
-          payment_date: editPayment.payment_date,
-          reference: editPayment.reference || null,
-          notes: editPayment.notes || null,
-          payment_status: editPayment.payment_status,
         }),
       });
 
       if (response.ok) {
+        await loadData();
         setShowEditModal(false);
         setEditPayment({
           id: "",
@@ -311,25 +285,21 @@ export default function PaymentsPage() {
           notes: "",
           payment_status: "pending",
         });
-        loadData();
       } else {
         const error = await response.json();
         setFormError(error.error || "Failed to update payment");
       }
     } catch (error) {
       console.error("Error updating payment:", error);
-      setFormError("An unexpected error occurred");
-    } finally {
-      setProcessingPayment(null);
+      setFormError("Failed to update payment");
     }
   };
 
-  // Check if payment can be edited based on status
   const canEditPayment = (status: Payment["payment_status"]) => {
-    return ["pending", "failed"].includes(status);
+    // Allow editing of pending and failed payments
+    return status === "pending" || status === "failed";
   };
 
-  // Truncate reference for display
   const truncateReference = (reference: string | null, maxLength: number = 20) => {
     if (!reference) return "-";
     return reference.length > maxLength 
@@ -340,36 +310,20 @@ export default function PaymentsPage() {
   const getStatusColor = (status: Payment["payment_status"]) => {
     switch (status) {
       case "paid":
-        return "bg-green-100 dark:bg-green-800/50 text-green-800 dark:text-green-300";
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200";
       case "pending":
-        return "bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-300";
-      case "refunded":
-        return "bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-300";
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
       case "failed":
-        return "bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-300";
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200";
+      case "refunded":
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200";
       default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200";
     }
   };
 
   const getPaymentMethodIcon = (method: Payment["payment_method"]) => {
     switch (method) {
-      case "card":
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        );
       case "cash":
         return (
           <svg
@@ -380,6 +334,22 @@ export default function PaymentsPage() {
           >
             <path
               d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+            />
+          </svg>
+        );
+      case "card":
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
@@ -483,52 +453,27 @@ export default function PaymentsPage() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            {/* Dropdown for payment actions */}
-            <div className="relative">
+            {/* Create Payment Link Button */}
               <button
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
-                onClick={() => setShowActionsDropdown(showActionsDropdown ? null : "main")}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+              onClick={() => setShowPaymentLinkModal(true)}
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
-                New Payment
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+              Payment Link
               </button>
               
-              {showActionsDropdown === "main" && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-                  <div className="py-1">
+            {/* Create Payment Button */}
                     <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-                      onClick={() => {
-                        setShowPaymentLinkModal(true);
-                        setShowActionsDropdown(null);
-                      }}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              onClick={() => setShowCreateModal(true)}
                     >
-                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                      </svg>
-                      Create Payment Link
-                    </button>
-                    <button
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-                      onClick={() => {
-                        setShowCreateModal(true);
-                        setShowActionsDropdown(null);
-                      }}
-                    >
-                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                       Record Payment
                     </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
@@ -605,6 +550,64 @@ export default function PaymentsPage() {
           </div>
         </div>
 
+        {/* Financial Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                  Total Revenue
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                  £{financialSummary.totalRevenue.toFixed(2)}
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full transition-colors duration-300">
+                <svg
+                  className="w-6 h-6 text-green-600 dark:text-green-400 transition-colors duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                  Pending Payments
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                  £{financialSummary.pendingPayments.toFixed(2)}
+                </p>
+              </div>
+              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full transition-colors duration-300">
+                <svg
+                  className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
+                </svg>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
@@ -657,6 +660,7 @@ export default function PaymentsPage() {
                   strokeWidth={2}
                 />
               </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -716,43 +720,43 @@ export default function PaymentsPage() {
               <thead className="bg-gray-50 dark:bg-gray-700/50 transition-colors duration-300">
                 <tr>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Reference
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Customer
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Amount
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Method
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Status
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Date
                   </th>
                   <th
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
+                    className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300"
                     scope="col"
                   >
                     Actions
@@ -760,7 +764,7 @@ export default function PaymentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
-                {payments.map((payment) => (
+                {filteredPayments.map((payment) => (
                   <tr
                     key={payment.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300"
@@ -778,7 +782,7 @@ export default function PaymentsPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                      {payment.customers?.name || "-"}
+                      {payment.customers?.name || "Unknown"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white transition-colors duration-300">
                       £{payment.amount.toFixed(2)}
@@ -801,48 +805,31 @@ export default function PaymentsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                       {format(new Date(payment.payment_date), "dd MMM yyyy")}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <div className="relative">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                      <div className="flex items-center justify-center space-x-2">
+                        {/* View Details Button */}
                         <button
-                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-                          onClick={() => setShowActionsDropdown(
-                            showActionsDropdown === payment.id ? null : payment.id
-                          )}
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors duration-300"
+                          onClick={() => setSelectedPayment(payment)}
+                          title="View Details"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                          </svg>
-                        </button>
-                        
-                        {showActionsDropdown === payment.id && (
-                          <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-                            <div className="py-1">
-                              <button
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
-                                onClick={() => {
-                                  setSelectedPayment(payment);
-                                  setShowActionsDropdown(null);
-                                }}
-                              >
-                                <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                View Details
                               </button>
+                        
+                        {/* Edit Button - Only show for pending/failed payments */}
                               {canEditPayment(payment.payment_status) && (
                                 <button
-                                  className="flex items-center w-full px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
+                            className="p-2 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-full transition-colors duration-300"
                                   onClick={() => handleEditPayment(payment)}
+                            title="Edit Payment"
                                 >
-                                  <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                   </svg>
-                                  Edit Payment
                                 </button>
-                              )}
-                            </div>
-                          </div>
                         )}
                       </div>
                     </td>
@@ -905,12 +892,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a booking</option>
-                      {bookings
-                        .filter(
-                          (booking) =>
-                            booking.customer_id === newPayment.customer_id
-                        )
-                        .map((booking) => (
+                      {filteredBookings.map((booking) => (
                           <option key={booking.id} value={booking.id}>
                             {booking.service} - {format(new Date(booking.date), "dd MMM yyyy")}
                           </option>
@@ -1034,7 +1016,7 @@ export default function PaymentsPage() {
         </div>
       )}
 
-      {/* Send Payment Link Modal */}
+      {/* Payment Link Modal */}
       {showPaymentLinkModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -1085,12 +1067,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a booking</option>
-                      {bookings
-                        .filter(
-                          (booking) =>
-                            booking.customer_id === paymentLink.customer_id
-                        )
-                        .map((booking) => (
+                      {filteredBookingsForLink.map((booking) => (
                           <option key={booking.id} value={booking.id}>
                             {booking.service} - {format(new Date(booking.date), "dd MMM yyyy")}
                           </option>
@@ -1101,32 +1078,15 @@ export default function PaymentsPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
-                    <div className="grid grid-cols-3 gap-2 mt-1">
-                      <div className="col-span-1">
-                        <select
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                          value={paymentLink.currency}
-                          onChange={(e) =>
-                            setPaymentLink({
-                              ...paymentLink,
-                              currency: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="gbp">£ GBP</option>
-                          <option value="usd">$ USD</option>
-                          <option value="eur">€ EUR</option>
-                          <option value="cad">C$ CAD</option>
-                          <option value="aud">A$ AUD</option>
-                        </select>
+                    <div className="relative mt-1 rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm transition-colors duration-300">£</span>
                       </div>
-                      <div className="col-span-2">
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                           type="number"
                           step="0.01"
                           min="0"
-                          placeholder="0.00"
                           value={paymentLink.amount}
                           onChange={(e) =>
                             setPaymentLink({
@@ -1135,16 +1095,15 @@ export default function PaymentsPage() {
                             })
                           }
                         />
-                      </div>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Description
                     </label>
-                    <textarea
+                    <input
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      rows={3}
+                      type="text"
                       value={paymentLink.description}
                       onChange={(e) =>
                         setPaymentLink({
@@ -1152,6 +1111,7 @@ export default function PaymentsPage() {
                           description: e.target.value,
                         })
                       }
+                      placeholder="Payment for services"
                     />
                   </div>
                   {formError && (
@@ -1163,7 +1123,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 border border-transparent rounded-lg shadow-sm hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={handleCreatePaymentLink}
                   disabled={processingPayment === "creating"}
                 >
@@ -1191,7 +1151,7 @@ export default function PaymentsPage() {
                       Creating...
                     </>
                   ) : (
-                    "Create Link"
+                    "Create Payment Link"
                   )}
                 </button>
                 <button
@@ -1199,6 +1159,103 @@ export default function PaymentsPage() {
                   onClick={() => setShowPaymentLinkModal(false)}
                 >
                   Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Link Result Modal */}
+      {showPaymentLinkResult && paymentLinkResult && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
+              onClick={() => setShowPaymentLinkResult(false)}
+            />
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
+                    Payment Link Created
+                  </h3>
+                  <button
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
+                    onClick={() => setShowPaymentLinkResult(false)}
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                          Payment link created successfully!
+                        </p>
+                        <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                          The link has been copied to your clipboard.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Payment Link
+                    </label>
+                    <div className="mt-1 flex rounded-md shadow-sm">
+                      <input
+                        type="text"
+                        readOnly
+                        value={paymentLinkResult.checkout_url}
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-l-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      />
+                      <button
+                        className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+                        onClick={() => navigator.clipboard.writeText(paymentLinkResult.checkout_url)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Amount:</span>
+                      <span className="ml-2 text-gray-900 dark:text-white">£{paymentLinkResult.payment?.amount}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Currency:</span>
+                      <span className="ml-2 text-gray-900 dark:text-white">{paymentLinkResult.currency}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Session ID:</span>
+                      <span className="ml-2 text-gray-900 dark:text-white font-mono text-xs">{paymentLinkResult.session_id}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Expires:</span>
+                      <span className="ml-2 text-gray-900 dark:text-white">
+                        {paymentLinkResult.expires_at ? new Date(paymentLinkResult.expires_at * 1000).toLocaleString() : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
+                <button
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  onClick={() => setShowPaymentLinkResult(false)}
+                >
+                  Close
                 </button>
               </div>
             </div>

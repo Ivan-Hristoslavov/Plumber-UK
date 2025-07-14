@@ -9,21 +9,15 @@ export type AdminProfile = {
   name: string;
   email: string;
   phone: string;
-  company_name: string;
-  company_address: string;
-  gas_safe_number: string;
-  bank_name: string;
-  account_number: string;
-  sort_code: string;
-  insurance_provider: string;
+  password: string;
+  company_name?: string;
+  company_address?: string;
   about?: string;
-  years_of_experience?: string;
-  specializations?: string;
-  certifications?: string;
-  service_areas?: string;
-  response_time?: string;
-  terms_and_conditions?: string;
-  privacy_policy?: string;
+  bank_name?: string;
+  account_number?: string;
+  sort_code?: string;
+  gas_safe_number?: string;
+  insurance_provider?: string;
   created_at: string;
   updated_at: string;
 };
@@ -83,13 +77,23 @@ export type Invoice = {
   company_email: string;
   company_vat_number?: string;
   notes?: string;
+  image_attachments?: any; // JSONB field
   created_at: string;
   updated_at: string;
-  // Optional fields for manual invoice creation
-  manual_description?: string;
-  customer_name?: string;
-  customer_email?: string;
-  customer_address?: string;
+};
+
+export type Payment = {
+  id: string;
+  booking_id?: string;
+  customer_id?: string;
+  amount: number;
+  payment_method: 'cash' | 'card' | 'bank_transfer' | 'cheque';
+  payment_status: 'pending' | 'paid' | 'refunded' | 'failed';
+  payment_date: string;
+  reference?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type PricingCard = {
@@ -114,11 +118,9 @@ export type PricingCardNote = {
 };
 
 export type GallerySection = {
-  id: number;
-  admin_id: string;
-  name: string;
+  id: string;
+  title: string;
   description?: string;
-  color: string;
   order: number;
   is_active: boolean;
   created_at: string;
@@ -126,40 +128,85 @@ export type GallerySection = {
 };
 
 export type GalleryItem = {
-  id: number;
-  admin_id: string;
+  id: string;
+  section_id?: string;
   title: string;
   description?: string;
-  before_image_url: string;
-  after_image_url: string;
-  project_type?: string;
-  location?: string;
-  completion_date?: string;
-  section_id?: number;
+  image_url: string;
+  alt_text?: string;
   order: number;
-  is_featured: boolean;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type Review = {
-  id: number;
-  name: string;
-  email?: string;
-  message: string;
+  id: string;
+  customer_name: string;
+  customer_email?: string;
   rating: number;
+  title?: string;
+  comment: string;
   is_approved: boolean;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type FAQItem = {
-  id: number;
-  admin_id: string;
+  id: string;
   question: string;
   answer: string;
+  category?: string;
   order: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type Service = {
+  id: string;
+  name: string;
+  description?: string;
+  price?: number;
+  duration_minutes?: number;
+  is_active: boolean;
+  category?: string;
+  order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ServiceArea = {
+  id: string;
+  area_name: string;
+  description?: string;
+  is_active: boolean;
+  order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DayOffPeriod = {
+  id: string;
+  title: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  is_recurring: boolean;
+  recurrence_type?: 'weekly' | 'monthly' | 'yearly';
+  show_banner: boolean;
+  banner_message?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ActivityLog = {
+  id: string;
+  activity_type: 'booking_created' | 'booking_updated' | 'payment_received' | 'invoice_sent' | 'customer_added';
+  entity_type: 'booking' | 'payment' | 'invoice' | 'customer';
+  entity_id: string;
+  message: string;
+  metadata?: any; // JSONB field
+  created_at: string;
 };

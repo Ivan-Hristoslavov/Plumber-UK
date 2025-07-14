@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 
 import { supabase } from "../../../lib/supabase";
+import { useToast, ToastMessages } from "../../../components/Toast";
 
 type Booking = {
   id: string;
@@ -21,11 +22,14 @@ type Booking = {
 };
 
 export default function BookingsPage() {
+  const { showSuccess, showError } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "cards">("cards");
   const [showNewBookingModal, setShowNewBookingModal] = useState(false);
+  const [showEditBookingModal, setShowEditBookingModal] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [filters, setFilters] = useState({
     status: "all",
     paymentStatus: "all",
@@ -33,6 +37,17 @@ export default function BookingsPage() {
     search: "",
   });
   const [newBooking, setNewBooking] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    service: "",
+    date: "",
+    time: "",
+    amount: "",
+    address: "",
+    notes: "",
+  });
+  const [editBooking, setEditBooking] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
@@ -60,11 +75,13 @@ export default function BookingsPage() {
 
       if (error) {
         console.error("Error loading bookings:", error);
+        showError("Error", "Failed to load bookings. Please try again.");
       } else {
         setBookings(data || []);
       }
     } catch (error) {
       console.error("Error:", error);
+      showError("Error", "Failed to load bookings. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -92,7 +109,7 @@ export default function BookingsPage() {
 
       if (error) {
         console.error("Error creating booking:", error);
-        alert("Error creating booking: " + error.message);
+        showError("Booking Error", "Failed to create booking. Please try again.");
       } else {
         // Reload bookings
         loadBookings();
@@ -108,11 +125,74 @@ export default function BookingsPage() {
           address: "",
           notes: "",
         });
-        alert("Booking created successfully!");
+        showSuccess("Booking Created", "New booking has been successfully created.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error creating booking");
+      showError("Booking Error", "Failed to create booking. Please try again.");
+    }
+  };
+
+  const handleEditBooking = (booking: Booking) => {
+    setEditingBooking(booking);
+    setEditBooking({
+      customerName: booking.customer_name,
+      customerEmail: booking.customer_email || "",
+      customerPhone: booking.customer_phone || "",
+      service: booking.service,
+      date: booking.date,
+      time: booking.time,
+      amount: booking.amount.toString(),
+      address: booking.address || "",
+      notes: booking.notes || "",
+    });
+    setShowEditBookingModal(true);
+  };
+
+  const handleUpdateBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBooking) return;
+
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .update({
+          customer_name: editBooking.customerName,
+          customer_email: editBooking.customerEmail || null,
+          customer_phone: editBooking.customerPhone || null,
+          service: editBooking.service,
+          date: editBooking.date,
+          time: editBooking.time,
+          amount: parseFloat(editBooking.amount),
+          address: editBooking.address || null,
+          notes: editBooking.notes || null,
+        })
+        .eq("id", editingBooking.id);
+
+      if (error) {
+        console.error("Error updating booking:", error);
+        showError("Booking Error", "Failed to update booking. Please try again.");
+      } else {
+        // Reload bookings
+        loadBookings();
+        setShowEditBookingModal(false);
+        setEditingBooking(null);
+        setEditBooking({
+          customerName: "",
+          customerEmail: "",
+          customerPhone: "",
+          service: "",
+          date: "",
+          time: "",
+          amount: "",
+          address: "",
+          notes: "",
+        });
+        showSuccess("Booking Updated", "The booking has been updated successfully.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showError("Booking Error", "Failed to update booking. Please try again.");
     }
   };
 
@@ -135,17 +215,17 @@ export default function BookingsPage() {
 
       if (error) {
         console.error("Error completing booking:", error);
-        alert("Error completing booking: " + error.message);
+        showError("Booking Error", "Failed to complete booking. Please try again.");
       } else {
         loadBookings(); // Reload bookings
         setSelectedBooking(null); // Close modal
         setShowCompleteModal(false);
         setBookingToComplete(null);
-        alert("Booking completed successfully!");
+        showSuccess("Booking Completed", "Booking has been marked as completed successfully.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error completing booking");
+      showError("Booking Error", "Failed to complete booking. Please try again.");
     }
   };
 
@@ -161,6 +241,52 @@ export default function BookingsPage() {
         return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
       default:
         return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700";
+    }
+  };
+
+  const getStatusIcon = (status: Booking["status"]) => {
+    switch (status) {
+      case "scheduled":
+        return (
+          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        );
+      case "completed":
+        return (
+          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case "cancelled":
+        return (
+          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case "pending":
+        return (
+          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getStatusText = (status: Booking["status"]) => {
+    switch (status) {
+      case "scheduled":
+        return "Scheduled";
+      case "completed":
+        return "Completed";
+      case "cancelled":
+        return "Cancelled";
+      case "pending":
+        return "Pending";
+      default:
+        return status;
     }
   };
 
@@ -210,9 +336,10 @@ export default function BookingsPage() {
         </div>
         <div className="flex flex-col items-end space-y-2">
           <span
-            className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.status)} transition-colors duration-300`}
+            className={`flex items-center px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.status)} transition-colors duration-300`}
           >
-            {booking.status}
+            {getStatusIcon(booking.status)}
+            {getStatusText(booking.status)}
           </span>
           <span className="text-lg font-bold text-gray-900 dark:text-white transition-colors duration-300">
             £{booking.amount}
@@ -288,7 +415,13 @@ export default function BookingsPage() {
           Payment: {booking.payment_status}
         </span>
         <div className="flex space-x-2">
-          <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors duration-300">
+          <button 
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditBooking(booking);
+            }}
+          >
             <svg
               className="w-4 h-4"
               fill="none"
@@ -303,7 +436,13 @@ export default function BookingsPage() {
               />
             </svg>
           </button>
-          <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors duration-300">
+          <button 
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCompleteBooking(booking.id);
+            }}
+          >
             <svg
               className="w-4 h-4"
               fill="none"
@@ -678,9 +817,10 @@ export default function BookingsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.status)} transition-colors duration-300`}
+                            className={`flex items-center px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.status)} transition-colors duration-300`}
                           >
-                            {booking.status}
+                            {getStatusIcon(booking.status)}
+                            {getStatusText(booking.status)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -695,10 +835,22 @@ export default function BookingsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-2">
-                            <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-300">
+                            <button 
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-300"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditBooking(booking);
+                              }}
+                            >
                               Edit
                             </button>
-                            <button className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 transition-colors duration-300">
+                            <button 
+                              className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 transition-colors duration-300"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteBooking(booking.id);
+                              }}
+                            >
                               Complete
                             </button>
                           </div>
@@ -838,7 +990,8 @@ export default function BookingsPage() {
                       <span
                         className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(selectedBooking.status)}`}
                       >
-                        {selectedBooking.status}
+                        {getStatusIcon(selectedBooking.status)}
+                        {getStatusText(selectedBooking.status)}
                       </span>
                     </div>
                     <div>
@@ -884,6 +1037,7 @@ export default function BookingsPage() {
                 <button
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-700 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
+                  onClick={() => handleEditBooking(selectedBooking)}
                 >
                   Edit Booking
                 </button>
@@ -1120,6 +1274,236 @@ export default function BookingsPage() {
                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="button"
                     onClick={() => setShowNewBookingModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Booking Modal */}
+      {showEditBookingModal && editingBooking && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              onClick={() => setShowEditBookingModal(false)}
+            />
+
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleUpdateBooking}>
+                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                      Edit Booking
+                    </h3>
+                    <button
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
+                      type="button"
+                      onClick={() => setShowEditBookingModal(false)}
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M6 18L18 6M6 6l12 12"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                        Customer Name *
+                      </label>
+                      <input
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        type="text"
+                        value={editBooking.customerName}
+                        onChange={(e) =>
+                          setEditBooking((prev) => ({
+                            ...prev,
+                            customerName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Email
+                        </label>
+                        <input
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          type="email"
+                          value={editBooking.customerEmail}
+                          onChange={(e) =>
+                            setEditBooking((prev) => ({
+                              ...prev,
+                              customerEmail: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Phone
+                        </label>
+                        <input
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          type="tel"
+                          value={editBooking.customerPhone}
+                          onChange={(e) =>
+                            setEditBooking((prev) => ({
+                              ...prev,
+                              customerPhone: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Service *
+                      </label>
+                      <select
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        value={editBooking.service}
+                        onChange={(e) =>
+                          setEditBooking((prev) => ({
+                            ...prev,
+                            service: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select a service</option>
+                        <option value="Leak Detection">Leak Detection</option>
+                        <option value="Pipe Repair">Pipe Repair</option>
+                        <option value="Drain Cleaning">Drain Cleaning</option>
+                        <option value="Emergency Plumbing">Emergency Plumbing</option>
+                        <option value="Boiler Service">Boiler Service</option>
+                        <option value="Bathroom Installation">Bathroom Installation</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Date *
+                        </label>
+                        <input
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          type="date"
+                          value={editBooking.date}
+                          onChange={(e) =>
+                            setEditBooking((prev) => ({
+                              ...prev,
+                              date: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Time *
+                        </label>
+                        <input
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          type="time"
+                          value={editBooking.time}
+                          onChange={(e) =>
+                            setEditBooking((prev) => ({
+                              ...prev,
+                              time: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Amount (£) *
+                      </label>
+                      <input
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editBooking.amount}
+                        onChange={(e) =>
+                          setEditBooking((prev) => ({
+                            ...prev,
+                            amount: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Address
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        type="text"
+                        value={editBooking.address}
+                        onChange={(e) =>
+                          setEditBooking((prev) => ({
+                            ...prev,
+                            address: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Notes
+                      </label>
+                      <textarea
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        rows={3}
+                        value={editBooking.notes}
+                        onChange={(e) =>
+                          setEditBooking((prev) => ({
+                            ...prev,
+                            notes: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
+                  <button
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    type="submit"
+                  >
+                    Update Booking
+                  </button>
+                  <button
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    type="button"
+                    onClick={() => setShowEditBookingModal(false)}
                   >
                     Cancel
                   </button>

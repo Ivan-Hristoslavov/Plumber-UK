@@ -151,6 +151,7 @@ export async function POST(request: NextRequest) {
       // Create regular payment record
       const paymentRecord = {
         ...paymentData,
+        booking_id: paymentData.booking_id || null, // Convert empty string to null
         payment_status: paymentData.payment_status || "paid", // Default to paid for manual payments
       };
 

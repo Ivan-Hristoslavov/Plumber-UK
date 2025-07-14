@@ -6,7 +6,7 @@ export async function GET() {
     const supabase = createClient();
     
     const { data: galleryItems, error } = await supabase
-      .from("gallery_items")
+      .from("gallery")
       .select("*")
       .order("order", { ascending: true });
 
@@ -30,38 +30,25 @@ export async function POST(request: NextRequest) {
     const { 
       title, 
       description, 
-      before_image_url, 
-      after_image_url, 
-      project_type, 
-      location, 
-      completion_date, 
+      image_url, 
+      alt_text,
+      section_id,
       order, 
-      is_featured 
+      is_active 
     } = body;
 
-    // Get admin profile ID
-    const { data: adminProfile, error: adminError } = await supabase
-      .from("admin_profile")
-      .select("id")
-      .single();
-
-    if (adminError || !adminProfile) {
-      return NextResponse.json({ error: "Admin profile not found" }, { status: 404 });
-    }
+    // No need to get admin profile ID since gallery table doesn't have admin_id field
 
     const { data: galleryItem, error } = await supabase
-      .from("gallery_items")
+      .from("gallery")
       .insert({
-        admin_id: adminProfile.id,
         title,
         description,
-        before_image_url,
-        after_image_url,
-        project_type,
-        location,
-        completion_date,
+        image_url,
+        alt_text,
+        section_id,
         order: order || 0,
-        is_featured: is_featured || false,
+        is_active: is_active !== false,
       })
       .select()
       .single();

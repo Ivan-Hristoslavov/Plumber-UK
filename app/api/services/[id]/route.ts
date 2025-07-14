@@ -14,7 +14,7 @@ export async function PUT(
     );
 
     const body = await request.json();
-    const { name, description, price, icon, service_type, order, is_active } = body;
+    const { name, description, price, duration_minutes, category, order, is_active } = body;
 
     const { data: service, error } = await supabase
       .from('services')
@@ -22,8 +22,8 @@ export async function PUT(
         name,
         description,
         price,
-        icon,
-        service_type,
+        duration_minutes,
+        category,
         order,
         is_active,
         updated_at: new Date().toISOString()

@@ -74,6 +74,14 @@ export async function PATCH(
   }
 }
 
+// PUT - Update booking by ID (alias for PATCH)
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return PATCH(request, { params });
+}
+
 // DELETE - Delete booking by ID
 export async function DELETE(
   request: NextRequest,

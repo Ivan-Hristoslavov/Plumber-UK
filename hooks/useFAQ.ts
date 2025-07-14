@@ -31,7 +31,7 @@ export function useFAQ(adminMode = false) {
     }
   };
 
-  const addFAQItem = async (faqItem: Omit<FAQItem, 'id' | 'admin_id' | 'created_at' | 'updated_at'>) => {
+  const addFAQItem = async (faqItem: Omit<FAQItem, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetch('/api/faq', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -10,13 +10,14 @@ export async function PUT(
     const body = await request.json();
     const { id } = await params;
     
-    const { question, answer, order, is_active } = body;
+    const { question, answer, category, order, is_active } = body;
 
     const { data: faqItem, error } = await supabase
-      .from("faq_items")
+      .from("faq")
       .update({
         question,
         answer,
+        category,
         order,
         is_active,
         updated_at: new Date().toISOString(),
@@ -46,7 +47,7 @@ export async function DELETE(
     const { id } = await params;
 
     const { error } = await supabase
-      .from("faq_items")
+      .from("faq")
       .delete()
       .eq("id", id);
 

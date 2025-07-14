@@ -6,7 +6,7 @@ export async function GET() {
     const supabase = createClient();
     
     const { data: faqItems, error } = await supabase
-      .from("faq_items")
+      .from("faq")
       .select("*")
       .eq("is_active", true)
       .order("order", { ascending: true });
@@ -28,24 +28,14 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     const body = await request.json();
     
-    const { question, answer, order, is_active } = body;
-
-    // Get admin profile ID
-    const { data: adminProfile, error: adminError } = await supabase
-      .from("admin_profile")
-      .select("id")
-      .single();
-
-    if (adminError || !adminProfile) {
-      return NextResponse.json({ error: "Admin profile not found" }, { status: 404 });
-    }
+    const { question, answer, category, order, is_active } = body;
 
     const { data: faqItem, error } = await supabase
-      .from("faq_items")
+      .from("faq")
       .insert({
-        admin_id: adminProfile.id,
         question,
         answer,
+        category: category || 'general',
         order: order || 0,
         is_active: is_active !== false,
       })

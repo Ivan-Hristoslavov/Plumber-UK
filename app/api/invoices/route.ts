@@ -53,8 +53,6 @@ export async function POST(request: NextRequest) {
       company_email: formData.get('company_email') as string,
       company_vat_number: formData.get('company_vat_number') as string,
       notes: formData.get('notes') as string || null,
-      manual_service: formData.get('manual_service') as string || null,
-      manual_description: formData.get('manual_description') as string || null,
     };
 
     // Handle image files

@@ -13,14 +13,13 @@ type ProfileData = {
   phone: string;
   about: string;
 
+  // Company Information
+  companyName: string;
+  companyAddress: string;
+
   // Professional Information
-  yearsOfExperience: string;
-  specializations: string;
-  certifications: string;
-  responseTime: string;
   gasRegNumber: string;
   insuranceProvider: string;
-  insurancePolicyNumber: string;
 
   // Banking Information
   bankName: string;
@@ -38,7 +37,9 @@ type PasswordData = {
 };
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<"personal" | "professional" | "security">("personal");
+  const [activeTab, setActiveTab] = useState<
+    "personal" | "professional" | "security"
+  >("personal");
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -46,23 +47,21 @@ export default function ProfilePage() {
   const { showSuccess, showError } = useToast();
 
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: "Plamen",
-    lastName: "Zhelev",
-    email: "plamen@fixmyleak.co.uk",
-    phone: "+44 7700 900123",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
     about: "",
 
-    yearsOfExperience: "10+",
-    specializations: "Emergency repairs, Boiler installations, Bathroom plumbing",
-    certifications: "Gas Safe Registered, City & Guilds Level 3",
-    responseTime: "45 minutes",
-    gasRegNumber: "GAS123456",
-    insuranceProvider: "Zurich Insurance",
-    insurancePolicyNumber: "POL123456789",
+    companyName: "",
+    companyAddress: "",
 
-    bankName: "Barclays Bank",
-    accountNumber: "12345678",
-    sortCode: "20-00-00",
+    gasRegNumber: "",
+    insuranceProvider: "",
+
+    bankName: "",
+    accountNumber: "",
+    sortCode: "",
 
     avatar: "",
   });
@@ -76,9 +75,9 @@ export default function ProfilePage() {
   useEffect(() => {
     // Load profile data from database
     if (dbProfile && !loading) {
-      const [firstName, ...lastNameParts] = dbProfile.name.split(' ');
-      const lastName = lastNameParts.join(' ');
-      
+      const [firstName, ...lastNameParts] = dbProfile.name.split(" ");
+      const lastName = lastNameParts.join(" ");
+
       setProfileData({
         firstName: firstName || "Plamen",
         lastName: lastName || "Zhelev",
@@ -86,13 +85,11 @@ export default function ProfilePage() {
         phone: dbProfile.phone || "+44 7700 900123",
         about: dbProfile.about || "",
 
-        yearsOfExperience: dbProfile.years_of_experience || "10+",
-        specializations: dbProfile.specializations || "Emergency repairs, Boiler installations, Bathroom plumbing",
-        certifications: dbProfile.certifications || "Gas Safe Registered, City & Guilds Level 3",
-        responseTime: dbProfile.response_time || "45 minutes",
+        companyName: dbProfile.company_name || "Fix My Leak",
+        companyAddress: dbProfile.company_address || "London, UK",
+
         gasRegNumber: dbProfile.gas_safe_number || "GAS123456",
         insuranceProvider: dbProfile.insurance_provider || "Zurich Insurance",
-        insurancePolicyNumber: "POL123456789",
 
         bankName: dbProfile.bank_name || "Barclays Bank",
         accountNumber: dbProfile.account_number || "12345678",
@@ -112,10 +109,8 @@ export default function ProfilePage() {
         email: profileData.email,
         phone: profileData.phone,
         about: profileData.about,
-        years_of_experience: profileData.yearsOfExperience,
-        specializations: profileData.specializations,
-        certifications: profileData.certifications,
-        response_time: profileData.responseTime,
+        company_name: profileData.companyName,
+        company_address: profileData.companyAddress,
         gas_safe_number: profileData.gasRegNumber,
         insurance_provider: profileData.insuranceProvider,
         bank_name: profileData.bankName,
@@ -134,9 +129,15 @@ export default function ProfilePage() {
         throw new Error(error.error || "Failed to update profile");
       }
 
-      showSuccess(ToastMessages.profile.updated.title, ToastMessages.profile.updated.message);
+      showSuccess(
+        ToastMessages.profile.updated.title,
+        ToastMessages.profile.updated.message
+      );
     } catch (error) {
-      showError(ToastMessages.profile.error.title, ToastMessages.profile.error.message);
+      showError(
+        ToastMessages.profile.error.title,
+        ToastMessages.profile.error.message
+      );
       console.error("Error updating profile:", error);
     } finally {
       setIsSaving(false);
@@ -145,12 +146,18 @@ export default function ProfilePage() {
 
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showError(ToastMessages.general.validationError.title, "New password and confirmation do not match.");
+      showError(
+        ToastMessages.general.validationError.title,
+        "New password and confirmation do not match."
+      );
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      showError(ToastMessages.general.validationError.title, "Password must be at least 6 characters long.");
+      showError(
+        ToastMessages.general.validationError.title,
+        "Password must be at least 6 characters long."
+      );
       return;
     }
 
@@ -170,11 +177,21 @@ export default function ProfilePage() {
         throw new Error(error.error || "Failed to change password");
       }
 
-      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
       setShowPasswordForm(false);
-      showSuccess(ToastMessages.profile.passwordChanged.title, ToastMessages.profile.passwordChanged.message);
+      showSuccess(
+        ToastMessages.profile.passwordChanged.title,
+        ToastMessages.profile.passwordChanged.message
+      );
     } catch (error) {
-      showError(ToastMessages.profile.error.title, ToastMessages.profile.error.message);
+      showError(
+        ToastMessages.profile.error.title,
+        ToastMessages.profile.error.message
+      );
     } finally {
       setIsSaving(false);
     }
@@ -191,7 +208,9 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">My Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+            My Profile
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
             Manage your personal information and professional credentials.
           </p>
@@ -224,8 +243,18 @@ export default function ProfilePage() {
               </span>
             </div>
             <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
               </svg>
             </button>
           </div>
@@ -233,8 +262,12 @@ export default function ProfilePage() {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
               {profileData.firstName} {profileData.lastName}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">{profileData.email}</p>
-            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">{profileData.phone}</p>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
+              {profileData.email}
+            </p>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
+              {profileData.phone}
+            </p>
             <div className="flex items-center mt-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 transition-colors duration-300">
                 <span className="w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full mr-1 transition-colors duration-300" />
@@ -283,7 +316,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.firstName}
-                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          firstName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -294,7 +332,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.lastName}
-                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          lastName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -319,7 +362,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="tel"
                       value={profileData.phone}
-                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          phone: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -331,7 +379,9 @@ export default function ProfilePage() {
                 </h4>
                 <MarkdownEditor
                   value={profileData.about}
-                  onChange={(value) => setProfileData({ ...profileData, about: value })}
+                  onChange={(value) =>
+                    setProfileData({ ...profileData, about: value })
+                  }
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
                   This will be displayed on your public profile page.
@@ -340,55 +390,41 @@ export default function ProfilePage() {
 
               <div>
                 <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Professional Details
+                  Company Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Years of Experience
+                      Company Name
                     </label>
                     <input
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
-                      placeholder="e.g., 10+ years"
-                      value={profileData.yearsOfExperience}
-                      onChange={(e) => setProfileData({ ...profileData, yearsOfExperience: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Response Time
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., 45 minutes"
-                      value={profileData.responseTime}
-                      onChange={(e) => setProfileData({ ...profileData, responseTime: e.target.value })}
+                      placeholder="e.g., Fix My Leak"
+                      value={profileData.companyName}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          companyName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Specializations
+                      Company Address
                     </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., Emergency repairs, Boiler installations, Bathroom plumbing"
-                      value={profileData.specializations}
-                      onChange={(e) => setProfileData({ ...profileData, specializations: e.target.value })}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Certifications
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., Gas Safe Registered, City & Guilds Level 3"
-                      value={profileData.certifications}
-                      onChange={(e) => setProfileData({ ...profileData, certifications: e.target.value })}
+                    <textarea
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 resize-none"
+                      rows={3}
+                      placeholder="e.g., 123 Main Street, London, SW1A 1AA"
+                      value={profileData.companyAddress}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          companyAddress: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -422,7 +458,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.gasRegNumber}
-                      onChange={(e) => setProfileData({ ...profileData, gasRegNumber: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          gasRegNumber: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -433,24 +474,19 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.insuranceProvider}
-                      onChange={(e) => setProfileData({ ...profileData, insuranceProvider: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          insuranceProvider: e.target.value,
+                        })
+                      }
                     />
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Insurance Policy Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.insurancePolicyNumber}
-                      onChange={(e) => setProfileData({ ...profileData, insurancePolicyNumber: e.target.value })}
-                    />
-                  </div>
+
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
                   Banking Information
                 </h3>
@@ -463,7 +499,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.bankName}
-                      onChange={(e) => setProfileData({ ...profileData, bankName: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          bankName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -474,7 +515,12 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.accountNumber}
-                      onChange={(e) => setProfileData({ ...profileData, accountNumber: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          accountNumber: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -485,11 +531,16 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.sortCode}
-                      onChange={(e) => setProfileData({ ...profileData, sortCode: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          sortCode: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex justify-end">
                 <button
@@ -539,7 +590,12 @@ export default function ProfilePage() {
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            currentPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -550,7 +606,12 @@ export default function ProfilePage() {
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            newPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -561,7 +622,12 @@ export default function ProfilePage() {
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({
+                            ...passwordData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="md:col-span-3">
