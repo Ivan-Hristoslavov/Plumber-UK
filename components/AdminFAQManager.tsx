@@ -27,7 +27,7 @@ export function AdminFAQManager() {
   const handleSave = async () => {
     try {
       if (editingItem) {
-        await updateFAQItem(editingItem.id, formData);
+        await updateFAQItem(Number(editingItem.id), formData);
         showSuccess(ToastMessages.faq.itemUpdated.title, ToastMessages.faq.itemUpdated.message);
         setEditingItem(null);
       } else {
@@ -129,7 +129,7 @@ export function AdminFAQManager() {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => handleDelete(Number(item.id))}
                   className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                   Delete
