@@ -34,20 +34,21 @@ export default function Tooltip({
 
         let x = rect.left + scrollX + rect.width / 2;
         let y = rect.top + scrollY;
+        const offset = 4;
 
         switch (position) {
           case "top":
-            y = rect.top + scrollY - 10;
+            y = rect.top + scrollY - offset;
             break;
           case "bottom":
-            y = rect.bottom + scrollY + 10;
+            y = rect.bottom + scrollY + offset;
             break;
           case "left":
-            x = rect.left + scrollX - 10;
+            x = rect.left + scrollX - offset;
             y = rect.top + scrollY + rect.height / 2;
             break;
           case "right":
-            x = rect.right + scrollX + 10;
+            x = rect.right + scrollX + offset;
             y = rect.top + scrollY + rect.height / 2;
             break;
         }
@@ -109,7 +110,7 @@ export default function Tooltip({
           }}
         >
           {/* Tooltip Content */}
-          <div className="bg-white text-gray-900 text-sm font-medium px-3 py-2 rounded-lg shadow-xl border border-gray-300 whitespace-nowrap backdrop-blur-sm">
+          <div className="bg-white text-gray-900 text-xs font-medium px-2 py-1 rounded-lg shadow-xl border border-gray-300 whitespace-nowrap backdrop-blur-sm">
             {content}
           </div>
         </div>

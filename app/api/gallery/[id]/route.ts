@@ -13,29 +13,23 @@ export async function PUT(
     const { 
       title, 
       description, 
-      before_image_url, 
-      after_image_url, 
-      project_type, 
-      location, 
-      completion_date, 
+      image_url, 
+      alt_text,
       section_id,
       order, 
-      is_featured 
+      is_active 
     } = body;
 
     const { data: galleryItem, error } = await supabase
-      .from("gallery_items")
+      .from("gallery")
       .update({
         title,
         description,
-        before_image_url,
-        after_image_url,
-        project_type,
-        location,
-        completion_date,
+        image_url,
+        alt_text,
         section_id,
         order,
-        is_featured,
+        is_active,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -63,7 +57,7 @@ export async function DELETE(
     const { id } = await params;
 
     const { error } = await supabase
-      .from("gallery_items")
+      .from("gallery")
       .delete()
       .eq("id", id);
 

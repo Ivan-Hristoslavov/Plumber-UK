@@ -32,6 +32,7 @@ export function AdminPricingManager() {
         await updatePricingCard(editingCard.id, formData);
         showSuccess(ToastMessages.pricing.cardUpdated.title, ToastMessages.pricing.cardUpdated.message);
         setEditingCard(null);
+        setShowAddForm(false); // Close form after update
       } else {
         await addPricingCard(formData);
         showSuccess(ToastMessages.pricing.cardAdded.title, ToastMessages.pricing.cardAdded.message);

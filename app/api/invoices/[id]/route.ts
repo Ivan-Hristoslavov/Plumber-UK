@@ -71,8 +71,6 @@ export async function PUT(
     const company_email = formData.get('company_email') as string;
     const company_vat_number = formData.get('company_vat_number') as string;
     const notes = formData.get('notes') as string || null;
-    const manual_service = formData.get('manual_service') as string || null;
-    const manual_description = formData.get('manual_description') as string || null;
 
     // Handle image attachments
     const images = formData.getAll('images') as File[];
@@ -130,10 +128,7 @@ export async function PUT(
       updated_at: new Date().toISOString()
     };
 
-    // Add manual entry fields if provided
-    if (manual_service) {
-      updateData.manual_description = manual_service;
-    }
+    // Manual entry fields will be added later when database schema is updated
 
     // Add image attachments if any
     if (imageAttachments.length > 0) {

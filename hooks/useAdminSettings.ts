@@ -1,4 +1,7 @@
+"use client";
+
 import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export type AdminSettings = {
   workingHoursStart: string;
@@ -12,6 +15,8 @@ export type AdminSettings = {
   };
   [key: string]: any;
 };
+
+// VATSettings interface moved to hooks/useVATSettings.ts
 
 // Global cache to prevent multiple API calls
 let adminSettingsCache: AdminSettings | null = null;
@@ -100,4 +105,6 @@ export function useAdminSettings() {
       hasInitialized.current = false;
     }
   };
-} 
+}
+
+// Removed duplicate useVATSettings - use the one from hooks/useVATSettings.ts instead 

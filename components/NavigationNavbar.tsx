@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
-import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
@@ -20,139 +19,24 @@ const navigation = [
       { name: "Gallery", href: "#gallery" }
     ]
   },
-  { name: "Pricing", href: "#pricing" },
   { 
     name: "Support", 
     href: "#faq",
     dropdown: [
       { name: "FAQ", href: "#faq" },
       { name: "Reviews", href: "#reviews" },
-      { name: "Blog", href: "/blog" }
     ]
   },
   { name: "Contact", href: "#contact" },
 ];
 
-type DayOffSettings = {
-  isEnabled: boolean;
-  message: string;
-  startDate: string;
-  endDate: string;
-  dayOffKey?: string;
-};
-
 export default function NavigationNavbar() {
   const { scrollDirection, isScrolled } = useScrollDirection();
-  const { settings } = useAdminSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const [hasDayOffBanner, setHasDayOffBanner] = useState(false);
-  const [dayOffSettings, setDayOffSettings] = useState<DayOffSettings | null>(
-    null,
-  );
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
-
-  useEffect(() => {
-    // Check if day off banner is enabled using cached settings
-    const checkDayOffBanner = () => {
-      try {
-        const dayOffData = settings?.dayOffSettings;
-        
-        if (!dayOffData) {
-          setHasDayOffBanner(false);
-          return;
-        }
-
-        const dayOffSettings = {
-          isEnabled: dayOffData.isEnabled || false,
-          message:
-            dayOffData.message ||
-            "Limited service hours today. Emergency services available 24/7.",
-          startDate: dayOffData.startDate || "",
-          endDate: dayOffData.endDate || "",
-        };
-
-        // Create unique key for this specific day off period
-        const dayOffKey = `dayOff_${dayOffSettings.startDate}_${dayOffSettings.endDate}`;
-        const dismissed = sessionStorage.getItem(`dismissed_${dayOffKey}`);
-
-        if (dayOffSettings.isEnabled && dismissed !== "true") {
-          // Check date range
-          const now = new Date();
-          const today = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-          );
-
-          let isInRange = true;
-
-          if (dayOffSettings.startDate) {
-            const startDate = new Date(dayOffSettings.startDate);
-            // Show banner one day before start date
-            const dayBeforeStart = new Date(startDate);
-
-            dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
-
-            if (today < dayBeforeStart) isInRange = false;
-          }
-
-          if (dayOffSettings.endDate) {
-            const endDate = new Date(dayOffSettings.endDate);
-
-            if (today > endDate) isInRange = false;
-          }
-
-          if (isInRange) {
-            setDayOffSettings({ ...dayOffSettings, dayOffKey });
-            setHasDayOffBanner(true);
-          } else {
-            setHasDayOffBanner(false);
-          }
-        } else {
-          setHasDayOffBanner(false);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        setHasDayOffBanner(false);
-      }
-    };
-
-    // Only check when settings are loaded
-    if (settings) {
-      checkDayOffBanner();
-    }
-
-    // Clean up old dismissed day off periods (older than 30 days)
-    const cleanupOldDismissals = () => {
-      const now = new Date();
-
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-
-        if (key?.startsWith("dismissed_dayOff_")) {
-          // Extract dates from key: dismissed_dayOff_YYYY-MM-DD_YYYY-MM-DD
-          const datePart = key.replace("dismissed_dayOff_", "");
-          const endDate = datePart.split("_")[1];
-
-          if (endDate) {
-            const dismissedEndDate = new Date(endDate);
-            const daysSinceEnd =
-              (now.getTime() - dismissedEndDate.getTime()) / (1000 * 3600 * 24);
-
-            if (daysSinceEnd > 30) {
-              sessionStorage.removeItem(key);
-            }
-          }
-        }
-      }
-    };
-
-    cleanupOldDismissals();
-
-  }, [settings]);
 
   useEffect(() => {
     // Throttle function to limit how often the scroll handler runs
@@ -178,19 +62,34 @@ export default function NavigationNavbar() {
 
     const handleScrollSpy = () => {
       const allSections = [
-        "home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"
+        "home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"
       ];
       
-      const currentSection = allSections.find((section) => {
+      // Find the section that is currently in view
+      let currentSection = null;
+      let minDistance = Infinity;
+      
+      allSections.forEach((section) => {
         const element = document.getElementById(section);
-
         if (element) {
           const rect = element.getBoundingClientRect();
-
-          return rect.top <= 100 && rect.bottom >= 100;
+          
+          // Get navbar and banner heights for precise calculation
+          const navbar = document.querySelector('nav');
+          const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
+          const navbarHeight = navbar ? navbar.offsetHeight : 80;
+          const bannerHeight = dayOffBanner && dayOffBanner.offsetHeight > 0 ? dayOffBanner.offsetHeight : 0;
+          const totalOffset = navbarHeight + bannerHeight + 80; // 80px threshold for better detection
+          
+          // Check if section is in view with precise offset
+          if (rect.top <= totalOffset && rect.bottom >= totalOffset) {
+            const distance = Math.abs(rect.top - totalOffset);
+            if (distance < minDistance) {
+              minDistance = distance;
+              currentSection = section;
+            }
+          }
         }
-
-        return false;
       });
 
       if (currentSection) {
@@ -200,13 +99,43 @@ export default function NavigationNavbar() {
           router.replace(`/#${currentSection}`, { scroll: false });
         }
       }
+      
+
     };
 
     // Check if there's a hash in the URL on initial load
     if (typeof window !== "undefined" && window.location.hash) {
       const hash = window.location.hash.substring(1);
-      if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
+      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
         setActiveSection(hash);
+        
+        // Scroll to the section after a short delay to ensure DOM is ready
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            const navbar = document.querySelector('nav');
+            const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
+            
+            // Get navbar height
+            const navbarHeight = navbar ? navbar.offsetHeight : 80;
+            
+            // Get banner height if it exists
+            const bannerHeight = dayOffBanner && dayOffBanner.offsetHeight > 0 ? dayOffBanner.offsetHeight : 0;
+            
+            // Calculate total offset with more precise positioning
+            const totalOffset = navbarHeight + bannerHeight + 30; // 30px extra padding for better visibility
+            
+            // Get element position and calculate final scroll position
+            const elementTop = element.offsetTop;
+            const finalScrollPosition = Math.max(0, elementTop - totalOffset);
+            
+            // Scroll to precise position
+            window.scrollTo({
+              top: finalScrollPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
       }
     }
 
@@ -235,6 +164,9 @@ export default function NavigationNavbar() {
         setIsMobileMenuOpen(false);
         setOpenDropdown(null);
         
+        // Set active section immediately
+        setActiveSection(targetId);
+        
         // Update URL to reflect the section
         if (pathname === "/") {
           router.replace(`/#${targetId}`, { scroll: false });
@@ -242,10 +174,28 @@ export default function NavigationNavbar() {
           router.push(`/#${targetId}`);
         }
         
-        // Scroll to the element with offset for the navbar
-        const yOffset = -80; // Adjust based on your navbar height
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+        // Calculate precise scroll position
+        const navbar = document.querySelector('nav');
+        const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
+        
+        // Get navbar height
+        const navbarHeight = navbar ? navbar.offsetHeight : 80;
+        
+        // Get banner height if it exists
+        const bannerHeight = dayOffBanner && dayOffBanner.offsetHeight > 0 ? dayOffBanner.offsetHeight : 0;
+        
+        // Calculate total offset with more precise positioning
+        const totalOffset = navbarHeight + bannerHeight + 30; // 30px extra padding for better visibility
+        
+        // Get element position and calculate final scroll position
+        const elementTop = element.offsetTop;
+        const finalScrollPosition = Math.max(0, elementTop - totalOffset);
+        
+        // Scroll to precise position
+        window.scrollTo({
+          top: finalScrollPosition,
+          behavior: 'smooth'
+        });
       }
     }
     // If it's a regular link (like /privacy, /terms), let it navigate normally
@@ -258,87 +208,12 @@ export default function NavigationNavbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur bg-white/40 dark:bg-gray-900/40 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-700">
-      {/* Day Off Banner - Integrated */}
-      {hasDayOffBanner && (
-        <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 animate-gradient-x">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center animate-pulse">
-                  <svg
-                    className="h-3 w-3 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      clipRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      fillRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                  {dayOffSettings?.startDate &&
-                  new Date() < new Date(dayOffSettings.startDate)
-                    ? "Upcoming Day Off"
-                    : "Day Off Notice"}
-                </span>
-                <span className="text-xs text-amber-800 font-medium">
-                  {dayOffSettings?.message}
-                </span>
-                {(dayOffSettings?.startDate || dayOffSettings?.endDate) && (
-                  <div className="hidden lg:flex items-center bg-amber-500/40 rounded-full px-3 py-1">
-                    <span className="text-xs font-semibold text-amber-900">
-                      📅{" "}
-                      {dayOffSettings?.startDate &&
-                        `From: ${new Date(dayOffSettings.startDate).toLocaleDateString("en-GB")}`}
-                      {dayOffSettings?.startDate &&
-                        dayOffSettings?.endDate &&
-                        " • "}
-                      {dayOffSettings?.endDate &&
-                        `Until: ${new Date(dayOffSettings.endDate).toLocaleDateString("en-GB")}`}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <button
-                className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-600 text-amber-900 hover:text-white transition-all duration-200 flex items-center justify-center group"
-                onClick={() => {
-                  setHasDayOffBanner(false);
-                  if (dayOffSettings?.dayOffKey) {
-                    sessionStorage.setItem(
-                      `dismissed_${dayOffSettings.dayOffKey}`,
-                      "true",
-                    );
-                  }
-                }}
-              >
-                <svg
-                  className="h-3 w-3 group-hover:rotate-90 transition-transform duration-200"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M6 18L18 6M6 6l12 12"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Navigation */}
+    <nav className="w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300">
       <div
-        className={`transition-all duration-700 ease-out ${
-          isScrolled || hasDayOffBanner
-            ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl py-3 border-b border-blue-100/50 dark:border-gray-700/50"
-            : "bg-white/10 dark:bg-gray-900/10 backdrop-blur-sm py-4"
+        className={`transition-all duration-300 ease-out ${
+          isScrolled
+            ? "bg-white/95 dark:bg-gray-900/95 py-3 border-b border-blue-100/50 dark:border-gray-700/50"
+            : "bg-white/80 dark:bg-gray-900/80 py-4"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -470,7 +345,7 @@ export default function NavigationNavbar() {
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="flex flex-col space-y-2 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50">
+          <div className="flex flex-col space-y-2 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50 mx-4">
             {navigation.map((item, index) => (
               <div key={item.name}>
                 {item.dropdown ? (

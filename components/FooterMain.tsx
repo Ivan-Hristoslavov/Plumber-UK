@@ -18,14 +18,12 @@ const navigation = [
       { name: "Gallery", href: "#gallery" }
     ]
   },
-  { name: "Pricing", href: "#pricing" },
   { 
     name: "Support", 
     href: "#faq",
     dropdown: [
       { name: "FAQ", href: "#faq" },
       { name: "Reviews", href: "#reviews" },
-      { name: "Blog", href: "/blog" }
     ]
   },
   { name: "Contact", href: "#contact" },

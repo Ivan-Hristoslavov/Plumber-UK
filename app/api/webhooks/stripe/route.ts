@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
-  if (!signature) {
+  // Allow testing without signature in development
+  const isDevelopment = process.env.NODE_ENV === "development";
+  
+  if (!signature && !isDevelopment) {
     return NextResponse.json(
       { error: "Missing stripe-signature header" },
       { status: 400 },
@@ -25,11 +28,18 @@ export async function POST(request: NextRequest) {
   let event;
 
   try {
+    if (signature) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET || "whsec_test",
     );
+    } else if (isDevelopment) {
+      // For development testing, parse the body directly
+      event = JSON.parse(body);
+    } else {
+      throw new Error("No signature provided");
+    }
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
 

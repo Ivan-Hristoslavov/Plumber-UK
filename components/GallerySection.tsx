@@ -13,15 +13,10 @@ export function GallerySection() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Filter items
-  const filteredItems = selectedFilter === "all" 
+  // Filter items by selected section
+  const filteredItems = selectedFilter === 'all' 
     ? galleryItems 
-    : galleryItems.filter(item => item.section_id === parseInt(selectedFilter));
-
-  // Get sections that have items
-  const sectionsWithItems = gallerySections.filter(section => 
-    galleryItems.some(item => item.section_id === section.id)
-  );
+    : galleryItems.filter(item => item.section_id === selectedFilter);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !containerRef.current) return;
@@ -72,7 +67,7 @@ export function GallerySection() {
             Our Work Gallery
           </h2>
           <p className="text-gray-600 dark:text-gray-300">
-            {error ? "Error loading gallery" : "No gallery items available yet."}
+            {error ? "Error loading gallery" : "No projects in this section yet."}
           </p>
         </div>
       </section>
@@ -125,24 +120,24 @@ export function GallerySection() {
           >
             All Projects
           </button>
-          {sectionsWithItems.map((section) => (
+          {gallerySections.map((section) => (
             <button
               key={section.id}
               onClick={() => {
-                setSelectedFilter(section.id.toString());
+                setSelectedFilter(section.id);
                 setCurrentIndex(0);
                 setSliderPosition(50);
               }}
               className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                selectedFilter === section.id.toString()
+                selectedFilter === section.id
                   ? "text-white shadow-lg"
                   : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
               }`}
               style={{
-                backgroundColor: selectedFilter === section.id.toString() ? section.color : undefined
+                backgroundColor: selectedFilter === section.id ? (section.color || '#3B82F6') : undefined
               }}
             >
-              {section.name}
+              {section.title}
             </button>
           ))}
         </div>
@@ -330,7 +325,8 @@ export function GallerySection() {
         </div>
 
         {/* Bottom Grid - Additional Projects */}
-        {filteredItems.length > 1 && (
+        {/* Bottom Grid - Additional Projects Section */}
+        {/* {filteredItems.length > 1 && (
           <div className="mt-16">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
               More Projects
@@ -371,7 +367,7 @@ export function GallerySection() {
               ))}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </section>
   );

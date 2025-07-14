@@ -34,28 +34,18 @@ export async function POST(request: Request) {
     );
 
     const body = await request.json();
-    const { name, description, price, icon, service_type, order } = body;
-
-    // Get admin profile
-    const { data: adminProfile } = await supabase
-      .from('admin_profile')
-      .select('id')
-      .single();
-
-    if (!adminProfile) {
-      return NextResponse.json({ error: 'Admin profile not found' }, { status: 404 });
-    }
+    const { name, description, price, duration_minutes, category, order, is_active } = body;
 
     const { data: service, error } = await supabase
       .from('services')
       .insert([{
-        admin_id: adminProfile.id,
         name,
         description,
         price,
-        icon,
-        service_type,
-        order: order || 0
+        duration_minutes,
+        category,
+        order: order || 0,
+        is_active: is_active !== false
       }])
       .select()
       .single();

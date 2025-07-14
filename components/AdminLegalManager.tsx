@@ -56,6 +56,22 @@ export function AdminLegalManager() {
     try {
       setSaving(true);
       
+      // First get the admin profile ID
+      const { data: profiles, error: fetchError } = await supabase
+        .from("admin_profile")
+        .select("id")
+        .limit(1);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (!profiles || profiles.length === 0) {
+        throw new Error("No admin profile found");
+      }
+
+      const adminId = profiles[0].id;
+      
       const { error } = await supabase
         .from("admin_profile")
         .update({
@@ -63,7 +79,7 @@ export function AdminLegalManager() {
           privacy_policy: content.privacy_policy,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", 1); // Assuming single admin profile
+        .eq("id", adminId);
 
       if (error) {
         throw error;

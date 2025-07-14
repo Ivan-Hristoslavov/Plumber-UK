@@ -7,7 +7,7 @@ export function SectionPricing() {
 
   if (loading) {
     return (
-      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500" id="pricing">
+      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-gray-600 dark:text-gray-300">Loading pricing information...</div>
         </div>
@@ -17,7 +17,7 @@ export function SectionPricing() {
 
   if (error) {
     return (
-      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500" id="pricing">
+      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-red-600 dark:text-red-400">Error loading pricing information</div>
         </div>
@@ -27,7 +27,6 @@ export function SectionPricing() {
   return (
     <section
       className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500"
-      id="pricing"
     >
       {/* Background with gradient and pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />

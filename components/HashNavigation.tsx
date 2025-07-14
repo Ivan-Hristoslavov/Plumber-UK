@@ -23,7 +23,21 @@ export default function HashNavigation() {
             if (element) {
               // Small delay to ensure the page is fully loaded
               setTimeout(() => {
-                const yOffset = -80; // Adjust based on your navbar height
+                // Calculate offset based on whether day off banner is present
+                const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
+                const navbar = document.querySelector('nav');
+                
+                let yOffset = -80; // Default navbar height
+                
+                if (dayOffBanner && dayOffBanner.offsetHeight > 0) {
+                  yOffset -= dayOffBanner.offsetHeight; // Add banner height to offset
+                }
+                
+                // Add navbar height if it exists
+                if (navbar) {
+                  yOffset -= navbar.offsetHeight;
+                }
+                
                 const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
               }, 100);
