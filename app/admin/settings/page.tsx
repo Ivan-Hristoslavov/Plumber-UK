@@ -735,9 +735,9 @@ export default function AdminSettingsPage() {
                     checked={vatSettings?.is_enabled || false}
                     className="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
                     type="checkbox"
-                                          onChange={(e) =>
-                        updateVATSettings({ is_enabled: e.target.checked })
-                      }
+                    onChange={(e) =>
+                      updateVATSettings({ is_enabled: e.target.checked })
+                    }
                   />
                   <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                     Enable VAT on invoices
@@ -763,9 +763,9 @@ export default function AdminSettingsPage() {
                       max="100"
                       value={vatSettings?.vat_rate || 20}
                       onChange={(e) =>
-                                                  updateVATSettings({
-                            vat_rate: parseFloat(e.target.value) || 0,
-                          })
+                        updateVATSettings({
+                          vat_rate: parseFloat(e.target.value) || 0,
+                        })
                       }
                     />
                   </div>
@@ -778,9 +778,9 @@ export default function AdminSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="GB123456789"
-                                              value={vatSettings?.vat_number || ""}
+                      value={vatSettings?.vat_number || ""}
                       onChange={(e) =>
-                                                  updateVATSettings({ vat_number: e.target.value })
+                        updateVATSettings({ vat_number: e.target.value })
                       }
                     />
                   </div>
@@ -790,12 +790,11 @@ export default function AdminSettingsPage() {
                       Company Name for VAT
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="Your Company Name Ltd"
-                                                                      value={dbProfile?.company_name || ""}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
+                      value={dbProfile?.company_name || ""}
+                      disabled
                     />
                   </div>
                 </div>

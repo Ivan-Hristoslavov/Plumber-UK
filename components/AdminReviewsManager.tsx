@@ -20,7 +20,7 @@ export function AdminReviewsManager() {
           <div key={review.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-semibold text-gray-900 dark:text-white">{review.name}</span>
+                <span className="font-semibold text-gray-900 dark:text-white">{review.customer_name}</span>
                 <span className="text-xs text-gray-400">{new Date(review.created_at).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center mb-2">
@@ -30,8 +30,8 @@ export function AdminReviewsManager() {
                   </svg>
                 ))}
               </div>
-              <div className="text-gray-700 dark:text-gray-200 mb-2">{review.message}</div>
-              {review.email && <div className="text-xs text-gray-400">{review.email}</div>}
+              <div className="text-gray-700 dark:text-gray-200 mb-2">{review.comment}</div>
+              {review.customer_email && <div className="text-xs text-gray-400">{review.customer_email}</div>}
             </div>
             <div className="flex gap-2 mt-4">
               {!review.is_approved && (

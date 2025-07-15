@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { Providers } from "./providers";
 import { ToastProvider } from "@/components/Toast";
@@ -100,6 +101,7 @@ export default async function RootLayout({
             </AdminProfileProvider>
           </ToastProvider>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );

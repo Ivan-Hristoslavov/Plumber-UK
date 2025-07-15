@@ -43,6 +43,7 @@ export function ReviewForm() {
         rating: form.rating,
         title: "",
         comment: form.message,
+        message: form.message, // Add the missing message field
         is_featured: false,
       });
       showSuccess(

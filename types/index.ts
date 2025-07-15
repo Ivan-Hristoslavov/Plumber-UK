@@ -158,6 +158,7 @@ export type GalleryItem = {
 };
 
 export type Review = {
+  message: ReactNode;
   id: string;
   customer_name: string;
   customer_email?: string;
