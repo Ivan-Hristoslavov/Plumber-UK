@@ -66,9 +66,24 @@ export async function PUT(
     } = body;
 
     // Validate required fields
-    if (!customer_id || !amount || !payment_method || !payment_date || !payment_status) {
+    if (!amount || !payment_method || !payment_date || !payment_status) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate UUIDs if provided
+    if (customer_id && customer_id.trim() === "") {
+      return NextResponse.json(
+        { error: "Invalid customer_id" },
+        { status: 400 }
+      );
+    }
+
+    if (booking_id && booking_id.trim() === "") {
+      return NextResponse.json(
+        { error: "Invalid booking_id" },
         { status: 400 }
       );
     }
@@ -77,8 +92,8 @@ export async function PUT(
     const { data: payment, error } = await supabase
       .from("payments")
       .update({
-        customer_id,
-        booking_id,
+        customer_id: customer_id || null,
+        booking_id: booking_id || null,
         amount: parseFloat(amount),
         payment_method,
         payment_date,

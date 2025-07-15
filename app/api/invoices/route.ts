@@ -36,22 +36,42 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     
+    // Get VAT settings from database
+    const { data: vatSettings, error: vatError } = await supabase
+      .from("vat_settings")
+      .select("*")
+      .single();
+
+    if (vatError && vatError.code !== 'PGRST116') {
+      console.error("Error fetching VAT settings:", vatError);
+      return NextResponse.json({ error: "Failed to fetch VAT settings" }, { status: 500 });
+    }
+
+    // Use VAT settings or defaults
+    const defaultVATRate = vatSettings?.vat_rate || 20.00;
+    const vatEnabled = vatSettings?.is_enabled || false;
+    
     // Extract form fields
+    const subtotal = parseFloat(formData.get('subtotal') as string);
+    const vatRate = vatEnabled ? defaultVATRate : 0;
+    const vatAmount = vatEnabled ? (subtotal * vatRate / 100) : 0;
+    const totalAmount = subtotal + vatAmount;
+    
     const invoiceData = {
       customer_id: formData.get('customer_id') as string,
       booking_id: formData.get('booking_id') as string || null,
       invoice_date: formData.get('invoice_date') as string,
       due_date: formData.get('due_date') as string,
-      subtotal: parseFloat(formData.get('subtotal') as string),
-      vat_rate: parseFloat(formData.get('vat_rate') as string),
-      vat_amount: parseFloat(formData.get('vat_amount') as string),
-      total_amount: parseFloat(formData.get('total_amount') as string),
+      subtotal: subtotal,
+      vat_rate: vatRate,
+      vat_amount: vatAmount,
+      total_amount: totalAmount,
       status: formData.get('status') as string,
       company_name: formData.get('company_name') as string,
       company_address: formData.get('company_address') as string,
       company_phone: formData.get('company_phone') as string,
       company_email: formData.get('company_email') as string,
-      company_vat_number: formData.get('company_vat_number') as string,
+      company_vat_number: vatSettings?.vat_number || formData.get('company_vat_number') as string,
       notes: formData.get('notes') as string || null,
     };
 

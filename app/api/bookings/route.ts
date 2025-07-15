@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
+      customer_id,
       customer_name,
       customer_email,
       customer_phone,
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
       .from("bookings")
       .insert([
         {
+          customer_id: customer_id || null,
           customer_name,
           customer_email: customer_email || null,
           customer_phone: customer_phone || null,

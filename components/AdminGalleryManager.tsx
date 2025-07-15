@@ -181,7 +181,7 @@ export function AdminGalleryManager() {
         after_image_url: afterUrl,
       };
       if (editingItem) {
-        await updateGalleryItem(Number(editingItem.id), itemData);
+        await updateGalleryItem(editingItem.id, itemData);
         showSuccess(
           ToastMessages.gallery.itemUpdated.title,
           ToastMessages.gallery.itemUpdated.message
@@ -192,7 +192,6 @@ export function AdminGalleryManager() {
         await addGalleryItem({
           ...itemData,
           is_active: true,
-          image_url: beforeUrl, // Using before_image_url as the primary image_url
         });
         showSuccess(
           ToastMessages.gallery.itemAdded.title,
@@ -220,19 +219,19 @@ export function AdminGalleryManager() {
     setFormData({
       title: item.title,
       description: item.description || "",
-      before_image_url: item.image_url,
-      after_image_url: item.image_url,
-      project_type: "",
-      location: "",
-      completion_date: "",
+      before_image_url: item.before_image_url || item.image_url || "",
+      after_image_url: item.after_image_url || item.image_url || "",
+      project_type: item.project_type || "",
+      location: item.location || "",
+      completion_date: item.completion_date || "",
       section_id: item.section_id,
       order: item.order,
-      is_featured: false,
+      is_featured: item.is_featured || false,
     });
 
     // Set existing image previews
-    setBeforeImagePreview(item.image_url);
-    setAfterImagePreview(item.image_url);
+    setBeforeImagePreview(item.before_image_url || item.image_url || "");
+    setAfterImagePreview(item.after_image_url || item.image_url || "");
     setBeforeImage(null);
     setAfterImage(null);
     setImageErrors({});
@@ -240,7 +239,7 @@ export function AdminGalleryManager() {
     setShowAddForm(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await confirm(
         {
@@ -421,7 +420,7 @@ export function AdminGalleryManager() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(Number(item.id))}
+                      onClick={() => handleDelete(item.id)}
                       className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                     >
                       Delete

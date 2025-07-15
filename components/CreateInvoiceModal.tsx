@@ -23,7 +23,7 @@ export function CreateInvoiceModal({
   isLoading = false
 }: CreateInvoiceModalProps) {
   const { profile: dbProfile } = useAdminProfile();
-  const { vatSettings, loading: vatLoading } = useVATSettings();
+  const { settings: vatSettings, loading: vatLoading } = useVATSettings();
   const [formData, setFormData] = useState({
     customer_id: "",
     booking_id: "",
@@ -39,10 +39,28 @@ export function CreateInvoiceModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [useManualEntry, setUseManualEntry] = useState(false);
 
-  // Filter bookings for selected customer
+  // Filter bookings for selected customer - show completed and scheduled bookings
   const filteredBookings = formData.customer_id
-    ? bookings.filter(b => b.customer_id === formData.customer_id && b.status === "completed")
+    ? bookings.filter(b => {
+        // First try to match by customer_id if it exists
+        if (b.customer_id === formData.customer_id) {
+          return b.status === "completed" || b.status === "scheduled";
+        }
+        // If no customer_id, try to match by email
+        const selectedCustomer = customers.find(c => c.id === formData.customer_id);
+        if (selectedCustomer && b.customer_email === selectedCustomer.email) {
+          return b.status === "completed" || b.status === "scheduled";
+        }
+        return false;
+      })
     : [];
+
+  // Debug logging
+  console.log("CreateInvoiceModal Debug:");
+  console.log("formData.customer_id:", formData.customer_id);
+  console.log("bookings:", bookings);
+  console.log("customers:", customers);
+  console.log("filteredBookings:", filteredBookings);
 
   const selectedCustomer = customers.find(c => c.id === formData.customer_id);
   const selectedBooking = bookings.find(b => b.id === formData.booking_id);
@@ -59,7 +77,7 @@ export function CreateInvoiceModal({
   const calculateTotals = () => {
     const amount = getAmount();
     
-    if (!vatSettings.enabled) {
+    if (!vatSettings?.is_enabled) {
       return {
         subtotal: amount,
         vatAmount: 0,
@@ -67,7 +85,8 @@ export function CreateInvoiceModal({
       };
     }
     
-    const subtotal = Number((amount / (1 + vatSettings.rate / 100)).toFixed(2));
+    const vatRate = vatSettings.vat_rate || 20;
+    const subtotal = Number((amount / (1 + vatRate / 100)).toFixed(2));
     const vatAmount = Number((amount - subtotal).toFixed(2));
     
     return {
@@ -318,7 +337,7 @@ export function CreateInvoiceModal({
             {!useManualEntry ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Completed Booking *
+                  Booking *
                 </label>
                 <select
                   value={formData.booking_id}
@@ -334,13 +353,13 @@ export function CreateInvoiceModal({
                     {!formData.customer_id 
                       ? "Please select a customer first" 
                       : filteredBookings.length === 0 
-                        ? "No completed bookings available" 
+                        ? "No available bookings" 
                         : "Select a booking"
                     }
                   </option>
                   {filteredBookings.map((booking) => (
                     <option key={booking.id} value={booking.id}>
-                      {booking.service} - {booking.date} - £{booking.amount.toFixed(2)}
+                      {booking.service} - {new Date(booking.date).toLocaleDateString()} - £{booking.amount.toFixed(2)} ({booking.status})
                     </option>
                   ))}
                 </select>

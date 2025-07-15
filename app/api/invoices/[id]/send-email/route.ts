@@ -83,7 +83,8 @@ export async function POST(
         });
         
         paymentLink = paymentLinkData.url;
-        console.log("Created payment link:", paymentLink);
+        console.log("Created payment link with pre-filled email:", paymentLink);
+        console.log("Customer email:", invoice.customer.email);
       } catch (stripeError) {
         console.error("Error creating Stripe payment link:", stripeError);
         return NextResponse.json(
@@ -347,9 +348,9 @@ function generateInvoicePDF(invoice: any): Buffer {
     doc.text(`VAT Reg: ${invoice.company_vat_number}`, spacing.margin, companyY);
   }
 
-  // Customer details section (right side)
+  // Customer details section (right side) - improved positioning
   let customerY = spacing.headerHeight + spacing.sectionGap;
-  const customerX = pageWidth - 200;
+  const customerX = pageWidth - 220; // Moved further left to avoid overlap
   
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
@@ -358,26 +359,35 @@ function generateInvoicePDF(invoice: any): Buffer {
   
   customerY += spacing.largeSpacing;
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
+  doc.setFontSize(12); // Slightly smaller font
   doc.setTextColor(37, 99, 235);
-  doc.text(invoice.customer?.name || "Customer", customerX, customerY);
   
-  customerY += spacing.largeSpacing;
+  // Wrap customer name if too long
+  const customerName = invoice.customer?.name || "Customer";
+  const maxCustomerWidth = 180;
+  const wrappedCustomerName = doc.splitTextToSize(customerName, maxCustomerWidth);
+  doc.text(wrappedCustomerName, customerX, customerY);
+  customerY += (wrappedCustomerName.length * 12) + spacing.smallSpacing;
+  
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(75, 85, 99);
   
   if (invoice.customer?.email) {
-    doc.text(invoice.customer.email, customerX, customerY);
-    customerY += spacing.mediumSpacing;
+    // Wrap email if too long
+    const wrappedEmail = doc.splitTextToSize(invoice.customer.email, maxCustomerWidth);
+    doc.text(wrappedEmail, customerX, customerY);
+    customerY += (wrappedEmail.length * 10) + spacing.smallSpacing;
   }
   
   if (invoice.customer?.address) {
     const customerAddressLines = invoice.customer.address.split('\n');
     customerAddressLines.forEach((line: string) => {
       if (line.trim()) {
-        doc.text(line.trim(), customerX, customerY);
-        customerY += spacing.mediumSpacing;
+        // Wrap address lines if too long
+        const wrappedLine = doc.splitTextToSize(line.trim(), maxCustomerWidth);
+        doc.text(wrappedLine, customerX, customerY);
+        customerY += (wrappedLine.length * 10) + spacing.smallSpacing;
       }
     });
   }
@@ -407,27 +417,34 @@ function generateInvoicePDF(invoice: any): Buffer {
   doc.setDrawColor(229, 231, 235);
   doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight);
   
-  // Service content
+  // Service content with text wrapping
   doc.setFont("helvetica", "normal");
   doc.setTextColor(17, 24, 39);
   doc.setFontSize(10);
   const serviceText = invoice.booking?.service || invoice.manual_description || "Professional Plumbing Service";
-  doc.text(serviceText, spacing.margin + 15, serviceRowY + 18);
+  
+  // Wrap text if too long
+  const maxWidth = pageWidth - 300; // Leave space for date and amount columns
+  const wrappedServiceText = doc.splitTextToSize(serviceText, maxWidth);
+  doc.text(wrappedServiceText, spacing.margin + 15, serviceRowY + 18);
   
   if (invoice.booking?.date) {
     doc.setTextColor(75, 85, 99);
     doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 180, serviceRowY + 18);
   }
   
-  // Location with proper spacing
+  // Location with proper spacing - moved down to avoid overlap
   if (invoice.customer?.address) {
     doc.setFontSize(8);
     doc.setTextColor(107, 114, 128);
     const location = invoice.customer.address.split('\n')[0];
-    if (location && location.length > 45) {
-      doc.text(`Location: ${location.substring(0, 45)}...`, spacing.margin + 15, serviceRowY + 32);
+    const locationY = serviceRowY + 18 + (wrappedServiceText.length * 12); // Dynamic positioning based on service text height
+    
+    if (location && location.length > 50) {
+      const wrappedLocation = doc.splitTextToSize(`Location: ${location}`, maxWidth);
+      doc.text(wrappedLocation, spacing.margin + 15, locationY);
     } else {
-      doc.text(`Location: ${location}`, spacing.margin + 15, serviceRowY + 32);
+      doc.text(`Location: ${location}`, spacing.margin + 15, locationY);
     }
   }
   
@@ -570,7 +587,7 @@ ${hasAttachments ? 'Please see the attached images related to the work completed
 
 Payment Information:
 ${paymentLink ? 
-  `You can pay this invoice online using the secure payment link below:\n${paymentLink}\n\nThis link accepts payments in ${currency.toUpperCase()} and is valid for 24 hours.\n\n` : 
+  `You can pay this invoice online using the secure payment link below:\n${paymentLink}\n\nThis link accepts payments in ${currency.toUpperCase()} and is valid for 24 hours. Your email address will be pre-filled for your convenience.\n\n` : 
   `Please arrange payment within 30 days of the invoice date.\n\n`
 }
 
@@ -658,9 +675,9 @@ function generateEmailHtml(invoice: any, paymentLink: string | null, hasAttachme
         <div class="invoice-details">
             <h3>Payment Information:</h3>
             ${paymentLink ? 
-              `<p>You can pay this invoice online using the secure payment link below:</p>
+              `            <p>You can pay this invoice online using the secure payment link below:</p>
                <a href="${paymentLink}" class="payment-link">Pay Invoice Online (${currency.toUpperCase()})</a>
-               <p><small>This link accepts payments in ${currency.toUpperCase()} and is valid for 24 hours.</small></p>` : 
+               <p><small>This link accepts payments in ${currency.toUpperCase()} and is valid for 24 hours. Your email address will be pre-filled for your convenience.</small></p>` : 
               '<p>Please arrange payment within 30 days of the invoice date.</p>'
             }
             

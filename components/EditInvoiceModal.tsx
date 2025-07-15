@@ -58,9 +58,20 @@ export function EditInvoiceModal({
     }
   }, [invoice]);
 
-  // Filter bookings for selected customer
+  // Filter bookings for selected customer - show completed and scheduled bookings
   const filteredBookings = formData.customer_id
-    ? bookings.filter(b => b.customer_id === formData.customer_id && b.status === "completed")
+    ? bookings.filter(b => {
+        // First try to match by customer_id if it exists
+        if (b.customer_id === formData.customer_id) {
+          return b.status === "completed" || b.status === "scheduled";
+        }
+        // If no customer_id, try to match by email
+        const selectedCustomer = customers.find(c => c.id === formData.customer_id);
+        if (selectedCustomer && b.customer_email === selectedCustomer.email) {
+          return b.status === "completed" || b.status === "scheduled";
+        }
+        return false;
+      })
     : [];
 
   const selectedCustomer = customers.find(c => c.id === formData.customer_id);
@@ -78,7 +89,7 @@ export function EditInvoiceModal({
   const calculateTotals = () => {
     const amount = getAmount();
     
-    if (!vatSettings.enabled) {
+    if (!vatSettings?.is_enabled) {
       return {
         subtotal: amount,
         vatAmount: 0,
@@ -86,7 +97,8 @@ export function EditInvoiceModal({
       };
     }
     
-    const subtotal = Number((amount / (1 + vatSettings.rate / 100)).toFixed(2));
+    const vatRate = vatSettings.vat_rate || 20;
+    const subtotal = Number((amount / (1 + vatRate / 100)).toFixed(2));
     const vatAmount = Number((amount - subtotal).toFixed(2));
     
     return {
@@ -357,7 +369,7 @@ export function EditInvoiceModal({
                   <option value="">Select a booking</option>
                   {filteredBookings.map((booking) => (
                     <option key={booking.id} value={booking.id}>
-                      {booking.service} - {new Date(booking.date).toLocaleDateString()} - £{booking.amount}
+                      {booking.service} - {new Date(booking.date).toLocaleDateString()} - £{booking.amount.toFixed(2)} ({booking.status})
                     </option>
                   ))}
                 </select>
@@ -366,7 +378,7 @@ export function EditInvoiceModal({
                 )}
                 {formData.customer_id && filteredBookings.length === 0 && (
                   <p className="text-yellow-600 text-xs mt-1">
-                    No completed bookings found for this customer. Use manual entry instead.
+                    No available bookings found for this customer. Use manual entry instead.
                   </p>
                 )}
               </div>
