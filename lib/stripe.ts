@@ -39,7 +39,7 @@ export const STRIPE_TO_DB_METHOD = {
   cash: "cash",
 } as const;
 
-// Helper function to create payment links with different currencies
+// Helper function to create payment links with different currencies and pre-filled customer email
 export const createPaymentLink = async (params: {
   amount: number;
   currency?: string;
@@ -65,7 +65,7 @@ export const createPaymentLink = async (params: {
     product: product.id,
   });
 
-  const paymentLink = await stripe.paymentLinks.create({
+  const paymentLinkData: any = {
     line_items: [
       {
         price: price.id,
@@ -76,16 +76,50 @@ export const createPaymentLink = async (params: {
       ...metadata,
       created_at: new Date().toISOString(),
     },
-    ...(customerEmail && { 
-      automatic_tax: { enabled: false },
-      customer_creation: "always"
-    }),
-  });
+    automatic_tax: { enabled: false },
+    customer_creation: "always"
+  };
+
+  // If customer email is provided, try to create/find customer and pre-fill
+  if (customerEmail) {
+    try {
+      // First, try to find existing customer by email
+      const existingCustomers = await stripe.customers.list({
+        email: customerEmail,
+        limit: 1
+      });
+
+      let customer;
+      if (existingCustomers.data.length > 0) {
+        customer = existingCustomers.data[0];
+        console.log("Found existing Stripe customer:", customer.id);
+      } else {
+        // Create new customer with email
+        customer = await stripe.customers.create({
+          email: customerEmail,
+          metadata: {
+            created_from: "payment_link",
+            created_at: new Date().toISOString()
+          }
+        });
+        console.log("Created new Stripe customer:", customer.id);
+      }
+
+      // Add customer email to metadata for reference
+      paymentLinkData.metadata.customer_email = customerEmail;
+      paymentLinkData.metadata.stripe_customer_id = customer.id;
+      
+    } catch (error) {
+      console.warn("Could not create/find customer, proceeding without pre-filled email:", error);
+    }
+  }
+
+  const paymentLink = await stripe.paymentLinks.create(paymentLinkData);
 
   return paymentLink;
 };
 
-// Helper function to create checkout sessions with different currencies
+// Helper function to create checkout sessions with different currencies and pre-filled customer email
 export const createCheckoutSession = async (params: {
   amount: number;
   currency?: string;
@@ -99,17 +133,11 @@ export const createCheckoutSession = async (params: {
     throw new Error("Stripe is not configured");
   }
 
-  const { 
-    amount, 
-    currency = "gbp", 
-    description, 
-    customerEmail, 
-    successUrl, 
-    cancelUrl, 
-    metadata = {} 
-  } = params;
+  const { amount, currency = "gbp", description, customerEmail, successUrl, cancelUrl, metadata = {} } = params;
 
-  const session = await stripe.checkout.sessions.create({
+  // Create session data
+  const sessionData: any = {
+    mode: "payment",
     payment_method_types: ["card"],
     line_items: [
       {
@@ -123,16 +151,57 @@ export const createCheckoutSession = async (params: {
         quantity: 1,
       },
     ],
-    mode: "payment",
     success_url: successUrl,
     cancel_url: cancelUrl,
-    ...(customerEmail && { customer_email: customerEmail }),
     metadata: {
       ...metadata,
       created_at: new Date().toISOString(),
     },
-    expires_at: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
-  });
+  };
+
+  // If customer email is provided, try to create/find customer and pre-fill
+  if (customerEmail) {
+    try {
+      // First, try to find existing customer by email
+      const existingCustomers = await stripe.customers.list({
+        email: customerEmail,
+        limit: 1
+      });
+
+      let customer;
+      if (existingCustomers.data.length > 0) {
+        customer = existingCustomers.data[0];
+        console.log("Found existing Stripe customer for checkout:", customer.id);
+      } else {
+        // Create new customer with email
+        customer = await stripe.customers.create({
+          email: customerEmail,
+          metadata: {
+            created_from: "checkout_session",
+            created_at: new Date().toISOString()
+          }
+        });
+        console.log("Created new Stripe customer for checkout:", customer.id);
+      }
+
+      // Pre-fill customer information
+      sessionData.customer = customer.id;
+      sessionData.customer_email = customerEmail;
+      sessionData.metadata.customer_email = customerEmail;
+      sessionData.metadata.stripe_customer_id = customer.id;
+      
+    } catch (error) {
+      console.warn("Could not create/find customer for checkout, proceeding with email pre-fill:", error);
+      // Fallback to just pre-filling email
+      sessionData.customer_email = customerEmail;
+      sessionData.metadata.customer_email = customerEmail;
+    }
+  }
+
+  // Add expiration time (24 hours)
+  sessionData.expires_at = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+
+  const session = await stripe.checkout.sessions.create(sessionData);
 
   return session;
 };

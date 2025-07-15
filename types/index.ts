@@ -140,28 +140,24 @@ export type GallerySection = {
 };
 
 export type GalleryItem = {
-  completion_date: any;
-  location: any;
-  project_type: any;
-  is_featured: any;
-  after_image_url: any;
-  before_image_url: any;
   id: string;
   section_id?: string;
   title: string;
   description?: string;
-  image_url: string;
-  alt_text?: string;
+  before_image_url: string;
+  after_image_url: string;
+  image_url?: string; // for compatibility
+  project_type?: string;
+  location?: string;
+  completion_date?: string;
   order: number;
   is_active: boolean;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type Review = {
-  name: ReactNode;
-  email: ReactNode;
-  message: ReactNode;
   id: string;
   customer_name: string;
   customer_email?: string;

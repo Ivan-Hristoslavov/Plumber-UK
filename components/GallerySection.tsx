@@ -120,7 +120,12 @@ export function GallerySection() {
           >
             All Projects
           </button>
-          {gallerySections.map((section) => (
+          {gallerySections
+            .filter(section => {
+              // Only show sections that have at least one gallery item
+              return galleryItems.some(item => item.section_id === section.id);
+            })
+            .map((section) => (
             <button
               key={section.id}
               onClick={() => {

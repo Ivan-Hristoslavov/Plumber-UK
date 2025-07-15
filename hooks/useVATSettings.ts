@@ -1,114 +1,73 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from "react";
 
-export interface VATSettings {
-  enabled: boolean;
-  rate: number;
-  registrationNumber: string;
-  companyName: string;
-}
+export type VATSettings = {
+  id: string;
+  is_enabled: boolean;
+  vat_rate: number;
+  vat_number: string | null;
+};
 
 export function useVATSettings() {
-  const [vatSettings, setVATSettings] = useState<VATSettings>({
-    enabled: false,
-    rate: 20.0,
-    registrationNumber: '',
-    companyName: ''
-  });
+  const [settings, setSettings] = useState<VATSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchVATSettings();
-  }, []);
 
   const fetchVATSettings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'vatSettings')
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      setError(null);
+      
+      const response = await fetch("/api/admin/settings/vat");
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch VAT settings");
       }
-
-      if (data?.value) {
-        const settings = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
-        setVATSettings({
-          enabled: settings.enabled || false,
-          rate: settings.rate || 20.0,
-          registrationNumber: settings.registrationNumber || '',
-          companyName: settings.companyName || ''
-        });
-      }
+      
+      const data = await response.json();
+      setSettings(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch VAT settings');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const updateVATSettings = async (newSettings: Partial<VATSettings>) => {
+  const updateVATSettings = async (updates: Partial<VATSettings>) => {
+    if (!settings) return;
+
     try {
-      const updatedSettings = { ...vatSettings, ...newSettings };
+      const updatedSettings = { ...settings, ...updates };
       
-      const { error } = await supabase
-        .from('admin_settings')
-        .upsert({
-          key: 'vatSettings',
-          value: JSON.stringify(updatedSettings)
-        }, {
-          onConflict: 'key'
-        });
+      const response = await fetch("/api/admin/settings/vat", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedSettings),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error("Failed to update VAT settings");
+      }
 
-      setVATSettings(updatedSettings);
-      return true;
+      const data = await response.json();
+      setSettings(data);
+      return data;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update VAT settings');
-      return false;
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
     }
   };
 
-  // Helper functions for VAT calculations
-  const calculateVAT = (amount: number) => {
-    if (!vatSettings.enabled) return { subtotal: amount, vatAmount: 0, total: amount };
-    
-    const subtotal = Number((amount / (1 + vatSettings.rate / 100)).toFixed(2));
-    const vatAmount = Number((amount - subtotal).toFixed(2));
-    
-    return {
-      subtotal,
-      vatAmount,
-      total: amount
-    };
-  };
-
-  const addVAT = (subtotal: number) => {
-    if (!vatSettings.enabled) return { subtotal, vatAmount: 0, total: subtotal };
-    
-    const vatAmount = Number((subtotal * vatSettings.rate / 100).toFixed(2));
-    const total = Number((subtotal + vatAmount).toFixed(2));
-    
-    return {
-      subtotal,
-      vatAmount,
-      total
-    };
-  };
+  useEffect(() => {
+    fetchVATSettings();
+  }, []);
 
   return {
-    vatSettings,
+    settings,
     loading,
     error,
+    fetchVATSettings,
     updateVATSettings,
-    refetch: fetchVATSettings,
-    calculateVAT,
-    addVAT,
-    isVATEnabled: vatSettings.enabled
   };
 } 

@@ -61,12 +61,12 @@ export function useGallerySections() {
 
   const updateGallerySection = async (id: number, sectionData: Partial<GallerySection>) => {
     try {
-      const response = await fetch(`/api/gallery-sections/${id}`, {
+      const response = await fetch(`/api/gallery-sections`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sectionData),
+        body: JSON.stringify({ id, ...sectionData }),
       });
 
       const data = await response.json();
@@ -85,7 +85,7 @@ export function useGallerySections() {
 
   const deleteGallerySection = async (id: number) => {
     try {
-      const response = await fetch(`/api/gallery-sections/${id}`, {
+      const response = await fetch(`/api/gallery-sections?id=${id}`, {
         method: 'DELETE',
       });
 

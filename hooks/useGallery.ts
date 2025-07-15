@@ -59,14 +59,14 @@ export function useGallery() {
   };
 
   const updateGalleryItem = async (
-    id: number,
+    id: string,
     itemData: Partial<GalleryItem>
   ) => {
     try {
-      const response = await fetch(`/api/gallery/${id}`, {
+      const response = await fetch(`/api/gallery`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(itemData),
+        body: JSON.stringify({ id, ...itemData }),
       });
 
       const data = await response.json();
@@ -76,7 +76,7 @@ export function useGallery() {
       }
       setGalleryItems((prev) =>
         prev.map((item) =>
-          Number(item.id) === Number(id) ? data.galleryItem : item
+          item.id === id ? data.galleryItem : item
         )
       );
       return data.galleryItem;
@@ -85,9 +85,9 @@ export function useGallery() {
     }
   };
 
-  const deleteGalleryItem = async (id: number) => {
+  const deleteGalleryItem = async (id: string) => {
     try {
-      const response = await fetch(`/api/gallery/${id}`, {
+      const response = await fetch(`/api/gallery?id=${id}`, {
         method: "DELETE",
       });
 
@@ -96,7 +96,7 @@ export function useGallery() {
         throw new Error(data.error || "Failed to delete gallery item");
       }
 
-      setGalleryItems((prev) => prev.filter((item) => item.id !== String(id)));
+      setGalleryItems((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : "An error occurred");
     }

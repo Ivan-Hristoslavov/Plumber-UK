@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
     | "connections"
   >("business");
   const { profile: dbProfile } = useAdminProfile();
-  const { vatSettings, updateVATSettings } = useVATSettings();
+  const { settings: vatSettings, updateVATSettings } = useVATSettings();
   const { showSuccess, showError } = useToast();
 
   useEffect(() => {
@@ -732,12 +732,12 @@ export default function AdminSettingsPage() {
               <div>
                 <label className="inline-flex items-center cursor-pointer">
                   <input
-                    checked={vatSettings.enabled}
+                    checked={vatSettings?.is_enabled || false}
                     className="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
                     type="checkbox"
-                    onChange={(e) =>
-                      updateVATSettings({ enabled: e.target.checked })
-                    }
+                                          onChange={(e) =>
+                        updateVATSettings({ is_enabled: e.target.checked })
+                      }
                   />
                   <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                     Enable VAT on invoices
@@ -749,7 +749,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* VAT Settings (only shown when enabled) */}
-              {vatSettings.enabled && (
+              {vatSettings?.is_enabled && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
@@ -761,11 +761,11 @@ export default function AdminSettingsPage() {
                       step="0.01"
                       min="0"
                       max="100"
-                      value={vatSettings.rate}
+                      value={vatSettings?.vat_rate || 20}
                       onChange={(e) =>
-                        updateVATSettings({
-                          rate: parseFloat(e.target.value) || 0,
-                        })
+                                                  updateVATSettings({
+                            vat_rate: parseFloat(e.target.value) || 0,
+                          })
                       }
                     />
                   </div>
@@ -778,9 +778,9 @@ export default function AdminSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="GB123456789"
-                      value={vatSettings.registrationNumber}
+                                              value={vatSettings?.vat_number || ""}
                       onChange={(e) =>
-                        updateVATSettings({ registrationNumber: e.target.value })
+                                                  updateVATSettings({ vat_number: e.target.value })
                       }
                     />
                   </div>
@@ -793,17 +793,16 @@ export default function AdminSettingsPage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="Your Company Name Ltd"
-                      value={vatSettings.companyName}
-                      onChange={(e) =>
-                        updateVATSettings({ companyName: e.target.value })
-                      }
+                                                                      value={dbProfile?.company_name || ""}
+                        disabled
+                        className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
                     />
                   </div>
                 </div>
               )}
 
               {/* VAT Disabled Notice */}
-              {!vatSettings.enabled && (
+              {!vatSettings?.is_enabled && (
                 <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                   <div className="flex">
                     <div className="flex-shrink-0">

@@ -44,9 +44,6 @@ export function ReviewForm() {
         title: "",
         comment: form.message,
         is_featured: false,
-        name: undefined,
-        email: undefined,
-        message: undefined,
       });
       showSuccess(
         ToastMessages.reviews.submitted.title,

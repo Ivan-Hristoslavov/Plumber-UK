@@ -48,7 +48,7 @@ export default function InvoicesPage() {
   const { profile: dbProfile } = useAdminProfile();
   const { showSuccess, showError } = useToast();
   const { confirm, modalProps } = useConfirmation();
-  const { vatSettings } = useVATSettings();
+  const { settings: vatSettings } = useVATSettings();
 
   // Load data on component mount
   useEffect(() => {
@@ -77,7 +77,10 @@ export default function InvoicesPage() {
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
         console.log("Bookings data:", bookingsData); // Debug log
-        setBookings(bookingsData.bookings || bookingsData || []);
+        const bookingsArray = bookingsData.bookings || bookingsData || [];
+        console.log("Bookings array:", bookingsArray);
+        console.log("First booking:", bookingsArray[0]);
+        setBookings(bookingsArray);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -355,9 +358,9 @@ export default function InvoicesPage() {
       doc.text(`VAT Reg: ${invoice.company_vat_number}`, spacing.margin, companyY);
     }
 
-    // Customer details section (right side)
-    let customerY = spacing.headerHeight + spacing.sectionGap;
-    const customerX = pageWidth - 200;
+    // Customer details section (left side, below company info) - moved to avoid overlap
+    let customerY = Math.max(companyY, spacing.headerHeight + 180) + spacing.sectionGap;
+    const customerX = spacing.margin;
     
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -366,32 +369,41 @@ export default function InvoicesPage() {
     
     customerY += spacing.largeSpacing;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
+    doc.setFontSize(12);
     doc.setTextColor(37, 99, 235);
-    doc.text(invoice.customer?.name || "Customer", customerX, customerY);
     
-    customerY += spacing.largeSpacing;
+    // Wrap customer name if too long
+    const customerName = invoice.customer?.name || "Customer";
+    const maxCustomerWidth = 250;
+    const wrappedCustomerName = doc.splitTextToSize(customerName, maxCustomerWidth);
+    doc.text(wrappedCustomerName, customerX, customerY);
+    customerY += (wrappedCustomerName.length * 12) + spacing.smallSpacing;
+    
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(75, 85, 99);
     
     if (invoice.customer?.email) {
-      doc.text(invoice.customer.email, customerX, customerY);
-      customerY += spacing.mediumSpacing;
+      // Wrap email if too long
+      const wrappedEmail = doc.splitTextToSize(invoice.customer.email, maxCustomerWidth);
+      doc.text(wrappedEmail, customerX, customerY);
+      customerY += (wrappedEmail.length * 10) + spacing.smallSpacing;
     }
     
     if (invoice.customer?.address) {
       const customerAddressLines = invoice.customer.address.split('\n');
       customerAddressLines.forEach(line => {
         if (line.trim()) {
-          doc.text(line.trim(), customerX, customerY);
-          customerY += spacing.mediumSpacing;
+          // Wrap address lines if too long
+          const wrappedLine = doc.splitTextToSize(line.trim(), maxCustomerWidth);
+          doc.text(wrappedLine, customerX, customerY);
+          customerY += (wrappedLine.length * 10) + spacing.smallSpacing;
         }
       });
     }
 
     // Service table section - ensure enough space from above content
-    const tableY = Math.max(companyY, customerY) + spacing.sectionGap * 2;
+    const tableY = customerY + spacing.sectionGap * 2;
     
     // Table header with professional styling
     doc.setFillColor(248, 250, 252);
@@ -415,27 +427,34 @@ export default function InvoicesPage() {
     doc.setDrawColor(229, 231, 235);
     doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight);
     
-    // Service content
+    // Service content with text wrapping
     doc.setFont("helvetica", "normal");
     doc.setTextColor(17, 24, 39);
     doc.setFontSize(10);
     const serviceText = invoice.booking?.service || invoice.manual_description || "Professional Plumbing Service";
-    doc.text(serviceText, spacing.margin + 15, serviceRowY + 18);
+    
+    // Wrap text if too long
+    const maxWidth = pageWidth - 300; // Leave space for date and amount columns
+    const wrappedServiceText = doc.splitTextToSize(serviceText, maxWidth);
+    doc.text(wrappedServiceText, spacing.margin + 15, serviceRowY + 18);
     
     if (invoice.booking?.date) {
       doc.setTextColor(75, 85, 99);
       doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 180, serviceRowY + 18);
     }
     
-    // Location with proper spacing
+    // Location with proper spacing - moved down to avoid overlap
     if (invoice.customer?.address) {
       doc.setFontSize(8);
       doc.setTextColor(107, 114, 128);
       const location = invoice.customer.address.split('\n')[0];
-      if (location && location.length > 45) {
-        doc.text(`Location: ${location.substring(0, 45)}...`, spacing.margin + 15, serviceRowY + 32);
+      const locationY = serviceRowY + 18 + (wrappedServiceText.length * 12); // Dynamic positioning based on service text height
+      
+      if (location && location.length > 50) {
+        const wrappedLocation = doc.splitTextToSize(`Location: ${location}`, maxWidth);
+        doc.text(wrappedLocation, spacing.margin + 15, locationY);
       } else {
-        doc.text(`Location: ${location}`, spacing.margin + 15, serviceRowY + 32);
+        doc.text(`Location: ${location}`, spacing.margin + 15, locationY);
       }
     }
     
@@ -455,7 +474,7 @@ export default function InvoicesPage() {
     doc.setFontSize(10);
     doc.setTextColor(75, 85, 99);
     
-    if (vatSettings.enabled && invoice.vat_amount > 0) {
+    if (vatSettings?.is_enabled && invoice.vat_amount > 0) {
       doc.text("Subtotal (excl. VAT)", totalsX, currentY);
       doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 40, currentY, { align: "right" });
       
@@ -659,7 +678,7 @@ export default function InvoicesPage() {
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         £{invoice.total_amount.toFixed(2)}
                       </div>
-                      {vatSettings.enabled && invoice.vat_amount > 0 && (
+                      {vatSettings?.is_enabled && invoice.vat_amount > 0 && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         VAT: £{invoice.vat_amount.toFixed(2)}
                       </div>
