@@ -3,9 +3,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../../lib/stripe";
 import { supabase } from "../../../../lib/supabase";
 
+// Handle OPTIONS requests (preflight)
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Stripe-Signature',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
+  console.log('🔔 Webhook received:', {
+    url: request.url,
+    method: request.method,
+    headers: Object.fromEntries(request.headers.entries()),
+    timestamp: new Date().toISOString()
+  });
+
   // Check if Stripe is configured
   if (!isStripeAvailable() || !stripe) {
+    console.error('❌ Stripe not configured');
     return NextResponse.json(
       { error: "Stripe webhooks are not configured" },
       { status: 503 },
@@ -19,21 +39,37 @@ export async function POST(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV === "development";
   
   if (!signature && !isDevelopment) {
+    console.error('❌ Missing stripe-signature header');
     return NextResponse.json(
       { error: "Missing stripe-signature header" },
       { status: 400 },
     );
   }
 
+  if (!signature && isDevelopment) {
+    console.log('⚠️  Development mode: Processing webhook without signature verification');
+  }
+
   let event;
 
   try {
     if (signature) {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET || "whsec_test",
-    );
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      if (!webhookSecret) {
+        console.error('❌ STRIPE_WEBHOOK_SECRET environment variable not set');
+        return NextResponse.json(
+          { error: "Webhook secret not configured" },
+          { status: 500 }
+        );
+      }
+
+      console.log('🔐 Verifying webhook signature...');
+      event = stripe.webhooks.constructEvent(
+        body,
+        signature,
+        webhookSecret,
+      );
+      console.log('✅ Webhook signature verified successfully');
     } else if (isDevelopment) {
       // For development testing, parse the body directly
       event = JSON.parse(body);
@@ -41,18 +77,32 @@ export async function POST(request: NextRequest) {
       throw new Error("No signature provided");
     }
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    console.error("❌ Webhook signature verification failed:", err);
+    console.error("Signature:", signature);
+    console.error("Body length:", body.length);
 
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    return NextResponse.json({ 
+      error: "Invalid signature", 
+      details: err instanceof Error ? err.message : 'Unknown error' 
+    }, { status: 400 });
   }
 
   try {
+    console.log('🔄 Processing event:', {
+      type: event.type,
+      id: event.id,
+      created: event.created,
+      livemode: event.livemode
+    });
+
     switch (event.type) {
       case "checkout.session.completed":
+        console.log('💳 Processing checkout session completed');
         await handleCheckoutSessionCompleted(event.data.object);
         break;
 
       case "checkout.session.expired":
+        console.log('⏰ Processing checkout session expired');
         await handleCheckoutSessionExpired(event.data.object);
         break;
 
@@ -60,19 +110,21 @@ export async function POST(request: NextRequest) {
       case "payment_intent.payment_failed":
       case "payment_intent.canceled":
       case "payment_intent.requires_action":
+        console.log('💰 Processing payment intent update:', event.type);
         await handlePaymentIntentUpdate(event.data.object);
         break;
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`❓ Unhandled event type: ${event.type}`);
     }
 
-    return NextResponse.json({ received: true });
+    console.log('✅ Webhook processed successfully');
+    return NextResponse.json({ received: true, processed: true });
   } catch (error) {
-    console.error("Error handling webhook:", error);
+    console.error("❌ Error handling webhook:", error);
 
     return NextResponse.json(
-      { error: "Webhook handler failed" },
+      { error: "Webhook handler failed", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }
@@ -181,13 +233,14 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
   const latestCharge = paymentIntent.latest_charge;
   const paymentMethodId = paymentIntent.payment_method;
   
-  console.log(`Processing payment intent: ${paymentIntentId}`, {
+  console.log(`🔍 Processing payment intent: ${paymentIntentId}`, {
     status,
     amount,
     currency,
     customerId,
     latestCharge,
-    paymentMethodId
+    paymentMethodId,
+    metadata: paymentIntent.metadata
   });
 
   // Find payment in database by payment intent ID or metadata
