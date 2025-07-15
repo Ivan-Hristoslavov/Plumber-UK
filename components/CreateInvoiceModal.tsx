@@ -182,7 +182,7 @@ export function CreateInvoiceModal({
     formDataToSend.append('invoice_date', formData.invoice_date);
     formDataToSend.append('due_date', formData.due_date);
     formDataToSend.append('subtotal', subtotal.toString());
-    formDataToSend.append('vat_rate', vatSettings.enabled ? vatSettings.rate.toString() : '0');
+    formDataToSend.append('vat_rate', vatSettings?.is_enabled ? (vatSettings.vat_rate || 0).toString() : '0');
     formDataToSend.append('vat_amount', vatAmount.toString());
     formDataToSend.append('total_amount', totalAmount.toString());
     formDataToSend.append('status', 'pending');
@@ -190,7 +190,7 @@ export function CreateInvoiceModal({
     formDataToSend.append('company_address', dbProfile?.company_address || "London, UK");
     formDataToSend.append('company_phone', dbProfile?.phone || "+44 7700 123456");
     formDataToSend.append('company_email', dbProfile?.email || "admin@fixmyleak.com");
-    formDataToSend.append('company_vat_number', vatSettings.enabled ? (vatSettings.registrationNumber || "") : "");
+    formDataToSend.append('company_vat_number', vatSettings?.is_enabled ? (vatSettings.vat_number || "") : "");
     formDataToSend.append('notes', formData.notes || '');
 
     // Manual entry data
@@ -270,9 +270,9 @@ export function CreateInvoiceModal({
               <div>
                 <strong>Email:</strong> {dbProfile?.email || "admin@fixmyleak.com"}
               </div>
-              {vatSettings.enabled && (
+              {vatSettings?.is_enabled && (
                 <div>
-                  <strong>VAT:</strong> {vatSettings.registrationNumber || "GB123456789"}
+                  <strong>VAT:</strong> {vatSettings.vat_number || "GB123456789"}
                 </div>
               )}
             </div>
@@ -391,7 +391,7 @@ export function CreateInvoiceModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {vatSettings.enabled ? 'Amount (including VAT) *' : 'Amount *'}
+                    {vatSettings?.is_enabled ? 'Amount (including VAT) *' : 'Amount *'}
                   </label>
                   <input
                     type="number"
@@ -554,14 +554,14 @@ export function CreateInvoiceModal({
                 Invoice Summary
               </h4>
               <div className="space-y-2 text-sm">
-                {vatSettings.enabled ? (
+                {vatSettings?.is_enabled ? (
                   <>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal (excl. VAT):</span>
                   <span className="text-gray-900 dark:text-white">£{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">VAT ({vatSettings.rate}%):</span>
+                      <span className="text-gray-600 dark:text-gray-400">VAT ({vatSettings.vat_rate || 20}%):</span>
                   <span className="text-gray-900 dark:text-white">£{vatAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg border-t border-gray-300 dark:border-gray-600 pt-2">
