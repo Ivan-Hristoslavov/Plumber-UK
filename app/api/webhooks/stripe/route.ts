@@ -270,6 +270,37 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
         console.log(`Found payment by metadata: ${paymentIdFromMetadata}`);
       }
     }
+    
+    // If still not found, try to find by customer email for payment links
+    if (!payment && customerId) {
+      try {
+        // Get the customer email from Stripe
+        const stripeCustomer = await stripe?.customers.retrieve(customerId);
+        if (stripeCustomer && !stripeCustomer.deleted && stripeCustomer.email) {
+          console.log(`Looking for pending payment for customer: ${stripeCustomer.email}`);
+          
+          // Find pending payment links for this customer
+          const { data: pendingPayments, error: pendingError } = await supabase
+            .from("payments")
+            .select(`
+              *,
+              customers!inner(email)
+            `)
+            .eq("payment_status", "pending")
+            .like("reference", "plink_%")
+            .eq("customers.email", stripeCustomer.email)
+            .order("created_at", { ascending: false });
+          
+          if (!pendingError && pendingPayments && pendingPayments.length > 0) {
+            // Use the most recent pending payment link for this customer
+            payment = pendingPayments[0];
+            console.log(`Found pending payment link for customer ${stripeCustomer.email}: ${payment.reference}`);
+          }
+        }
+      } catch (error) {
+        console.warn("Error trying to find payment by customer email:", error);
+      }
+    }
   }
 
   if (!payment) {
