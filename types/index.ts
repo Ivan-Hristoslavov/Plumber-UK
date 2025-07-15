@@ -44,6 +44,7 @@ export type Customer = {
   contact_email?: string;
   contact_phone?: string;
   notes?: string;
+  stripe_customer_id?: string;
   created_at: string;
   updated_at: string;
 };

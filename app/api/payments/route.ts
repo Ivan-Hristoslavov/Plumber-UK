@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
-import { createCheckoutSession, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
+import { createCheckoutSession, createPaymentLink, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
 
 // GET - Fetch all payments
 export async function GET() {
@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
             payment_method: "card",
             payment_status: "pending",
             payment_date: new Date().toISOString().split("T")[0],
-            reference: null, // Will be updated with session ID
-            notes: `Stripe Checkout Session created (${currency.toUpperCase()})`,
+            reference: null, // Will be updated with payment intent ID from webhook
+            notes: `Stripe Payment Link created (${currency.toUpperCase()})`,
           },
         ])
         .select()
@@ -108,17 +108,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create Stripe Checkout Session using helper function
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      // Create Stripe Payment Link using helper function
       const productName = description || (booking ? `Payment for ${booking.service}` : "Service Payment");
 
-      const session = await createCheckoutSession({
+      const paymentLink = await createPaymentLink({
         amount,
         currency,
         description: productName,
         customerEmail: customer.email,
-        successUrl: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${baseUrl}/payment/cancel?payment_id=${payment.id}`,
         metadata: {
           customer_id,
           booking_id: booking_id || "",
@@ -128,21 +125,21 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Update payment record with session ID
+      // Update payment record with payment link ID for reference
       await supabase
         .from("payments")
         .update({
-          reference: session.id,
-          notes: `Stripe Checkout Session: ${session.id} (${currency.toUpperCase()})`,
+          reference: paymentLink.id,
+          notes: `Stripe Payment Link: ${paymentLink.id} (${currency.toUpperCase()}) | URL: ${paymentLink.url}`,
         })
         .eq("id", payment.id);
 
       return NextResponse.json(
         {
-          payment: { ...payment, reference: session.id },
-          checkout_url: session.url,
-          session_id: session.id,
-          expires_at: session.expires_at,
+          payment: { ...payment, reference: paymentLink.id },
+          payment_link_url: paymentLink.url,
+          payment_link_id: paymentLink.id,
+          active: paymentLink.active,
           currency: currency.toUpperCase(),
         },
         { status: 201 },

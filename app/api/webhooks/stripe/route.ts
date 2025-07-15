@@ -175,18 +175,58 @@ async function handleCheckoutSessionExpired(session: any) {
 async function handlePaymentIntentUpdate(paymentIntent: any) {
   const paymentIntentId = paymentIntent.id;
   const status = paymentIntent.status;
-  const paymentMethod = paymentIntent.payment_method?.type || "card";
+  const amount = paymentIntent.amount;
+  const currency = paymentIntent.currency;
+  const customerId = paymentIntent.customer;
+  const latestCharge = paymentIntent.latest_charge;
+  const paymentMethodId = paymentIntent.payment_method;
+  
+  console.log(`Processing payment intent: ${paymentIntentId}`, {
+    status,
+    amount,
+    currency,
+    customerId,
+    latestCharge,
+    paymentMethodId
+  });
 
-  // Find payment in database
-  const { data: payment, error: findError } = await supabase
+  // Find payment in database by payment intent ID or metadata
+  let payment = null;
+  
+  // First try to find by payment intent ID (direct reference)
+  const { data: paymentByRef, error: findError } = await supabase
     .from("payments")
     .select("*")
     .eq("reference", paymentIntentId)
     .single();
 
-  if (findError || !payment) {
-    console.error("Payment not found for payment intent:", paymentIntentId);
+  if (!findError && paymentByRef) {
+    payment = paymentByRef;
+  } else {
+    // If not found by reference, try to find by payment_id in metadata
+    const paymentIdFromMetadata = paymentIntent.metadata?.payment_id;
+    if (paymentIdFromMetadata) {
+      const { data: paymentByMetadata, error: metadataError } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("id", paymentIdFromMetadata)
+        .single();
+      
+      if (!metadataError && paymentByMetadata) {
+        payment = paymentByMetadata;
+        console.log(`Found payment by metadata: ${paymentIdFromMetadata}`);
+      }
+    }
+  }
 
+  if (!payment) {
+    console.error("Payment not found for payment intent:", paymentIntentId);
+    
+    // For succeeded payments, try to create a new payment record if we can find the customer
+    if (status === "succeeded" && customerId) {
+      await handleSucceededPaymentWithoutRecord(paymentIntent);
+    }
+    
     return;
   }
 
@@ -195,19 +235,51 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
     STRIPE_TO_DB_STATUS[status as keyof typeof STRIPE_TO_DB_STATUS] ||
     "pending";
 
-  // Update payment status
+  // Determine payment method
+  let paymentMethod = "card"; // Default
+  if (paymentMethodId) {
+    try {
+      const pm = await stripe?.paymentMethods.retrieve(paymentMethodId);
+      paymentMethod = pm?.type || "card";
+    } catch (error) {
+      console.warn("Could not retrieve payment method details:", error);
+    }
+  }
+
+  // Update payment with comprehensive data
+  const updateData: any = {
+    payment_status: dbStatus,
+    payment_method: paymentMethod,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Update reference to payment intent ID if it's different (for payment links)
+  if (payment.reference !== paymentIntentId) {
+    updateData.reference = paymentIntentId;
+    updateData.notes = `${payment.notes || ""} | Payment Intent: ${paymentIntentId}`.trim();
+  }
+
+  // For succeeded payments, update amount if different (in case of partial payments)
+  if (status === "succeeded" && amount) {
+    const stripeAmount = amount / 100; // Convert from cents to pounds
+    if (Math.abs(payment.amount - stripeAmount) > 0.01) {
+      updateData.amount = stripeAmount;
+      updateData.notes = `${updateData.notes || payment.notes || ""} | Amount updated from Stripe: £${stripeAmount}`.trim();
+    }
+  }
+
+  // Add charge information to notes
+  if (latestCharge) {
+    updateData.notes = `${updateData.notes || payment.notes || ""} | Stripe Charge: ${latestCharge}`.trim();
+  }
+
   const { error: updateError } = await supabase
     .from("payments")
-    .update({
-      payment_status: dbStatus,
-      payment_method: paymentMethod,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", payment.id);
 
   if (updateError) {
     console.error("Error updating payment status:", updateError);
-
     return;
   }
 
@@ -223,4 +295,85 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
   }
 
   console.log(`Payment ${payment.id} updated to status: ${dbStatus}`);
+}
+
+async function handleSucceededPaymentWithoutRecord(paymentIntent: any) {
+  const paymentIntentId = paymentIntent.id;
+  const amount = paymentIntent.amount / 100; // Convert from cents
+  const currency = paymentIntent.currency;
+  const customerId = paymentIntent.customer;
+  
+  console.log(`Creating payment record for succeeded payment intent: ${paymentIntentId}`);
+
+  try {
+    let customer = null;
+    
+    // First try to find customer by stripe_customer_id if the field exists
+    if (customerId) {
+      const { data: customerByStripeId } = await supabase
+        .from("customers")
+        .select("id, email")
+        .eq("stripe_customer_id", customerId)
+        .single();
+      
+      if (customerByStripeId) {
+        customer = customerByStripeId;
+      } else {
+        // If not found by Stripe ID, try to get customer email from Stripe and match by email
+        try {
+          const stripeCustomer = await stripe?.customers.retrieve(customerId);
+          if (stripeCustomer && !stripeCustomer.deleted && stripeCustomer.email) {
+            const { data: customerByEmail } = await supabase
+              .from("customers")
+              .select("id, email")
+              .eq("email", stripeCustomer.email)
+              .single();
+            
+            if (customerByEmail) {
+              customer = customerByEmail;
+              
+              // Update the customer with the Stripe customer ID for future use
+              await supabase
+                .from("customers")
+                .update({ stripe_customer_id: customerId })
+                .eq("id", customer.id);
+              
+              console.log(`Updated customer ${customer.id} with Stripe ID: ${customerId}`);
+            }
+          }
+        } catch (stripeError) {
+          console.warn("Could not retrieve Stripe customer:", stripeError);
+        }
+      }
+    }
+
+    if (!customer) {
+      console.warn(`Customer not found for Stripe customer ID: ${customerId}`);
+      return;
+    }
+
+    // Create payment record
+    const { error: insertError } = await supabase
+      .from("payments")
+      .insert({
+        customer_id: customer.id,
+        amount: amount,
+        payment_method: "card",
+        payment_status: "paid",
+        payment_date: new Date().toISOString(),
+        reference: paymentIntentId,
+        notes: `Auto-created from Stripe webhook | Payment Intent: ${paymentIntentId} | Customer: ${customer.email}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+
+    if (insertError) {
+      console.error("Error creating payment record:", insertError);
+      return;
+    }
+
+    console.log(`Payment record created for payment intent: ${paymentIntentId}, customer: ${customer.email}`);
+  } catch (error) {
+    console.error("Error handling succeeded payment without record:", error);
+  }
 }
