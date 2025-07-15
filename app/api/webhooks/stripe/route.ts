@@ -337,6 +337,9 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
     updated_at: new Date().toISOString(),
   };
 
+  // Store the original payment link reference before updating
+  const originalPaymentLinkRef = payment.reference && payment.reference.startsWith("plink_") ? payment.reference : null;
+  
   // Update reference to payment intent ID if it's different (for payment links)
   if (payment.reference !== paymentIntentId) {
     updateData.reference = paymentIntentId;
@@ -376,6 +379,31 @@ async function handlePaymentIntentUpdate(paymentIntent: any) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", payment.booking_id);
+  }
+
+  // If payment is successful and it was a payment link, disable the payment link
+  if (dbStatus === "paid" && originalPaymentLinkRef) {
+    try {
+      console.log(`Disabling payment link: ${originalPaymentLinkRef}`);
+      await stripe?.paymentLinks.update(originalPaymentLinkRef, {
+        active: false
+      });
+      console.log(`✅ Payment link ${originalPaymentLinkRef} disabled successfully`);
+      
+      // Update notes to reflect that the link was disabled
+      const disabledNote = `${updateData.notes || payment.notes || ""} | Payment link ${originalPaymentLinkRef} disabled after successful payment`.trim();
+      await supabase
+        .from("payments")
+        .update({
+          notes: disabledNote,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", payment.id);
+        
+    } catch (disableError) {
+      console.error(`❌ Error disabling payment link ${originalPaymentLinkRef}:`, disableError);
+      // Don't fail the webhook if we can't disable the link
+    }
   }
 
   console.log(`Payment ${payment.id} updated to status: ${dbStatus}`);
