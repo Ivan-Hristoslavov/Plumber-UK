@@ -198,7 +198,7 @@ export function EditInvoiceModal({
     formDataToSend.append('vat_rate', vatSettings?.is_enabled ? (vatSettings.vat_rate || 0).toString() : '0');
     formDataToSend.append('vat_amount', vatAmount.toString());
     formDataToSend.append('total_amount', totalAmount.toString());
-    formDataToSend.append('company_name', dbProfile?.company_name || "FixMyLeak Ltd");
+            formDataToSend.append('company_name', dbProfile?.company_name || "FixMyLeak");
     formDataToSend.append('company_address', dbProfile?.company_address || "London, UK");
     formDataToSend.append('company_phone', dbProfile?.phone || "+44 7700 123456");
     formDataToSend.append('company_email', dbProfile?.email || "admin@fixmyleak.com");
@@ -274,7 +274,7 @@ export function EditInvoiceModal({
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-blue-800 dark:text-blue-200">
               <div>
-                <strong>Company:</strong> {dbProfile?.company_name || "FixMyLeak Ltd"}
+                <strong>Company:</strong> {dbProfile?.company_name || "FixMyLeak"}
               </div>
               <div>
                 <strong>Phone:</strong> {dbProfile?.phone || "+44 7700 123456"}
