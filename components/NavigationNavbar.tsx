@@ -38,6 +38,9 @@ export default function NavigationNavbar() {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Hide navigation on terms and privacy pages
+  const shouldHideNavigation = pathname === "/terms" || pathname === "/privacy";
+
   useEffect(() => {
     // Throttle function to limit how often the scroll handler runs
     const throttle = (func: () => void, delay: number) => {
@@ -214,8 +217,13 @@ export default function NavigationNavbar() {
     return item.dropdown.some((subItem: any) => activeSection === subItem.href.substring(1));
   };
 
+  // Don't render navigation on terms and privacy pages
+  if (shouldHideNavigation) {
+    return null;
+  }
+
   return (
-    <nav className="w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300">
+    <nav className=" w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300">
       <div
         className={`transition-all duration-300 ease-out ${
           isScrolled

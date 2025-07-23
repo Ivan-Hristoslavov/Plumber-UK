@@ -18,7 +18,6 @@ const inter = Inter({ subsets: ["latin"] });
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
   const companyName = profile?.company_name || "FixMyLeak";
-  const adminName = profile?.name || "Professional Plumber";
   
   return {
     title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,

@@ -11,6 +11,11 @@ type DashboardStats = {
   weeklyRevenue: number;
   totalCustomers: number;
   pendingPayments: number;
+  // Previous week stats for comparison
+  previousWeekBookings: number;
+  previousWeekRevenue: number;
+  previousWeekCustomers: number;
+  previousWeekPendingBookings: number;
 };
 
 type RecentActivity = {
@@ -30,6 +35,10 @@ const mockStats: DashboardStats = {
   weeklyRevenue: 0,
   totalCustomers: 0,
   pendingPayments: 0,
+  previousWeekBookings: 0,
+  previousWeekRevenue: 0,
+  previousWeekCustomers: 0,
+  previousWeekPendingBookings: 0,
 };
 
 const mockRecentActivity: RecentActivity[] = [];
@@ -71,6 +80,10 @@ export default function DashboardPage() {
           weeklyRevenue: data.stats?.weekly_revenue || 0,
           totalCustomers: data.stats?.total_customers || 0,
           pendingPayments: data.stats?.pending_payments || 0,
+          previousWeekBookings: data.stats?.previous_week_bookings || 0,
+          previousWeekRevenue: data.stats?.previous_week_revenue || 0,
+          previousWeekCustomers: data.stats?.previous_week_customers || 0,
+          previousWeekPendingBookings: data.stats?.previous_week_pending_bookings || 0,
         };
 
         setStats(safeStats);
@@ -371,6 +384,15 @@ export default function DashboardPage() {
     }
   };
 
+  const calculateChange = (current: number, previous: number): string => {
+    if (previous === 0) {
+      return current > 0 ? "+100%" : "0%";
+    }
+    const change = ((current - previous) / previous) * 100;
+    const sign = change >= 0 ? "+" : "";
+    return `${sign}${Math.round(change)}%`;
+  };
+
   const handleOpenActivityModal = () => {
     setShowActivityModal(true);
     loadAllActivity();
@@ -409,7 +431,7 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          change="+12%"
+          change={calculateChange(stats.totalBookings, stats.previousWeekBookings)}
           color="bg-blue-100 text-blue-600"
           icon={
             <svg
@@ -430,7 +452,7 @@ export default function DashboardPage() {
           value={stats.totalBookings || 0}
         />
         <StatCard
-          change="+3"
+          change={calculateChange(stats.pendingBookings, stats.previousWeekPendingBookings)}
           color="bg-yellow-100 text-yellow-600"
           icon={
             <svg
@@ -451,7 +473,7 @@ export default function DashboardPage() {
           value={stats.pendingBookings || 0}
         />
         <StatCard
-          change="+8%"
+          change={calculateChange(stats.totalRevenue, stats.previousWeekRevenue)}
           color="bg-green-100 text-green-600"
           icon={
             <svg
@@ -472,7 +494,7 @@ export default function DashboardPage() {
           value={`£${(stats.totalRevenue || 0).toLocaleString()}`}
         />
         <StatCard
-          change="+5"
+          change={calculateChange(stats.totalCustomers, stats.previousWeekCustomers)}
           color="bg-purple-100 text-purple-600"
           icon={
             <svg
