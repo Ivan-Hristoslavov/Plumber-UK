@@ -233,8 +233,8 @@ export function AdminReviewsManager() {
           message={`Are you sure you want to approve this review from ${selectedReview.customer_name}? Once approved, it will be visible to all customers on your website.`}
           confirmText="Approve Review"
           cancelText="Cancel"
-          type="success"
-          loading={processing}
+          isDestructive={false}
+          isLoading={processing}
         />
       )}
 
@@ -247,8 +247,8 @@ export function AdminReviewsManager() {
           message={`Are you sure you want to permanently delete this review from ${selectedReview.customer_name}? This action cannot be undone.`}
           confirmText="Delete Review"
           cancelText="Cancel"
-          type="danger"
-          loading={processing}
+          isDestructive={true}
+          isLoading={processing}
         />
       )}
     </div>
