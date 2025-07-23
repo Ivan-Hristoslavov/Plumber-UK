@@ -139,7 +139,7 @@ export default function FooterMain() {
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 max-w-md">
               Professional plumbing services across South West London. Emergency repairs, 
-              installations, and maintenance with Gas Safe certified engineers.
+              installations.
             </p>
             <div className="mt-4 space-y-2">
               {isLoading ? (
