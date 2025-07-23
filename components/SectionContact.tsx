@@ -38,7 +38,7 @@ export default function SectionContact() {
   // Get business data from admin profile
   const businessData = {
     businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.email || "info@fixmyleak.com",
+    businessEmail: adminProfile?.business_email || "info@fixmyleak.com",
     businessPhone: adminProfile?.phone || "+44 7541777225",
     businessAddress: adminProfile?.company_address || "London, UK",
     responseTime: adminProfile?.response_time || "45 minutes"

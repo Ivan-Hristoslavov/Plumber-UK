@@ -5,6 +5,7 @@ import { createPaymentLink, isStripeAvailable } from "@/lib/stripe";
 import { sendEmail, EmailAttachment } from "@/lib/sendgrid-smtp";
 import { jsPDF } from "jspdf";
 import { format } from "date-fns";
+import { join } from "path";
 
 // POST - Send invoice email
 export async function POST(
@@ -116,14 +117,21 @@ export async function POST(
       try {
         console.log(`Attempting to read attachment: ${attachment.filename} from path: ${attachment.path}`);
         
+        // Convert relative path to absolute path
+        const absolutePath = attachment.path.startsWith('/') 
+          ? join(process.cwd(), 'public', attachment.path)
+          : attachment.path;
+        
+        console.log(`Absolute path: ${absolutePath}`);
+        
         // Check if path exists and is accessible
         const fs = require('fs');
-        if (!fs.existsSync(attachment.path)) {
-          console.error(`File does not exist: ${attachment.path}`);
+        if (!fs.existsSync(absolutePath)) {
+          console.error(`File does not exist: ${absolutePath}`);
           continue;
         }
 
-        const fileContent = await readFile(attachment.path);
+        const fileContent = await readFile(absolutePath);
         const contentType = getContentType(attachment.filename);
         
         console.log(`Successfully read file: ${attachment.filename}, size: ${fileContent.length} bytes`);

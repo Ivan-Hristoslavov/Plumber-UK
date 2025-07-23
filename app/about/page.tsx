@@ -23,7 +23,7 @@ export default function AboutPage() {
 
             {/* Static Content */}
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-              FixMyLeak is London's premier emergency plumbing service, specializing in rapid leak detection 
+              FixMyLeak is London's premier emergency plumbing service, specialising in rapid leak detection 
               and comprehensive plumbing solutions across South West and Central London areas.
             </p>
             

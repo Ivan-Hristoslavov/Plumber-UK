@@ -181,8 +181,8 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Calendar</h1>
           <div className="flex space-x-2">
             <button
@@ -206,246 +206,229 @@ export default function CalendarPage() {
               Day
             </button>
           </div>
-          <div className="flex items-center space-x-4">
-            <select
-              className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Bookings ({bookings.length})</option>
-              <option value="pending">
-                Pending ({bookings.filter((b) => b.status === "pending").length}
-                )
-              </option>
-              <option value="scheduled">
-                Scheduled (
-                {bookings.filter((b) => b.status === "scheduled").length})
-              </option>
-              <option value="completed">
-                Completed (
-                {bookings.filter((b) => b.status === "completed").length})
-              </option>
-              <option value="cancelled">
-                Cancelled (
-                {bookings.filter((b) => b.status === "cancelled").length})
-              </option>
-            </select>
-            <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
-                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Pending</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
-                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Scheduled</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
-                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Completed</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
-                <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Cancelled</span>
-              </div>
+        </div>
+        
+        {/* Mobile-friendly controls */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <select
+            className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Bookings ({bookings.length})</option>
+            <option value="pending">
+              Pending ({bookings.filter((b) => b.status === "pending").length})
+            </option>
+            <option value="scheduled">
+              Scheduled ({bookings.filter((b) => b.status === "scheduled").length})
+            </option>
+            <option value="completed">
+              Completed ({bookings.filter((b) => b.status === "completed").length})
+            </option>
+            <option value="cancelled">
+              Cancelled ({bookings.filter((b) => b.status === "cancelled").length})
+            </option>
+          </select>
+          
+          {/* Legend - Hidden on mobile, shown on larger screens */}
+          <div className="hidden lg:flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
+              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Pending</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
+              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Scheduled</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
+              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Completed</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
+              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Cancelled</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
-            onClick={() =>
-              setSelectedDate(
-                format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd")
-              )
-            }
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        
+        {/* Navigation Controls */}
+        <div className="flex items-center justify-between sm:justify-end gap-4">
+          <div className="flex items-center space-x-2">
+            <button
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
+              onClick={() =>
+                setSelectedDate(
+                  format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd")
+                )
+              }
             >
-              <path
-                d="M15 19l-7-7 7-7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          </button>
-          <span className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
-            {format(weekStart, "MMM d")} -{" "}
-            {format(addDays(weekStart, 6), "MMM d, yyyy")}
-          </span>
-          <button
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
-            onClick={() =>
-              setSelectedDate(
-                format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd")
-              )
-            }
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+            </button>
+            <span className="text-sm sm:text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
+              {format(weekStart, "MMM d")} - {format(addDays(weekStart, 6), "MMM d, yyyy")}
+            </span>
+            <button
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
+              onClick={() =>
+                setSelectedDate(
+                  format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd")
+                )
+              }
             >
-              <path
-                d="M9 5l7 7-7 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          </button>
-          <button
-            className="px-3 py-2 text-sm font-medium text-primary dark:text-primary-light border border-primary dark:border-primary-light rounded-lg hover:bg-primary hover:text-white dark:hover:bg-primary-light/20 transition-colors duration-300"
-            onClick={() => setSelectedDate(format(new Date(), "yyyy-MM-dd"))}
-          >
-            Today
-          </button>
-          <button
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300 transition-colors duration-300"
-            disabled={loading}
-            title="Refresh calendar"
-            onClick={loadBookings}
-          >
-            <svg
-              className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              className="px-3 py-2 text-sm font-medium text-primary dark:text-primary-light border border-primary dark:border-primary-light rounded-lg hover:bg-primary hover:text-white dark:hover:bg-primary-light/20 transition-colors duration-300"
+              onClick={() => setSelectedDate(format(new Date(), "yyyy-MM-dd"))}
             >
-              <path
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-          </button>
+              Today
+            </button>
+            <button
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300 transition-colors duration-300"
+              disabled={loading}
+              title="Refresh calendar"
+              onClick={loadBookings}
+            >
+              <svg
+                className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-300">
-        {/* Time slots header */}
-        <div className="grid grid-cols-8 border-b dark:border-gray-700 transition-colors duration-300">
-          <div className="p-4 border-r dark:border-gray-700 transition-colors duration-300" />
-          {weekDays.map((day) => (
-            <div
-              key={day.toString()}
-              className={`p-4 text-center border-r dark:border-gray-700 transition-colors duration-300 ${
-                isSameDay(day, new Date()) ? "bg-primary/5 dark:bg-primary/20" : ""
-              }`}
-            >
-              <div className="font-medium dark:text-white transition-colors duration-300">{format(day, "EEE")}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                {format(day, "MMM d")}
-              </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-300 overflow-hidden">
+        {/* Mobile Legend */}
+        <div className="lg:hidden p-4 border-b dark:border-gray-700">
+          <div className="flex flex-wrap gap-3 text-xs">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
+              <span className="text-gray-600 dark:text-gray-300">Pending</span>
             </div>
-          ))}
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
+              <span className="text-gray-600 dark:text-gray-300">Scheduled</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
+              <span className="text-gray-600 dark:text-gray-300">Completed</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
+              <span className="text-gray-600 dark:text-gray-300">Cancelled</span>
+            </div>
+          </div>
         </div>
-
-        {/* Time slots - Show only working hours (8 AM to 6 PM) */}
-        {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
-          <div key={hour} className="grid grid-cols-8 border-b dark:border-gray-700 last:border-b-0 transition-colors duration-300">
-            <div className="p-4 border-r dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-              {format(new Date().setHours(hour, 0), "HH:00")}
-            </div>
-            {weekDays.map((day) => {
-              const bookings = getBookingsForDate(day).filter(
-                (booking) => parseInt(booking.time.split(":")[0]) === hour
-              );
-
-              return (
+        
+        {/* Calendar header with better mobile handling */}
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px]">
+            <div className="grid grid-cols-8 border-b dark:border-gray-700 transition-colors duration-300">
+              <div className="p-2 sm:p-4 border-r dark:border-gray-700 transition-colors duration-300 w-16 sm:w-auto" />
+              {weekDays.map((day) => (
                 <div
                   key={day.toString()}
-                  className="p-2 border-r dark:border-gray-700 min-h-[120px] relative transition-colors duration-300"
+                  className={`p-2 sm:p-4 text-center border-r dark:border-gray-700 transition-colors duration-300 ${
+                    isSameDay(day, new Date()) ? "bg-primary/5 dark:bg-primary/20" : ""
+                  }`}
                 >
-                  {bookings.length > 0 && (
-                    <div className="space-y-1">
-                      {/* Show first booking */}
-                      <button
-                        key={bookings[0].id}
-                        className={`w-full p-2 text-left rounded-lg transition-all duration-300 transform hover:scale-105 ${
-                          bookings[0].status === "completed"
-                            ? "bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800"
-                            : bookings[0].status === "cancelled"
-                              ? "bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800"
-                              : bookings[0].status === "pending"
-                                ? "bg-yellow-50 dark:bg-yellow-900/30 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800"
-                                : "bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
-                        }`}
-                        onClick={() => setSelectedBooking(bookings[0])}
-                      >
-                        <div className="text-sm font-medium dark:text-white transition-colors duration-300 truncate">
-                          {bookings[0].customer_name}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300 truncate">
-                          {bookings[0].service}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                          {bookings[0].time}
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-xs ${getStatusColor(bookings[0].status)}`}
-                          >
-                            {bookings[0].status}
-                          </span>
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-xs ${getPaymentStatusColor(bookings[0].payment_status)}`}
-                          >
-                            {bookings[0].payment_status}
-                          </span>
-                        </div>
-                      </button>
-                      
-                      {/* Show additional bookings indicator */}
-                      {bookings.length > 1 && (
+                  <div className="font-medium dark:text-white transition-colors duration-300 text-xs sm:text-sm">
+                    {format(day, "EEE")}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                    {format(day, "MMM d")}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Time slots with better mobile handling */}
+            {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
+              <div key={hour} className="grid grid-cols-8 border-b dark:border-gray-700 last:border-b-0 transition-colors duration-300">
+                <div className="p-2 sm:p-4 border-r dark:border-gray-700 text-xs sm:text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300 w-16 sm:w-auto">
+                  {format(new Date().setHours(hour, 0), "HH:00")}
+                </div>
+                {weekDays.map((day) => {
+                  const bookings = getBookingsForDate(day).filter(
+                    (booking) => parseInt(booking.time.split(":")[0]) === hour
+                  );
+
+                  return (
+                    <div
+                      key={day.toString()}
+                      className="p-1 sm:p-2 border-r dark:border-gray-700 min-h-[80px] sm:min-h-[120px] relative transition-colors duration-300"
+                    >
+                      {bookings.length > 0 && (
                         <div className="space-y-1">
-                          {bookings.slice(1, 3).map((booking) => (
-                            <button
-                              key={booking.id}
-                              className={`w-full p-1.5 text-left rounded-md transition-all duration-300 text-xs ${
-                                booking.status === "completed"
-                                  ? "bg-green-100 dark:bg-green-800/40 hover:bg-green-200 dark:hover:bg-green-800/60 border border-green-300 dark:border-green-700"
-                                  : booking.status === "cancelled"
-                                    ? "bg-red-100 dark:bg-red-800/40 hover:bg-red-200 dark:hover:bg-red-800/60 border border-red-300 dark:border-red-700"
-                                    : booking.status === "pending"
-                                      ? "bg-yellow-100 dark:bg-yellow-800/40 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300 dark:border-yellow-700"
-                                      : "bg-blue-100 dark:bg-blue-800/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 border border-blue-300 dark:border-blue-700"
-                              }`}
-                              onClick={() => setSelectedBooking(booking)}
-                            >
-                              <div className="font-medium dark:text-white truncate">
-                                {booking.customer_name}
-                              </div>
-                              <div className="text-gray-600 dark:text-gray-300 truncate">
-                                {booking.time}
-                              </div>
-                            </button>
-                          ))}
+                          {/* Show first booking */}
+                          <button
+                            key={bookings[0].id}
+                            className={`w-full p-1 sm:p-2 text-left rounded-lg transition-all duration-300 transform hover:scale-105 ${
+                              bookings[0].status === "completed"
+                                ? "bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800"
+                                : bookings[0].status === "cancelled"
+                                  ? "bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800"
+                                  : bookings[0].status === "pending"
+                                    ? "bg-yellow-50 dark:bg-yellow-900/30 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800"
+                                    : "bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
+                            }`}
+                            onClick={() => setSelectedBooking(bookings[0])}
+                          >
+                            <div className="text-xs sm:text-sm font-medium dark:text-white transition-colors duration-300 truncate">
+                              {bookings[0].customer_name}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300 truncate">
+                              {bookings[0].service}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                              {bookings[0].time}
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              <span className={`px-1 py-0.5 rounded text-xs ${getStatusColor(bookings[0].status)}`}>
+                                {bookings[0].status}
+                              </span>
+                              <span className={`px-1 py-0.5 rounded text-xs ${getPaymentStatusColor(bookings[0].payment_status)}`}>
+                                {bookings[0].payment_status}
+                              </span>
+                            </div>
+                          </button>
                           
-                          {bookings.length > 3 && (
+                          {/* Show additional bookings indicator */}
+                          {bookings.length > 1 && (
                             <button
-                              className="w-full p-1.5 text-xs text-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300 text-gray-700 dark:text-gray-300 font-medium"
+                              className="w-full p-1 text-xs text-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300 text-gray-700 dark:text-gray-300 font-medium"
                               onClick={() => setMultiSlotBookings(bookings)}
                             >
-                              +{bookings.length - 3} more bookings
+                              +{bookings.length - 1} more
                             </button>
                           )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       {/* Booking Details Modal */}

@@ -1,10 +1,19 @@
 import { useReviews } from '@/hooks/useReviews';
+import { useState } from 'react';
 
 export function ReviewsSection() {
   const { reviews, isLoading, error } = useReviews();
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 6;
 
   if (isLoading) return <div className="py-8 text-center">Loading reviews...</div>;
   if (error) return <div className="py-8 text-center text-red-600">{error}</div>;
+
+  // Calculate pagination
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+  const startIndex = (currentPage - 1) * reviewsPerPage;
+  const endIndex = startIndex + reviewsPerPage;
+  const currentReviews = reviews.slice(startIndex, endIndex);
 
   return (
     <section className="py-20 bg-white dark:bg-gray-900" id="reviews">
@@ -52,23 +61,76 @@ export function ReviewsSection() {
             </div>
           </div>
         ) : (
-          <div className="space-y-8">
-            {reviews.map((review) => (
-              <div key={review.id} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow flex flex-col md:flex-row md:items-center gap-4">
-                <div className="flex-shrink-0 flex flex-col items-center md:items-start w-32">
-                  <div className="flex items-center mb-1">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <svg key={i} className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+          <div>
+            {/* Reviews Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {currentReviews.map((review) => (
+                <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center mb-4">
+                    <div className="flex-shrink-0 mr-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">
+                          {review.customer_name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900 dark:text-white mb-1">
+                        {review.customer_name}
+                      </div>
+                      <div className="flex items-center mb-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
                   </div>
-                  <div className="font-semibold text-gray-900 dark:text-white">{review.customer_name}</div>
-                  <div className="text-xs text-gray-400">{new Date(review.created_at).toLocaleDateString()}</div>
+                  <div className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed">
+                    {review.comment}
+                  </div>
                 </div>
-                <div className="flex-1 text-gray-700 dark:text-gray-200 text-lg">{review.comment}</div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      page === currentPage
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>

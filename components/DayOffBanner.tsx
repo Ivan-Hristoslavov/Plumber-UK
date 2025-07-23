@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { DayOffPeriod } from '@/hooks/useDayOffPeriods';
+import { useState, useEffect } from 'react';
+import { useActiveDayOffPeriods, DayOffPeriod } from '@/hooks/useDayOffPeriods';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface DayOffBannerProps {
@@ -10,6 +10,7 @@ interface DayOffBannerProps {
 
 export function DayOffBanner({ previewPeriod }: DayOffBannerProps) {
   const [activePeriod, setActivePeriod] = useState<DayOffPeriod | null>(null);
+  const { activePeriods, loading } = useActiveDayOffPeriods();
   const { isScrolled } = useScrollDirection();
 
   useEffect(() => {
@@ -27,27 +28,21 @@ export function DayOffBanner({ previewPeriod }: DayOffBannerProps) {
       return;
     }
     
-    fetch('/api/admin/day-off')
-      .then(res => res.json())
-      .then((periods: DayOffPeriod[]) => {
-        const today = new Date();
-        const matching = periods.filter(p => {
-          if (!p.show_banner) return false;
-          const start = new Date(p.start_date);
-          const end = new Date(p.end_date);
-          return today >= start && today <= end;
-        });
-        if (matching.length > 0) {
-          matching.sort((a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime());
-          setActivePeriod(matching[0]);
-        } else {
-          setActivePeriod(null);
-        }
-      })
-      .catch(() => {
-        setActivePeriod(null);
-      });
-  }, [previewPeriod]);
+    // Use the active periods from the hook
+    if (activePeriods.length > 0) {
+      // Sort by end date and take the first one
+      const sortedPeriods = [...activePeriods].sort((a, b) => 
+        new Date(a.end_date).getTime() - new Date(b.end_date).getTime()
+      );
+      setActivePeriod(sortedPeriods[0]);
+    } else {
+      setActivePeriod(null);
+    }
+  }, [previewPeriod, activePeriods]);
+
+  if (loading && !previewPeriod) {
+    return null; // Don't show anything while loading
+  }
 
   if (!activePeriod) return null;
 

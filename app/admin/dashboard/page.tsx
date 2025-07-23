@@ -393,6 +393,19 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Quick Tips */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+          💡 Dashboard Tips
+        </h4>
+        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+          <li>• Check your daily bookings and update their status regularly</li>
+          <li>• Monitor pending payments and send reminders if needed</li>
+          <li>• Review recent activity to stay updated on business progress</li>
+          <li>• Use quick action buttons for common tasks</li>
+        </ul>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard

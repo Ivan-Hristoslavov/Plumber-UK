@@ -71,6 +71,8 @@ export async function PUT(
     const company_email = formData.get('company_email') as string;
     const company_vat_number = formData.get('company_vat_number') as string;
     const notes = formData.get('notes') as string || null;
+    const manual_service = formData.get('manual_service') as string || null;
+    const manual_description = formData.get('manual_description') as string || null;
 
     // Handle image attachments
     const images = formData.getAll('images') as File[];
@@ -82,29 +84,33 @@ export async function PUT(
       try {
         await mkdir(uploadsDir, { recursive: true });
       } catch (error) {
-        // Directory already exists or couldn't be created
+        console.error('Error creating uploads directory:', error);
       }
 
       // Process each image
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
-        if (file.size > 0) {
-          const bytes = await file.arrayBuffer();
-          const buffer = Buffer.from(bytes);
-          
-          // Generate unique filename
-          const timestamp = Date.now();
-          const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-          const filename = `${timestamp}_${i}_${originalName}`;
-          const filePath = join(uploadsDir, filename);
-          
-          // Save file
-          await writeFile(filePath, buffer);
-          
-          imageAttachments.push({
-            filename: originalName,
-            path: filePath
-          });
+        if (file && file.size > 0) {
+          try {
+            const bytes = await file.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+            
+            // Generate unique filename
+            const timestamp = Date.now();
+            const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filename = `${timestamp}_${i}_${originalName}`;
+            const filePath = join(uploadsDir, filename);
+            
+            // Save file
+            await writeFile(filePath, buffer);
+            
+            imageAttachments.push({
+              filename: originalName,
+              path: `/uploads/invoices/${filename}` // Store relative path for web access
+            });
+          } catch (error) {
+            console.error(`Error processing image ${i}:`, error);
+          }
         }
       }
     }
@@ -125,10 +131,10 @@ export async function PUT(
       company_email,
       company_vat_number,
       notes,
+      manual_service,
+      manual_description,
       updated_at: new Date().toISOString()
     };
-
-    // Manual entry fields will be added later when database schema is updated
 
     // Add image attachments if any
     if (imageAttachments.length > 0) {

@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
+    const { searchParams } = new URL(request.url);
+    const isAdminMode = searchParams.get('all') === '1';
     
-    const { data: reviews, error } = await supabase
+    let query = supabase
       .from("reviews")
       .select("*")
-      .eq("is_approved", true)
       .order("created_at", { ascending: false });
+
+    // If not in admin mode, only return approved reviews
+    if (!isAdminMode) {
+      query = query.eq("is_approved", true);
+    }
+
+    const { data: reviews, error } = await query;
 
     if (error) {
       console.error("Error fetching reviews:", error);

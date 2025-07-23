@@ -210,6 +210,25 @@ const navigation = [
     ),
   },
   {
+    name: "Site Guidance",
+    href: "/admin/site-guidance",
+    icon: (
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+        />
+      </svg>
+    ),
+  },
+  {
     name: "Test Email",
     href: "/admin/test-email",
     icon: (
@@ -452,38 +471,20 @@ export default function AdminLayout({
 
               {/* Theme Toggle in Header */}
               <ThemeToggle size="md" />
-
-              {/* Notifications */}
-              <button className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative transition-colors">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M15 17h5l-5 5v-5zM10.07 2.82a3 3 0 00-4.24 0L2.82 5.83a3 3 0 000 4.24L15.18 22.43a3 3 0 004.24 0l2.01-2.01a3 3 0 000-4.24L8.07 2.82z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </button>
             </div>
           </div>
         </header>
 
         {/* Quick Actions - Top Navigation */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 sticky top-16 z-20 transition-colors duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6 sticky top-16 z-20 transition-colors duration-300">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Link
-              className="flex items-center p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
+              className="flex items-center p-3 sm:p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
               href="/admin/bookings"
             >
               <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -496,19 +497,19 @@ export default function AdminLayout({
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">New Booking</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Create a new booking</p>
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">New Booking</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Create a new booking</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group"
+              className="flex items-center p-3 sm:p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group"
               href="/admin/invoices"
             >
               <div className="p-2 bg-green-100 dark:bg-green-800/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-green-600 dark:text-green-400"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -521,21 +522,21 @@ export default function AdminLayout({
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                   Create Invoice
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Generate new invoice</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Generate new invoice</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group"
+              className="flex items-center p-3 sm:p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group"
               href="/admin/customers"
             >
               <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -548,21 +549,21 @@ export default function AdminLayout({
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                   Add Customer
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Register new customer</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Register new customer</p>
               </div>
             </Link>
 
             <Link
-              className="flex items-center p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group"
+              className="flex items-center p-3 sm:p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group"
               href="/admin/dashboard"
             >
               <div className="p-2 bg-yellow-100 dark:bg-yellow-800/50 rounded-lg group-hover:bg-yellow-200 dark:group-hover:bg-yellow-800/70 transition-colors">
                 <svg
-                  className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -575,11 +576,11 @@ export default function AdminLayout({
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="ml-2 sm:ml-3">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                   View Reports
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Analytics & insights</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Analytics & insights</p>
               </div>
             </Link>
           </div>
@@ -587,7 +588,7 @@ export default function AdminLayout({
 
         {/* Page content */}
         <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+          <div className="p-3 sm:p-4 lg:p-6 xl:p-8">{children}</div>
         </main>
       </div>
     </div>

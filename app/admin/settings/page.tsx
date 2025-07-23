@@ -27,6 +27,13 @@ type SettingsState = {
   vatNumber: string;
   registrationNumber: string;
 
+  // Business Credentials
+  gasSafeRegistered: boolean;
+  gasSafeNumber: string;
+  fullyInsured: boolean;
+  insuranceProvider: string;
+  companyStatus: string; // e.g., "Ltd", "Limited", "PLC", etc.
+
   // Pricing
   emergencyRate: string;
   standardRate: string;
@@ -58,6 +65,12 @@ const defaultSettings: SettingsState = {
   businessPostcode: "SW1A 1AA",
   vatNumber: "GB123456789",
   registrationNumber: "12345678",
+
+  gasSafeRegistered: true,
+  gasSafeNumber: "123456",
+  fullyInsured: true,
+  insuranceProvider: "Professional Indemnity Insurance",
+  companyStatus: "",
 
   emergencyRate: "150",
   standardRate: "75",
@@ -328,7 +341,7 @@ export default function AdminSettingsPage() {
                 <input
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-lg shadow-sm cursor-not-allowed transition-colors duration-300"
                   type="email"
-                  value={dbProfile?.email || "info@fixmyleak.com"}
+                  value={dbProfile?.business_email || "info@fixmyleak.com"}
                   disabled
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
@@ -425,6 +438,114 @@ export default function AdminSettingsPage() {
                     handleInputChange("registrationNumber", e.target.value)
                   }
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                  Company Status
+                </label>
+                <select
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  value={settings.companyStatus}
+                  onChange={(e) =>
+                    handleInputChange("companyStatus", e.target.value)
+                  }
+                >
+                  <option value="">Select Status</option>
+                  <option value="Ltd">Limited Company (Ltd)</option>
+                  <option value="Limited">Limited Company (Limited)</option>
+                  <option value="PLC">Public Limited Company (PLC)</option>
+                  <option value="LLP">Limited Liability Partnership (LLP)</option>
+                  <option value="Sole Trader">Sole Trader</option>
+                  <option value="Partnership">Partnership</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Credentials */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+              Professional Credentials
+            </h2>
+            <div className="space-y-6">
+              {/* Gas Safe Registration */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    Gas Safe Registered
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange("gasSafeRegistered", !settings.gasSafeRegistered)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                      settings.gasSafeRegistered
+                        ? "bg-blue-600 dark:bg-blue-500"
+                        : "bg-gray-200 dark:bg-gray-600"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+                        settings.gasSafeRegistered ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+                {settings.gasSafeRegistered && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Gas Safe Registration Number
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="Enter Gas Safe registration number"
+                      value={settings.gasSafeNumber}
+                      onChange={(e) =>
+                        handleInputChange("gasSafeNumber", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Insurance */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    Fully Insured
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange("fullyInsured", !settings.fullyInsured)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                      settings.fullyInsured
+                        ? "bg-blue-600 dark:bg-blue-500"
+                        : "bg-gray-200 dark:bg-gray-600"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
+                        settings.fullyInsured ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+                {settings.fullyInsured && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Insurance Provider
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="Enter insurance provider name"
+                      value={settings.insuranceProvider}
+                      onChange={(e) =>
+                        handleInputChange("insuranceProvider", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

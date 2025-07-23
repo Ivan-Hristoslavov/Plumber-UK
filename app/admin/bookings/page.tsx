@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 
 import { supabase } from "../../../lib/supabase";
 import { useToast, ToastMessages } from "../../../components/Toast";
+import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
 type Booking = {
   id: string;
@@ -60,6 +61,8 @@ export default function BookingsPage() {
   });
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [bookingToComplete, setBookingToComplete] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
   // Load bookings from Supabase
   useEffect(() => {
@@ -226,6 +229,33 @@ export default function BookingsPage() {
     } catch (error) {
       console.error("Error:", error);
       showError("Booking Error", "Failed to complete booking. Please try again.");
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    setShowDeleteModal(true);
+    setBookingToDelete(bookingId);
+  };
+
+  const confirmDeleteBooking = async () => {
+    if (!bookingToDelete) return;
+
+    try {
+      const { error } = await supabase.from("bookings").delete().eq("id", bookingToDelete);
+
+      if (error) {
+        console.error("Error deleting booking:", error);
+        showError("Booking Error", "Failed to delete booking. Please try again.");
+      } else {
+        loadBookings(); // Reload bookings
+        setSelectedBooking(null); // Close modal
+        setShowDeleteModal(false);
+        setBookingToDelete(null);
+        showSuccess("Booking Deleted", "The booking has been deleted successfully.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showError("Booking Error", "Failed to delete booking. Please try again.");
     }
   };
 
@@ -457,6 +487,27 @@ export default function BookingsPage() {
               />
             </svg>
           </button>
+          <button 
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteBooking(booking.id);
+            }}
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -541,6 +592,19 @@ export default function BookingsPage() {
             New Booking
           </button>
         </div>
+      </div>
+
+      {/* Quick Tips */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+          💡 Booking Management Tips
+        </h4>
+        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+          <li>• Always confirm bookings within 24 hours</li>
+          <li>• Use the notes field for important customer requests</li>
+          <li>• Update booking status immediately after completion</li>
+          <li>• Check for conflicts before accepting new bookings</li>
+        </ul>
       </div>
 
       {/* Stats Cards */}
@@ -852,6 +916,15 @@ export default function BookingsPage() {
                               }}
                             >
                               Complete
+                            </button>
+                            <button 
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-300"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteBooking(booking.id);
+                              }}
+                            >
+                              Delete
                             </button>
                           </div>
                         </td>
@@ -1591,6 +1664,19 @@ export default function BookingsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Booking Modal */}
+      {showDeleteModal && bookingToDelete && (
+        <ConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteBooking}
+          title="Confirm Deletion"
+          message={`Are you sure you want to delete this booking? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
       )}
     </div>
   );

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function HashNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Handle hash navigation on page load
@@ -21,8 +22,13 @@ export default function HashNavigation() {
             const element = document.getElementById(targetId);
             
             if (element) {
-              // Small delay to ensure the page is fully loaded
-              setTimeout(() => {
+              // Clear any existing timeout
+              if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+              }
+              
+              // Debounce the scroll calculation
+              timeoutRef.current = setTimeout(() => {
                 // Calculate offset based on whether day off banner is present
                 const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
                 const navbar = document.querySelector('nav');
@@ -40,7 +46,7 @@ export default function HashNavigation() {
                 
                 const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
-              }, 100);
+              }, 150); // Debounce delay
             }
           }
         }
@@ -60,6 +66,9 @@ export default function HashNavigation() {
 
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, [pathname, router]);
 
