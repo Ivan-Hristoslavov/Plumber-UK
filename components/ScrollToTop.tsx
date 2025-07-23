@@ -35,8 +35,8 @@ export function ScrollToTop() {
       }
     };
 
-    // Throttle scroll handler to run at most every 150ms
-    const throttledToggleVisibility = throttle(toggleVisibility, 150);
+    // Throttle scroll handler to run at most every 250ms (increased from 150ms)
+    const throttledToggleVisibility = throttle(toggleVisibility, 250);
 
     window.addEventListener("scroll", throttledToggleVisibility);
     return () => window.removeEventListener("scroll", throttledToggleVisibility);

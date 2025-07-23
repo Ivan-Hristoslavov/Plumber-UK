@@ -3,7 +3,7 @@ import { AreaPage } from "../../../components/AreaPage";
 
 export const metadata: Metadata = {
   title: "Professional Plumber Battersea SW8 | Boiler Repairs & Installations | FixMyLeak",
-  description: "Professional plumber in Battersea SW8. Specializing in boiler repairs, bathroom installations, and emergency plumbing for modern developments. Same-day service available.",
+  description: "Professional plumber in Battersea SW8. Specialising in boiler repairs, bathroom installations, and emergency plumbing for modern developments. Same-day service available.",
   keywords: [
     "plumber Battersea",
     "emergency plumber Battersea",
@@ -27,22 +27,22 @@ export default function BatterseaPage() {
     <AreaPage
       areaName="Battersea"
       postcode="SW8"
-      description="Professional plumber Battersea SW8 - Expert in boiler repairs and installations for Battersea's modern residential developments. Our comprehensive plumbing services cover everything from emergency repairs to complete bathroom renovations."
+      description="Professional plumber in Battersea SW8. Specialising in boiler repairs, bathroom installations, and emergency plumbing for modern developments. Same-day service available."
       localKeywords={[
+        "Professional Plumber SW8",
         "Boiler Repairs Battersea",
-        "Emergency Plumber SW8",
-        "Bathroom Installation Battersea",
-        "Modern Development Plumber",
-        "Leak Detection Battersea",
-        "Central Heating SW8"
+        "Emergency Plumber Battersea",
+        "Bathroom Installations SW8",
+        "Modern Developments Battersea",
+        "Same-Day Service SW8"
       ]}
       nearbyAreas={[
-        "Nine Elms",
         "Clapham",
-        "Wandsworth",
         "Chelsea",
+        "Pimlico",
         "Vauxhall",
-        "Stockwell"
+        "Wandsworth",
+        "Nine Elms"
       ]}
     />
   );

@@ -1,9 +1,12 @@
 "use client";
 
 import { useAreas } from "@/hooks/useAreas";
+import { useAdminProfile } from "@/components/AdminProfileContext";
+import { AdminProfileData } from "@/components/AdminProfileData";
 
 export function SectionHero() {
   const { areas, loading: areasLoading } = useAreas();
+  const adminProfile = useAdminProfile();
 
   return (
     <section
@@ -47,16 +50,17 @@ export function SectionHero() {
 
           {/* Trust Badges - Responsive, no text overflow */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-y-4 md:gap-y-0 md:gap-x-8 w-full max-w-2xl mx-auto mt-2">
-            {/* Insured */}
+            {/* Fully Insured */}
             <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
               <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
                 </svg>
               </div>
-              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">Insured</span>
+              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">Fully Insured</span>
             </div>
-            {/* Certificate */}
+            
+            {/* Gas Safe Registered */}
             <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
               <img
                 src="/mcs-logo.png"
@@ -65,14 +69,17 @@ export function SectionHero() {
                 style={{ maxWidth: "120px" }}
               />
             </div>
-            {/* 15+ Years */}
+            
+            {/* Years of Experience */}
             <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
               <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-yellow-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
-              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">15+ Years</span>
+              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                <AdminProfileData type="years_of_experience" fallback="10+ Years" />
+              </span>
             </div>
           </div>
         </div>
@@ -96,11 +103,11 @@ export function SectionHero() {
 
         {/* Areas We Cover */}
         <div
-          className="w-full mb-8 animate-fade-in-up"
+          className="w-full mb-8 flex flex-col items-center justify-center animate-fade-in-up"
           style={{ animationDelay: "0.4s" }}
         >
-          <div className="text-center mb-4">
-            <h3 className="text-xl font-semibold text-white mb-1">
+          <div className="text-center mb-6 w-full">
+            <h3 className="text-xl font-semibold text-white mb-2">
               Areas We Cover
             </h3>
             <div className="flex items-center justify-center text-green-400 text-sm mb-4">
@@ -115,29 +122,29 @@ export function SectionHero() {
                   clipRule="evenodd"
                 />
               </svg>
-              45-minute response time
+              <AdminProfileData type="response_time" fallback="45-minute" /> response time
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto w-full">
             {areasLoading
               ? // Loading skeleton
                 Array.from({ length: 6 }).map((_, index) => (
                   <div
                     key={index}
-                    className="bg-white/10 backdrop-blur-md rounded-lg py-3 px-2 text-center animate-pulse"
+                    className="bg-white/10 backdrop-blur-md rounded-lg py-3 px-2 text-center animate-pulse w-32 sm:w-36 lg:w-28 flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-1">
                       <div className="w-5 h-5 bg-white/20 rounded"></div>
                     </div>
-                    <div className="h-4 bg-white/20 rounded mb-1"></div>
+                    <div className="h-4 bg-white/20 rounded mb-1 w-full"></div>
                     <div className="h-3 bg-white/20 rounded w-8 mx-auto"></div>
                   </div>
                 ))
               : areas.map((area) => (
                   <div
                     key={area.id}
-                    className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30"
+                    className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30 w-32 sm:w-36 lg:w-28 flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-1">
                       <svg
@@ -160,8 +167,8 @@ export function SectionHero() {
                         />
                       </svg>
                     </div>
-                    <div className="text-white font-medium">{area.name}</div>
-                    <div className="text-blue-200 text-xs">{area.postcode}</div>
+                    <div className="text-white font-medium text-center">{area.name}</div>
+                    <div className="text-blue-200 text-xs text-center">{area.postcode}</div>
                   </div>
                 ))}
           </div>
@@ -173,7 +180,7 @@ export function SectionHero() {
           style={{ animationDelay: "0.6s" }}
         >
           <a
-            className="group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-base font-bold transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center w-full sm:w-auto justify-center"
+            className="group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-base font-bold transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
             href="#contact"
             onClick={(e) => {
               e.preventDefault();
@@ -192,7 +199,7 @@ export function SectionHero() {
             Book Emergency Service
           </a>
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center w-full sm:w-auto justify-center"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#services"
             onClick={(e) => {
               e.preventDefault();

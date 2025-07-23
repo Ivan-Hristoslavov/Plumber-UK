@@ -43,7 +43,7 @@ export function useReviews(adminMode = false) {
     return data.review;
   };
 
-  const approveReview = async (id: number, is_approved: boolean) => {
+  const approveReview = async (id: string, is_approved: boolean) => {
     const res = await fetch(`/api/reviews/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -55,11 +55,12 @@ export function useReviews(adminMode = false) {
     return data.review;
   };
 
-  const deleteReview = async (id: number) => {
+  const deleteReview = async (id: string) => {
     const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete review');
     await fetchReviews();
+    return data.success;
   };
 
   useEffect(() => {

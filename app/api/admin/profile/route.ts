@@ -28,6 +28,22 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = createClient();
     const body = await request.json();
+    
+    // Destructure the required fields from the request body
+    const { 
+      firstName, 
+      lastName, 
+      businessEmail, 
+      phone, 
+      about, 
+      companyName, 
+      companyAddress, 
+      gasRegNumber, 
+      insuranceProvider, 
+      bankName, 
+      accountNumber, 
+      sortCode 
+    } = body;
 
     // First get the current profile to get the ID
     const { data: currentProfile, error: fetchError } = await supabase
@@ -44,10 +60,23 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update the profile using the ID
-    const { data: profile, error } = await supabase
-      .from("admin_profile")
-      .update(body)
-      .eq("id", currentProfile.id)
+    const { data, error } = await supabase
+      .from('admin_profile')
+      .update({
+        name: `${firstName} ${lastName}`,
+        phone,
+        about,
+        business_email: businessEmail,
+        company_name: companyName,
+        company_address: companyAddress,
+        gas_safe_number: gasRegNumber,
+        insurance_provider: insuranceProvider,
+        bank_name: bankName,
+        account_number: accountNumber,
+        sort_code: sortCode,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', currentProfile.id)
       .select()
       .single();
 
@@ -60,7 +89,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ profile });
+    return NextResponse.json({ profile: data });
   } catch (error) {
     console.error("Unexpected error:", error);
 

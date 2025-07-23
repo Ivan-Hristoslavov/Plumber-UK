@@ -10,6 +10,7 @@ type ProfileData = {
   firstName: string;
   lastName: string;
   email: string;
+  businessEmail: string;
   phone: string;
   about: string;
 
@@ -50,6 +51,7 @@ export default function ProfilePage() {
     firstName: "",
     lastName: "",
     email: "",
+    businessEmail: "",
     phone: "",
     about: "",
 
@@ -82,6 +84,7 @@ export default function ProfilePage() {
         firstName: firstName || "Plamen",
         lastName: lastName || "Zhelev",
         email: dbProfile.email || "plamen@fixmyleak.co.uk",
+        businessEmail: dbProfile.business_email || "admin@fixmyleak.co.uk",
         phone: dbProfile.phone || "+44 7700 900123",
         about: dbProfile.about || "",
 
@@ -100,45 +103,45 @@ export default function ProfilePage() {
     }
   }, [dbProfile, loading]);
 
-  const handleSaveProfile = async () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    try {
-      // Prepare the data for the API
-      const profileUpdate = {
-        name: `${profileData.firstName} ${profileData.lastName}`,
-        email: profileData.email,
-        phone: profileData.phone,
-        about: profileData.about,
-        company_name: profileData.companyName,
-        company_address: profileData.companyAddress,
-        gas_safe_number: profileData.gasRegNumber,
-        insurance_provider: profileData.insuranceProvider,
-        bank_name: profileData.bankName,
-        account_number: profileData.accountNumber,
-        sort_code: profileData.sortCode,
-      };
+    setSaveMessage("");
 
+    try {
       const response = await fetch("/api/admin/profile", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileUpdate),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          businessEmail: profileData.businessEmail,
+          phone: profileData.phone,
+          about: profileData.about,
+          companyName: profileData.companyName,
+          companyAddress: profileData.companyAddress,
+          gasRegNumber: profileData.gasRegNumber,
+          insuranceProvider: profileData.insuranceProvider,
+          bankName: profileData.bankName,
+          accountNumber: profileData.accountNumber,
+          sortCode: profileData.sortCode,
+        }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update profile");
+        throw new Error("Failed to save profile");
       }
 
-      showSuccess(
-        ToastMessages.profile.updated.title,
-        ToastMessages.profile.updated.message
-      );
+      const data = await response.json();
+      setSaveMessage("Profile updated successfully!");
+      setTimeout(() => setSaveMessage(""), 3000);
+      showSuccess("Profile Updated", "Profile updated successfully!");
     } catch (error) {
-      showError(
-        ToastMessages.profile.error.title,
-        ToastMessages.profile.error.message
-      );
-      console.error("Error updating profile:", error);
+      console.error("Error saving profile:", error);
+      setSaveMessage("Error saving profile. Please try again.");
+      setTimeout(() => setSaveMessage(""), 3000);
+      showError("Save Failed", "Failed to save profile. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -199,7 +202,6 @@ export default function ProfilePage() {
 
   const tabs = [
     { id: "personal", name: "Personal Info", icon: "👤" },
-    { id: "professional", name: "Professional Info", icon: "🛠️" },
     { id: "security", name: "Security", icon: "🔒" },
   ];
 
@@ -233,7 +235,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+      {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
         <div className="flex items-center space-x-6">
           <div className="relative">
             <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full flex items-center justify-center transition-colors duration-300">
@@ -276,7 +278,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
@@ -342,16 +344,36 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Email Address
+                      Admin Email (Login)
                     </label>
                     <input
-                      disabled
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-lg shadow-sm cursor-not-allowed transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-sm cursor-not-allowed transition-colors duration-300"
                       type="email"
                       value={profileData.email}
+                      readOnly
+                      title="Admin email cannot be changed for security reasons"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
-                      Email cannot be changed. Contact support if needed.
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      This email is used for admin login and cannot be changed.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Business Email
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="email"
+                      value={profileData.businessEmail}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          businessEmail: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      This email will be displayed to customers and used for business communications.
                     </p>
                   </div>
                   <div>
@@ -434,119 +456,7 @@ export default function ProfilePage() {
                 <button
                   className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   disabled={isSaving}
-                  onClick={handleSaveProfile}
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Professional Information Tab */}
-          {activeTab === "professional" && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Professional Credentials
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Gas Safe Registration Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.gasRegNumber}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          gasRegNumber: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Insurance Provider
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.insuranceProvider}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          insuranceProvider: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                </div>
-              </div>
-
-              {/* <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Banking Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Bank Name
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.bankName}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          bankName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Account Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.accountNumber}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          accountNumber: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Sort Code
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={profileData.sortCode}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          sortCode: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div> */}
-
-              <div className="flex justify-end">
-                <button
-                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
-                  disabled={isSaving}
-                  onClick={handleSaveProfile}
+                  onClick={handleSave}
                 >
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>

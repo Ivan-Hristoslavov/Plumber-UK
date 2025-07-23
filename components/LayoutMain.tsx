@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { DayOffBanner } from "./DayOffBanner";
 import { AdminProfile } from "@/lib/admin-profile";
+import { useActiveDayOffPeriods } from "@/hooks/useDayOffPeriods";
 
 import NavigationNavbar from "./NavigationNavbar";
 import FooterMain from './FooterMain';
@@ -18,34 +19,16 @@ export default function LayoutMain({
 }) {
   const [hasDayOffBanner, setHasDayOffBanner] = useState(false);
   const pathname = usePathname();
+  const { activePeriods, loading } = useActiveDayOffPeriods();
 
   // Check if we're in admin panel
   const isAdminPanel = pathname?.startsWith("/admin");
 
   useEffect(() => {
-    const checkDayOffBanner = async () => {
-      try {
-        const response = await fetch('/api/admin/day-off');
-        const periods = await response.json();
-        
-        const today = new Date();
-        const activePeriod = periods.find((p: any) => {
-          if (!p.show_banner) return false;
-          const start = new Date(p.start_date);
-          const end = new Date(p.end_date);
-          return today >= start && today <= end;
-        });
-        
-        setHasDayOffBanner(!!activePeriod);
-      } catch (error) {
-        setHasDayOffBanner(false);
-      }
-    };
-
     if (!isAdminPanel) {
-      checkDayOffBanner();
+      setHasDayOffBanner(activePeriods.length > 0);
     }
-  }, [isAdminPanel]);
+  }, [isAdminPanel, activePeriods]);
 
   // If we're in admin panel, render only the children without main layout elements
   if (isAdminPanel) {
@@ -58,7 +41,7 @@ export default function LayoutMain({
       <DayOffBanner />
       
       {/* Navigation - Positioned below sticky banner */}
-      <div className={`sticky z-40 transition-all duration-300 ${hasDayOffBanner ? 'top-[48px]' : 'top-0'}`}>
+      <div className={`sticky z-40 transition-all duration-300 ${hasDayOffBanner ? 'top-[40px]' : 'top-0'}`}>
         <NavigationNavbar />
       </div>
       

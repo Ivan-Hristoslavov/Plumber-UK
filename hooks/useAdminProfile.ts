@@ -4,6 +4,7 @@ interface AdminProfile {
   id: string;
   name: string;
   email: string;
+  business_email: string;
   phone: string;
   company_name: string;
   company_address: string;

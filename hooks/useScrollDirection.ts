@@ -47,8 +47,8 @@ export function useScrollDirection() {
       setLastScrollY(scrollY);
     };
 
-    // Throttle scroll handler to run at most every 100ms
-    const throttledHandleScroll = throttle(handleScroll, 100);
+    // Throttle scroll handler to run at most every 200ms (increased from 100ms)
+    const throttledHandleScroll = throttle(handleScroll, 200);
 
     window.addEventListener("scroll", throttledHandleScroll, { passive: true });
 

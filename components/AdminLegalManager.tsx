@@ -3,17 +3,18 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { useToast, ToastMessages } from "@/components/Toast";
 
 type LegalContent = {
-  terms_and_conditions: string;
+  terms: string;
   privacy_policy: string;
 };
 
 export function AdminLegalManager() {
   const [activeTab, setActiveTab] = useState<"terms" | "privacy">("terms");
   const [content, setContent] = useState<LegalContent>({
-    terms_and_conditions: "",
+    terms: "",
     privacy_policy: "",
   });
   const [loading, setLoading] = useState(true);
@@ -28,23 +29,27 @@ export function AdminLegalManager() {
     try {
       setLoading(true);
       
-      // Load from admin_profile table
-      const { data: profile, error } = await supabase
-        .from("admin_profile")
-        .select("terms_and_conditions, privacy_policy")
-        .single();
+      // Load from separate tables
+      const [termsResult, privacyResult] = await Promise.all([
+        supabase.from("terms").select("content").single(),
+        supabase.from("privacy_policy").select("content").single()
+      ]);
 
-      if (error && error.code !== "PGRST116") {
-        console.error("Error loading legal content:", error);
-        return;
+      let termsContent = "";
+      let privacyContent = "";
+
+      if (termsResult.data) {
+        termsContent = termsResult.data.content;
       }
 
-      if (profile) {
-        setContent({
-          terms_and_conditions: profile.terms_and_conditions || "",
-          privacy_policy: profile.privacy_policy || "",
-        });
+      if (privacyResult.data) {
+        privacyContent = privacyResult.data.content;
       }
+
+      setContent({
+        terms: termsContent,
+        privacy_policy: privacyContent,
+      });
     } catch (error) {
       console.error("Error loading legal content:", error);
     } finally {
@@ -56,33 +61,32 @@ export function AdminLegalManager() {
     try {
       setSaving(true);
       
-      // First get the admin profile ID
-      const { data: profiles, error: fetchError } = await supabase
-        .from("admin_profile")
-        .select("id")
-        .limit(1);
-
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      if (!profiles || profiles.length === 0) {
-        throw new Error("No admin profile found");
-      }
-
-      const adminId = profiles[0].id;
+      // Update both tables
+      const promises = [];
       
-      const { error } = await supabase
-        .from("admin_profile")
-        .update({
-          terms_and_conditions: content.terms_and_conditions,
-          privacy_policy: content.privacy_policy,
-          updated_at: new Date().toISOString(),
+      // Update terms
+      promises.push(
+        supabase.from("terms").upsert({ 
+          id: 1, 
+          content: content.terms 
         })
-        .eq("id", adminId);
+      );
+      
+      // Update privacy policy
+      promises.push(
+        supabase.from("privacy_policy").upsert({ 
+          id: 1, 
+          content: content.privacy_policy 
+        })
+      );
 
-      if (error) {
-        throw error;
+      const results = await Promise.all(promises);
+      
+      // Check for errors
+      for (const result of results) {
+        if (result.error) {
+          throw result.error;
+        }
       }
 
       showSuccess("Legal Content Updated", "Terms and Privacy Policy have been saved successfully!");
@@ -110,7 +114,7 @@ export function AdminLegalManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
             Legal Content Management
@@ -122,7 +126,7 @@ export function AdminLegalManager() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-300 flex items-center space-x-2"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2"
         >
           {saving ? (
             <>
@@ -140,14 +144,27 @@ export function AdminLegalManager() {
         </button>
       </div>
 
+      {/* Tips Section */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+          💡 Quick Tips
+        </h4>
+        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+          <li>• Use clear, simple language your customers can understand</li>
+          <li>• Include data collection, usage, and storage information</li>
+          <li>• Specify service terms, cancellation policies, and payment terms</li>
+          <li>• Add contact information for legal inquiries</li>
+        </ul>
+      </div>
+
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as "terms" | "privacy")}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-300 ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-300 ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
@@ -161,7 +178,7 @@ export function AdminLegalManager() {
       </div>
 
       {/* Content Editor */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-300">
         {activeTab === "terms" && (
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
@@ -173,8 +190,8 @@ export function AdminLegalManager() {
               </p>
             </div>
             <MarkdownEditor
-              value={content.terms_and_conditions}
-              onChange={(value) => setContent({ ...content, terms_and_conditions: value })}
+              value={content.terms}
+              onChange={(value) => setContent({ ...content, terms: value })}
               placeholder="Enter your Terms & Conditions here using Markdown formatting..."
             />
           </div>
@@ -200,35 +217,21 @@ export function AdminLegalManager() {
       </div>
 
       {/* Preview Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-300">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
           Preview
         </h3>
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          {activeTab === "terms" && content.terms_and_conditions ? (
-            <div dangerouslySetInnerHTML={{ __html: content.terms_and_conditions }} />
+          {activeTab === "terms" && content.terms ? (
+            <MarkdownRenderer content={content.terms} />
           ) : activeTab === "privacy" && content.privacy_policy ? (
-            <div dangerouslySetInnerHTML={{ __html: content.privacy_policy }} />
+            <MarkdownRenderer content={content.privacy_policy} />
           ) : (
             <p className="text-gray-500 dark:text-gray-400 italic">
               No content to preview. Start typing in the editor above.
             </p>
           )}
         </div>
-      </div>
-
-      {/* Help Section */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-        <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
-          💡 Tips for Legal Content
-        </h4>
-        <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-          <li>• Use clear, simple language that your customers can understand</li>
-          <li>• Include information about data collection, usage, and storage</li>
-          <li>• Specify your service terms, cancellation policies, and payment terms</li>
-          <li>• Mention your contact information for legal inquiries</li>
-          <li>• Consider consulting with a legal professional for comprehensive coverage</li>
-        </ul>
       </div>
     </div>
   );

@@ -338,7 +338,10 @@ export function AdminDayOffManager() {
               <div className="my-6">
                 <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">Preview:</label>
                 <div className="relative">
-                  <DayOffBanner previewPeriod={form} />
+                  <DayOffBanner 
+                    key={`preview-${form.start_date}-${form.end_date}-${form.show_banner}-${form.banner_message}`}
+                    previewPeriod={form} 
+                  />
                 </div>
               </div>
 

@@ -60,6 +60,8 @@ export default function NavigationNavbar() {
       };
     };
 
+    let previousSection = "";
+
     const handleScrollSpy = () => {
       const allSections = [
         "home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"
@@ -92,15 +94,19 @@ export default function NavigationNavbar() {
         }
       });
 
-      if (currentSection) {
+      if (currentSection && currentSection !== previousSection) {
         setActiveSection(currentSection);
-        // Update URL without page reload
-        if (pathname === "/") {
-          router.replace(`/#${currentSection}`, { scroll: false });
+        previousSection = currentSection;
+        
+        // Only update URL if we're on the home page to prevent excessive navigation
+        if (pathname === "/" && currentSection !== "home") {
+          try {
+            router.replace(`/#${currentSection}`, { scroll: false });
+          } catch (error) {
+            // Ignore navigation errors during rapid scrolling
+          }
         }
       }
-      
-
     };
 
     // Check if there's a hash in the URL on initial load
@@ -108,6 +114,7 @@ export default function NavigationNavbar() {
       const hash = window.location.hash.substring(1);
       if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
         setActiveSection(hash);
+        previousSection = hash;
         
         // Scroll to the section after a short delay to ensure DOM is ready
         setTimeout(() => {
@@ -139,8 +146,8 @@ export default function NavigationNavbar() {
       }
     }
 
-    // Throttle scroll handler to run at most every 200ms
-    const throttledHandleScrollSpy = throttle(handleScrollSpy, 200);
+    // Throttle scroll handler to run at most every 300ms (increased from 200ms)
+    const throttledHandleScrollSpy = throttle(handleScrollSpy, 300);
     
     window.addEventListener("scroll", throttledHandleScrollSpy);
     // Initial check when component mounts
