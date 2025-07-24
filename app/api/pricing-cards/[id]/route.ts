@@ -16,7 +16,8 @@ export async function PUT(
       table_headers,
       table_rows,
       notes,
-      order
+      order,
+      is_enabled
     } = body;
 
     const { data: pricingCard, error } = await supabase
@@ -28,6 +29,7 @@ export async function PUT(
         table_rows,
         notes,
         order,
+        is_enabled,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)

@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Inter } from "next/font/google";
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "./providers";
 import { ToastProvider } from "@/components/Toast";
@@ -18,32 +18,30 @@ const inter = Inter({ subsets: ["latin"] });
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
   const companyName = profile?.company_name || "FixMyLeak";
-  
+
   return {
     title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description:
-      `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. 45-minute response time. Gas Safe registered with 10+ years experience.`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham, ${profile?.response_time}-minute response time, ${profile?.years_of_experience}+ years experience.`,
     keywords: [
       "emergency plumber London",
       "plumber Clapham",
-      "plumber Chelsea", 
+      "plumber Chelsea",
       "plumber Battersea",
       "plumber Balham",
       "plumber Wandsworth",
       "plumber Streatham",
       "leak detection London",
       "same day plumber",
-      "Gas Safe plumber",
       "emergency callout London",
       "boiler repair London",
-      "bathroom installation London"
+      "bathroom installation London",
     ],
     icons: {
       icon: "/favicon.ico",
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with 45-minute response time. Gas Safe registered.`,
+      description: `Professional emergency plumber covering South West London with ${profile?.response_time}-minute response time.`,
       type: "website",
       locale: "en_GB",
       siteName: companyName,
@@ -89,10 +87,17 @@ export default async function RootLayout({
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
-          inter.className,
+          inter.className
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light", enableSystem: true, themes: ["light", "dark"] }}>
+        <Providers
+          themeProps={{
+            attribute: "class",
+            defaultTheme: "light",
+            enableSystem: true,
+            themes: ["light", "dark"],
+          }}
+        >
           <ToastProvider>
             <AdminProfileProvider adminProfile={adminProfile}>
               <HashNavigation />

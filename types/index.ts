@@ -117,6 +117,7 @@ export type PricingCard = {
   table_rows: Record<string, string>[];
   notes: PricingCardNote[];
   order: number;
+  is_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
