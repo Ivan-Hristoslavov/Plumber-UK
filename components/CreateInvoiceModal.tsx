@@ -40,7 +40,7 @@ export function CreateInvoiceModal({
   const [useManualEntry, setUseManualEntry] = useState(false);
 
   // Filter bookings for selected customer - show completed and scheduled bookings
-  const filteredBookings = formData.customer_id
+  const filteredBookings = formData.customer_id && customers && bookings
     ? bookings.filter(b => {
         // First try to match by customer_id if it exists
         if (b.customer_id === formData.customer_id) {
@@ -62,8 +62,7 @@ export function CreateInvoiceModal({
   console.log("customers:", customers);
   console.log("filteredBookings:", filteredBookings);
 
-  const selectedCustomer = customers.find(c => c.id === formData.customer_id);
-  const selectedBooking = bookings.find(b => b.id === formData.booking_id);
+  const selectedBooking = bookings?.find(b => b.id === formData.booking_id);
 
   // Calculate amounts
   const getAmount = () => {
@@ -294,7 +293,7 @@ export function CreateInvoiceModal({
               disabled={isLoading}
             >
               <option value="">Select a customer</option>
-              {customers.map((customer) => (
+              {customers?.map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.name} - {customer.email}
                 </option>

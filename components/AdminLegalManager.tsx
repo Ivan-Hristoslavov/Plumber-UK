@@ -11,7 +11,7 @@ type LegalContent = {
   privacy_policy: string;
 };
 
-export function AdminLegalManager() {
+export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) {
   const [activeTab, setActiveTab] = useState<"terms" | "privacy">("terms");
   const [content, setContent] = useState<LegalContent>({
     terms: "",
@@ -116,17 +116,14 @@ export function AdminLegalManager() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-            Legal Content Management
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+          <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
             Manage your Terms & Conditions and Privacy Policy content.
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2"
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 text-sm"
         >
           {saving ? (
             <>

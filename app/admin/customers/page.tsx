@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { EditCustomerModal } from "@/components/EditCustomerModal";
+import Pagination from "@/components/Pagination";
 
 type Customer = {
   id: string;
@@ -44,6 +45,12 @@ export default function CustomersPage() {
   const [addType, setAddType] = useState<"individual" | "company">(
     "individual"
   );
+  const [viewMode, setViewMode] = useState<"table" | "cards">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("customers-view-mode") as "table" | "cards") || "table";
+    }
+    return "table";
+  });
   const [newCustomer, setNewCustomer] = useState({
     name: "",
     email: "",
@@ -61,17 +68,23 @@ export default function CustomersPage() {
   const [formError, setFormError] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [limit] = useState(10);
 
   // Load customers on component mount
   useEffect(() => {
     loadCustomers();
   }, []);
 
-  const loadCustomers = async () => {
+  const loadCustomers = async (page: number = 1) => {
     try {
       setLoading(true);
       console.log("Loading customers...");
-      const response = await fetch("/api/customers");
+      const response = await fetch(`/api/customers?page=${page}&limit=${limit}`);
 
       console.log("Response status:", response.status);
 
@@ -79,7 +92,10 @@ export default function CustomersPage() {
         const data = await response.json();
 
         console.log("Loaded customers:", data);
-        setCustomers(data);
+        setCustomers(data.customers || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalCount(data.pagination?.totalCount || 0);
+        setCurrentPage(data.pagination?.page || 1);
       } else {
         const errorText = await response.text();
 
@@ -90,6 +106,15 @@ export default function CustomersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = async (page: number) => {
+    await loadCustomers(page);
+  };
+
+  const handleViewModeChange = (mode: "table" | "cards") => {
+    setViewMode(mode);
+    localStorage.setItem("customers-view-mode", mode);
   };
 
   const handleAddCustomer = async (e: React.FormEvent) => {
@@ -207,66 +232,164 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customers</h1>
-        <button
-          className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors duration-300"
-          onClick={() => setShowAddModal(true)}
-        >
-          Add Customer
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
+            <button
+              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                viewMode === "table"
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+              onClick={() => handleViewModeChange("table")}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9m-9 4h9m-9-8h9" />
+              </svg>
+              Table
+            </button>
+            <button
+              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                viewMode === "cards"
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              }`}
+              onClick={() => handleViewModeChange("cards")}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
+              </svg>
+              Cards
+            </button>
+          </div>
+          <button
+            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors duration-300"
+            onClick={() => setShowAddModal(true)}
+          >
+            Add Customer
+          </button>
+        </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto transition-colors duration-300">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Phone
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Address
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
-            {loading ? (
-              <tr>
-                <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400 transition-colors duration-300" colSpan={6}>
-                  Loading customers...
-                </td>
-              </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td className="px-6 py-4 text-center text-gray-500 dark:text-gray-400 transition-colors duration-300" colSpan={6}>
-                  No customers found. Add your first customer using the button
-                  above.
-                </td>
-              </tr>
-            ) : (
-              customers.map((customer) => (
-                <tr key={customer.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                    {customer.name}
-                    {customer.customer_type === "company" &&
-                      customer.contact_person && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                          Contact: {customer.contact_person}
+      {/* Loading and Empty States */}
+      {loading ? (
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 text-center transition-colors duration-300">
+          <div className="text-gray-500 dark:text-gray-400">Loading customers...</div>
+        </div>
+      ) : customers.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 text-center transition-colors duration-300">
+          <div className="text-gray-500 dark:text-gray-400">
+            No customers found. Add your first customer using the button above.
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Table View */}
+          {viewMode === "table" && (
+            <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto transition-colors duration-300">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Address
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                  {customers.map((customer) => (
+                    <tr key={customer.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                        {customer.name}
+                        {customer.customer_type === "company" &&
+                          customer.contact_person && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                              Contact: {customer.contact_person}
+                            </div>
+                          )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300 ${
+                            customer.customer_type === "individual"
+                              ? "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300"
+                              : "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300"
+                          }`}
+                        >
+                          {customer.customer_type === "individual"
+                            ? "Individual"
+                            : "Company"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                        {customer.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                        {customer.phone}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                        {customer.address}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+                            onClick={() => setSelectedCustomer(customer)}
+                          >
+                            View
+                          </button>
+                          <button
+                            className="px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                            onClick={() => {
+                              setEditingCustomer(customer);
+                              setShowEditModal(true);
+                            }}
+                          >
+                            Edit
+                          </button>
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Cards View */}
+          {viewMode === "cards" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {customers.map((customer) => (
+                <div
+                  key={customer.id}
+                  className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                        {customer.name}
+                      </h3>
+                      {customer.customer_type === "company" && customer.contact_person && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                          Contact: {customer.contact_person}
+                        </p>
                       )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                    </div>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300 ${
                         customer.customer_type === "individual"
@@ -274,45 +397,65 @@ export default function CustomersPage() {
                           : "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300"
                       }`}
                     >
-                      {customer.customer_type === "individual"
-                        ? "Individual"
-                        : "Company"}
+                      {customer.customer_type === "individual" ? "Individual" : "Company"}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                    {customer.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                    {customer.phone}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                    {customer.address}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
-                        onClick={() => setSelectedCustomer(customer)}
-                      >
-                        View
-                      </button>
-                      <button
-                        className="px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
-                        onClick={() => {
-                          setEditingCustomer(customer);
-                          setShowEditModal(true);
-                        }}
-                      >
-                        Edit
-                      </button>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                      <svg className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="truncate">{customer.email}</span>
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                      <svg className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>{customer.phone}</span>
+                    </div>
+                    <div className="flex items-start text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                      <svg className="w-4 h-4 mr-2 mt-0.5 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="break-words">{customer.address}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      className="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300 text-sm"
+                      onClick={() => setSelectedCustomer(customer)}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 text-sm"
+                      onClick={() => {
+                        setEditingCustomer(customer);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            limit={limit}
+            onPageChange={handlePageChange}
+            className="mt-8"
+          />
+        </>
+      )}
 
       {/* Add Customer Modal */}
       {showAddModal && (

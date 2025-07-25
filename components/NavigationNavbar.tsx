@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -37,6 +37,7 @@ export default function NavigationNavbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
+  const routerUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Hide navigation on terms and privacy pages
   const shouldHideNavigation = pathname === "/terms" || pathname === "/privacy";
@@ -71,7 +72,7 @@ export default function NavigationNavbar() {
       ];
       
       // Find the section that is currently in view
-      let currentSection = null;
+      let currentSection: string | null = null;
       let minDistance = Infinity;
       
       allSections.forEach((section) => {
@@ -103,11 +104,18 @@ export default function NavigationNavbar() {
         
         // Only update URL if we're on the home page to prevent excessive navigation
         if (pathname === "/" && currentSection !== "home") {
-          try {
-            router.replace(`/#${currentSection}`, { scroll: false });
-          } catch (error) {
-            // Ignore navigation errors during rapid scrolling
+          // Debounce router updates to prevent excessive calls
+          if (routerUpdateTimeoutRef.current) {
+            clearTimeout(routerUpdateTimeoutRef.current);
           }
+          
+          routerUpdateTimeoutRef.current = setTimeout(() => {
+            try {
+              router.replace(`/#${currentSection}`, { scroll: false });
+            } catch (error) {
+              // Ignore navigation errors during rapid scrolling
+            }
+          }, 100);
         }
       }
     };
@@ -156,8 +164,13 @@ export default function NavigationNavbar() {
     // Initial check when component mounts
     handleScrollSpy();
 
-    return () => window.removeEventListener("scroll", throttledHandleScrollSpy);
-  }, [pathname, router]);
+    return () => {
+      window.removeEventListener("scroll", throttledHandleScrollSpy);
+      if (routerUpdateTimeoutRef.current) {
+        clearTimeout(routerUpdateTimeoutRef.current);
+      }
+    };
+  }, [pathname]); // Remove router from dependencies to prevent infinite re-renders
 
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,

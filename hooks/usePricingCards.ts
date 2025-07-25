@@ -5,16 +5,17 @@ import { PricingCard } from "@/types";
 let pricingCardsCache: PricingCard[] | null = null;
 let cachePromise: Promise<PricingCard[]> | null = null;
 
-export function usePricingCards() {
-  const [pricingCards, setPricingCards] = useState<PricingCard[]>(pricingCardsCache || []);
-  const [loading, setLoading] = useState(!pricingCardsCache);
+export function usePricingCards(isAdmin: boolean = false) {
+  const [pricingCards, setPricingCards] = useState<PricingCard[]>(isAdmin ? [] : (pricingCardsCache || []));
+  const [loading, setLoading] = useState(!pricingCardsCache || isAdmin);
   const [error, setError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
 
   const fetchPricingCards = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/pricing-cards");
+      const url = isAdmin ? "/api/pricing-cards?admin=true" : "/api/pricing-cards";
+      const response = await fetch(url);
       const data = await response.json();
 
       if (!response.ok) {
@@ -98,6 +99,12 @@ export function usePricingCards() {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
+    // For admin requests, don't use cache to see real-time changes
+    if (isAdmin) {
+      fetchPricingCards();
+      return;
+    }
+
     // If we have cached data, use it
     if (pricingCardsCache) {
       setPricingCards(pricingCardsCache);
@@ -118,7 +125,8 @@ export function usePricingCards() {
     }
 
     // Make the API call
-    cachePromise = fetch("/api/pricing-cards")
+    const url = isAdmin ? "/api/pricing-cards?admin=true" : "/api/pricing-cards";
+    cachePromise = fetch(url)
       .then(response => response.json())
       .then(data => {
         if (!data.pricingCards) {
@@ -136,7 +144,7 @@ export function usePricingCards() {
         cachePromise = null; // Reset promise on error
         throw err;
       });
-  }, []);
+  }, [isAdmin]);
 
   return {
     pricingCards,

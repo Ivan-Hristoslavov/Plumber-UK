@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useToast } from "@/components/Toast";
+import Pagination from "@/components/Pagination";
 
 type Payment = {
   id: string;
@@ -54,6 +55,12 @@ export default function PaymentsPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"table" | "cards">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("payments-view-mode") as "table" | "cards") || "table";
+    }
+    return "table";
+  });
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPaymentLinkModal, setShowPaymentLinkModal] = useState(false);
@@ -62,6 +69,12 @@ export default function PaymentsPage() {
   const [processingPayment, setProcessingPayment] = useState<string | null>(
     null
   );
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [limit] = useState(10);
 
   const [filters, setFilters] = useState({
     status: "all",
@@ -119,18 +132,21 @@ export default function PaymentsPage() {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (page: number = 1) => {
     try {
       setLoading(true);
       const [paymentsRes, customersRes, bookingsRes] = await Promise.all([
-        fetch("/api/payments"),
+        fetch(`/api/payments?page=${page}&limit=${limit}`),
         fetch("/api/customers"),
         fetch("/api/bookings"),
       ]);
 
       if (paymentsRes.ok) {
         const paymentsData = await paymentsRes.json();
-        setPayments(paymentsData);
+        setPayments(paymentsData.payments || []);
+        setTotalPages(paymentsData.pagination?.totalPages || 1);
+        setTotalCount(paymentsData.pagination?.totalCount || 0);
+        setCurrentPage(paymentsData.pagination?.page || 1);
       }
 
       if (customersRes.ok) {
@@ -147,6 +163,15 @@ export default function PaymentsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = async (page: number) => {
+    await loadData(page);
+  };
+
+  const handleViewModeChange = (mode: "table" | "cards") => {
+    setViewMode(mode);
+    localStorage.setItem("payments-view-mode", mode);
   };
 
   const handleCreatePayment = async (e: React.FormEvent) => {
@@ -690,7 +715,7 @@ export default function PaymentsPage() {
     <div className="space-y-6">
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
               Payments
@@ -699,10 +724,39 @@ export default function PaymentsPage() {
               Manage and track all payment transactions.
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+            {/* View Toggle */}
+            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
+              <button
+                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  viewMode === "table"
+                    ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                }`}
+                onClick={() => handleViewModeChange("table")}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18m-9 8h9m-9 4h9m-9-8h9m-9-4H3" />
+                </svg>
+                Table
+              </button>
+              <button
+                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  viewMode === "cards"
+                    ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                }`}
+                onClick={() => handleViewModeChange("cards")}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
+                </svg>
+                Cards
+              </button>
+            </div>
             {/* Create Payment Link Button */}
             <button
-              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
               onClick={() => setShowPaymentLinkModal(true)}
             >
               <svg
@@ -718,12 +772,13 @@ export default function PaymentsPage() {
                   d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                 />
               </svg>
-              Payment Link
+              <span className="hidden sm:inline">Payment Link</span>
+              <span className="sm:hidden">Link</span>
             </button>
 
             {/* Create Email Link Button */}
             <button
-              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-300"
+              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-300"
               onClick={() => setShowEmailLinkModal(true)}
             >
               <svg
@@ -739,12 +794,13 @@ export default function PaymentsPage() {
                   d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
-              Email Link
+              <span className="hidden sm:inline">Email Link</span>
+              <span className="sm:hidden">Email</span>
             </button>
 
             {/* Create Payment Button */}
             <button
-              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
               onClick={() => setShowCreateModal(true)}
             >
               <svg
@@ -760,7 +816,8 @@ export default function PaymentsPage() {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              Record Payment
+              <span className="hidden sm:inline">Record Payment</span>
+              <span className="sm:hidden">Record</span>
             </button>
           </div>
         </div>
@@ -1008,9 +1065,10 @@ export default function PaymentsPage() {
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+            {/* Table View */}
+            {viewMode === "table" && (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
                 <thead className="bg-gray-50 dark:bg-gray-700/50 transition-colors duration-300">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
@@ -1211,76 +1269,104 @@ export default function PaymentsPage() {
                 </tbody>
               </table>
             </div>
+            )}
 
-            {/* Mobile Card View */}
-            <div className="lg:hidden">
-              <div className="space-y-4 p-4">
+            {/* Cards View */}
+            {viewMode === "cards" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPayments.map((payment) => (
-                  <div key={payment.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
+                  <div key={payment.id} className="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 p-6">
+                    {/* Header with Amount and Status */}
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <span className="text-2xl font-bold text-gray-900 dark:text-white">
                             £{payment.amount.toFixed(2)}
                           </span>
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
                               payment.payment_status
                             )}`}
                           >
-                            {payment.payment_status}
+                            {payment.payment_status.toUpperCase()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {payment.customers?.email || "Unknown"}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        {getPaymentMethodIcon(payment.payment_method)}
-                        <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                          {payment.payment_method.replace("_", " ")}
-                        </span>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                          {getPaymentMethodIcon(payment.payment_method)}
+                          <span className="capitalize">
+                            {payment.payment_method.replace("_", " ")}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Details */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Reference:</span>
-                        <span className="text-gray-900 dark:text-white">
-                          {payment.reference ? truncateReference(payment.reference) : "-"}
+                    {/* Customer Info */}
+                    <div className="mb-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {payment.customers?.name || "Unknown Customer"}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Date:</span>
+                      {payment.customers?.email && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <span className="truncate">{payment.customers.email}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Payment Details */}
+                    <div className="space-y-3 mb-6">
+                      {payment.reference && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400 font-medium">Reference:</span>
+                          <span className="text-gray-900 dark:text-white font-mono">
+                            {truncateReference(payment.reference)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">Date:</span>
                         <span className="text-gray-900 dark:text-white">
                           {format(new Date(payment.payment_date), "dd MMM yyyy")}
                         </span>
                       </div>
+                      {payment.bookings && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400 font-medium">Service:</span>
+                          <span className="text-gray-900 dark:text-white truncate max-w-[120px]">
+                            {payment.bookings.service}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <button
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
                         onClick={() => setSelectedPayment(payment)}
                       >
                         <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        View Details
+                        View
                       </button>
 
                       {isPaymentLink(payment) && getPaymentLinkUrl(payment) && (
                         <button
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg transition-colors"
+                          className="inline-flex items-center px-3 py-2 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg transition-colors duration-200"
                           onClick={() => handleCopyPaymentLink(payment)}
                         >
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                           </svg>
-                          Copy Link
+                          Copy
                         </button>
                       )}
 
@@ -1288,19 +1374,19 @@ export default function PaymentsPage() {
                         getPaymentLinkUrl(payment) &&
                         payment.customers?.email && (
                           <button
-                            className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-lg transition-colors"
+                            className="inline-flex items-center px-3 py-2 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-lg transition-colors duration-200"
                             onClick={() => handleSendPaymentLinkEmail(payment)}
                           >
                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            Email Link
+                            Email
                           </button>
                         )}
 
                       {canEditPayment(payment.payment_status) && (
                         <button
-                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors"
+                          className="inline-flex items-center px-3 py-2 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors duration-200"
                           onClick={() => handleEditPayment(payment)}
                         >
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1311,7 +1397,7 @@ export default function PaymentsPage() {
                       )}
 
                       <button
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-xs font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors duration-200"
                         onClick={() => handleDeletePayment(payment)}
                       >
                         <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1323,7 +1409,17 @@ export default function PaymentsPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            )}
+
+            {/* Pagination */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              limit={limit}
+              onPageChange={handlePageChange}
+              className="mt-8"
+            />
           </>
         )}
       </div>

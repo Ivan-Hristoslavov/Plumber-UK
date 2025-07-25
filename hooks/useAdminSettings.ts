@@ -7,6 +7,9 @@ export type AdminSettings = {
   workingHoursStart: string;
   workingHoursEnd: string;
   workingDays: string[];
+  responseTime?: string;
+  emergencyRate?: string;
+  standardRate?: string;
   dayOffSettings?: {
     isEnabled: boolean;
     startDate: string;
@@ -26,7 +29,10 @@ export function useAdminSettings() {
   const [settings, setSettings] = useState<AdminSettings>(adminSettingsCache || {
     workingHoursStart: "08:00",
     workingHoursEnd: "18:00",
-    workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+    workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    responseTime: "45 minutes",
+    emergencyRate: "150",
+    standardRate: "75"
   });
   const [isLoading, setIsLoading] = useState(!adminSettingsCache);
   const [error, setError] = useState<Error | null>(null);
@@ -64,27 +70,23 @@ export function useAdminSettings() {
         return response.json();
       })
       .then(responseData => {
-        const data = responseData.settings || [];
+        // The API returns the settings directly as an object
         const parsedSettings: AdminSettings = {
           workingHoursStart: "08:00",
           workingHoursEnd: "18:00",
-          workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+          workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+          responseTime: "45 minutes",
+          emergencyRate: "150",
+          standardRate: "75"
         };
         
-        data.forEach((setting: any) => {
-          try {
-            parsedSettings[setting.key] = typeof setting.value === 'string' 
-              ? JSON.parse(setting.value) 
-              : setting.value;
-          } catch {
-            parsedSettings[setting.key] = setting.value;
-          }
-        });
+        // Merge the API response with defaults
+        const mergedSettings = { ...parsedSettings, ...responseData };
 
-        adminSettingsCache = parsedSettings;
-        setSettings(parsedSettings);
+        adminSettingsCache = mergedSettings;
+        setSettings(mergedSettings);
         setIsLoading(false);
-        return parsedSettings;
+        return mergedSettings;
       })
       .catch(err => {
         setError(err instanceof Error ? err : new Error('Unknown error'));

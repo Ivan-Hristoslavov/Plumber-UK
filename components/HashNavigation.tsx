@@ -70,7 +70,7 @@ export default function HashNavigation() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [pathname, router]);
+  }, [pathname]); // Remove router from dependencies to prevent infinite re-renders
 
   return null; // This component doesn't render anything
 } 

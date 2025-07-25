@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createClient();
     
-    const { data: pricingCards, error } = await supabase
+    // Check if this is an admin request (for admin panel) or client request
+    const url = new URL(request.url);
+    const isAdmin = url.searchParams.get('admin') === 'true';
+    
+    let query = supabase
       .from("pricing_cards")
       .select("*")
       .order("order", { ascending: true });
+    
+    // Only show enabled cards for client-side requests
+    if (!isAdmin) {
+      query = query.eq('is_enabled', true);
+    }
+    
+    const { data: pricingCards, error } = await query;
 
     if (error) {
       console.error("Error fetching pricing cards:", error);
@@ -27,7 +38,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     const body = await request.json();
     
-    const { title, subtitle, table_headers, table_rows, notes, order } = body;
+    const { title, subtitle, table_headers, table_rows, notes, order, is_enabled = true } = body;
 
     // Get admin profile ID (assuming there's only one admin)
     const { data: adminProfile, error: adminError } = await supabase
@@ -49,6 +60,7 @@ export async function POST(request: NextRequest) {
         table_rows: table_rows || [],
         notes: notes || [],
         order: order || 0,
+        is_enabled: is_enabled,
       })
       .select()
       .single();

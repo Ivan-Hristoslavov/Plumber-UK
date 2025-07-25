@@ -101,8 +101,8 @@ export default function HomePage() {
 
                   {/* Customization Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
-                      <div className="w-8 h-8 bg-green-500 dark:bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800 min-h-[80px]">
+                      <div className="w-8 h-8 bg-green-500 dark:bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg
                           className="h-4 w-4 text-white"
                           fill="none"
@@ -117,11 +117,11 @@ export default function HomePage() {
                           />
                         </svg>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                           Experience
                         </p>
-                        <p className="text-sm text-green-700 dark:text-green-300">
+                        <p className="text-sm text-green-700 dark:text-green-300 break-words">
                           <AdminProfileData
                             type="years_of_experience"
                             fallback="10+ years"
@@ -130,8 +130,8 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                      <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 min-h-[80px]">
+                      <div className="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg
                           className="h-4 w-4 text-white"
                           fill="none"
@@ -146,11 +146,11 @@ export default function HomePage() {
                           />
                         </svg>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
                           Certifications
                         </p>
-                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                        <p className="text-sm text-blue-700 dark:text-blue-300 break-words">
                           <AdminProfileData
                             type="certifications"
                             fallback="Gas Safe Registered"
@@ -159,8 +159,8 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
-                      <div className="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-start gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800 min-h-[80px]">
+                      <div className="w-8 h-8 bg-purple-500 dark:bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg
                           className="h-4 w-4 text-white"
                           fill="none"
@@ -175,11 +175,11 @@ export default function HomePage() {
                           />
                         </svg>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-1">
                           Response Time
                         </p>
-                        <p className="text-sm text-purple-700 dark:text-purple-300">
+                        <p className="text-sm text-purple-700 dark:text-purple-300 break-words">
                           <AdminProfileData
                             type="response_time"
                             fallback="45 minutes"
@@ -188,8 +188,8 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800">
-                      <div className="w-8 h-8 bg-amber-500 dark:bg-amber-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800 min-h-[80px]">
+                      <div className="w-8 h-8 bg-amber-500 dark:bg-amber-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg
                           className="h-4 w-4 text-white"
                           fill="none"
@@ -204,9 +204,15 @@ export default function HomePage() {
                           />
                         </svg>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
                           Specializations
+                        </p>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 break-words">
+                          <AdminProfileData
+                            type="certifications"
+                            fallback="Emergency repairs"
+                          />
                         </p>
                       </div>
                     </div>

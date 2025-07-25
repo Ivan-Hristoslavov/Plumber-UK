@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    if (rating < 1 || rating > 5) {
+    if (rating < 0 || rating > 6) {
       return NextResponse.json({ 
-        error: "Rating must be between 1 and 5" 
+        error: "Rating must be between 0 and 6" 
       }, { status: 400 });
     }
 

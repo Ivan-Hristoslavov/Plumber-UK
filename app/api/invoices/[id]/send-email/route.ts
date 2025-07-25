@@ -482,7 +482,6 @@ function generateInvoicePDF(invoice: any): Buffer {
   const totalY = vatY + spacing.sectionGap;
   doc.setDrawColor(37, 99, 235);
   doc.setLineWidth(1);
-  doc.line(totalsX, totalY - 8, pageWidth - spacing.margin, totalY - 8);
   
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
