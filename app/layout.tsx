@@ -99,7 +99,7 @@ export default async function RootLayout({
           }}
         >
           <ToastProvider>
-            <AdminProfileProvider adminProfile={adminProfile}>
+            <AdminProfileProvider>
               <HashNavigation />
               <LayoutMain adminProfile={adminProfile}>{children}</LayoutMain>
             </AdminProfileProvider>

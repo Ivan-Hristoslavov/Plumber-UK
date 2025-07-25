@@ -44,7 +44,11 @@ export async function GET(request: NextRequest) {
       }
       // Convert array of settings to object format
       const settingsObject = data?.reduce((acc, setting) => {
-        acc[setting.key] = setting.value;
+        try {
+          acc[setting.key] = JSON.parse(setting.value);
+        } catch {
+          acc[setting.key] = setting.value;
+        }
         return acc;
       }, {}) || {};
 

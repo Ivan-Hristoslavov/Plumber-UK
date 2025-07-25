@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
 import { PricingCard, PricingCardTableRow, PricingCardNote } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
@@ -328,9 +328,10 @@ function PricingCardModal({
   );
 }
 
-export function AdminPricingManager() {
-  const { pricingCards, loading, error, addPricingCard, updatePricingCard, deletePricingCard } = usePricingCards(true);
+export function AdminPricingManager({ triggerModal }: { triggerModal?: boolean }) {
+  const { pricingCards, loading, error, addPricingCard, updatePricingCard, deletePricingCard } = usePricingCards();
   const { showSuccess, showError } = useToast();
+  
   const [editingCard, setEditingCard] = useState<PricingCard | null>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -350,52 +351,57 @@ export function AdminPricingManager() {
 
   const [formData, setFormData] = useState(defaultCard);
 
+  // Handle trigger from parent component
+  useEffect(() => {
+    if (triggerModal) {
+      handleAddNew();
+    }
+  }, [triggerModal]);
+
   const handleSave = async () => {
     try {
       if (editingCard) {
         await updatePricingCard(editingCard.id, formData);
-        showSuccess(ToastMessages.pricing.cardUpdated.title, ToastMessages.pricing.cardUpdated.message);
+        showSuccess("Pricing Card Updated", "Your pricing card has been updated successfully.");
         setEditingCard(null);
         setShowModal(false);
       } else {
         await addPricingCard(formData);
-        showSuccess(ToastMessages.pricing.cardAdded.title, ToastMessages.pricing.cardAdded.message);
+        showSuccess("Pricing Card Added", "Your new pricing card has been added successfully.");
         setShowModal(false);
       }
-      setFormData(defaultCard);
+      setFormData({ ...defaultCard });
     } catch (err) {
-      showError(ToastMessages.pricing.error.title, ToastMessages.pricing.error.message);
+      showError("Error", "Failed to save pricing card. Please try again.");
     }
   };
 
   const handleEdit = (card: PricingCard) => {
     setEditingCard(card);
-    setFormData((prev: any) => ({
+    setFormData({
       title: card.title,
       subtitle: card.subtitle || "",
-      table_headers: card.table_headers || ["Column 1", "Column 2", "Column 3"],
+      table_headers: card.table_headers,
       table_rows: card.table_rows,
       notes: card.notes,
       order: card.order,
       is_enabled: card.is_enabled,
-    }));
+    });
     setShowModal(true);
   };
 
   const handleAddNew = () => {
     setEditingCard(null);
-    setFormData((prev: any) => defaultCard);
+    setFormData({ ...defaultCard });
     setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("Are you sure you want to delete this pricing card?")) {
-      try {
-        await deletePricingCard(id);
-        showSuccess(ToastMessages.pricing.cardDeleted.title, ToastMessages.pricing.cardDeleted.message);
-      } catch (err) {
-        showError(ToastMessages.pricing.error.title, ToastMessages.pricing.error.message);
-      }
+    try {
+      await deletePricingCard(id);
+      showSuccess("Pricing Card Deleted", "The pricing card has been deleted successfully.");
+    } catch (err) {
+      showError("Error", "Failed to delete pricing card. Please try again.");
     }
   };
 
@@ -403,24 +409,19 @@ export function AdminPricingManager() {
     try {
       await updatePricingCard(card.id, { is_enabled: !card.is_enabled });
       showSuccess(
-        card.is_enabled ? "Card Disabled" : "Card Enabled", 
+        card.is_enabled ? "Pricing Card Disabled" : "Pricing Card Enabled", 
         card.is_enabled 
           ? "Pricing card has been disabled and is no longer visible to customers." 
           : "Pricing card has been enabled and is now visible to customers."
       );
     } catch (err) {
-      showError(ToastMessages.pricing.error.title, ToastMessages.pricing.error.message);
+      showError("Error", "Failed to update pricing card status. Please try again.");
     }
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Pricing Cards Management
-          </h3>
-        </div>
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading pricing cards...</p>
@@ -432,24 +433,16 @@ export function AdminPricingManager() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Pricing Cards Management
-          </h3>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Pricing Cards
+          </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Create and manage pricing cards that customers will see on your website.
           </p>
         </div>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add New Card
-        </button>
+        {/* Remove duplicate button - now handled by floating button */}
       </div>
 
       {/* Pricing Cards Grid */}

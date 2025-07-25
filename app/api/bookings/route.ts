@@ -2,14 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import { sendEmail } from "@/lib/sendgrid";
 
-// GET - Fetch all bookings
-export async function GET() {
+// GET - Fetch bookings with pagination
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination
+    const { count: totalCount, error: countError } = await supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true });
+
+    if (countError) {
+      console.error("Error fetching booking count:", countError);
+      return NextResponse.json(
+        { error: "Failed to fetch booking count" },
+        { status: 500 }
+      );
+    }
+
+    // Get paginated bookings
     const { data: bookings, error } = await supabase
       .from("bookings")
       .select("*")
       .order("date", { ascending: true })
-      .order("time", { ascending: true });
+      .order("time", { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Error fetching bookings:", error);
@@ -19,7 +39,19 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ bookings });
+    const totalPages = Math.ceil((totalCount || 0) / limit);
+
+    return NextResponse.json({
+      bookings,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
     console.error("Unexpected error fetching bookings:", error);
     return NextResponse.json(

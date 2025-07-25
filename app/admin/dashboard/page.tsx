@@ -148,14 +148,14 @@ export default function DashboardPage() {
     icon: React.ReactNode;
     color: string;
   }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2 transition-colors duration-300">{value}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow duration-300">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300 truncate">{title}</p>
+          <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2 transition-colors duration-300">{value}</p>
           {change && (
             <p
-              className={`text-sm mt-2 ${
+              className={`text-xs sm:text-sm mt-1 sm:mt-2 ${
                 change.startsWith("+") 
                   ? "text-green-600 dark:text-green-400" 
                   : "text-red-600 dark:text-red-400"
@@ -165,7 +165,7 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-full ${color} transition-colors duration-300`}>{icon}</div>
+        <div className={`p-2 sm:p-3 rounded-full ${color} transition-colors duration-300 mt-2 sm:mt-0 self-end sm:self-auto`}>{icon}</div>
       </div>
     </div>
   );
@@ -404,11 +404,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
             Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
           </p>
@@ -420,22 +420,26 @@ export default function DashboardPage() {
         <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
           💡 Dashboard Tips
         </h4>
-        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-          <li>• Check your daily bookings and update their status regularly</li>
-          <li>• Monitor pending payments and send reminders if needed</li>
-          <li>• Review recent activity to stay updated on business progress</li>
-          <li>• Use quick action buttons for common tasks</li>
-        </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+            <li>• Check your daily bookings and update their status regularly</li>
+            <li>• Monitor pending payments and send reminders if needed</li>
+          </ul>
+          <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+            <li>• Review recent activity to stay updated on business progress</li>
+            <li>• Use quick action buttons for common tasks</li>
+          </ul>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           change={calculateChange(stats.totalBookings, stats.previousWeekBookings)}
           color="bg-blue-100 text-blue-600"
           icon={
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -456,7 +460,7 @@ export default function DashboardPage() {
           color="bg-yellow-100 text-yellow-600"
           icon={
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -477,7 +481,7 @@ export default function DashboardPage() {
           color="bg-green-100 text-green-600"
           icon={
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -498,7 +502,7 @@ export default function DashboardPage() {
           color="bg-purple-100 text-purple-600"
           icon={
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -516,22 +520,22 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Main Content Grid - Equal Height Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Main Content Grid - Mobile Stack, Desktop Side by Side */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
         {/* Recent Activity */}
         <div className="flex flex-col">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex-1 flex flex-col transition-colors duration-300">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 Recent Activity
               </h2>
             </div>
-            <div className="p-6 flex-1 flex flex-col">
-              <div className="space-y-4 flex-1">
+            <div className="p-4 sm:p-6 flex-1 flex flex-col">
+              <div className="space-y-3 sm:space-y-4 flex-1">
                 {loading ? (
-                  <div className="animate-pulse space-y-4">
+                  <div className="animate-pulse space-y-3 sm:space-y-4">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center space-x-4">
+                      <div key={i} className="flex items-center space-x-3 sm:space-x-4">
                         <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors duration-300" />
                         <div className="flex-1 space-y-2">
                           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-300" />
@@ -541,9 +545,9 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : recentActivity.length === 0 ? (
-                  <div className="text-center py-6">
+                  <div className="text-center py-8 sm:py-12">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 transition-colors duration-300"
+                      className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-gray-500 transition-colors duration-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -566,22 +570,24 @@ export default function DashboardPage() {
                   recentActivity.map((activity) => (
                     <div
                       key={activity.id}
-                      className={`flex items-start space-x-4 p-4 rounded-lg hover:shadow-md transition-all duration-300 ${getTypeColor(activity.type, activity.message)}`}
+                      className={`flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:shadow-md transition-all duration-300 ${getTypeColor(activity.type, activity.message)}`}
                     >
                       <div
-                        className={`p-3 rounded-xl ${getStatusColor(activity.status, activity.message)} transition-all duration-300 shadow-sm hover:shadow-md`}
+                        className={`p-2 sm:p-3 rounded-xl ${getStatusColor(activity.status, activity.message)} transition-all duration-300 shadow-sm hover:shadow-md flex-shrink-0`}
                       >
                         {getActivityIcon(activity.type)}
                       </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                      <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300 truncate">
                             {activity.message}
                           </p>
-                          {getStatusBadge(activity.status, activity.message)}
+                          <div className="flex-shrink-0">
+                            {getStatusBadge(activity.status, activity.message)}
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
@@ -593,7 +599,7 @@ export default function DashboardPage() {
                   ))
                 )}
               </div>
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <button 
                   onClick={handleOpenActivityModal}
                   className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-300"
@@ -608,18 +614,18 @@ export default function DashboardPage() {
         {/* Upcoming Bookings */}
         <div className="flex flex-col">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex-1 flex flex-col transition-colors duration-300">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 Upcoming Bookings
               </h2>
             </div>
-            <div className="p-6 flex-1 flex flex-col">
-              <div className="space-y-4 flex-1">
+            <div className="p-4 sm:p-6 flex-1 flex flex-col">
+              <div className="space-y-3 sm:space-y-4 flex-1">
                 {loading ? (
-                  <div className="animate-pulse space-y-4">
+                  <div className="animate-pulse space-y-3 sm:space-y-4">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-start space-x-4">
-                        <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-300" />
+                      <div key={i} className="flex items-start space-x-3 sm:space-x-4">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-300" />
                         <div className="flex-1 space-y-2">
                           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded transition-colors duration-300" />
                           <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 transition-colors duration-300" />
@@ -628,9 +634,9 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : upcomingBookings.length === 0 ? (
-                  <div className="text-center py-6">
+                  <div className="text-center py-8 sm:py-12">
                     <svg
-                      className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 transition-colors duration-300"
+                      className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-gray-500 transition-colors duration-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -653,12 +659,12 @@ export default function DashboardPage() {
                   upcomingBookings.map((booking: any) => (
                     <div
                       key={booking.id}
-                      className="flex items-start space-x-4 p-4 rounded-lg hover:shadow-md transition-all duration-300 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                      className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:shadow-md transition-all duration-300 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                     >
                       <div className="flex-shrink-0">
-                        <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
                           <svg
-                            className="w-6 h-6"
+                            className="w-5 h-5 sm:w-6 sm:h-6"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -672,13 +678,13 @@ export default function DashboardPage() {
                           </svg>
                         </div>
                       </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                      <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300 truncate">
                             {booking.customer_name}
                           </p>
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors duration-300 ${
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors duration-300 flex-shrink-0 ${
                               booking.status === "confirmed"
                                 ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800"
                                 : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
@@ -687,11 +693,11 @@ export default function DashboardPage() {
                             {booking.status === "confirmed" ? "Confirmed" : "Pending"}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300 truncate">
                           {booking.service}
                         </p>
                         <div className="flex items-center space-x-2">
-                          <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
@@ -703,7 +709,7 @@ export default function DashboardPage() {
                   ))
                 )}
               </div>
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <button 
                   onClick={handleOpenBookingsModal}
                   className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-300"
@@ -720,7 +726,7 @@ export default function DashboardPage() {
       {showActivityModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Activity</h2>
               <button
                 onClick={() => setShowActivityModal(false)}
@@ -731,7 +737,7 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {modalLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -793,7 +799,7 @@ export default function DashboardPage() {
       {showBookingsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Bookings</h2>
               <button
                 onClick={() => setShowBookingsModal(false)}
@@ -804,7 +810,7 @@ export default function DashboardPage() {
                 </svg>
               </button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {modalLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
@@ -855,24 +861,26 @@ export default function DashboardPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           {booking.service}
                         </p>
-                        <div className="flex items-center space-x-2">
-                          <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                            {new Date(booking.date).toLocaleDateString()} at {booking.time}
-                          </p>
-                        </div>
-                        {booking.phone && (
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
                           <div className="flex items-center space-x-2">
                             <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                              {booking.phone}
+                              {new Date(booking.date).toLocaleDateString()} at {booking.time}
                             </p>
                           </div>
-                        )}
+                          {booking.phone && (
+                            <div className="flex items-center space-x-2">
+                              <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                                {booking.phone}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

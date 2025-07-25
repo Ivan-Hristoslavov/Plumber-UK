@@ -8,6 +8,11 @@ export function SectionHero() {
   const { areas, loading: areasLoading } = useAreas();
   const adminProfile = useAdminProfile();
 
+  // Check if credentials are available
+  const hasGasSafe = adminProfile?.gas_safe_registered && adminProfile?.gas_safe_number && adminProfile.gas_safe_number.trim() !== "";
+  const hasInsurance = adminProfile?.fully_insured && adminProfile?.insurance_provider && adminProfile.insurance_provider.trim() !== "";
+  const hasCertifications = adminProfile?.certifications && adminProfile.certifications.trim() !== "";
+
   return (
     <section
       className="relative min-h-screen flex items-start justify-center overflow-hidden py-8"
@@ -50,27 +55,33 @@ export function SectionHero() {
 
           {/* Trust Badges - Responsive, no text overflow */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-y-4 md:gap-y-0 md:gap-x-8 w-full max-w-2xl mx-auto mt-2">
-            {/* Fully Insured */}
-            <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
-              <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
-                </svg>
+            {/* Fully Insured - Dynamic */}
+            {hasInsurance && (
+              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
+                <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                  Fully Insured
+                </span>
               </div>
-              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">Fully Insured</span>
-            </div>
+            )}
             
-            {/* Gas Safe Registered */}
-            <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
-              <img
-                src="/mcs-logo.png"
-                alt="MCS Certified"
-                className="h-10 md:h-12 w-auto object-contain mx-auto"
-                style={{ maxWidth: "120px" }}
-              />
-            </div>
+            {/* Gas Safe Registered - Dynamic */}
+            {hasGasSafe && (
+              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
+                <img
+                  src="/mcs-logo.png"
+                  alt="Gas Safe Registered"
+                  className="h-10 md:h-12 w-auto object-contain mx-auto"
+                  style={{ maxWidth: "120px" }}
+                />
+              </div>
+            )}
             
-            {/* Years of Experience */}
+            {/* Years of Experience - Always show */}
             <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
               <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-yellow-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
@@ -167,8 +178,12 @@ export function SectionHero() {
                         />
                       </svg>
                     </div>
-                    <div className="text-white font-medium text-center">{area.name}</div>
-                    <div className="text-blue-200 text-xs text-center">{area.postcode}</div>
+                    <div className="text-white font-semibold text-sm mb-1">
+                      {area.name}
+                    </div>
+                    <div className="text-blue-200 text-xs">
+                      {area.postcode}
+                    </div>
                   </div>
                 ))}
           </div>

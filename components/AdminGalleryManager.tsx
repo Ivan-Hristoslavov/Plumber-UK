@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
 import { GalleryItem, GallerySection } from "@/types";
@@ -8,7 +8,7 @@ import { useToast, ToastMessages } from "@/components/Toast";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 
-export function AdminGalleryManager() {
+export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }) {
   const {
     galleryItems,
     loading,
@@ -35,6 +35,13 @@ export function AdminGalleryManager() {
   );
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddSectionForm, setShowAddSectionForm] = useState(false);
+
+  // Handle trigger from parent component
+  useEffect(() => {
+    if (triggerModal) {
+      setShowAddForm(true);
+    }
+  }, [triggerModal]);
 
   // Image file states
   const [beforeImage, setBeforeImage] = useState<File | null>(null);
@@ -328,9 +335,6 @@ export function AdminGalleryManager() {
   if (loading || sectionsLoading) {
     return (
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Gallery Management
-        </h3>
         <div className="text-center py-8">Loading...</div>
       </div>
     );
@@ -339,16 +343,13 @@ export function AdminGalleryManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Gallery Management
-        </h3>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
         {/* Tabs */}
         <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button
             onClick={() => setActiveTab("items")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               activeTab === "items"
                 ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -358,7 +359,7 @@ export function AdminGalleryManager() {
           </button>
           <button
             onClick={() => setActiveTab("sections")}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               activeTab === "sections"
                 ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -385,7 +386,7 @@ export function AdminGalleryManager() {
               setSectionFormData({ ...defaultSection });
             }
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
         >
           {activeTab === "items" ? "Add New Item" : "Add New Section"}
         </button>

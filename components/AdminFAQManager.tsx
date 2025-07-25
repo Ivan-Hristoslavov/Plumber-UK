@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFAQ } from "@/hooks/useFAQ";
 import { FAQItem } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
@@ -124,7 +124,7 @@ function FAQModal({
   );
 }
 
-export function AdminFAQManager() {
+export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
   const { faqItems, isLoading, error, addFAQItem, updateFAQItem, deleteFAQItem } = useFAQ(true);
   const { showSuccess, showError } = useToast();
   const { confirm, modalProps } = useConfirmation();
@@ -140,6 +140,13 @@ export function AdminFAQManager() {
   };
 
   const [formData, setFormData] = useState(defaultItem);
+
+  // Handle trigger from parent component
+  useEffect(() => {
+    if (triggerModal) {
+      handleAddNew();
+    }
+  }, [triggerModal]);
 
   const handleSave = async () => {
     try {
@@ -213,11 +220,6 @@ export function AdminFAQManager() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            FAQ Management
-          </h3>
-        </div>
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Loading FAQ items...</p>
@@ -229,20 +231,17 @@ export function AdminFAQManager() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            FAQ Management
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Create and manage frequently asked questions that customers will see on your website.
           </p>
         </div>
         <button
           onClick={handleAddNew}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add New FAQ

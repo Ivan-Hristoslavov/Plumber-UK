@@ -14,7 +14,7 @@ interface Area {
   order: number;
 }
 
-export function ServiceAreasManager() {
+export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }) {
   const { showSuccess, showError } = useToast();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +34,15 @@ export function ServiceAreasManager() {
   useEffect(() => {
     loadAreas();
   }, []);
+
+  // Handle trigger from parent component
+  useEffect(() => {
+    if (triggerModal) {
+      setShowForm(true);
+      setEditingArea(null);
+      resetForm();
+    }
+  }, [triggerModal]);
 
   // Calculate next order number when areas change
   useEffect(() => {
@@ -211,21 +220,13 @@ export function ServiceAreasManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-            Service Areas Management
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
+          <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
             Manage the areas you cover and their response times.
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
-        >
-          Add New Area
-        </button>
+        {/* Remove duplicate button - now handled by floating button */}
       </div>
 
       {/* Areas Table */}

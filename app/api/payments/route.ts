@@ -3,9 +3,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import { createCheckoutSession, createPaymentLink, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
 
-// GET - Fetch all payments
-export async function GET() {
+// GET - Fetch payments with pagination
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination
+    const { count: totalCount, error: countError } = await supabase
+      .from("payments")
+      .select("*", { count: "exact", head: true });
+
+    if (countError) {
+      console.error("Error fetching payment count:", countError);
+      return NextResponse.json(
+        { error: "Failed to fetch payment count" },
+        { status: 500 },
+      );
+    }
+
+    // Get paginated payments
     const { data: payments, error } = await supabase
       .from("payments")
       .select(
@@ -15,7 +34,8 @@ export async function GET() {
         bookings(service, date, customer_name)
       `,
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Error fetching payments:", error);
@@ -26,7 +46,19 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json(payments);
+    const totalPages = Math.ceil((totalCount || 0) / limit);
+
+    return NextResponse.json({
+      payments,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
     console.error("Unexpected error:", error);
 
