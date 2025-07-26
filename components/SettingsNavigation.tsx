@@ -5,7 +5,7 @@ import React, { useState } from "react";
 export type SettingsTab = {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ReactElement | string;
   description: string;
   category: "business" | "content" | "integrations";
 };
@@ -137,7 +137,9 @@ export function SettingsNavigation({ activeTab, onTabChange, tabs }: SettingsNav
                               ? "bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-400 shadow-md"
                               : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 group-hover:shadow-md"
                           } ${clickedTab === tab.id ? "scale-110" : ""}`}>
-                            <span className="text-xl transition-transform duration-200 group-hover:scale-110">{tab.icon}</span>
+                            <span className="text-xl transition-transform duration-200 group-hover:scale-110">
+                              {tab.icon}
+                            </span>
                           </div>
                           
                           <div className="flex-1 min-w-0">
@@ -223,7 +225,9 @@ export function SettingsNavigation({ activeTab, onTabChange, tabs }: SettingsNav
                           ? "bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-400 shadow-md"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 group-hover:shadow-md"
                       } ${clickedTab === tab.id ? "scale-110" : ""}`}>
-                        <span className="text-xl transition-transform duration-200 group-hover:scale-110">{tab.icon}</span>
+                        <span className="text-xl transition-transform duration-200 group-hover:scale-110">
+                          {tab.icon}
+                        </span>
                       </div>
                       
                       <div className="flex-1 min-w-0">

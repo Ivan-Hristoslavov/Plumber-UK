@@ -1292,10 +1292,10 @@ export default function PaymentsPage() {
                           </span>
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                          {getPaymentMethodIcon(payment.payment_method)}
+                        {getPaymentMethodIcon(payment.payment_method)}
                           <span className="capitalize">
-                            {payment.payment_method.replace("_", " ")}
-                          </span>
+                          {payment.payment_method.replace("_", " ")}
+                        </span>
                         </div>
                       </div>
                     </div>

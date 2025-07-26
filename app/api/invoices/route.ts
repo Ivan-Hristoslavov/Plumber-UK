@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { createClient } from "@supabase/supabase-js";
 
 import { supabase } from "../../../lib/supabase";
+
+const supabaseStorage = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 // GET - Fetch invoices with pagination and customer/booking details
 export async function GET(request: NextRequest) {
@@ -111,14 +115,6 @@ export async function POST(request: NextRequest) {
     const imageAttachments: { filename: string; path: string }[] = [];
 
     if (images.length > 0) {
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = join(process.cwd(), 'public', 'uploads', 'invoices');
-      try {
-        await mkdir(uploadsDir, { recursive: true });
-      } catch (error) {
-        console.error('Error creating uploads directory:', error);
-      }
-
       // Process each image
       for (let i = 0; i < images.length; i++) {
         const file = images[i];
@@ -131,14 +127,29 @@ export async function POST(request: NextRequest) {
             const timestamp = Date.now();
             const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const filename = `${timestamp}_${i}_${originalName}`;
-            const filePath = join(uploadsDir, filename);
             
-            // Save file
-            await writeFile(filePath, buffer);
+            // Upload to Supabase Storage
+            const { data, error } = await supabaseStorage.storage
+              .from('invoices')
+              .upload(filename, buffer, {
+                contentType: file.type,
+                cacheControl: '3600',
+                upsert: false
+              });
+
+            if (error) {
+              console.error(`Error uploading image ${i}:`, error);
+              continue;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabaseStorage.storage
+              .from('invoices')
+              .getPublicUrl(filename);
             
             imageAttachments.push({
               filename: originalName,
-              path: `/uploads/invoices/${filename}` // Store relative path for web access
+              path: urlData.publicUrl
             });
           } catch (error) {
             console.error(`Error processing image ${i}:`, error);
