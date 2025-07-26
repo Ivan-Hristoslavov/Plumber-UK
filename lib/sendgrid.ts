@@ -29,8 +29,8 @@ export interface EmailOptions {
 
 /**
  * Get the sender email address with conditional logic:
- * - If admin email exists in database, use that
- * - Otherwise, use ADMIN_EMAIL from environment
+ * - Use business_email from admin_profile table as primary sender
+ * - Fall back to ADMIN_EMAIL from environment if needed
  */
 async function getSenderEmail(): Promise<string> {
   try {
@@ -38,16 +38,16 @@ async function getSenderEmail(): Promise<string> {
     
     const { data: profile, error } = await supabase
       .from('admin_profile')
-      .select('email')
+      .select('business_email, email')
       .single();
 
     if (error) {
-      console.warn('Could not fetch admin profile email:', error);
+      console.warn('Could not fetch admin profile business_email:', error);
       return adminEmail || 'noreply@fixmyleak.com';
     }
 
-    // Use database email if available, otherwise fall back to env
-    return profile?.email || adminEmail || 'noreply@fixmyleak.com';
+    // Use business_email if available, otherwise fall back to regular email or env
+    return profile?.business_email || profile?.email || adminEmail || 'noreply@fixmyleak.com';
   } catch (error) {
     console.warn('Error getting sender email:', error);
     return adminEmail || 'noreply@fixmyleak.com';

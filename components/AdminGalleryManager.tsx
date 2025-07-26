@@ -8,7 +8,13 @@ import { useToast, ToastMessages } from "@/components/Toast";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 
-export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }) {
+export function AdminGalleryManager({ 
+  triggerModal, 
+  defaultTab = "items" 
+}: { 
+  triggerModal?: boolean;
+  defaultTab?: "items" | "sections";
+}) {
   const {
     galleryItems,
     loading,
@@ -28,7 +34,7 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
   const { showSuccess, showError } = useToast();
   const { confirm, modalProps } = useConfirmation();
 
-  const [activeTab, setActiveTab] = useState<"items" | "sections">("items");
+  const [activeTab, setActiveTab] = useState<"items" | "sections">(defaultTab);
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
   const [editingSection, setEditingSection] = useState<GallerySection | null>(
     null
@@ -39,9 +45,15 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
   // Handle trigger from parent component
   useEffect(() => {
     if (triggerModal) {
-      setShowAddForm(true);
+      // Set the active tab based on the defaultTab prop
+      setActiveTab(defaultTab);
+      if (defaultTab === "items") {
+        setShowAddForm(true);
+      } else {
+        setShowAddSectionForm(true);
+      }
     }
-  }, [triggerModal]);
+  }, [triggerModal, defaultTab]);
 
   // Image file states
   const [beforeImage, setBeforeImage] = useState<File | null>(null);
@@ -364,7 +376,6 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
         {/* Tabs */}
         <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
           <button
@@ -389,7 +400,52 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
           </button>
         </div>
 
-        {/* Remove the duplicate button - keeping only the one from settings page */}
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          {activeTab === "items" && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Add Gallery Item
+            </button>
+          )}
+          
+          {activeTab === "sections" && (
+            <button
+              onClick={() => setShowAddSectionForm(true)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Add Section
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Gallery Items Tab */}
