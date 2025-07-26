@@ -369,27 +369,7 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
           </button>
         </div>
 
-        <button
-          onClick={() => {
-            if (activeTab === "items") {
-              setShowAddForm(true);
-              setEditingItem(null);
-              setFormData({ ...defaultItem });
-              setBeforeImage(null);
-              setAfterImage(null);
-              setBeforeImagePreview("");
-              setAfterImagePreview("");
-              setImageErrors({});
-            } else {
-              setShowAddSectionForm(true);
-              setEditingSection(null);
-              setSectionFormData({ ...defaultSection });
-            }
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-        >
-          {activeTab === "items" ? "Add New Item" : "Add New Section"}
-        </button>
+        {/* Remove the duplicate button - keeping only the one from settings page */}
       </div>
 
       {/* Gallery Items Tab */}
