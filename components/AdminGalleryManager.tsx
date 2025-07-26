@@ -151,7 +151,8 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
     });
 
     if (!response.ok) {
-      throw new Error("Failed to upload images");
+      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+      throw new Error(errorData.error || `Upload failed with status ${response.status}`);
     }
 
     const result = await response.json();
@@ -177,9 +178,24 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
       let afterUrl = formData.after_image_url;
 
       if (beforeImage || afterImage) {
-        const uploadResult = await uploadImages();
-        beforeUrl = uploadResult.beforeUrl || beforeUrl;
-        afterUrl = uploadResult.afterUrl || afterUrl;
+        try {
+          console.log('Starting image upload...');
+          console.log('Before image:', beforeImage ? { name: beforeImage.name, size: beforeImage.size, type: beforeImage.type } : 'None');
+          console.log('After image:', afterImage ? { name: afterImage.name, size: afterImage.size, type: afterImage.type } : 'None');
+          
+          const uploadResult = await uploadImages();
+          beforeUrl = uploadResult.beforeUrl || beforeUrl;
+          afterUrl = uploadResult.afterUrl || afterUrl;
+          
+          console.log('Upload successful:', { beforeUrl, afterUrl });
+        } catch (uploadError) {
+          console.error('Upload error:', uploadError);
+          showError(
+            "Upload Error",
+            uploadError instanceof Error ? uploadError.message : "Failed to upload images. Please try again."
+          );
+          return;
+        }
       }
 
       const itemData = {
@@ -187,6 +203,9 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
         before_image_url: beforeUrl,
         after_image_url: afterUrl,
       };
+      
+      console.log('Saving gallery item:', itemData);
+      
       if (editingItem) {
         await updateGalleryItem(editingItem.id, itemData);
         showSuccess(
@@ -214,6 +233,7 @@ export function AdminGalleryManager({ triggerModal }: { triggerModal?: boolean }
       setAfterImagePreview("");
       setImageErrors({});
     } catch (err) {
+      console.error('Save error:', err);
       showError(
         ToastMessages.gallery.error.title,
         err instanceof Error ? err.message : ToastMessages.gallery.error.message
