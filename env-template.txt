@@ -21,6 +21,6 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
 # Admin Credentials
-ADMIN_EMAIL=hristoslavov.ivanov@gmail.com
+ADMIN_EMAIL=pzplumbingservices@gmail.com
 ADMIN_PASSWORD=your-secure-password-here
-ADMIN_NAME=Your Full Name
+ADMIN_NAME=Plamen Zhelev

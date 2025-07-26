@@ -121,6 +121,7 @@ export default function AdminSettingsPage() {
 
   // State to control modal opening in child components
   const [triggerModal, setTriggerModal] = useState<string | null>(null);
+  const [galleryTab, setGalleryTab] = useState<"items" | "sections">("items");
 
   // Function to handle tab changes with scroll to top
   const handleTabChange = (tabId: string) => {
@@ -135,7 +136,10 @@ export default function AdminSettingsPage() {
   }, [activeTab]);
 
   // Function to trigger modal in child components
-  const triggerChildModal = (modalType: string) => {
+  const triggerChildModal = (modalType: string, galleryTabType?: "items" | "sections") => {
+    if (modalType === "gallery" && galleryTabType) {
+      setGalleryTab(galleryTabType);
+    }
     setTriggerModal(modalType);
     // Reset after a short delay to allow child component to pick it up
     setTimeout(() => setTriggerModal(null), 100);
@@ -456,36 +460,85 @@ export default function AdminSettingsPage() {
       case "faq":
         return {
           label: "Add New FAQ",
-          icon: "➕",
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
           onClick: () => triggerChildModal("faq"),
         };
       case "gallery":
         return {
           label: "Add Gallery Item",
-          icon: "🖼️",
-          onClick: () => triggerChildModal("gallery"),
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          ),
+          onClick: () => triggerChildModal("gallery", "items"),
         };
       case "pricing":
         return {
           label: "Add Pricing Card",
-          icon: "💰",
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
           onClick: () => triggerChildModal("pricing"),
         };
       case "areas":
         return {
           label: "Add Service Area",
-          icon: "📍",
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          ),
           onClick: () => triggerChildModal("areas"),
         };
       case "legal":
         return {
           label: "Add Legal Page",
-          icon: "📋",
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          ),
           onClick: () => triggerChildModal("legal"),
         };
       default:
         return null;
     }
+  };
+
+  // Get additional action buttons for gallery tab
+  const getGalleryActionButtons = () => {
+    if (activeTab !== "gallery") return null;
+    
+    return [
+      {
+        label: "Add Gallery Item",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        ),
+        onClick: () => triggerChildModal("gallery", "items"),
+        className: "bg-blue-600 hover:bg-blue-700"
+      },
+      {
+        label: "Add Section",
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        ),
+        onClick: () => triggerChildModal("gallery", "sections"),
+        className: "bg-green-600 hover:bg-green-700"
+      }
+    ];
   };
 
   const actionButton = getActionButton();
@@ -628,7 +681,7 @@ export default function AdminSettingsPage() {
               )}
 
               {/* Action Button - Show only for specific tabs */}
-              {actionButton && (
+              {actionButton && activeTab !== "gallery" && (
                 <button
                   className="flex items-center px-6 py-3 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={actionButton.onClick}
@@ -636,6 +689,22 @@ export default function AdminSettingsPage() {
                   <span className="mr-2">{actionButton.icon}</span>
                   {actionButton.label}
                 </button>
+              )}
+
+              {/* Gallery Action Buttons - Show both buttons for gallery tab */}
+              {activeTab === "gallery" && (
+                <div className="flex gap-3">
+                  {getGalleryActionButtons()?.map((button, index) => (
+                    <button
+                      key={index}
+                      className={`flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 ${button.className}`}
+                      onClick={button.onClick}
+                    >
+                      <span className="mr-2">{button.icon}</span>
+                      {button.label}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -1204,7 +1273,10 @@ export default function AdminSettingsPage() {
             </div>
           )}
           {activeTab === "gallery" && (
-            <AdminGalleryManager triggerModal={triggerModal === "gallery"} />
+            <AdminGalleryManager 
+              triggerModal={triggerModal === "gallery"} 
+              defaultTab={galleryTab}
+            />
           )}
           {activeTab === "areas" && (
             <ServiceAreasManager triggerModal={triggerModal === "areas"} />
