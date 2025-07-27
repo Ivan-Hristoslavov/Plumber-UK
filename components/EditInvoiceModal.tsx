@@ -201,7 +201,7 @@ export function EditInvoiceModal({
             formDataToSend.append('company_name', dbProfile?.company_name || "FixMyLeak");
     formDataToSend.append('company_address', dbProfile?.company_address || "London, UK");
     formDataToSend.append('company_phone', dbProfile?.phone || "+44 7700 123456");
-    formDataToSend.append('company_email', dbProfile?.email || "admin@fixmyleak.com");
+    formDataToSend.append('company_email', dbProfile?.business_email || dbProfile?.email || "admin@fixmyleak.com");
     formDataToSend.append('company_vat_number', vatSettings?.is_enabled ? (vatSettings.vat_number || "") : "");
     formDataToSend.append('notes', formData.notes || '');
 
