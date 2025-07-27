@@ -12,6 +12,7 @@ export type AdminProfile = {
   password: string;
   company_name?: string;
   company_address?: string;
+  business_email?: string;
   about?: string;
   bank_name?: string;
   account_number?: string;
@@ -67,6 +68,14 @@ export type Booking = {
   updated_at: string;
 };
 
+export type ImageAttachment = {
+  filename: string;
+  path: string;
+  originalSize?: number;
+  compressedSize?: number;
+  compressionRatio?: number;
+};
+
 export type Invoice = {
   id: string;
   booking_id?: string;
@@ -89,7 +98,7 @@ export type Invoice = {
   notes?: string;
   manual_service?: string;
   manual_description?: string;
-  image_attachments?: any; // JSONB field
+  image_attachments?: ImageAttachment[];
   created_at: string;
   updated_at: string;
 };

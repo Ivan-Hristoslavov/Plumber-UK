@@ -7,6 +7,7 @@ import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { CreateInvoiceModal } from "@/components/CreateInvoiceModal";
 import { EditInvoiceModal } from "@/components/EditInvoiceModal";
 import { SendInvoiceModal } from "@/components/SendInvoiceModal";
+import { InvoiceDetailsModal } from "@/components/InvoiceDetailsModal";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
@@ -52,6 +53,8 @@ export default function InvoicesPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +83,23 @@ export default function InvoicesPage() {
 
       if (invoicesRes.ok) {
         const invoicesData = await invoicesRes.json();
-        setInvoices(invoicesData.invoices || []);
+        console.log("Invoices API response:", invoicesData);
+        
+        // Parse image_attachments if they're strings
+        const processedInvoices = (invoicesData.invoices || []).map((invoice: any) => {
+          if (invoice.image_attachments && typeof invoice.image_attachments === 'string') {
+            try {
+              invoice.image_attachments = JSON.parse(invoice.image_attachments);
+            } catch (e) {
+              console.error('Error parsing image_attachments:', e);
+              invoice.image_attachments = [];
+            }
+          }
+          return invoice;
+        });
+        
+        console.log("Processed invoices:", processedInvoices);
+        setInvoices(processedInvoices);
         setTotalPages(invoicesData.pagination?.totalPages || 1);
         setTotalCount(invoicesData.pagination?.totalCount || 0);
         setCurrentPage(invoicesData.pagination?.page || 1);
@@ -225,30 +244,35 @@ export default function InvoicesPage() {
           message: "Are you sure you want to delete this invoice? This action cannot be undone.",
           confirmText: "Delete",
           cancelText: "Cancel",
-          isDestructive: true
+          isDestructive: true,
         },
         async () => {
           setDeletingId(invoiceId);
-          
           const response = await fetch(`/api/invoices/${invoiceId}`, {
             method: "DELETE",
           });
 
           if (response.ok) {
-            await loadData(); // Reload invoices
-            showSuccess("Invoice Deleted", "The invoice has been deleted successfully.");
+            showSuccess("Success", "Invoice deleted successfully!");
+            loadData(currentPage);
           } else {
             const error = await response.json();
-            throw new Error(error.error || "Failed to delete invoice");
+            showError("Error", error.error || "Failed to delete invoice");
           }
         }
       );
     } catch (error) {
-      console.error("Error deleting invoice:", error);
-      showError("Delete Failed", error instanceof Error ? error.message : "Failed to delete invoice");
+      showError("Error", "Failed to delete invoice");
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleViewDetails = (invoice: Invoice) => {
+    console.log("Viewing details for invoice:", invoice);
+    console.log("Image attachments:", invoice.image_attachments);
+    setViewingInvoice(invoice);
+    setShowDetailsModal(true);
   };
 
   const getStatusColor = (status: Invoice["status"]) => {
@@ -796,6 +820,19 @@ export default function InvoicesPage() {
                             </button>
                           </Tooltip>
 
+                          {/* View Button */}
+                          <Tooltip content="View Details">
+                            <button
+                              onClick={() => handleViewDetails(invoice)}
+                              className="group relative p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
+                            >
+                              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            </button>
+                          </Tooltip>
+
                           {/* Edit Button */}
                           <Tooltip content="Edit Invoice">
                             <button
@@ -942,6 +979,18 @@ export default function InvoicesPage() {
                       )}
                     </button>
                   </Tooltip>
+                  {/* View Button */}
+                  <Tooltip content="View Details">
+                    <button
+                      onClick={() => handleViewDetails(invoice)}
+                      className="p-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                  </Tooltip>
                   <Tooltip content="Edit Invoice">
                     <button
                       className="p-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
@@ -1028,6 +1077,17 @@ export default function InvoicesPage() {
           isLoading={sendingId === selectedInvoice.id}
         />
       )}
+
+      {/* Invoice Details Modal */}
+      <InvoiceDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false);
+          setViewingInvoice(null);
+        }}
+        invoice={viewingInvoice}
+        adminProfile={dbProfile}
+      />
 
       {/* Confirmation Modal */}
       <ConfirmationModal {...modalProps} />

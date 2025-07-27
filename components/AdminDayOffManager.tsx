@@ -225,119 +225,192 @@ export function AdminDayOffManager() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all animate-fade-in-up">
-            <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-700">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-4">
+          <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl transform transition-all animate-fade-in-up overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">
+                      {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
+                    </h3>
+                    <p className="text-blue-100 text-xs">
+                      {editingId ? 'Update your day off period settings' : 'Create a new day off period for your business'}
+                    </p>
+                  </div>
+                </div>
                 <button 
                   onClick={() => setShowModal(false)}
-                  className="btn btn-sm btn-circle btn-ghost text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200"
                 >
-                  ✕
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
             </div>
             
-            <div className="p-8 space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title*</label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter title"
-                    value={form.title}
-                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                  <textarea
-                    className="textarea textarea-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Enter description"
-                    rows={3}
-                    value={form.description}
-                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Content */}
+            <div className="p-5 space-y-4">
+              {/* Basic Information */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date*</label>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                      placeholder="e.g., Christmas Holiday"
+                      value={form.title}
+                      onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                      placeholder="Optional description"
+                      value={form.description}
+                      onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Start Date <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="date"
-                      className="input input-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       value={form.start_date}
                       onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date*</label>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      End Date <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="date"
-                      className="input input-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       value={form.end_date}
                       onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
                     />
                   </div>
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center">
+              {/* Settings */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-3">
+                <h4 className="text-xs font-semibold text-gray-900 dark:text-white">
+                  Settings
+                </h4>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-900 dark:text-white">
+                          Show Banner
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Display a banner on your website
+                        </p>
+                      </div>
+                    </div>
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-primary"
+                      className="checkbox checkbox-primary checkbox-sm"
                       checked={form.show_banner}
                       onChange={e => setForm(f => ({ ...f, show_banner: e.target.checked }))}
                     />
-                    <label className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Show Banner
-                    </label>
                   </div>
 
-                  {form.show_banner && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Message</label>
-                      <textarea
-                        className="textarea textarea-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Enter banner message"
-                        rows={2}
-                        value={form.banner_message}
-                        onChange={e => setForm(f => ({ ...f, banner_message: e.target.value }))}
-                      />
+                  <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-900 dark:text-white">
+                          Recurring
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Repeat this period automatically
+                        </p>
+                      </div>
                     </div>
-                  )}
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-primary checkbox-sm"
+                      checked={form.is_recurring}
+                      onChange={e => setForm(f => ({ ...f, is_recurring: e.target.checked }))}
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  {form.is_recurring && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recurrence Type</label>
-                      <select
-                        className="select select-bordered w-full bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        value={form.recurrence_type || 'null'}
-                        onChange={e => {
-                          const value = e.target.value === 'null' ? null : e.target.value;
-                          setForm(f => ({ ...f, recurrence_type: value }));
-                        }}
-                      >
-                        {recurrenceOptions.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
+                {form.show_banner && (
+                  <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Banner Message
+                    </label>
+                    <textarea
+                      className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
+                      placeholder="Enter banner message to display"
+                      rows={2}
+                      value={form.banner_message}
+                      onChange={e => setForm(f => ({ ...f, banner_message: e.target.value }))}
+                    />
+                  </div>
+                )}
+
+                {form.is_recurring && (
+                  <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Recurrence Type
+                    </label>
+                    <select
+                      className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
+                      value={form.recurrence_type || 'null'}
+                      onChange={e => {
+                        const value = e.target.value === 'null' ? null : e.target.value;
+                        setForm(f => ({ ...f, recurrence_type: value }));
+                      }}
+                    >
+                      {recurrenceOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
-              {/* Day Off Banner Preview */}
-              <div className="my-6">
-                <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">Preview:</label>
-                <div className="relative">
+              {/* Preview */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
+                  Preview
+                </h4>
+                <div className="bg-white dark:bg-gray-600 rounded-lg p-2 border border-gray-200 dark:border-gray-500">
                   <DayOffBanner 
                     key={`preview-${form.start_date}-${form.end_date}-${form.show_banner}-${form.banner_message}`}
                     previewPeriod={form} 
@@ -346,34 +419,45 @@ export function AdminDayOffManager() {
               </div>
 
               {formError && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300">
-                  {formError}
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span className="text-xs">{formError}</span>
+                  </div>
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-4">
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <button
-                  className="btn btn-ghost"
+                  className="px-4 py-1.5 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-all duration-200 text-xs"
                   onClick={() => setShowModal(false)}
                   disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
-                  className="btn btn-primary min-w-[120px]"
+                  className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 text-xs"
                   onClick={handleSave}
                   disabled={saving}
                 >
                   {saving ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <span className="flex items-center gap-1">
+                      <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Saving...
                     </span>
                   ) : (
-                    editingId ? 'Update' : 'Add Period'
+                    <span className="flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {editingId ? 'Update Period' : 'Create Period'}
+                    </span>
                   )}
                 </button>
               </div>

@@ -151,12 +151,18 @@ export default function PaymentsPage() {
 
       if (customersRes.ok) {
         const customersData = await customersRes.json();
-        setCustomers(customersData);
+        console.log("Customers API response:", customersData);
+        const customersArray = customersData.customers || [];
+        console.log("Customers array:", customersArray);
+        setCustomers(customersArray);
       }
 
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
-        setBookings(bookingsData.bookings || []);
+        console.log("Bookings API response:", bookingsData);
+        const bookingsArray = bookingsData.bookings || [];
+        console.log("Bookings array:", bookingsArray);
+        setBookings(bookingsArray);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -646,7 +652,7 @@ export default function PaymentsPage() {
   };
 
   // Filter bookings for selected customer
-  const filteredBookings = newPayment.customer_id
+  const filteredBookings = newPayment.customer_id && Array.isArray(bookings)
     ? bookings.filter((b) => {
         // Try to match by customer_id first
         if (b.customer_id === newPayment.customer_id) return true;
@@ -665,7 +671,7 @@ export default function PaymentsPage() {
       })
     : [];
 
-  const filteredBookingsForLink = paymentLink.customer_id
+  const filteredBookingsForLink = paymentLink.customer_id && Array.isArray(bookings)
     ? bookings.filter((b) => {
         // Try to match by customer_id first
         if (b.customer_id === paymentLink.customer_id) return true;
@@ -684,7 +690,7 @@ export default function PaymentsPage() {
       })
     : [];
 
-  const filteredBookingsForEmail = emailLink.customer_id
+  const filteredBookingsForEmail = emailLink.customer_id && Array.isArray(bookings)
     ? bookings.filter((b) => {
         // Try to match by customer_id first
         if (b.customer_id === emailLink.customer_id) return true;
@@ -1453,7 +1459,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a customer</option>
-                      {customers.map((customer) => (
+                      {Array.isArray(customers) && customers.map((customer) => (
                         <option key={customer.id} value={customer.id}>
                           {customer.name}{" "}
                           {customer.email ? `(${customer.email})` : ""}
@@ -1476,7 +1482,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a booking</option>
-                      {filteredBookings.map((booking) => (
+                      {Array.isArray(filteredBookings) && filteredBookings.map((booking) => (
                         <option key={booking.id} value={booking.id}>
                           {booking.customer_name}{" "}
                           {booking.customer_email
@@ -1636,7 +1642,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a customer</option>
-                      {customers.map((customer) => (
+                      {Array.isArray(customers) && customers.map((customer) => (
                         <option key={customer.id} value={customer.id}>
                           {customer.name}{" "}
                           {customer.email ? `(${customer.email})` : ""}
@@ -1659,7 +1665,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a booking</option>
-                      {filteredBookingsForLink.map((booking) => (
+                      {Array.isArray(filteredBookingsForLink) && filteredBookingsForLink.map((booking) => (
                         <option key={booking.id} value={booking.id}>
                           {booking.customer_name}{" "}
                           {booking.customer_email
@@ -1945,7 +1951,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a customer</option>
-                      {customers.map((customer) => (
+                      {Array.isArray(customers) && customers.map((customer) => (
                         <option key={customer.id} value={customer.id}>
                           {customer.name}{" "}
                           {customer.email ? `(${customer.email})` : ""}
@@ -1968,7 +1974,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a booking</option>
-                      {filteredBookingsForEmail.map((booking) => (
+                      {Array.isArray(filteredBookingsForEmail) && filteredBookingsForEmail.map((booking) => (
                         <option key={booking.id} value={booking.id}>
                           {booking.customer_name}{" "}
                           {booking.customer_email
@@ -2205,7 +2211,7 @@ export default function PaymentsPage() {
                       }
                     >
                       <option value="">Select a customer</option>
-                      {customers.map((customer) => (
+                      {Array.isArray(customers) && customers.map((customer) => (
                         <option key={customer.id} value={customer.id}>
                           {customer.name}{" "}
                           {customer.email ? `(${customer.email})` : ""}
