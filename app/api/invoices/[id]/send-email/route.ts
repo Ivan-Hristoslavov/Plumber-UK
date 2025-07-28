@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { supabase } from "@/lib/supabase";
 import { createPaymentLink, isStripeAvailable } from "@/lib/stripe";
 import { sendEmail, EmailAttachment } from "@/lib/sendgrid-smtp";
-import { jsPDF } from "jspdf";
+import { generateInvoicePDF } from "@/lib/invoice-pdf-generator";
 import { format } from "date-fns";
 import { join } from "path";
 
@@ -61,9 +61,12 @@ export async function POST(
     if (invoice.image_attachments) {
       try {
         imageAttachments = JSON.parse(invoice.image_attachments);
+        console.log("📎 Parsed image attachments:", imageAttachments);
       } catch (error) {
         console.error("Error parsing image attachments:", error);
       }
+    } else {
+      console.log("📎 No image attachments found in invoice");
     }
 
     // Create Stripe payment link if requested
@@ -100,8 +103,18 @@ export async function POST(
       );
     }
 
+    // Get VAT settings
+    const { data: vatSettings, error: vatError } = await supabase
+      .from("vat_settings")
+      .select("*")
+      .single();
+
+    if (vatError && vatError.code !== 'PGRST116') {
+      console.error("Error fetching VAT settings:", vatError);
+    }
+
     // Generate PDF invoice
-    const pdfBuffer = generateInvoicePDF(invoice);
+    const pdfBuffer = generateInvoicePDF(invoice, vatSettings);
     
     // Prepare email attachments from images and PDF
     const emailAttachments: EmailAttachment[] = [];
@@ -115,40 +128,69 @@ export async function POST(
     
     for (const attachment of imageAttachments) {
       try {
-        console.log(`Attempting to read attachment: ${attachment.filename} from path: ${attachment.path}`);
+        console.log(`Attempting to download attachment: ${attachment.filename} from URL: ${attachment.path}`);
         
-        // Convert relative path to absolute path
-        const absolutePath = attachment.path.startsWith('/') 
-          ? join(process.cwd(), 'public', attachment.path)
-          : attachment.path;
-        
-        console.log(`Absolute path: ${absolutePath}`);
-        
-        // Check if path exists and is accessible
-        const fs = require('fs');
-        if (!fs.existsSync(absolutePath)) {
-          console.error(`File does not exist: ${absolutePath}`);
-          continue;
-        }
+        // Check if it's a Supabase Storage URL
+        if (attachment.path.startsWith('http')) {
+          // Download image from Supabase Storage URL
+          const response = await fetch(attachment.path);
+          
+          if (!response.ok) {
+            console.error(`Failed to download image from URL: ${attachment.path}, status: ${response.status}`);
+            continue;
+          }
+          
+          const fileContent = await response.arrayBuffer();
+          const contentType = getContentType(attachment.filename);
+          
+          console.log(`Successfully downloaded file: ${attachment.filename}, size: ${fileContent.byteLength} bytes`);
+          
+          emailAttachments.push({
+            filename: attachment.filename,
+            content: Buffer.from(fileContent),
+            contentType: contentType
+          });
+        } else {
+          // Handle local file (fallback)
+          console.log(`Attempting to read local file: ${attachment.path}`);
+          
+          const absolutePath = attachment.path.startsWith('/') 
+            ? join(process.cwd(), 'public', attachment.path)
+            : attachment.path;
+          
+          console.log(`Absolute path: ${absolutePath}`);
+          
+          // Check if path exists and is accessible
+          const fs = require('fs');
+          if (!fs.existsSync(absolutePath)) {
+            console.error(`File does not exist: ${absolutePath}`);
+            continue;
+          }
 
-        const fileContent = await readFile(absolutePath);
-        const contentType = getContentType(attachment.filename);
-        
-        console.log(`Successfully read file: ${attachment.filename}, size: ${fileContent.length} bytes`);
-        
-        emailAttachments.push({
-          filename: attachment.filename,
-          content: fileContent,
-          contentType: contentType
-        });
+          const fileContent = await readFile(absolutePath);
+          const contentType = getContentType(attachment.filename);
+          
+          console.log(`Successfully read local file: ${attachment.filename}, size: ${fileContent.length} bytes`);
+          
+          emailAttachments.push({
+            filename: attachment.filename,
+            content: fileContent,
+            contentType: contentType
+          });
+        }
       } catch (error) {
-        console.error(`Error reading attachment ${attachment.filename}:`, error);
+        console.error(`Error processing attachment ${attachment.filename}:`, error);
         console.error(`Attempted path: ${attachment.path}`);
         // Continue with other attachments if one fails
       }
     }
 
-    console.log(`Total attachments prepared: ${emailAttachments.length} (including PDF)`);
+    console.log(`📎 Total attachments prepared: ${emailAttachments.length} (including PDF)`);
+    console.log(`📎 Attachment details:`, emailAttachments.map(att => ({
+      filename: att.filename,
+      contentType: att.contentType,
+      size: att.content.length
+    })));
 
     // Prepare email content
     const emailSubject = `Invoice ${invoice.invoice_number} from ${invoice.company_name}`;
@@ -256,306 +298,6 @@ function getContentType(filename: string): string {
     default:
       return 'application/octet-stream';
   }
-}
-
-function generateInvoicePDF(invoice: any): Buffer {
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  
-  // Consistent spacing constants
-  const spacing = {
-    margin: 40,
-    headerHeight: 90,
-    sectionGap: 25,
-    lineSpacing: 16,
-    smallSpacing: 8,
-    mediumSpacing: 12,
-    largeSpacing: 20,
-    tableRowHeight: 45,
-    tableHeaderHeight: 35,
-  };
-  
-  let y = spacing.margin;
-
-  // Professional header with gradient-like effect
-  doc.setFillColor(37, 99, 235); // Primary blue
-  doc.rect(0, 0, pageWidth, spacing.headerHeight, "F");
-  
-  // Add subtle secondary color strip
-  doc.setFillColor(29, 78, 216); // Darker blue
-  doc.rect(0, spacing.headerHeight - 8, pageWidth, 8, "F");
-  
-  // Company name with perfect positioning
-  doc.setFontSize(26);
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.text(invoice.company_name || "FixMyLeak", spacing.margin, 45);
-  
-  // Professional tagline
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-  doc.text("Professional Plumbing & Heating Services", spacing.margin, 68);
-
-  // Invoice title section
-  y = spacing.headerHeight + spacing.sectionGap;
-  doc.setFontSize(22);
-  doc.setTextColor(37, 99, 235);
-  doc.setFont("helvetica", "bold");
-  doc.text("INVOICE", pageWidth - 140, y);
-  
-  // Invoice metadata with consistent spacing
-  doc.setFontSize(10);
-  doc.setTextColor(75, 85, 99);
-  doc.setFont("helvetica", "normal");
-  y += spacing.sectionGap;
-  doc.text(`Invoice #${invoice.invoice_number}`, pageWidth - 160, y);
-  y += spacing.lineSpacing;
-  doc.text(`Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`, pageWidth - 160, y);
-  if (invoice.due_date) {
-    y += spacing.lineSpacing;
-    doc.text(`Due: ${format(new Date(invoice.due_date), "dd/MM/yyyy")}`, pageWidth - 160, y);
-  }
-
-  // Company details section
-  let companyY = spacing.headerHeight + spacing.sectionGap;
-  doc.setFontSize(11);
-  doc.setTextColor(17, 24, 39);
-  doc.setFont("helvetica", "bold");
-  doc.text("From:", spacing.margin, companyY);
-  
-  companyY += spacing.largeSpacing;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(37, 99, 235);
-  doc.text(invoice.company_name || "FixMyLeak", spacing.margin, companyY);
-  
-  companyY += spacing.largeSpacing;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(75, 85, 99);
-  
-  // Company address with proper spacing
-  const addressLines = (invoice.company_address || "London, UK").split('\n');
-  addressLines.forEach((line: string) => {
-    if (line.trim()) {
-      doc.text(line.trim(), spacing.margin, companyY);
-      companyY += spacing.mediumSpacing;
-    }
-  });
-  
-  // Contact details with consistent spacing
-  companyY += spacing.smallSpacing;
-  doc.text(`Tel: ${invoice.company_phone || "+44 7700 123456"}`, spacing.margin, companyY);
-  companyY += spacing.mediumSpacing;
-  doc.text(`Email: ${invoice.company_email || "admin@fixmyleak.com"}`, spacing.margin, companyY);
-  
-  // VAT number
-  if (invoice.company_vat_number) {
-    companyY += spacing.mediumSpacing;
-    doc.text(`VAT Reg: ${invoice.company_vat_number}`, spacing.margin, companyY);
-  }
-
-  // Customer details section (right side) - improved positioning
-  let customerY = spacing.headerHeight + spacing.sectionGap;
-  const customerX = pageWidth - 220; // Moved further left to avoid overlap
-  
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(17, 24, 39);
-  doc.text("Bill To:", customerX, customerY);
-  
-  customerY += spacing.largeSpacing;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12); // Slightly smaller font
-  doc.setTextColor(37, 99, 235);
-  
-  // Wrap customer name if too long
-  const customerName = invoice.customer?.name || "Customer";
-  const maxCustomerWidth = 180;
-  const wrappedCustomerName = doc.splitTextToSize(customerName, maxCustomerWidth);
-  doc.text(wrappedCustomerName, customerX, customerY);
-  customerY += (wrappedCustomerName.length * 12) + spacing.smallSpacing;
-  
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(75, 85, 99);
-  
-  if (invoice.customer?.email) {
-    // Wrap email if too long
-    const wrappedEmail = doc.splitTextToSize(invoice.customer.email, maxCustomerWidth);
-    doc.text(wrappedEmail, customerX, customerY);
-    customerY += (wrappedEmail.length * 10) + spacing.smallSpacing;
-  }
-  
-  if (invoice.customer?.address) {
-    const customerAddressLines = invoice.customer.address.split('\n');
-    customerAddressLines.forEach((line: string) => {
-      if (line.trim()) {
-        // Wrap address lines if too long
-        const wrappedLine = doc.splitTextToSize(line.trim(), maxCustomerWidth);
-        doc.text(wrappedLine, customerX, customerY);
-        customerY += (wrappedLine.length * 10) + spacing.smallSpacing;
-      }
-    });
-  }
-
-  // Service table section - ensure enough space from above content
-  const tableY = Math.max(companyY, customerY) + spacing.sectionGap * 2;
-  
-  // Table header with professional styling
-  doc.setFillColor(248, 250, 252);
-  doc.rect(spacing.margin, tableY, pageWidth - (spacing.margin * 2), spacing.tableHeaderHeight, "F");
-  doc.setDrawColor(229, 231, 235);
-  doc.setLineWidth(0.5);
-  doc.rect(spacing.margin, tableY, pageWidth - (spacing.margin * 2), spacing.tableHeaderHeight);
-  
-  // Table headers
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(55, 65, 81);
-  doc.text("DESCRIPTION", spacing.margin + 15, tableY + 22);
-  doc.text("DATE", pageWidth - 180, tableY + 22);
-  doc.text("AMOUNT", pageWidth - 80, tableY + 22, { align: "right" });
-  
-  // Service row
-  const serviceRowY = tableY + spacing.tableHeaderHeight;
-  doc.setFillColor(255, 255, 255);
-  doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight, "F");
-  doc.setDrawColor(229, 231, 235);
-  doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight);
-  
-  // Service content with text wrapping
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(17, 24, 39);
-  doc.setFontSize(10);
-  const serviceText = invoice.booking?.service || invoice.manual_description || "Professional Plumbing Service";
-  
-  // Wrap text if too long
-  const maxWidth = pageWidth - 300; // Leave space for date and amount columns
-  const wrappedServiceText = doc.splitTextToSize(serviceText, maxWidth);
-  doc.text(wrappedServiceText, spacing.margin + 15, serviceRowY + 18);
-  
-  if (invoice.booking?.date) {
-    doc.setTextColor(75, 85, 99);
-    doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 180, serviceRowY + 18);
-  }
-  
-  // Location with proper spacing - moved down to avoid overlap
-  if (invoice.customer?.address) {
-    doc.setFontSize(8);
-    doc.setTextColor(107, 114, 128);
-    const location = invoice.customer.address.split('\n')[0];
-    const locationY = serviceRowY + 18 + (wrappedServiceText.length * 12); // Dynamic positioning based on service text height
-    
-    if (location && location.length > 50) {
-      const wrappedLocation = doc.splitTextToSize(`Location: ${location}`, maxWidth);
-      doc.text(wrappedLocation, spacing.margin + 15, locationY);
-    } else {
-      doc.text(`Location: ${location}`, spacing.margin + 15, locationY);
-    }
-  }
-  
-  // Amount
-  doc.setFontSize(11);
-  doc.setTextColor(17, 24, 39);
-  doc.setFont("helvetica", "bold");
-  doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, serviceRowY + 18, { align: "right" });
-
-  // Totals section with perfect spacing
-  const totalsY = serviceRowY + spacing.tableRowHeight + spacing.sectionGap * 2;
-  const totalsX = pageWidth - 180;
-  
-  // Subtotal
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(75, 85, 99);
-  doc.text("Subtotal (excl. VAT)", totalsX, totalsY);
-  doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 40, totalsY, { align: "right" });
-  
-  // VAT
-  const vatY = totalsY + spacing.lineSpacing;
-  doc.text(`VAT @ ${invoice.vat_rate}%`, totalsX, vatY);
-  doc.text(`£${invoice.vat_amount.toFixed(2)}`, pageWidth - 40, vatY, { align: "right" });
-  
-  // Total with emphasis
-  const totalY = vatY + spacing.sectionGap;
-  doc.setDrawColor(37, 99, 235);
-  doc.setLineWidth(1);
-  
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(37, 99, 235);
-  doc.text("TOTAL", totalsX, totalY);
-  doc.text(`£${invoice.total_amount.toFixed(2)}`, pageWidth - 40, totalY, { align: "right" });
-
-  // Payment terms section
-  const termsY = totalY + spacing.sectionGap * 2;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(17, 24, 39);
-  doc.text("Payment Terms", spacing.margin, termsY);
-  
-  let currentTermsY = termsY + spacing.largeSpacing;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(75, 85, 99);
-  
-  const paymentTerms = [
-    "Payment due within 30 days of invoice date",
-    "Late payment charges may apply after due date",
-    "Bank transfer preferred - details available on request"
-  ];
-  
-  paymentTerms.forEach((term: string) => {
-    doc.text(`• ${term}`, spacing.margin, currentTermsY);
-    currentTermsY += spacing.lineSpacing;
-  });
-
-  // Notes section with proper spacing
-  if (invoice.notes && invoice.notes.trim()) {
-    const notesY = currentTermsY + spacing.sectionGap;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(17, 24, 39);
-    doc.text("Additional Notes", spacing.margin, notesY);
-    
-    let currentNotesY = notesY + spacing.largeSpacing;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(75, 85, 99);
-    
-    const noteLines = invoice.notes.split('\n');
-    noteLines.forEach((line: string) => {
-      if (line.trim()) {
-        doc.text(line.trim(), spacing.margin, currentNotesY);
-        currentNotesY += spacing.lineSpacing;
-      }
-    });
-  }
-
-  // Professional footer
-  const footerY = pageHeight - 60;
-  doc.setDrawColor(229, 231, 235);
-  doc.setLineWidth(0.5);
-  doc.line(spacing.margin, footerY - 20, pageWidth - spacing.margin, footerY - 20);
-  
-  // Footer content
-  doc.setFontSize(7);
-  doc.setTextColor(107, 114, 128);
-  doc.setFont("helvetica", "normal");
-  
-  let footerText = `${invoice.company_name || "FixMyLeak"} • ${invoice.company_address || "London, UK"}`;
-  if (invoice.company_vat_number) {
-    footerText += ` • VAT: ${invoice.company_vat_number}`;
-  }
-  
-  doc.text(footerText, pageWidth / 2, footerY - 5, { align: "center" });
-  doc.text("Thank you for choosing our professional services", pageWidth / 2, footerY + 8, { align: "center" });
-
-  // Return PDF as buffer
-  const pdfOutput = doc.output('arraybuffer');
-  return Buffer.from(pdfOutput);
 }
 
 function generateEmailBody(invoice: any, paymentLink: string | null, hasAttachments: boolean, currency: string): string {

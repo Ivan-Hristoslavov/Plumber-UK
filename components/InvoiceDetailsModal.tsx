@@ -9,9 +9,10 @@ interface InvoiceDetailsModalProps {
   onClose: () => void;
   invoice: Invoice | null;
   adminProfile?: AdminProfile | null;
+  vatSettings?: { is_enabled: boolean; vat_rate: number } | null;
 }
 
-export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: InvoiceDetailsModalProps) {
+export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile, vatSettings }: InvoiceDetailsModalProps) {
   const [selectedImage, setSelectedImage] = useState<ImageAttachment | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
@@ -146,7 +147,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: 
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600 dark:text-gray-400">Address:</span>
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{invoice.customer.address}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white break-words max-w-xs text-right">{invoice.customer.address}</span>
                         </div>
                       </>
                     )}
@@ -163,7 +164,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: 
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600 dark:text-gray-400">Address:</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{invoice.company_address}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white break-words max-w-xs text-right">{invoice.company_address}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600 dark:text-gray-400">Phone:</span>
@@ -183,22 +184,31 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: 
                 <div>
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Financial Details</h4>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">£{invoice.subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">VAT Rate:</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{invoice.vat_rate}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">VAT Amount:</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">£{invoice.vat_amount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">Total:</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">£{invoice.total_amount.toFixed(2)}</span>
-                    </div>
+                    {vatSettings?.is_enabled && invoice.vat_amount > 0 ? (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">£{invoice.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">VAT Rate:</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">{invoice.vat_rate}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">VAT Amount:</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">£{invoice.vat_amount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">Total:</span>
+                          <span className="text-sm font-bold text-gray-900 dark:text-white">£{invoice.total_amount.toFixed(2)}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">Total Amount:</span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">£{invoice.total_amount.toFixed(2)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -216,7 +226,9 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: 
                       {invoice.manual_description && (
                         <div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Description:</div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">{invoice.manual_description}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-pre-wrap max-w-full overflow-hidden">
+                            {invoice.manual_description}
+                          </div>
                         </div>
                       )}
                       {invoice.booking && (
@@ -234,7 +246,9 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile }: 
                   <div>
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</h4>
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-900 dark:text-white">{invoice.notes}</p>
+                      <p className="text-sm text-gray-900 dark:text-white break-words whitespace-pre-wrap max-w-full overflow-hidden">
+                        {invoice.notes}
+                      </p>
                     </div>
                   </div>
                 )}

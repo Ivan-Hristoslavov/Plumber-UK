@@ -13,6 +13,7 @@ import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useVATSettings } from "@/hooks/useVATSettings";
 import Pagination from "@/components/Pagination";
+import { generateInvoicePDF } from "@/lib/invoice-pdf-generator";
 
 import Tooltip from "../../../components/Tooltip";
 import { Invoice as BaseInvoice, Customer, Booking } from "@/types";
@@ -200,7 +201,16 @@ export default function InvoicesPage() {
   const handleDownloadInvoice = async (invoice: Invoice) => {
     setDownloadingId(invoice.id);
     try {
-      generateInvoicePDF(invoice);
+      const pdfBuffer = generateInvoicePDF(invoice, vatSettings);
+      const blob = new Blob([pdfBuffer], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Invoice-${invoice.invoice_number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       showSuccess(ToastMessages.invoices.downloaded.title, ToastMessages.invoices.downloaded.message);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -308,315 +318,6 @@ export default function InvoicesPage() {
         return "❓";
     }
   };
-
-  // PDF generation function (improved with consistent spacing and better design)
-  function generateInvoicePDF(invoice: Invoice) {
-    const doc = new jsPDF({ unit: "pt", format: "a4" });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // Consistent spacing constants
-    const spacing = {
-      margin: 40,
-      headerHeight: 90,
-      sectionGap: 25,
-      lineSpacing: 16,
-      smallSpacing: 8,
-      mediumSpacing: 12,
-      largeSpacing: 20,
-      tableRowHeight: 45,
-      tableHeaderHeight: 35,
-    };
-    
-    let y = spacing.margin;
-
-    // Professional header with gradient-like effect
-    doc.setFillColor(37, 99, 235); // Primary blue
-    doc.rect(0, 0, pageWidth, spacing.headerHeight, "F");
-    
-    // Add subtle secondary color strip
-    doc.setFillColor(29, 78, 216); // Darker blue
-    doc.rect(0, spacing.headerHeight - 8, pageWidth, 8, "F");
-    
-    // Company name with perfect positioning
-    doc.setFontSize(26);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.text(invoice.company_name || "FixMyLeak", spacing.margin, 45);
-    
-    // Professional tagline
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "normal");
-    doc.text("Professional Plumbing & Heating Services", spacing.margin, 68);
-
-    // Invoice title section
-    y = spacing.headerHeight + spacing.sectionGap;
-    doc.setFontSize(22);
-    doc.setTextColor(37, 99, 235);
-    doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", pageWidth - 140, y);
-    
-    // Invoice metadata with consistent spacing
-    doc.setFontSize(10);
-    doc.setTextColor(75, 85, 99);
-    doc.setFont("helvetica", "normal");
-    y += spacing.sectionGap;
-    doc.text(`Invoice #${invoice.invoice_number}`, pageWidth - 160, y);
-    y += spacing.lineSpacing;
-    doc.text(`Date: ${format(new Date(invoice.invoice_date), "dd/MM/yyyy")}`, pageWidth - 160, y);
-    if (invoice.due_date) {
-      y += spacing.lineSpacing;
-      doc.text(`Due: ${format(new Date(invoice.due_date), "dd/MM/yyyy")}`, pageWidth - 160, y);
-    }
-
-    // Company details section
-    let companyY = spacing.headerHeight + spacing.sectionGap;
-    doc.setFontSize(11);
-    doc.setTextColor(17, 24, 39);
-    doc.setFont("helvetica", "bold");
-    doc.text("From:", spacing.margin, companyY);
-    
-    companyY += spacing.largeSpacing;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(37, 99, 235);
-    doc.text(invoice.company_name || "FixMyLeak", spacing.margin, companyY);
-    
-    companyY += spacing.largeSpacing;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(75, 85, 99);
-    
-    // Company address with proper spacing
-    const addressLines = (invoice.company_address || "London, UK").split('\n');
-    addressLines.forEach(line => {
-      if (line.trim()) {
-        doc.text(line.trim(), spacing.margin, companyY);
-        companyY += spacing.mediumSpacing;
-      }
-    });
-    
-    // Contact details with consistent spacing
-    companyY += spacing.smallSpacing;
-    doc.text(`Tel: ${invoice.company_phone || "+44 7700 123456"}`, spacing.margin, companyY);
-    companyY += spacing.mediumSpacing;
-    doc.text(`Email: ${invoice.company_email || "admin@fixmyleak.com"}`, spacing.margin, companyY);
-    
-    // VAT number
-    if (invoice.company_vat_number) {
-      companyY += spacing.mediumSpacing;
-      doc.text(`VAT Reg: ${invoice.company_vat_number}`, spacing.margin, companyY);
-    }
-
-    // Customer details section (left side, below company info) - moved to avoid overlap
-    let customerY = Math.max(companyY, spacing.headerHeight + 180) + spacing.sectionGap;
-    const customerX = spacing.margin;
-    
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(17, 24, 39);
-    doc.text("Bill To:", customerX, customerY);
-    
-    customerY += spacing.largeSpacing;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(37, 99, 235);
-    
-    // Wrap customer name if too long
-    const customerName = invoice.customer?.name || "Customer";
-    const maxCustomerWidth = 250;
-    const wrappedCustomerName = doc.splitTextToSize(customerName, maxCustomerWidth);
-    doc.text(wrappedCustomerName, customerX, customerY);
-    customerY += (wrappedCustomerName.length * 12) + spacing.smallSpacing;
-    
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(75, 85, 99);
-    
-    if (invoice.customer?.email) {
-      // Wrap email if too long
-      const wrappedEmail = doc.splitTextToSize(invoice.customer.email, maxCustomerWidth);
-      doc.text(wrappedEmail, customerX, customerY);
-      customerY += (wrappedEmail.length * 10) + spacing.smallSpacing;
-    }
-    
-    if (invoice.customer?.address) {
-      const customerAddressLines = invoice.customer.address.split('\n');
-      customerAddressLines.forEach(line => {
-        if (line.trim()) {
-          // Wrap address lines if too long
-          const wrappedLine = doc.splitTextToSize(line.trim(), maxCustomerWidth);
-          doc.text(wrappedLine, customerX, customerY);
-          customerY += (wrappedLine.length * 10) + spacing.smallSpacing;
-        }
-      });
-    }
-
-    // Service table section - ensure enough space from above content
-    const tableY = customerY + spacing.sectionGap * 2;
-    
-    // Table header with professional styling
-    doc.setFillColor(248, 250, 252);
-    doc.rect(spacing.margin, tableY, pageWidth - (spacing.margin * 2), spacing.tableHeaderHeight, "F");
-    doc.setDrawColor(229, 231, 235);
-    doc.setLineWidth(0.5);
-    doc.rect(spacing.margin, tableY, pageWidth - (spacing.margin * 2), spacing.tableHeaderHeight);
-    
-    // Table headers
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(55, 65, 81);
-    doc.text("DESCRIPTION", spacing.margin + 15, tableY + 22);
-    doc.text("DATE", pageWidth - 180, tableY + 22);
-    doc.text("AMOUNT", pageWidth - 80, tableY + 22, { align: "right" });
-    
-    // Service row
-    const serviceRowY = tableY + spacing.tableHeaderHeight;
-    doc.setFillColor(255, 255, 255);
-    doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight, "F");
-    doc.setDrawColor(229, 231, 235);
-    doc.rect(spacing.margin, serviceRowY, pageWidth - (spacing.margin * 2), spacing.tableRowHeight);
-    
-    // Service content with text wrapping
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(17, 24, 39);
-    doc.setFontSize(10);
-    const serviceText = invoice.booking?.service || invoice.manual_description || "Professional Plumbing Service";
-    
-    // Wrap text if too long
-    const maxWidth = pageWidth - 300; // Leave space for date and amount columns
-    const wrappedServiceText = doc.splitTextToSize(serviceText, maxWidth);
-    doc.text(wrappedServiceText, spacing.margin + 15, serviceRowY + 18);
-    
-    if (invoice.booking?.date) {
-      doc.setTextColor(75, 85, 99);
-      doc.text(format(new Date(invoice.booking.date), "dd/MM/yyyy"), pageWidth - 180, serviceRowY + 18);
-    }
-    
-    // Location with proper spacing - moved down to avoid overlap
-    if (invoice.customer?.address) {
-      doc.setFontSize(8);
-      doc.setTextColor(107, 114, 128);
-      const location = invoice.customer.address.split('\n')[0];
-      const locationY = serviceRowY + 18 + (wrappedServiceText.length * 12); // Dynamic positioning based on service text height
-      
-      if (location && location.length > 50) {
-        const wrappedLocation = doc.splitTextToSize(`Location: ${location}`, maxWidth);
-        doc.text(wrappedLocation, spacing.margin + 15, locationY);
-      } else {
-        doc.text(`Location: ${location}`, spacing.margin + 15, locationY);
-      }
-    }
-    
-    // Amount
-    doc.setFontSize(11);
-    doc.setTextColor(17, 24, 39);
-    doc.setFont("helvetica", "bold");
-    doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 80, serviceRowY + 18, { align: "right" });
-
-    // Totals section with perfect spacing
-    const totalsY = serviceRowY + spacing.tableRowHeight + spacing.sectionGap * 2;
-    const totalsX = pageWidth - 180;
-    
-    // Subtotal (only show if VAT is enabled)
-    let currentY = totalsY;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(75, 85, 99);
-    
-    if (vatSettings?.is_enabled && invoice.vat_amount > 0) {
-      doc.text("Subtotal (excl. VAT)", totalsX, currentY);
-      doc.text(`£${invoice.subtotal.toFixed(2)}`, pageWidth - 40, currentY, { align: "right" });
-      
-      // VAT
-      currentY += spacing.lineSpacing;
-      doc.text(`VAT @ ${invoice.vat_rate}%`, totalsX, currentY);
-      doc.text(`£${invoice.vat_amount.toFixed(2)}`, pageWidth - 40, currentY, { align: "right" });
-      
-      currentY += spacing.sectionGap;
-    } else {
-      // No VAT - go straight to total
-      currentY += spacing.sectionGap;
-    }
-    
-    // Total with emphasis
-    const totalY = currentY;
-    doc.setDrawColor(37, 99, 235);
-    doc.setLineWidth(1);
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(37, 99, 235);
-    doc.text("TOTAL", totalsX, totalY);
-    doc.text(`£${invoice.total_amount.toFixed(2)}`, pageWidth - 40, totalY, { align: "right" });
-
-    // Payment terms section
-    const termsY = totalY + spacing.sectionGap * 2;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(17, 24, 39);
-    doc.text("Payment Terms", spacing.margin, termsY);
-    
-    let currentTermsY = termsY + spacing.largeSpacing;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(75, 85, 99);
-    
-    const paymentTerms = [
-      "Payment due within 30 days of invoice date",
-      "Late payment charges may apply after due date",
-      "Bank transfer preferred - details available on request"
-    ];
-    
-    paymentTerms.forEach(term => {
-      doc.text(`• ${term}`, spacing.margin, currentTermsY);
-      currentTermsY += spacing.lineSpacing;
-    });
-
-    // Notes section with proper spacing
-    if (invoice.notes && invoice.notes.trim()) {
-      const notesY = currentTermsY + spacing.sectionGap;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(17, 24, 39);
-      doc.text("Additional Notes", spacing.margin, notesY);
-      
-      let currentNotesY = notesY + spacing.largeSpacing;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(75, 85, 99);
-      
-      const noteLines = invoice.notes.split('\n');
-      noteLines.forEach(line => {
-        if (line.trim()) {
-          doc.text(line.trim(), spacing.margin, currentNotesY);
-          currentNotesY += spacing.lineSpacing;
-        }
-      });
-    }
-
-    // Professional footer
-    const footerY = pageHeight - 60;
-    doc.setDrawColor(229, 231, 235);
-    doc.setLineWidth(0.5);
-    doc.line(spacing.margin, footerY - 20, pageWidth - spacing.margin, footerY - 20);
-    
-    // Footer content
-    doc.setFontSize(7);
-    doc.setTextColor(107, 114, 128);
-    doc.setFont("helvetica", "normal");
-    
-    let footerText = `${invoice.company_name || "FixMyLeak"} • ${invoice.company_address || "London, UK"}`;
-    if (invoice.company_vat_number) {
-      footerText += ` • VAT: ${invoice.company_vat_number}`;
-    }
-    
-    doc.text(footerText, pageWidth / 2, footerY - 5, { align: "center" });
-    doc.text("Thank you for choosing our professional services", pageWidth / 2, footerY + 8, { align: "center" });
-
-    // Save PDF
-    doc.save(`Invoice-${invoice.invoice_number}.pdf`);
-  }
 
   if (loading) {
     return (
@@ -1087,6 +788,7 @@ export default function InvoicesPage() {
         }}
         invoice={viewingInvoice}
         adminProfile={dbProfile}
+        vatSettings={vatSettings}
       />
 
       {/* Confirmation Modal */}

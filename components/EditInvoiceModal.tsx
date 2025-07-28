@@ -38,6 +38,7 @@ export function EditInvoiceModal({
     manual_description: ""
   });
   const [attachedImages, setAttachedImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<{ filename: string; path: string; originalSize?: number; compressedSize?: number; compressionRatio?: number }[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [useManualEntry, setUseManualEntry] = useState(false);
 
@@ -50,12 +51,18 @@ export function EditInvoiceModal({
         invoice_date: invoice.invoice_date.split('T')[0],
         due_date: invoice.due_date ? invoice.due_date.split('T')[0] : "",
         notes: invoice.notes || "",
-        manual_service: invoice.
-        manual_description || "",
+        manual_service: invoice.manual_service || "",
         manual_amount: invoice.total_amount.toString(),
         manual_description: invoice.manual_description || ""
       });
       setUseManualEntry(!invoice.booking_id);
+      
+      // Set existing images from invoice
+      if (invoice.image_attachments && Array.isArray(invoice.image_attachments)) {
+        setExistingImages(invoice.image_attachments);
+      } else {
+        setExistingImages([]);
+      }
     }
   }, [invoice]);
 
@@ -145,6 +152,10 @@ export function EditInvoiceModal({
     setAttachedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const removeExistingImage = (index: number) => {
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -211,10 +222,15 @@ export function EditInvoiceModal({
       formDataToSend.append('manual_description', formData.manual_description);
     }
 
-    // Add images
+    // Add new images
     attachedImages.forEach((file, index) => {
       formDataToSend.append(`images`, file);
     });
+
+    // Add remaining existing images (those not deleted)
+    if (existingImages.length > 0) {
+      formDataToSend.append('existing_images', JSON.stringify(existingImages));
+    }
 
     await onSubmit(invoice.id, formDataToSend);
   };
@@ -280,7 +296,7 @@ export function EditInvoiceModal({
                 <strong>Phone:</strong> {dbProfile?.phone || "+44 7700 123456"}
               </div>
               <div>
-                <strong>Email:</strong> {dbProfile?.email || "admin@fixmyleak.com"}
+                <strong>Email:</strong> {dbProfile?.business_email || "admin@fixmyleak.com"}
               </div>
               {vatSettings?.is_enabled && (
                 <div>

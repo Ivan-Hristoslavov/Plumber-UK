@@ -238,8 +238,8 @@ export function AdminDayOffManager() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold">
-                      {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
-                    </h3>
+                  {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
+                </h3>
                     <p className="text-blue-100 text-xs">
                       {editingId ? 'Update your day off period settings' : 'Create a new day off period for your business'}
                     </p>
@@ -261,19 +261,19 @@ export function AdminDayOffManager() {
               {/* Basic Information */}
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
+                <div>
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Title <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                  <input
+                    type="text"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="e.g., Christmas Holiday"
-                      value={form.title}
-                      onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                    />
-                  </div>
-                  <div>
+                    value={form.title}
+                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                  />
+                </div>
+                <div>
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Description
                     </label>
@@ -281,9 +281,9 @@ export function AdminDayOffManager() {
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="Optional description"
-                      value={form.description}
-                      onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                    />
+                    value={form.description}
+                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                  />
                   </div>
                 </div>
 
@@ -367,42 +367,42 @@ export function AdminDayOffManager() {
                       onChange={e => setForm(f => ({ ...f, is_recurring: e.target.checked }))}
                     />
                   </div>
-                </div>
+                  </div>
 
-                {form.show_banner && (
+                  {form.show_banner && (
                   <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Banner Message
                     </label>
-                    <textarea
+                      <textarea
                       className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
                       placeholder="Enter banner message to display"
-                      rows={2}
-                      value={form.banner_message}
-                      onChange={e => setForm(f => ({ ...f, banner_message: e.target.value }))}
-                    />
-                  </div>
-                )}
+                        rows={2}
+                        value={form.banner_message}
+                        onChange={e => setForm(f => ({ ...f, banner_message: e.target.value }))}
+                      />
+                    </div>
+                  )}
 
-                {form.is_recurring && (
+                  {form.is_recurring && (
                   <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Recurrence Type
                     </label>
-                    <select
+                      <select
                       className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
-                      value={form.recurrence_type || 'null'}
-                      onChange={e => {
-                        const value = e.target.value === 'null' ? null : e.target.value;
-                        setForm(f => ({ ...f, recurrence_type: value }));
-                      }}
-                    >
-                      {recurrenceOptions.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                        value={form.recurrence_type || 'null'}
+                        onChange={e => {
+                          const value = e.target.value === 'null' ? null : e.target.value;
+                          setForm(f => ({ ...f, recurrence_type: value }));
+                        }}
+                      >
+                        {recurrenceOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
               </div>
 
               {/* Preview */}
