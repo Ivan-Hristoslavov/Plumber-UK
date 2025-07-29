@@ -5,7 +5,7 @@ import { useAdminSettings } from '@/hooks/useAdminSettings';
 import { AdminProfile } from '@/types';
 
 interface AdminProfileDataProps {
-  type: keyof AdminProfile | 'response_time' | 'company_status';
+  type: keyof AdminProfile | 'response_time' | 'company_status' | 'years_of_experience';
   fallback?: string;
   className?: string;
 }
@@ -28,6 +28,16 @@ export function AdminProfileData({ type, fallback = '', className }: AdminProfil
   if (type === 'company_status') {
     const value = adminSettings?.companyStatus || fallback;
     return <span className={className}>{value}</span>;
+  }
+
+  // Handle years_of_experience to ensure it includes "Years"
+  if (type === 'years_of_experience') {
+    const value = profile?.years_of_experience || fallback;
+    // If the value doesn't already include "Years", add it
+    const displayValue = value && !value.toLowerCase().includes('years') 
+      ? `${value} Years` 
+      : value;
+    return <span className={className}>{displayValue}</span>;
   }
 
   // Handle regular profile fields

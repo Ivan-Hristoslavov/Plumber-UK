@@ -18,10 +18,17 @@ const inter = Inter({ subsets: ["latin"] });
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
   const companyName = profile?.company_name || "FixMyLeak";
+  
+  // Ensure years_of_experience includes "Years" if not already present
+  const yearsExperience = profile?.years_of_experience 
+    ? (profile.years_of_experience.toLowerCase().includes('years') 
+        ? profile.years_of_experience 
+        : `${profile.years_of_experience} Years`)
+    : "10+ Years";
 
   return {
     title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham, ${profile?.response_time}-minute response time, ${profile?.years_of_experience}+ years experience.`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham, ${profile?.response_time}-minute response time, ${yearsExperience} experience.`,
     keywords: [
       "emergency plumber London",
       "plumber Clapham",

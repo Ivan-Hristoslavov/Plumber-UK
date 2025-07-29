@@ -35,10 +35,6 @@ type SettingsState = {
 
   // Business Credentials (now read-only, managed in admin_profile)
   companyStatus: string; // e.g., "Ltd", "Limited", "PLC", etc.
-  gasSafeRegistered: boolean;
-  gasSafeNumber: string;
-  fullyInsured: boolean;
-  insuranceProvider: string;
 
   // Pricing
   emergencyRate: string;
@@ -72,10 +68,6 @@ const defaultSettings: SettingsState = {
   registrationNumber: "12345678",
 
   companyStatus: "",
-  gasSafeRegistered: false,
-  gasSafeNumber: "",
-  fullyInsured: false,
-  insuranceProvider: "",
 
   emergencyRate: "150",
   standardRate: "75",

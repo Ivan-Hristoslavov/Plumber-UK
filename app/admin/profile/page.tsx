@@ -21,6 +21,10 @@ type ProfileData = {
   // Professional Information
   gasRegNumber: string;
   insuranceProvider: string;
+  yearsOfExperience: string;
+  specializations: string;
+  certifications: string;
+  responseTime: string;
 
   // Banking Information
   bankName: string;
@@ -60,6 +64,10 @@ export default function ProfilePage() {
 
     gasRegNumber: "",
     insuranceProvider: "",
+    yearsOfExperience: "",
+    specializations: "",
+    certifications: "",
+    responseTime: "",
 
     bankName: "",
     accountNumber: "",
@@ -93,6 +101,10 @@ export default function ProfilePage() {
 
         gasRegNumber: dbProfile.gas_safe_number || "GAS123456",
         insuranceProvider: dbProfile.insurance_provider || "Zurich Insurance",
+        yearsOfExperience: dbProfile.years_of_experience || "",
+        specializations: dbProfile.specializations || "",
+        certifications: dbProfile.certifications || "",
+        responseTime: dbProfile.response_time || "",
 
         bankName: dbProfile.bank_name || "Barclays Bank",
         accountNumber: dbProfile.account_number || "12345678",
@@ -123,6 +135,10 @@ export default function ProfilePage() {
           companyAddress: profileData.companyAddress,
           gasRegNumber: profileData.gasRegNumber,
           insuranceProvider: profileData.insuranceProvider,
+          yearsOfExperience: profileData.yearsOfExperience,
+          specializations: profileData.specializations,
+          certifications: profileData.certifications,
+          responseTime: profileData.responseTime,
           bankName: profileData.bankName,
           accountNumber: profileData.accountNumber,
           sortCode: profileData.sortCode,
@@ -201,8 +217,24 @@ export default function ProfilePage() {
   };
 
   const tabs = [
-    { id: "personal", name: "Personal Info", icon: "👤" },
-    { id: "security", name: "Security", icon: "🔒" },
+    { 
+      id: "personal", 
+      name: "Personal Info", 
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      )
+    },
+    { 
+      id: "security", 
+      name: "Security", 
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      )
+    },
   ];
 
   return (
@@ -287,14 +319,14 @@ export default function ProfilePage() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-300 ${
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-300 flex items-center ${
                   activeTab === tab.id
                     ? "border-blue-500 text-blue-600 dark:text-blue-400"
                     : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
                 }`}
                 onClick={() => setActiveTab(tab.id as any)}
               >
-                <span className="mr-2">{tab.icon}</span>
+                <span className="mr-2 flex-shrink-0">{tab.icon}</span>
                 {tab.name}
               </button>
             ))}
@@ -408,6 +440,128 @@ export default function ProfilePage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors duration-300">
                   This will be displayed on your public profile page.
                 </p>
+              </div>
+
+              <div>
+                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+                  Professional Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Years of Experience
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., 10+ Years"
+                      value={profileData.yearsOfExperience}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          yearsOfExperience: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      This will be displayed on your website (e.g., "10+ Years").
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Gas Safe Number
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., GS12345678"
+                      value={profileData.gasRegNumber}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          gasRegNumber: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Insurance Provider
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., Zurich Insurance"
+                      value={profileData.insuranceProvider}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          insuranceProvider: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Specializations
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., Emergency repairs, Boiler installations, Bathroom plumbing"
+                      value={profileData.specializations}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          specializations: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      List your main areas of expertise.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Certifications
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., Gas Safe Registered, City & Guilds Level 3"
+                      value={profileData.certifications}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          certifications: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      List your professional certifications and qualifications.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      Response Time
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      type="text"
+                      placeholder="e.g., 45 minutes"
+                      value={profileData.responseTime}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          responseTime: e.target.value,
+                        })
+                      }
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Your typical response time for customer inquiries.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div>
