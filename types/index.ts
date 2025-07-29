@@ -98,6 +98,7 @@ export type Invoice = {
   company_phone: string;
   company_email: string;
   company_vat_number?: string;
+  company_status?: string;
   notes?: string;
   manual_service?: string;
   manual_description?: string;

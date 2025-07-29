@@ -52,7 +52,8 @@ export default function FooterMain() {
     businessName: adminProfile?.company_name || "Fix My Leak",
     businessEmail: adminProfile?.business_email || "info@fixmyleak.com",
     businessPhone: adminProfile?.phone || "+44 7541777225",
-    businessAddress: adminProfile?.company_address || "London, UK"
+    businessAddress: adminProfile?.company_address || "London, UK",
+    companyStatus: adminProfile?.company_status || ""
   };
 
   useEffect(() => {
@@ -136,6 +137,11 @@ export default function FooterMain() {
               href="/"
             >
               {businessData.businessName.toUpperCase()}
+              {businessData.companyStatus && (
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                  {businessData.companyStatus}
+                </span>
+              )}
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 max-w-md">
               Professional plumbing services across South West London. Emergency repairs, 

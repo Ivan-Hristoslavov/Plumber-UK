@@ -105,6 +105,12 @@ export function generateInvoicePDF(invoice: Invoice, vatSettings?: { is_enabled:
     doc.text(`VAT Reg: ${invoice.company_vat_number}`, spacing.margin, y);
   }
 
+  // Add company status if available
+  if (invoice.company_status) {
+    y += spacing.lineHeight;
+    doc.text(`Status: ${invoice.company_status}`, spacing.margin, y);
+  }
+
   // === Customer Section ===
   y += spacing.largeGap * 2;
   doc.setFont("helvetica", "bold");

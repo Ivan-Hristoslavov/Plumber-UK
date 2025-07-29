@@ -84,8 +84,10 @@ export default function HomePage() {
                       strokeWidth={2}
                     />
                   </svg>
-                  About{" "}
+                  <span>About</span>
+                  <span className="mx-2">•</span>
                   <AdminProfileData type="name" fallback="Plamen Zhelev" />
+                  <AdminProfileData type="company_status" fallback="" className="ml-2 text-xs opacity-75" />
                 </div>
                 <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Professional Plumbing Services You Can Trust

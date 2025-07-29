@@ -30,7 +30,6 @@ type SettingsState = {
   // Business Information (now read-only, managed in admin_profile)
   businessCity: string;
   businessPostcode: string;
-  vatNumber: string;
   registrationNumber: string;
   responseTime: string;
 
@@ -70,7 +69,6 @@ type SettingsState = {
 const defaultSettings: SettingsState = {
   businessCity: "London",
   businessPostcode: "SW1A 1AA",
-  vatNumber: "GB123456789",
   registrationNumber: "12345678",
   responseTime: "45 minutes",
 
@@ -751,19 +749,7 @@ export default function AdminSettingsPage() {
                       }
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      VAT Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      value={settings.vatNumber}
-                      onChange={(e) =>
-                        handleInputChange("vatNumber", e.target.value)
-                      }
-                    />
-                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Registration Number
@@ -803,134 +789,193 @@ export default function AdminSettingsPage() {
                       }
                     >
                       <option value="">Select status</option>
-                      <option value="Ltd">Limited (Ltd)</option>
-                      <option value="Limited">Limited</option>
-                      <option value="PLC">Public Limited Company (PLC)</option>
-                      <option value="Partnership">Partnership</option>
-                      <option value="Sole Trader">Sole Trader</option>
+                      
+                      {/* Limited Companies */}
+                      <optgroup label="Limited Companies">
+                        <option value="Ltd">Private Limited Company (Ltd)</option>
+                        <option value="Limited">Limited Company</option>
+                        <option value="PLC">Public Limited Company (PLC)</option>
+                        <option value="LLP">Limited Liability Partnership (LLP)</option>
+                      </optgroup>
+                      
+                      {/* Sole Traders & Partnerships */}
+                      <optgroup label="Sole Traders & Partnerships">
+                        <option value="Sole Trader">Sole Trader</option>
+                        <option value="Partnership">General Partnership</option>
+                        <option value="Limited Partnership">Limited Partnership (LP)</option>
+                      </optgroup>
+                      
+                      {/* Other Business Structures */}
+                      <optgroup label="Other Business Structures">
+                        <option value="Charity">Registered Charity</option>
+                        <option value="CIC">Community Interest Company (CIC)</option>
+                        <option value="Co-operative">Co-operative Society</option>
+                        <option value="Franchise">Franchise</option>
+                        <option value="Subsidiary">Subsidiary Company</option>
+                        <option value="Holding Company">Holding Company</option>
+                      </optgroup>
+                      
+                      {/* Professional Services */}
+                      <optgroup label="Professional Services">
+                        <option value="Professional Partnership">Professional Partnership</option>
+                        <option value="Chartered">Chartered Company</option>
+                        <option value="Incorporated">Incorporated Company</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>
               </div>
 
               {/* Professional Credentials */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-3 transition-colors duration-300">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
-                  Professional Credentials
-                </h2>
-                <div className="space-y-2">
-                  {/* MSC Certification */}
-                  <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 transition-colors duration-300">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg
-                          className="w-3 h-3 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M5 13l4 4L19 7"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-xs font-medium text-green-800 dark:text-green-200">
-                          MSC Certified
-                        </h3>
-                        <p className="text-xs text-green-600 dark:text-green-300">
-                          MICROGENERATION Certificate Scheme
-                        </p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        checked={settings.gasSafeRegistered}
-                        className="sr-only peer"
-                        type="checkbox"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "gasSafeRegistered",
-                            e.target.checked,
-                          )
-                        }
-                      />
-                      <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
-                    </label>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                    Professional Credentials
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Active</span>
                   </div>
-
-                  {/* Registration Number */}
-                  {settings.gasSafeRegistered && (
-                    <div className="ml-7">
-                      <input
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                        placeholder="Registration Number"
-                        type="text"
-                        value={settings.gasSafeNumber}
-                        onChange={(e) =>
-                          handleInputChange("gasSafeNumber", e.target.value)
-                        }
-                      />
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* MSC Certification */}
+                  <div className="relative">
+                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                      settings.gasSafeRegistered 
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                    }`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3 flex-1">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
+                            settings.gasSafeRegistered 
+                              ? 'bg-green-500 text-white' 
+                              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
+                          }`}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className={`text-sm font-semibold truncate transition-colors duration-300 ${
+                              settings.gasSafeRegistered 
+                                ? 'text-green-800 dark:text-green-200' 
+                                : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              MSC Certified
+                            </h3>
+                            <p className={`text-xs truncate transition-colors duration-300 ${
+                              settings.gasSafeRegistered 
+                                ? 'text-green-600 dark:text-green-300' 
+                                : 'text-gray-500 dark:text-gray-500'
+                            }`}>
+                              MICROGENERATION Certificate Scheme
+                            </p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer ml-3">
+                          <input
+                            checked={settings.gasSafeRegistered}
+                            className="sr-only peer"
+                            type="checkbox"
+                            onChange={(e) => handleInputChange("gasSafeRegistered", e.target.checked)}
+                          />
+                          <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
+                        </label>
+                      </div>
+                      
+                      {/* Registration Number Input */}
+                      {settings.gasSafeRegistered && (
+                        <div className="mt-3">
+                          <input
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
+                            placeholder="Enter registration number"
+                            type="text"
+                            value={settings.gasSafeNumber}
+                            onChange={(e) => handleInputChange("gasSafeNumber", e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
 
                   {/* Insurance */}
-                  <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors duration-300">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                        <svg
-                          className="w-3 h-3 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
+                  <div className="relative">
+                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                      settings.fullyInsured 
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                    }`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3 flex-1">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
+                            settings.fullyInsured 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
+                          }`}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className={`text-sm font-semibold truncate transition-colors duration-300 ${
+                              settings.fullyInsured 
+                                ? 'text-blue-800 dark:text-blue-200' 
+                                : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              Fully Insured
+                            </h3>
+                            <p className={`text-xs truncate transition-colors duration-300 ${
+                              settings.fullyInsured 
+                                ? 'text-blue-600 dark:text-blue-300' 
+                                : 'text-gray-500 dark:text-gray-500'
+                            }`}>
+                              Comprehensive liability coverage
+                            </p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer ml-3">
+                          <input
+                            checked={settings.fullyInsured}
+                            className="sr-only peer"
+                            type="checkbox"
+                            onChange={(e) => handleInputChange("fullyInsured", e.target.checked)}
                           />
-                        </svg>
+                          <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
+                        </label>
                       </div>
-                      <div>
-                        <h3 className="text-xs font-medium text-blue-800 dark:text-blue-200">
-                          Fully Insured
-                        </h3>
-                        <p className="text-xs text-blue-600 dark:text-blue-300">
-                          Comprehensive liability coverage
-                        </p>
-                      </div>
+                      
+                      {/* Insurance Provider Input */}
+                      {settings.fullyInsured && (
+                        <div className="mt-3">
+                          <input
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            placeholder="Enter insurance provider"
+                            type="text"
+                            value={settings.insuranceProvider}
+                            onChange={(e) => handleInputChange("insuranceProvider", e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        checked={settings.fullyInsured}
-                        className="sr-only peer"
-                        type="checkbox"
-                        onChange={(e) =>
-                          handleInputChange("fullyInsured", e.target.checked)
-                        }
-                      />
-                      <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
-                    </label>
                   </div>
-
-                  {/* Insurance Provider */}
-                  {settings.fullyInsured && (
-                    <div className="ml-7">
-                      <input
-                        className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                        placeholder="Insurance Provider"
-                        type="text"
-                        value={settings.insuranceProvider}
-                        onChange={(e) =>
-                          handleInputChange("insuranceProvider", e.target.value)
-                        }
-                      />
+                </div>
+                
+                {/* Status Summary */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>Credentials Status:</span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        settings.gasSafeRegistered && settings.fullyInsured
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                      }`}>
+                        {settings.gasSafeRegistered && settings.fullyInsured ? 'Complete' : 'Partial'}
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -985,68 +1030,160 @@ export default function AdminSettingsPage() {
             <div className="space-y-8">
               {/* Working Hours */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
-                  Business Hours
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
+                      Business Hours
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Set your availability and working schedule
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                  </div>
+                </div>
+
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                        Start Time
-                      </label>
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                        type="time"
-                        value={settings.workingHoursStart}
-                        onChange={(e) =>
-                          handleInputChange("workingHoursStart", e.target.value)
-                        }
-                      />
+                  {/* Time Range */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-5 border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                          Operating Hours
+                        </h3>
+                        <p className="text-xs text-blue-600 dark:text-blue-300">
+                          Set your daily working hours
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                        End Time
-                      </label>
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                        type="time"
-                        value={settings.workingHoursEnd}
-                        onChange={(e) =>
-                          handleInputChange("workingHoursEnd", e.target.value)
-                        }
-                      />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
+                          Start Time
+                        </label>
+                        <div className="relative">
+                          <input
+                            className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            type="time"
+                            value={settings.workingHoursStart}
+                            onChange={(e) =>
+                              handleInputChange("workingHoursStart", e.target.value)
+                            }
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
+                          End Time
+                        </label>
+                        <div className="relative">
+                          <input
+                            className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            type="time"
+                            value={settings.workingHoursEnd}
+                            onChange={(e) =>
+                              handleInputChange("workingHoursEnd", e.target.value)
+                            }
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 transition-colors duration-300">
-                      Working Days
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {/* Working Days */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-5 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200">
+                          Working Days
+                        </h3>
+                        <p className="text-xs text-green-600 dark:text-green-300">
+                          Select your available days
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
                       {[
-                        "monday",
-                        "tuesday",
-                        "wednesday",
-                        "thursday",
-                        "friday",
-                        "saturday",
-                        "sunday",
+                        { key: "monday", label: "Mon", full: "Monday" },
+                        { key: "tuesday", label: "Tue", full: "Tuesday" },
+                        { key: "wednesday", label: "Wed", full: "Wednesday" },
+                        { key: "thursday", label: "Thu", full: "Thursday" },
+                        { key: "friday", label: "Fri", full: "Friday" },
+                        { key: "saturday", label: "Sat", full: "Saturday" },
+                        { key: "sunday", label: "Sun", full: "Sunday" },
                       ].map((day) => (
                         <label
-                          key={day}
-                          className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                          key={day.key}
+                          className={`relative cursor-pointer group transition-all duration-200 ${
+                            settings.workingDays.includes(day.key)
+                              ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
+                              : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-green-50 dark:hover:bg-green-900/10'
+                          } border-2 rounded-lg p-3 text-center transition-colors duration-300`}
                         >
                           <input
-                            checked={settings.workingDays.includes(day)}
-                            className="form-checkbox h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded transition-colors duration-300"
+                            checked={settings.workingDays.includes(day.key)}
+                            className="sr-only"
                             type="checkbox"
-                            onChange={() => toggleWorkingDay(day)}
+                            onChange={() => toggleWorkingDay(day.key)}
                           />
-                          <span className="text-sm text-gray-700 dark:text-gray-300 capitalize transition-colors duration-300">
-                            {day}
-                          </span>
+                          <div className="flex flex-col items-center space-y-1">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                              settings.workingDays.includes(day.key)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400'
+                            }`}>
+                              {settings.workingDays.includes(day.key) ? (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                                </svg>
+                              ) : (
+                                <span className="text-xs font-medium">{day.label}</span>
+                              )}
+                            </div>
+                            <span className={`text-xs font-medium transition-colors duration-300 ${
+                              settings.workingDays.includes(day.key)
+                                ? 'text-green-700 dark:text-green-300'
+                                : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              {day.label}
+                            </span>
+                          </div>
                         </label>
                       ))}
+                    </div>
+
+                    {/* Summary */}
+                    <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-800">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-green-600 dark:text-green-400">Selected Days:</span>
+                        <span className="text-green-700 dark:text-green-300 font-medium">
+                          {settings.workingDays.length} of 7 days
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

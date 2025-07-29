@@ -106,31 +106,62 @@ export default function SectionContact() {
     // Convert to short day names
     const shortDays = sortedDays.map((day) => dayMap[day] || day);
 
+    // Function to find consecutive ranges
+    const findConsecutiveRanges = (days: string[]) => {
+      const ranges: string[][] = [];
+      let currentRange: string[] = [];
+
+      for (let i = 0; i < days.length; i++) {
+        const currentDay = days[i];
+        const currentIndex = dayOrder.indexOf(currentDay);
+        
+        if (currentRange.length === 0) {
+          currentRange.push(currentDay);
+        } else {
+          const lastDay = currentRange[currentRange.length - 1];
+          const lastIndex = dayOrder.indexOf(lastDay);
+          
+          if (currentIndex === lastIndex + 1) {
+            // Consecutive day
+            currentRange.push(currentDay);
+          } else {
+            // Non-consecutive, save current range and start new one
+            ranges.push([...currentRange]);
+            currentRange = [currentDay];
+          }
+        }
+      }
+      
+      // Add the last range
+      if (currentRange.length > 0) {
+        ranges.push(currentRange);
+      }
+      
+      return ranges;
+    };
+
     // Format the display string
-    if (days.length === 7) {
+    if (days.length === 0) {
+      return `${start} - ${end} (No working days set)`;
+    } else if (days.length === 7) {
       return `${start} - ${end} (7 days/week)`;
-    } else if (days.length === 6 && !days.includes("sunday")) {
-      return `${start} - ${end} (Mon-Sat)`;
-    } else if (
-      days.length === 5 &&
-      days.includes("monday") &&
-      days.includes("friday") &&
-      days.includes("tuesday") &&
-      days.includes("wednesday") &&
-      days.includes("thursday")
-    ) {
-      return `${start} - ${end} (Mon-Fri)`;
     } else if (days.length === 1) {
       return `${start} - ${end} (${shortDays[0]})`;
-    } else if (days.length > 0) {
-      // For other combinations, show the actual days
-      if (shortDays.length <= 3) {
-        return `${start} - ${end} (${shortDays.join(", ")})`;
-      } else {
-        return `${start} - ${end} (${shortDays[0]}-${shortDays[shortDays.length - 1]})`;
-      }
     } else {
-      return `${start} - ${end} (No working days set)`;
+      // Find consecutive ranges
+      const ranges = findConsecutiveRanges(sortedDays);
+      
+      // Format each range
+      const formattedRanges = ranges.map(range => {
+        const rangeShortDays = range.map(day => dayMap[day] || day);
+        if (range.length === 1) {
+          return rangeShortDays[0];
+        } else {
+          return `${rangeShortDays[0]}-${rangeShortDays[rangeShortDays.length - 1]}`;
+        }
+      });
+      
+      return `${start} - ${end} (${formattedRanges.join(", ")})`;
     }
   };
 
