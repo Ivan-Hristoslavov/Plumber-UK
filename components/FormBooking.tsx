@@ -25,7 +25,6 @@ export default function FormBooking() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formKey] = useState(() => Math.random().toString(36));
   const [submitResult, setSubmitResult] = useState<null | { success: boolean; message: string }>(null);
-  const [selectedDate, setSelectedDate] = useState("");
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [dayOffInfo, setDayOffInfo] = useState<{
@@ -48,7 +47,37 @@ export default function FormBooking() {
   // Get today's date for the minimum date and default value
   const today = new Date();
   const minDate = today.toISOString().split("T")[0];
-  const defaultDate = minDate;
+
+  // Function to find the next available date after day-off periods
+  const findNextAvailableDate = (dayOffPeriods: Array<{ start_date: string; end_date: string; title: string }>) => {
+    let checkDate = new Date(today);
+    
+    // Check up to 30 days in the future
+    for (let i = 0; i < 30; i++) {
+      const dateString = checkDate.toISOString().split("T")[0];
+      
+      // Check if this date is not in any day-off period
+      const isDisabled = dayOffPeriods.some(period => {
+        const checkDateObj = new Date(dateString);
+        const startDate = new Date(period.start_date);
+        const endDate = new Date(period.end_date);
+        return checkDateObj >= startDate && checkDateObj <= endDate;
+      });
+      
+      if (!isDisabled) {
+        return dateString;
+      }
+      
+      // Move to next day
+      checkDate.setDate(checkDate.getDate() + 1);
+    }
+    
+    // If no available date found in 30 days, return today
+    return minDate;
+  };
+
+  // Initialize with today's date, will be updated when day-off periods are loaded
+  const [selectedDate, setSelectedDate] = useState(minDate);
 
   // Check if a date is in day off period
   const isDateInDayOff = (date: string) => {
@@ -81,6 +110,10 @@ export default function FormBooking() {
         if (response.ok) {
           const periods = await response.json();
           setDayOffPeriods(periods);
+          
+          // Automatically set the next available date
+          const nextAvailableDate = findNextAvailableDate(periods);
+          setSelectedDate(nextAvailableDate);
         }
       } catch (error) {
         console.error("Error fetching day-off periods:", error);
@@ -106,6 +139,14 @@ export default function FormBooking() {
       checkAvailability(selectedDate);
     }
   }, [selectedDate]);
+
+  // Update selected date when day-off periods change
+  useEffect(() => {
+    if (dayOffPeriods.length > 0) {
+      const nextAvailableDate = findNextAvailableDate(dayOffPeriods);
+      setSelectedDate(nextAvailableDate);
+    }
+  }, [dayOffPeriods]);
 
   const checkAvailability = async (date: string) => {
     setIsCheckingAvailability(true);
@@ -507,7 +548,7 @@ export default function FormBooking() {
                 Date *
               </label>
               <CustomDatePicker
-                value={selectedDate || defaultDate}
+                value={selectedDate}
                 onChange={(date) => {
                   setSelectedDate(date);
                   checkAvailability(date);
@@ -521,34 +562,74 @@ export default function FormBooking() {
               <input
                 type="hidden"
                 name="preferred-date"
-                value={selectedDate || defaultDate}
+                value={selectedDate}
                 required
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Dates in day-off periods are automatically disabled
-                {dayOffPeriods.length > 0 && (
-                  <span className="block mt-1 text-amber-600 dark:text-amber-400">
-                    Day-off period: {dayOffPeriods.map(period => 
-                      `${period.start_date} to ${period.end_date} (${period.title})`
-                    ).join(', ')}
-                  </span>
-                )}
-              </p>
-              {selectedDate && dayOffInfo.isDayOff && (
-                <div className="mt-1 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-                  <div className="flex items-center">
-                    <svg className="w-4 h-4 text-amber-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div>
-                      <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
-                        {dayOffInfo.title || 'Day Off Period'}
+              {/* Date Status Messages */}
+              <div className="mt-2 space-y-2">
+                {/* Next Available Date Message */}
+                {selectedDate && selectedDate !== minDate && (
+                  <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div className="text-xs">
+                      <p className="font-medium text-green-800 dark:text-green-200">
+                        Next available appointment
                       </p>
-                      <p className="text-xs text-amber-700 dark:text-amber-300">
-                        {dayOffInfo.description || 'Emergency only'}
+                      <p className="text-green-700 dark:text-green-300">
+                        {new Date(selectedDate).toLocaleDateString('en-GB', {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Day-off Periods Info */}
+                {dayOffPeriods.length > 0 && (
+                  <div className="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="text-xs">
+                      <p className="font-medium text-blue-800 dark:text-blue-200">
+                        Business closed
+                      </p>
+                      <p className="text-blue-700 dark:text-blue-300">
+                        {dayOffPeriods.map(period => 
+                          `${new Date(period.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - ${new Date(period.end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${period.title})`
+                        ).join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Day-off Warning */}
+              {selectedDate && dayOffInfo.isDayOff && (
+                <div className="mt-2 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <div className="text-xs">
+                      <p className="font-medium text-orange-800 dark:text-orange-200 mb-1">
+                        {dayOffInfo.title || 'Business Closed'}
+                      </p>
+                      <p className="text-orange-700 dark:text-orange-300 mb-2">
+                        {dayOffInfo.description || 'No appointments available on this date'}
                       </p>
                       {dayOffInfo.bannerMessage && (
-                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        <p className="text-orange-600 dark:text-orange-400 text-xs">
                           {dayOffInfo.bannerMessage}
                         </p>
                       )}
@@ -593,8 +674,17 @@ export default function FormBooking() {
                       );
                     })}
                   </select>
-                  {availableTimeSlots.length === 0 && (
-                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">No available time slots for this date.</p>
+                  {availableTimeSlots.length === 0 && !dayOffInfo.isDayOff && (
+                    <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          All time slots are booked for this date
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </>
               )}
