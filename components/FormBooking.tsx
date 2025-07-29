@@ -6,6 +6,7 @@ import { usePricingCardsForBooking, type BookingService } from "@/hooks/usePrici
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+import CustomDatePicker from "./CustomDatePicker";
 
 type DayOffSettings = {
   isEnabled: boolean;
@@ -27,6 +28,19 @@ export default function FormBooking() {
   const [selectedDate, setSelectedDate] = useState("");
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [dayOffInfo, setDayOffInfo] = useState<{
+    isDayOff: boolean;
+    title?: string;
+    description?: string;
+    bannerMessage?: string;
+  }>({ isDayOff: false });
+
+  // State to store day-off periods for date validation
+  const [dayOffPeriods, setDayOffPeriods] = useState<Array<{
+    start_date: string;
+    end_date: string;
+    title: string;
+  }>>([]);
 
   // Get business phone from admin profile
   const businessPhone = adminProfile?.phone || "+44 7541777225";
@@ -59,6 +73,33 @@ export default function FormBooking() {
     return defaultMaxDate.toISOString().split("T")[0];
   };
 
+  // Fetch day-off periods for date validation
+  useEffect(() => {
+    const fetchDayOffPeriods = async () => {
+      try {
+        const response = await fetch("/api/admin/day-off");
+        if (response.ok) {
+          const periods = await response.json();
+          setDayOffPeriods(periods);
+        }
+      } catch (error) {
+        console.error("Error fetching day-off periods:", error);
+      }
+    };
+
+    fetchDayOffPeriods();
+  }, []);
+
+  // Check if a date is in a day-off period
+  const isDateDisabled = (date: string) => {
+    return dayOffPeriods.some(period => {
+      const checkDate = new Date(date);
+      const startDate = new Date(period.start_date);
+      const endDate = new Date(period.end_date);
+      return checkDate >= startDate && checkDate <= endDate;
+    });
+  };
+
   // Check availability when date changes
   useEffect(() => {
     if (selectedDate) {
@@ -72,15 +113,32 @@ export default function FormBooking() {
       const response = await fetch(`/api/bookings/availability?date=${date}`);
       if (response.ok) {
         const data = await response.json();
+        
+        // Check if this date is in a day-off period
+        if (data.isDayOff) {
+          setBookedTimes([]); // No time slots available
+          setDayOffInfo({
+            isDayOff: true,
+            title: data.dayOffTitle,
+            description: data.dayOffDescription,
+            bannerMessage: data.bannerMessage
+          });
+          return;
+        }
+        
+        // Reset day-off info if not in day-off period
+        setDayOffInfo({ isDayOff: false });
         const bookedTimeSlots = data.bookedTimes.map((slot: any) => slot.time);
         setBookedTimes(bookedTimeSlots);
       } else {
         console.error("Failed to check availability");
         setBookedTimes([]);
+        setDayOffInfo({ isDayOff: false });
       }
     } catch (error) {
       console.error("Error checking availability:", error);
       setBookedTimes([]);
+      setDayOffInfo({ isDayOff: false });
     } finally {
       setIsCheckingAvailability(false);
     }
@@ -101,7 +159,9 @@ export default function FormBooking() {
     return bookedTimes.some(t => normalizeTime(t) === slotTime);
   };
 
-  const availableTimeSlots = timeSlots.filter((slot: string) => !isTimeSlotBooked(slot));
+  const availableTimeSlots = dayOffInfo.isDayOff 
+    ? [] // No time slots available during day-off periods
+    : timeSlots.filter((slot: string) => !isTimeSlotBooked(slot));
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -145,7 +205,7 @@ export default function FormBooking() {
       }
 
       // Check if date is in day off period (allow emergency bookings)
-      if (isDateInDayOff(data.preferredDate) && !data.isEmergency) {
+      if (dayOffInfo.isDayOff && !data.isEmergency) {
         showError("Day Off Period", "Regular bookings are not available on this date. You can still book emergency services.");
         setIsSubmitting(false);
         return;
@@ -446,26 +506,52 @@ export default function FormBooking() {
               <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="preferred-date">
                 Date *
               </label>
-              <input
-                required
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark] text-sm"
-                defaultValue={defaultDate}
-                id="preferred-date"
-                min={minDate}
-                max={getMaxDate()}
-                name="preferred-date"
-                type="date"
-                onChange={(e) => setSelectedDate(e.target.value)}
+              <CustomDatePicker
+                value={selectedDate || defaultDate}
+                onChange={(date) => {
+                  setSelectedDate(date);
+                  checkAvailability(date);
+                }}
+                minDate={minDate}
+                maxDate={getMaxDate()}
+                dayOffPeriods={dayOffPeriods}
+                className="w-full"
               />
-              {selectedDate && isDateInDayOff(selectedDate) && (
+              {/* Hidden input for form submission */}
+              <input
+                type="hidden"
+                name="preferred-date"
+                value={selectedDate || defaultDate}
+                required
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Dates in day-off periods are automatically disabled
+                {dayOffPeriods.length > 0 && (
+                  <span className="block mt-1 text-amber-600 dark:text-amber-400">
+                    Day-off period: {dayOffPeriods.map(period => 
+                      `${period.start_date} to ${period.end_date} (${period.title})`
+                    ).join(', ')}
+                  </span>
+                )}
+              </p>
+              {selectedDate && dayOffInfo.isDayOff && (
                 <div className="mt-1 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
                   <div className="flex items-center">
                     <svg className="w-4 h-4 text-amber-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
                     <div>
-                      <p className="text-xs font-medium text-amber-800 dark:text-amber-200">Day Off Period</p>
-                      <p className="text-xs text-amber-700 dark:text-amber-300">Emergency only</p>
+                      <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+                        {dayOffInfo.title || 'Day Off Period'}
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        {dayOffInfo.description || 'Emergency only'}
+                      </p>
+                      {dayOffInfo.bannerMessage && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                          {dayOffInfo.bannerMessage}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -10,6 +10,8 @@ export type AdminSettings = {
   responseTime?: string;
   emergencyRate?: string;
   standardRate?: string;
+  mcsCertified?: boolean;
+  mcsNumber?: string;
   dayOffSettings?: {
     isEnabled: boolean;
     startDate: string;
@@ -32,7 +34,9 @@ export function useAdminSettings() {
     workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
     responseTime: "45 minutes",
     emergencyRate: "150",
-    standardRate: "75"
+    standardRate: "75",
+    mcsCertified: false,
+    mcsNumber: ""
   });
   const [isLoading, setIsLoading] = useState(!adminSettingsCache);
   const [error, setError] = useState<Error | null>(null);
@@ -77,11 +81,25 @@ export function useAdminSettings() {
           workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
           responseTime: "45 minutes",
           emergencyRate: "150",
-          standardRate: "75"
+          standardRate: "75",
+          mcsCertified: false,
+          mcsNumber: ""
         };
         
-        // Merge the API response with defaults
-        const mergedSettings = { ...parsedSettings, ...responseData };
+        // Merge the API response with defaults and handle type conversions
+        const mergedSettings = { 
+          ...parsedSettings, 
+          ...responseData,
+          // Ensure boolean values are properly converted
+          mcsCertified: responseData.mcsCertified === true || responseData.mcsCertified === 'true',
+          gasSafeRegistered: responseData.gasSafeRegistered === true || responseData.gasSafeRegistered === 'true',
+          fullyInsured: responseData.fullyInsured === true || responseData.fullyInsured === 'true',
+          dayOffEnabled: responseData.dayOffEnabled === true || responseData.dayOffEnabled === 'true',
+          emailNotifications: responseData.emailNotifications === true || responseData.emailNotifications === 'true',
+          smsNotifications: responseData.smsNotifications === true || responseData.smsNotifications === 'true',
+          autoConfirmBookings: responseData.autoConfirmBookings === true || responseData.autoConfirmBookings === 'true',
+          vatEnabled: responseData.vatEnabled === true || responseData.vatEnabled === 'true'
+        };
 
         adminSettingsCache = mergedSettings;
         setSettings(mergedSettings);

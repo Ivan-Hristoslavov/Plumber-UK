@@ -85,7 +85,7 @@ export function useGallerySections() {
 
   const deleteGallerySection = async (id: number) => {
     try {
-      const response = await fetch(`/api/gallery-sections?id=${id}`, {
+      const response = await fetch(`/api/gallery-sections/${id}`, {
         method: 'DELETE',
       });
 

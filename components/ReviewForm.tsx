@@ -323,17 +323,17 @@ export function ReviewForm() {
                 Rate Your Experience
               </label>
               <div className="flex items-center justify-center gap-2 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-                {Array.from({ length: 7 }).map((_, i) => (
+                {Array.from({ length: 6 }).map((_, i) => (
                   <button
                     type="button"
                     key={i}
-                    onClick={() => setForm((f) => ({ ...f, rating: i }))}
+                    onClick={() => setForm((f) => ({ ...f, rating: i + 1 }))}
                     className={`group relative w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 ${
                       form.rating > i
                         ? "bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/30"
                         : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600"
                     }`}
-                    aria-label={`Rate ${i} stars`}
+                    aria-label={`Rate ${i + 1} stars`}
                   >
                     <svg
                       className={`w-6 h-6 mx-auto transition-colors duration-300 ${

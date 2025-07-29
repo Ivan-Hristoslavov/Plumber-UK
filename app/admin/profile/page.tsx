@@ -19,7 +19,6 @@ type ProfileData = {
   companyAddress: string;
 
   // Professional Information
-  gasRegNumber: string;
   insuranceProvider: string;
   yearsOfExperience: string;
   specializations: string;
@@ -62,7 +61,6 @@ export default function ProfilePage() {
     companyName: "",
     companyAddress: "",
 
-    gasRegNumber: "",
     insuranceProvider: "",
     yearsOfExperience: "",
     specializations: "",
@@ -99,7 +97,6 @@ export default function ProfilePage() {
         companyName: dbProfile.company_name || "Fix My Leak",
         companyAddress: dbProfile.company_address || "London, UK",
 
-        gasRegNumber: dbProfile.gas_safe_number || "GAS123456",
         insuranceProvider: dbProfile.insurance_provider || "Zurich Insurance",
         yearsOfExperience: dbProfile.years_of_experience || "",
         specializations: dbProfile.specializations || "",
@@ -133,7 +130,6 @@ export default function ProfilePage() {
           about: profileData.about,
           companyName: profileData.companyName,
           companyAddress: profileData.companyAddress,
-          gasRegNumber: profileData.gasRegNumber,
           insuranceProvider: profileData.insuranceProvider,
           yearsOfExperience: profileData.yearsOfExperience,
           specializations: profileData.specializations,
@@ -467,23 +463,7 @@ export default function ProfilePage() {
                       This will be displayed on your website (e.g., "10+ Years").
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Gas Safe Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., GS12345678"
-                      value={profileData.gasRegNumber}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          gasRegNumber: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Insurance Provider

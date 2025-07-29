@@ -2,16 +2,19 @@
 
 import { useAreas } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { AdminProfileData } from "@/components/AdminProfileData";
 
 export function SectionHero() {
   const { areas, loading: areasLoading } = useAreas();
   const adminProfile = useAdminProfile();
+  const { settings: adminSettings } = useAdminSettings();
 
   // Check if credentials are available
-  const hasGasSafe = adminProfile?.gas_safe_registered && adminProfile?.gas_safe_number && adminProfile.gas_safe_number.trim() !== "";
+  const hasGasSafe = adminProfile?.gas_safe_registered === true;
   const hasInsurance = adminProfile?.fully_insured && adminProfile?.insurance_provider && adminProfile.insurance_provider.trim() !== "";
   const hasCertifications = adminProfile?.certifications && adminProfile.certifications.trim() !== "";
+  const hasMscCertified = adminSettings?.mcsCertified === true;
 
   return (
     <section
@@ -72,9 +75,23 @@ export function SectionHero() {
             {/* Gas Safe Registered - Dynamic */}
             {hasGasSafe && (
               <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
+                <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                  Gas Safe Registered
+                </span>
+              </div>
+            )}
+            
+            {/* MCS Certified - Dynamic */}
+            {hasMscCertified && (
+              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
                 <img
                   src="/mcs-logo.png"
-                  alt="Gas Safe Registered"
+                  alt="MCS Certified - Microgeneration Certificate Scheme"
                   className="h-10 md:h-12 w-auto object-contain mx-auto"
                   style={{ maxWidth: "120px" }}
                 />

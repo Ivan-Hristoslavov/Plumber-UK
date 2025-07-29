@@ -230,24 +230,6 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Create and manage frequently asked questions that customers will see on your website.
-          </p>
-        </div>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-        >
-          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add New FAQ
-        </button>
-      </div>
-
       {/* FAQ Items Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {faqItems.map((item) => (

@@ -14,6 +14,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // First, check if the date is in a day-off period
+    const { data: dayOffPeriods, error: dayOffError } = await supabase
+      .from("day_off_periods")
+      .select("title, description, banner_message")
+      .lte("start_date", date)
+      .gte("end_date", date)
+      .eq("is_recurring", false);
+
+    if (dayOffError) {
+      console.error("Error checking day-off periods:", dayOffError);
+      return NextResponse.json(
+        { error: "Failed to check day-off periods" },
+        { status: 500 }
+      );
+    }
+
+    // If there's a day-off period for this date, return unavailable
+    if (dayOffPeriods && dayOffPeriods.length > 0) {
+      const dayOffPeriod = dayOffPeriods[0];
+      return NextResponse.json({
+        date,
+        isDayOff: true,
+        dayOffTitle: dayOffPeriod.title,
+        dayOffDescription: dayOffPeriod.description,
+        bannerMessage: dayOffPeriod.banner_message,
+        bookedTimes: [],
+        message: `Date ${date} is unavailable due to: ${dayOffPeriod.title}`
+      });
+    }
+
     // Get all booked time slots for the specified date
     const { data: bookedSlots, error } = await supabase
       .from("bookings")
@@ -38,6 +68,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       date,
+      isDayOff: false,
       bookedTimes,
       message: `Found ${bookedTimes.length} booked time slots for ${date}`
     });

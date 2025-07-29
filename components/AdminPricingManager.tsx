@@ -432,19 +432,6 @@ export function AdminPricingManager({ triggerModal }: { triggerModal?: boolean }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Pricing Cards
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Create and manage pricing cards that customers will see on your website.
-          </p>
-        </div>
-        {/* Remove duplicate button - now handled by floating button */}
-      </div>
-
       {/* Pricing Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {pricingCards.map((card) => (
