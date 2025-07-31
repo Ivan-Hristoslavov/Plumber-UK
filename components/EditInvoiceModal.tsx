@@ -39,6 +39,7 @@ export function EditInvoiceModal({
   });
   const [attachedImages, setAttachedImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ filename: string; path: string; originalSize?: number; compressedSize?: number; compressionRatio?: number }[]>([]);
+  const [replacingImageIndex, setReplacingImageIndex] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [useManualEntry, setUseManualEntry] = useState(false);
 
@@ -156,6 +157,33 @@ export function EditInvoiceModal({
     setExistingImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleReplaceImage = (index: number) => {
+    setReplacingImageIndex(index);
+    // Create a hidden file input for replacement
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    // Set a timeout to reset the state if no file is selected
+    const timeoutId = setTimeout(() => {
+      setReplacingImageIndex(null);
+    }, 1000); // 1 second timeout
+    
+    input.onchange = (e) => {
+      clearTimeout(timeoutId);
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        // Remove the existing image and add the new one
+        setExistingImages(prev => prev.filter((_, i) => i !== index));
+        setAttachedImages(prev => [...prev, file]);
+      }
+      setReplacingImageIndex(null);
+    };
+    
+    input.click();
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -247,6 +275,8 @@ export function EditInvoiceModal({
       manual_description: ""
     });
     setAttachedImages([]);
+    setExistingImages([]);
+    setReplacingImageIndex(null);
     setErrors({});
     setUseManualEntry(false);
   };
@@ -463,10 +493,10 @@ export function EditInvoiceModal({
           {/* Image Attachments */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Attach Images (Optional)
+              Manage Invoice Images
             </label>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-              These images will be sent with the invoice email (Max 5 images, 10MB each)
+              Add new images or remove existing ones. Images will be automatically compressed for faster loading. These images will be sent with the invoice email (Max 5 images, 10MB each)
             </p>
             
             <div className="space-y-4">
@@ -502,7 +532,7 @@ export function EditInvoiceModal({
               {attachedImages.length > 0 && (
                 <div className="space-y-2">
                   <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Attached Images ({attachedImages.length}/5)
+                    New Images ({attachedImages.length}/5)
                   </h5>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {attachedImages.map((file, index) => (
@@ -526,7 +556,83 @@ export function EditInvoiceModal({
                             </button>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            {(file.size / 1024 / 1024).toFixed(1)} MB
+                            {(file.size / 1024 / 1024).toFixed(1)} MB (will be compressed)
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Existing Images */}
+              {existingImages.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Existing Images ({existingImages.length})
+                  </h5>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {existingImages.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">
+                              {image.filename}
+                            </span>
+                            <div className="flex space-x-1">
+                              <button
+                                type="button"
+                                onClick={() => handleReplaceImage(index)}
+                                className="text-blue-500 hover:text-blue-700 transition-colors p-1"
+                                title="Replace image"
+                                disabled={replacingImageIndex === index}
+                              >
+                                {replacingImageIndex === index ? (
+                                  <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeExistingImage(index)}
+                                className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                title="Delete image"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {image.originalSize ? `${(image.originalSize / 1024 / 1024).toFixed(1)} MB` : 'Size unknown'}
+                            {image.compressedSize && image.compressionRatio && (
+                              <span className={`ml-1 ${image.compressionRatio < 0.8 ? 'text-green-600' : 'text-yellow-600'}`}>
+                                (compressed: {(image.compressedSize / 1024 / 1024).toFixed(1)} MB
+                                {image.compressionRatio < 1 && `, ${((1 - image.compressionRatio) * 100).toFixed(0)}% smaller`})
+                              </span>
+                            )}
+                          </div>
+                          {/* Image Preview */}
+                          <div className="mt-2">
+                            <img 
+                              src={image.path} 
+                              alt={image.filename}
+                              className="w-full h-20 object-cover rounded border border-gray-200 dark:border-gray-600"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
                           </div>
                         </div>
                       </div>

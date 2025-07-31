@@ -44,7 +44,14 @@ export async function generateMetadata(): Promise<Metadata> {
       "bathroom installation London",
     ],
     icons: {
-      icon: "/fixmyleak-fav.png",
+      icon: [
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+        { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: "/favicon-48x48.png",
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
@@ -52,11 +59,20 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "en_GB",
       siteName: companyName,
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 1200,
+          alt: `${companyName} Logo`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${companyName} - Emergency Plumber London`,
       description: `Professional emergency plumber covering South West London with same-day service.`,
+      images: ["/og-image.png"],
     },
     robots: {
       index: true,

@@ -2,11 +2,46 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createStorageClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 const supabaseStorage = createStorageClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+// Helper function to compress images
+async function compressImage(buffer: Buffer, originalSize: number): Promise<{ compressedBuffer: Buffer; compressedSize: number; compressionRatio: number }> {
+  try {
+    // Compress image with Sharp
+    const compressedBuffer = await sharp(buffer)
+      .resize(1920, 1920, { // Max dimensions
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .jpeg({ 
+        quality: 80, // Good quality with compression
+        progressive: true 
+      })
+      .toBuffer();
+    
+    const compressedSize = compressedBuffer.length;
+    const compressionRatio = compressedSize / originalSize;
+    
+    return {
+      compressedBuffer,
+      compressedSize,
+      compressionRatio
+    };
+  } catch (error) {
+    console.error("Error compressing image:", error);
+    // Return original if compression fails
+    return {
+      compressedBuffer: buffer,
+      compressedSize: originalSize,
+      compressionRatio: 1
+    };
+  }
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -80,8 +115,20 @@ export async function PUT(
 
     // Handle image attachments
     const images = formData.getAll('images') as File[];
-    let imageAttachments: { filename: string; path: string }[] = [];
+    const existingImagesJson = formData.get('existing_images') as string;
+    let imageAttachments: { filename: string; path: string; originalSize?: number; compressedSize?: number; compressionRatio?: number }[] = [];
 
+    // Parse existing images if provided
+    if (existingImagesJson) {
+      try {
+        const existingImages = JSON.parse(existingImagesJson);
+        imageAttachments = [...existingImages];
+      } catch (error) {
+        console.error("Error parsing existing images:", error);
+      }
+    }
+
+    // Process new images
     if (images.length > 0) {
       // Process each image
       for (let i = 0; i < images.length; i++) {
@@ -90,17 +137,21 @@ export async function PUT(
           try {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
+            const originalSize = file.size;
+            
+            // Compress the image
+            const { compressedBuffer, compressedSize, compressionRatio } = await compressImage(buffer, originalSize);
             
             // Generate unique filename
             const timestamp = Date.now();
             const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const filename = `${timestamp}_${i}_${originalName}`;
+            const filename = `${timestamp}_${i}_${originalName.replace(/\.[^/.]+$/, '')}.jpg`; // Always save as JPEG
             
-            // Upload to Supabase Storage
+            // Upload compressed image to Supabase Storage
             const { data, error } = await supabaseStorage.storage
               .from('invoices')
-              .upload(filename, buffer, {
-                contentType: file.type,
+              .upload(filename, compressedBuffer, {
+                contentType: 'image/jpeg',
                 cacheControl: '3600',
                 upsert: false
               });
@@ -117,7 +168,10 @@ export async function PUT(
             
             imageAttachments.push({
               filename: originalName,
-              path: urlData.publicUrl
+              path: urlData.publicUrl,
+              originalSize,
+              compressedSize,
+              compressionRatio
             });
           } catch (error) {
             console.error(`Error processing image ${i}:`, error);
@@ -147,10 +201,8 @@ export async function PUT(
       updated_at: new Date().toISOString()
     };
 
-    // Add image attachments if any
-    if (imageAttachments.length > 0) {
-      updateData.image_attachments = JSON.stringify(imageAttachments);
-    }
+    // Add image attachments (always update, even if empty to allow removal)
+    updateData.image_attachments = JSON.stringify(imageAttachments);
 
     const { data: invoice, error } = await supabase
       .from("invoices")
