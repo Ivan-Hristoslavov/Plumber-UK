@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "bathroom installation London",
     ],
     icons: {
-      icon: "/favicon.ico",
+      icon: "/fixmyleak-fav.png",
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
