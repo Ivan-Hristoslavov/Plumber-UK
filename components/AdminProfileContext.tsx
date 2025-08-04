@@ -37,4 +37,12 @@ export function useAdminProfile() {
     throw new Error("useAdminProfile must be used within an AdminProfileProvider");
   }
   return context.adminProfile;
+}
+
+export function useAdminProfileContext() {
+  const context = useContext(AdminProfileContext);
+  if (context === undefined) {
+    throw new Error("useAdminProfileContext must be used within an AdminProfileProvider");
+  }
+  return context;
 } 

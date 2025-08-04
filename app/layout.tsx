@@ -26,13 +26,18 @@ export async function generateMetadata(): Promise<Metadata> {
         : `${profile.years_of_experience} Years`)
     : "10+ Years";
 
+  const responseTime = profile?.response_time || "45";
   return {
-    title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham, ${profile?.response_time}-minute response time, ${yearsExperience} experience.`,
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'),
+    title: {
+      default: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
+      template: `%s | ${companyName} - Emergency Plumber London`
+    },
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTime}-minute response time, ${yearsExperience} experience. Gas Safe registered, fully insured.`,
     keywords: [
       "emergency plumber London",
       "plumber Clapham",
-      "plumber Chelsea",
+      "plumber Chelsea", 
       "plumber Battersea",
       "plumber Balham",
       "plumber Wandsworth",
@@ -42,7 +47,28 @@ export async function generateMetadata(): Promise<Metadata> {
       "emergency callout London",
       "boiler repair London",
       "bathroom installation London",
+      "kitchen plumbing London",
+      "gas safe plumber London",
+      "plumbing emergency London",
+      "24 hour plumber London",
+      "plumber SW4",
+      "plumber SW12", 
+      "plumber SW3",
+      "plumber SW8",
+      "plumber SW18",
+      "plumber SW16",
+      "fix my leak",
+      "emergency plumbing services",
+      "professional plumber London"
     ],
+    authors: [{ name: companyName }],
+    creator: companyName,
+    publisher: companyName,
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
@@ -55,24 +81,27 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${profile?.response_time}-minute response time.`,
+      description: `Professional emergency plumber covering South West London with ${responseTime}-minute response time. Gas Safe registered, fully insured.`,
       type: "website",
       locale: "en_GB",
       siteName: companyName,
+      url: process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
       images: [
         {
           url: "/og-image.png",
           width: 1200,
-          height: 1200,
-          alt: `${companyName} Logo`,
+          height: 630,
+          alt: `${companyName} - Professional Emergency Plumber London`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${companyName} - Emergency Plumber London`,
-      description: `Professional emergency plumber covering South West London with same-day service.`,
+      description: `Professional emergency plumber covering South West London with same-day service. ${responseTime}-minute response time.`,
       images: ["/og-image.png"],
+      creator: "@fixmyleak",
+      site: "@fixmyleak",
     },
     robots: {
       index: true,
@@ -84,6 +113,33 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-image-preview": "large",
         "max-snippet": -1,
       },
+    },
+    verification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+      yandex: process.env.YANDEX_VERIFICATION,
+      yahoo: process.env.YAHOO_VERIFICATION,
+    },
+    alternates: {
+      canonical: process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
+    },
+    other: {
+      "geo.region": "GB-LND",
+      "geo.placename": "London",
+      "geo.position": "51.5074;-0.1278",
+      "ICBM": "51.5074, -0.1278",
+      "DC.title": `${companyName} - Emergency Plumber London`,
+      "DC.description": `Professional emergency plumber covering South West London with ${responseTime}-minute response time.`,
+      "DC.subject": "Emergency Plumber London, Plumbing Services, Leak Detection",
+      "DC.creator": companyName,
+      "DC.publisher": companyName,
+      "DC.contributor": companyName,
+      "DC.date": new Date().toISOString(),
+      "DC.type": "Service",
+      "DC.format": "text/html",
+      "DC.identifier": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
+      "DC.language": "en",
+      "DC.coverage": "South West London",
+      "DC.rights": "Copyright © 2024 FixMyLeak. All rights reserved.",
     },
   };
 }
@@ -102,6 +158,125 @@ export default async function RootLayout({
 }) {
   // Fetch admin profile data once at the layout level
   const adminProfile = await getAdminProfile();
+  
+  // Create structured data for the business
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "PlumbingService",
+    "name": adminProfile?.company_name || "FixMyLeak",
+    "description": `Professional emergency plumber covering South West London with ${adminProfile?.response_time || "45"}-minute response time.`,
+    "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
+    "telephone": adminProfile?.phone || "07476 746635",
+    "email": adminProfile?.business_email || "info@fixmyleak.co.uk",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "London",
+      "addressRegion": "South West London",
+      "addressCountry": "GB"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 51.5074,
+      "longitude": -0.1278
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Clapham",
+        "postalCode": "SW4"
+      },
+      {
+        "@type": "City", 
+        "name": "Balham",
+        "postalCode": "SW12"
+      },
+      {
+        "@type": "City",
+        "name": "Chelsea", 
+        "postalCode": "SW3"
+      },
+      {
+        "@type": "City",
+        "name": "Battersea",
+        "postalCode": "SW8"
+      },
+      {
+        "@type": "City",
+        "name": "Wandsworth",
+        "postalCode": "SW18"
+      },
+      {
+        "@type": "City",
+        "name": "Streatham",
+        "postalCode": "SW16"
+      }
+    ],
+    "serviceType": [
+      "Emergency Plumbing",
+      "Leak Detection",
+      "Bathroom Installation", 
+      "Boiler Repair",
+      "Kitchen Plumbing",
+      "Gas Safe Services"
+    ],
+    "openingHours": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "08:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification", 
+        "dayOfWeek": "Saturday",
+        "opens": "09:00",
+        "closes": "17:00"
+      }
+    ],
+    "priceRange": "££",
+    "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
+    "currenciesAccepted": "GBP",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Plumbing Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Emergency Plumbing",
+            "description": "24/7 emergency plumbing services"
+          }
+        },
+        {
+          "@type": "Offer", 
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Leak Detection",
+            "description": "Professional leak detection and repair"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service", 
+            "name": "Bathroom Installation",
+            "description": "Complete bathroom installation services"
+          }
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "150"
+    },
+    "sameAs": [
+      "https://www.facebook.com/fixmyleak",
+      "https://www.instagram.com/fixmyleak",
+      "https://www.linkedin.com/company/fixmyleak"
+    ]
+  };
 
   return (
     <html suppressHydrationWarning lang="en">
@@ -112,9 +287,22 @@ export default async function RootLayout({
         <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
         <link rel="apple-touch-icon" href="/favicon-48x48.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
-        <meta name="theme-color" content="#ffffff" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="msapplication-TileImage" content="/favicon-48x48.png" />
+        <meta name="application-name" content="FixMyLeak" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="FixMyLeak" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
       </head>
       <body
         className={clsx(
@@ -122,6 +310,7 @@ export default async function RootLayout({
           fontSans.variable,
           inter.className
         )}
+        suppressHydrationWarning
       >
         <Providers
           themeProps={{

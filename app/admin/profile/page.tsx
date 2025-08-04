@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
+import { ListManager } from "@/components/AdminProfileData";
 import { useToast, ToastMessages } from "@/components/Toast";
 
 type ProfileData = {
@@ -482,44 +483,32 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Specializations
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., Emergency repairs, Boiler installations, Bathroom plumbing"
+                    <ListManager
                       value={profileData.specializations}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setProfileData({
                           ...profileData,
-                          specializations: e.target.value,
+                          specializations: value,
                         })
                       }
+                      label="Specializations"
+                      placeholder="e.g., Emergency repairs"
+                      description="List your main areas of expertise. Press Enter or click + to add each item."
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      List your main areas of expertise.
-                    </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
-                      Certifications
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                      type="text"
-                      placeholder="e.g., Gas Safe Registered, City & Guilds Level 3"
+                    <ListManager
                       value={profileData.certifications}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setProfileData({
                           ...profileData,
-                          certifications: e.target.value,
+                          certifications: value,
                         })
                       }
+                      label="Certifications"
+                      placeholder="e.g., Gas Safe Registered"
+                      description="List your professional certifications and qualifications. Press Enter or click + to add each item."
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      List your professional certifications and qualifications.
-                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
