@@ -89,8 +89,8 @@ export default function ProfilePage() {
       setProfileData({
         firstName: firstName || "Plamen",
         lastName: lastName || "Zhelev",
-        email: dbProfile.email || "plamen@fixmyleak.co.uk",
-        businessEmail: dbProfile.business_email || "admin@fixmyleak.co.uk",
+        email: dbProfile.email || process.env.NEXT_PUBLIC_ADMIN_EMAIL || "plamen@fixmyleak.co.uk",
+        businessEmail: dbProfile.business_email || process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "admin@fixmyleak.co.uk",
         phone: dbProfile.phone || "+44 7700 900123",
         about: dbProfile.about || "",
 

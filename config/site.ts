@@ -6,7 +6,7 @@ export const siteConfig = {
     "Professional plumbing services across South West London. Emergency plumber covering Clapham, Balham, Chelsea, Battersea, Wandsworth, and Streatham with 45-minute response times.",
   links: {
     phone: "07476 746635",
-    email: "info@fixmyleak.co.uk",
+    email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "info@fixmyleak.co.uk",
   },
   areas: [
     {

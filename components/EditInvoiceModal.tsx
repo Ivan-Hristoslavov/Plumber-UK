@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { Customer, Booking, Invoice } from "@/types";
 import { useVATSettings } from "@/hooks/useVATSettings";
+import { getSupportedFormatsText, processImageFile } from "@/lib/image-utils";
 
 interface EditInvoiceModalProps {
   isOpen: boolean;
@@ -117,35 +118,41 @@ export function EditInvoiceModal({
     };
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    // Validate file types and sizes
-    const validFiles = files.filter(file => {
-      const isValidType = file.type.startsWith('image/');
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB max
-      
-      if (!isValidType) {
-        setErrors(prev => ({ ...prev, images: 'Please select only image files' }));
-        return false;
+    // Process each file with HEIC support
+    const processedFiles: File[] = [];
+    
+    for (const file of files) {
+      try {
+        const processedImage = await processImageFile(file, 10);
+        processedFiles.push(processedImage.file);
+        
+        console.log('Image processing result:', {
+          originalType: processedImage.originalType,
+          finalType: processedImage.finalType,
+          wasConverted: processedImage.wasConverted,
+          fileName: processedImage.file.name
+        });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        setErrors(prev => ({ 
+          ...prev, 
+          images: error instanceof Error ? error.message : 'Failed to process image' 
+        }));
+        return;
       }
-      
-      if (!isValidSize) {
-        setErrors(prev => ({ ...prev, images: 'Image files must be under 10MB' }));
-        return false;
-      }
-      
-      return true;
-    });
+    }
 
     // Limit to 5 images total
-    const totalImages = attachedImages.length + validFiles.length;
+    const totalImages = attachedImages.length + processedFiles.length;
     if (totalImages > 5) {
       setErrors(prev => ({ ...prev, images: 'Maximum 5 images allowed' }));
       return;
     }
 
-    setAttachedImages(prev => [...prev, ...validFiles]);
+    setAttachedImages(prev => [...prev, ...processedFiles]);
     setErrors(prev => ({ ...prev, images: '' }));
   };
 
@@ -510,7 +517,7 @@ export function EditInvoiceModal({
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-semibold">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG up to 10MB</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{getSupportedFormatsText()}</p>
                   </div>
                   <input
                     type="file"

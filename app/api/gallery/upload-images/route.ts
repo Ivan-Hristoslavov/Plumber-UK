@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { validateImageFile, processImageFile } from "@/lib/image-utils";
 
 // Validate environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -56,31 +57,23 @@ export async function POST(request: NextRequest) {
     if (beforeImage && beforeImage.size > 0) {
       console.log('Processing before image:', beforeImage.name);
       
-      // Validate file type
-      if (!beforeImage.type.startsWith('image/')) {
-        console.log('Invalid before image type:', beforeImage.type);
-        return NextResponse.json(
-          { error: "Before image must be an image file" },
-          { status: 400 }
-        );
-      }
-
-      // Validate file size (10MB limit)
-      if (beforeImage.size > 10 * 1024 * 1024) {
-        console.log('Before image too large:', beforeImage.size);
-        return NextResponse.json(
-          { error: "Before image must be under 10MB" },
-          { status: 400 }
-        );
-      }
-
       try {
-        const bytes = await beforeImage.arrayBuffer();
+        // Use new image validation and processing
+        const processedImage = await processImageFile(beforeImage, 10);
+        
+        console.log('Image processing result:', {
+          originalType: processedImage.originalType,
+          finalType: processedImage.finalType,
+          wasConverted: processedImage.wasConverted,
+          fileName: processedImage.file.name
+        });
+        
+        const bytes = await processedImage.file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         
         // Generate unique filename
         const timestamp = Date.now();
-        const originalName = beforeImage.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const originalName = processedImage.file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filename = `before_${timestamp}_${originalName}`;
         
         console.log('Uploading before image as:', filename);
@@ -104,7 +97,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabase.storage
           .from('gallery')
           .upload(filename, buffer, {
-            contentType: beforeImage.type,
+            contentType: processedImage.finalType,
             cacheControl: '3600',
             upsert: false
           });
@@ -139,31 +132,23 @@ export async function POST(request: NextRequest) {
     if (afterImage && afterImage.size > 0) {
       console.log('Processing after image:', afterImage.name);
       
-      // Validate file type
-      if (!afterImage.type.startsWith('image/')) {
-        console.log('Invalid after image type:', afterImage.type);
-        return NextResponse.json(
-          { error: "After image must be an image file" },
-          { status: 400 }
-        );
-      }
-
-      // Validate file size (10MB limit)
-      if (afterImage.size > 10 * 1024 * 1024) {
-        console.log('After image too large:', afterImage.size);
-        return NextResponse.json(
-          { error: "After image must be under 10MB" },
-          { status: 400 }
-        );
-      }
-
       try {
-        const bytes = await afterImage.arrayBuffer();
+        // Use new image validation and processing
+        const processedImage = await processImageFile(afterImage, 10);
+        
+        console.log('Image processing result:', {
+          originalType: processedImage.originalType,
+          finalType: processedImage.finalType,
+          wasConverted: processedImage.wasConverted,
+          fileName: processedImage.file.name
+        });
+        
+        const bytes = await processedImage.file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         
         // Generate unique filename
         const timestamp = Date.now();
-        const originalName = afterImage.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const originalName = processedImage.file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filename = `after_${timestamp}_${originalName}`;
         
         console.log('Uploading after image as:', filename);
@@ -172,7 +157,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabase.storage
           .from('gallery')
           .upload(filename, buffer, {
-            contentType: afterImage.type,
+            contentType: processedImage.finalType,
             cacheControl: '3600',
             upsert: false
           });
