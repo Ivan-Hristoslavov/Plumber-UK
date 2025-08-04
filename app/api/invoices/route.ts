@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 import { supabase } from "../../../lib/supabase";
+import { processImageFile } from "@/lib/image-utils";
 
 const supabaseStorage = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -141,25 +142,23 @@ export async function POST(request: NextRequest) {
           type: file.type
         });
         
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          console.log('Invalid image type:', file.type);
-          continue;
-        }
-
-        // Validate file size (10MB limit)
-        if (file.size > 10 * 1024 * 1024) {
-          console.log('Image too large:', file.size);
-          continue;
-        }
-
         try {
-          const bytes = await file.arrayBuffer();
+          // Use new image validation and processing
+          const processedImage = await processImageFile(file, 10);
+          
+          console.log('Image processing result:', {
+            originalType: processedImage.originalType,
+            finalType: processedImage.finalType,
+            wasConverted: processedImage.wasConverted,
+            fileName: processedImage.file.name
+          });
+          
+          const bytes = await processedImage.file.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
           // Generate unique filename
           const timestamp = Date.now();
-          const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const originalName = processedImage.file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
           const filename = `${timestamp}_${i}_${originalName}`;
           
           console.log(`📁 Uploading image as:`, filename);
@@ -180,7 +179,7 @@ export async function POST(request: NextRequest) {
           const { data, error } = await supabaseStorage.storage
             .from('invoices')
             .upload(filename, buffer, {
-              contentType: file.type,
+              contentType: processedImage.finalType,
               cacheControl: '3600',
               upsert: false
             });
@@ -201,8 +200,9 @@ export async function POST(request: NextRequest) {
             filename: originalName,
             path: urlData.publicUrl,
             originalSize: file.size,
-            compressedSize: file.size, // No compression for now
-            compressionRatio: 0
+            compressedSize: processedImage.file.size, // Use processed file size
+            compressionRatio: processedImage.wasConverted ? 
+              ((file.size - processedImage.file.size) / file.size * 100) : 0
           });
           
           console.log(`✅ Image ${i + 1} processed successfully`);

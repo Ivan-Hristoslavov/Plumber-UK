@@ -30,10 +30,10 @@ export default function PrivacyPage() {
   }, []);
 
   const businessData = {
-    businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.email || "admin@fixmyleak.com",
-    businessPhone: adminProfile?.phone || "+44 7541777225",
-  };
+    businessName: adminProfile?.company_name,
+    businessEmail: adminProfile?.business_email,
+    businessPhone: adminProfile?.phone,
+  };  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

@@ -30,9 +30,9 @@ export default function TermsPage() {
   }, []);
 
   const businessData = {
-    businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.email || "admin@fixmyleak.com",
-    businessPhone: adminProfile?.phone || "+44 7541777225",
+    businessName: adminProfile?.company_name,
+    businessEmail: adminProfile?.business_email || process.env.NEXT_PUBLIC_BUSINESS_EMAIL,
+    businessPhone: adminProfile?.phone,
   };
 
   return (

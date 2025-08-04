@@ -7,6 +7,8 @@ import { GalleryItem, GallerySection } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { getSupportedFormatsText, processImageFile } from "@/lib/image-utils";
+import Pagination from "@/components/Pagination";
 
 export function AdminGalleryManager({ 
   triggerModal, 
@@ -89,34 +91,34 @@ export function AdminGalleryManager({
   const [formData, setFormData] = useState(defaultItem);
   const [sectionFormData, setSectionFormData] = useState(defaultSection);
 
-  const handleImageUpload = (file: File, type: "before" | "after") => {
-    // Validate file
-    if (!file.type.startsWith("image/")) {
+  const handleImageUpload = async (file: File, type: "before" | "after") => {
+    try {
+      // Use new image validation and processing
+      const processedImage = await processImageFile(file, 10);
+      
+      console.log('Image processing result:', {
+        originalType: processedImage.originalType,
+        finalType: processedImage.finalType,
+        wasConverted: processedImage.wasConverted,
+        fileName: processedImage.file.name
+      });
+      
+      // Clear error and set file
+      setImageErrors((prev) => ({ ...prev, [type]: undefined }));
+
+      if (type === "before") {
+        setBeforeImage(processedImage.file);
+        setBeforeImagePreview(URL.createObjectURL(processedImage.file));
+      } else {
+        setAfterImage(processedImage.file);
+        setAfterImagePreview(URL.createObjectURL(processedImage.file));
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
       setImageErrors((prev) => ({
         ...prev,
-        [type]: "Please select an image file",
+        [type]: error instanceof Error ? error.message : "Failed to process image",
       }));
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      // 10MB limit
-      setImageErrors((prev) => ({
-        ...prev,
-        [type]: "Image must be under 10MB",
-      }));
-      return;
-    }
-
-    // Clear error and set file
-    setImageErrors((prev) => ({ ...prev, [type]: undefined }));
-
-    if (type === "before") {
-      setBeforeImage(file);
-      setBeforeImagePreview(URL.createObjectURL(file));
-    } else {
-      setAfterImage(file);
-      setAfterImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -364,6 +366,12 @@ export function AdminGalleryManager({
     }
   };
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(galleryItems.length / itemsPerPage);
+  const paginatedItems = galleryItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   if (loading || sectionsLoading) {
     return (
       <div className="space-y-6">
@@ -407,79 +415,128 @@ export function AdminGalleryManager({
       {activeTab === "items" && (
         <>
           {/* Existing Gallery Items */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryItems.map((item) => (
+          {/* Gallery Items List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {paginatedItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 flex flex-col group overflow-hidden"
+                style={{ minHeight: 280 }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {item.title}
-                    </h4>
-                    {item.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                {/* Floating Action Buttons */}
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <button
+                    className="p-2 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center group-hover:scale-110"
+                    title="Edit"
+                    onClick={() => { setEditingItem(item); setShowAddForm(true); }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  </button>
+                  <button
+                    className="p-2 bg-red-500/90 hover:bg-red-600 text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center group-hover:scale-110"
+                    title="Delete"
+                    onClick={async () => {
+                      await confirm(
+                        {
+                          title: "Delete Gallery Item",
+                          message: `Are you sure you want to delete "${item.title || 'this gallery item'}"? This action cannot be undone and will permanently remove the before/after images.`,
+                          confirmText: "Delete",
+                          cancelText: "Cancel",
+                          isDestructive: true
+                        },
+                        async () => {
+                          await deleteGalleryItem(item.id);
+                        }
+                      );
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
                 </div>
-
-                {/* Preview Images */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Before</p>
+                {/* Title */}
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate pr-12">
+                  {item.title || <span className="italic text-gray-400">(No title)</span>}
+                </h3>
+                {/* Description */}
+                {item.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{item.description}</p>
+                )}
+                {/* Before/After Images (modern cards) */}
+                <div className="flex gap-4 mb-4">
+                  {/* Before Card */}
+                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-red-500/90 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                      Before
+                    </div>
                     {item.before_image_url ? (
                       <img
                         src={item.before_image_url}
                         alt="Before"
-                        className="w-full h-20 object-cover rounded"
+                        className="w-full h-32 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
+                        style={{ minHeight: 96, background: 'linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%)' }}
                       />
                     ) : (
-                      <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
-                        <span className="text-xs text-gray-500">No image</span>
+                      <div className="w-full h-32 flex items-center justify-center text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+                        <span className="text-xs">No image</span>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">After</p>
+                  {/* After Card */}
+                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-green-50 dark:from-gray-800 dark:via-gray-900 dark:to-green-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-green-500/90 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      After
+                    </div>
                     {item.after_image_url ? (
                       <img
                         src={item.after_image_url}
                         alt="After"
-                        className="w-full h-20 object-cover rounded"
+                        className="w-full h-32 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
+                        style={{ minHeight: 96, background: 'linear-gradient(135deg, #f3f4f6 0%, #e0e7ef 100%)' }}
                       />
                     ) : (
-                      <div className="w-full h-20 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
-                        <span className="text-xs text-gray-500">No image</span>
+                      <div className="w-full h-32 flex items-center justify-center text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+                        <span className="text-xs">No image</span>
                       </div>
                     )}
                   </div>
                 </div>
-
-                {item.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {item.description}
-                  </p>
+                {/* Project Type & Location */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {item.project_type && (
+                    <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" /></svg>
+                      {item.project_type}
+                    </span>
+                  )}
+                  {item.location && (
+                    <span className="inline-flex items-center px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 12.414a4 4 0 10-5.657 5.657l4.243 4.243a8 8 0 0011.314-11.314l-4.243-4.243a4 4 0 00-5.657 5.657l4.243 4.243z" /></svg>
+                      {item.location}
+                    </span>
+                  )}
+                </div>
+                {/* Completion Date */}
+                {item.completion_date && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} /></svg>
+                    {new Date(item.completion_date).toLocaleDateString('en-GB')}
+                  </div>
                 )}
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={galleryItems.length}
+            limit={itemsPerPage}
+            onPageChange={setCurrentPage}
+            className="mt-8"
+          />
 
           {/* Add/Edit Form */}
           {showAddForm && (
@@ -640,6 +697,9 @@ export function AdminGalleryManager({
                               </span>{" "}
                               Before image
                             </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              {getSupportedFormatsText()}
+                            </p>
                           </div>
                           <input
                             type="file"
@@ -722,6 +782,9 @@ export function AdminGalleryManager({
                                 Click to upload
                               </span>{" "}
                               After image
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              {getSupportedFormatsText()}
                             </p>
                           </div>
                           <input

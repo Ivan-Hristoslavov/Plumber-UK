@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { siteConfig } from '@/config/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   
   // Main pages
   const mainPages = [

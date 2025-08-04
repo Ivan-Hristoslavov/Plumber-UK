@@ -50,7 +50,7 @@ export default function FooterMain() {
   // Get business data from admin profile
   const businessData = {
     businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.business_email || "info@fixmyleak.com",
+    businessEmail: adminProfile?.business_email || process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "info@fixmyleak.co.uk",
     businessPhone: adminProfile?.phone || "+44 7541777225",
     businessAddress: adminProfile?.company_address || "London, UK",
     companyStatus: adminProfile?.company_status || ""
@@ -129,7 +129,7 @@ export default function FooterMain() {
   return (
     <footer className="bg-white/40 dark:bg-gray-900/40 backdrop-blur shadow-lg border-t border-white/20 dark:border-gray-800/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 md:grid-cols-${serviceAreas.length > 0 ? '4' : '3'} gap-8`}>
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <Link
@@ -231,86 +231,35 @@ export default function FooterMain() {
             </ul>
           </div>
 
-          {/* Service Areas */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
-              Service Areas
-            </h3>
-            {isLoading ? (
-              <div className="mt-4 animate-pulse space-y-3">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                ))}
-              </div>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {serviceAreas.length > 0 ? (
-                  serviceAreas.map((area) => (
+          {/* Service Areas - Only show if areas are available */}
+          {serviceAreas.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
+                Service Areas
+              </h3>
+              {isLoading ? (
+                <div className="mt-4 animate-pulse space-y-3">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                  ))}
+                </div>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {serviceAreas.map((area) => (
                     <li key={area.id}>
                       <Link
-                        href={`/areas/${area.slug}`}
+                        href="#service-areas"
+                        onClick={(e) => handleClick(e, "#service-areas")}
                         className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
                       >
                         {area.name}
                       </Link>
                     </li>
-                  ))
-                ) : (
-                  // Fallback areas if none loaded from database
-                  <>
-                    <li>
-                      <Link
-                        href="/areas/clapham"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Clapham
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/areas/battersea"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Battersea
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/areas/chelsea"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Chelsea
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/areas/wandsworth"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Wandsworth
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/areas/balham"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Balham
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/areas/streatham"
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        Streatham
-                      </Link>
-                    </li>
-                  </>
-                )}
-              </ul>
-            )}
-          </div>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bottom Section */}
