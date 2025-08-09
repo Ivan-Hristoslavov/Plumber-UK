@@ -159,14 +159,31 @@ export function useDayOffPeriods() {
 export function useActiveDayOffPeriods() {
   const { periods, loading, error } = useDayOffPeriods();
   
+  // Parse YYYY-MM-DD safely in local time to avoid timezone off-by-one issues
+  function parseLocalDate(dateString: string, isEnd: boolean = false): Date {
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+      return new Date(dateString); // fallback
+    }
+    if (isEnd) {
+      return new Date(year, month - 1, day, 23, 59, 59, 999);
+    }
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
+  }
+
   const activePeriods = periods.filter(period => {
     if (!period.show_banner) return false;
-    
-    const today = new Date();
-    const start = new Date(period.start_date);
-    const end = new Date(period.end_date);
-    
-    return today >= start && today <= end;
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    const start = parseLocalDate(period.start_date, false);
+    const end = parseLocalDate(period.end_date, true);
+
+    // Today overlaps the period if any intersection exists
+    const overlapsToday = start <= todayEnd && end >= todayStart;
+    return overlapsToday;
   });
 
   return {
