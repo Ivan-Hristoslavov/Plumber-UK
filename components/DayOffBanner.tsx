@@ -46,6 +46,8 @@ export function DayOffBanner({ previewPeriod }: DayOffBannerProps) {
 
   if (!activePeriod) return null;
 
+  const isPreview = Boolean(previewPeriod);
+
   return (
     <div 
       className={`w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-500 shadow-lg border-b border-amber-300/50 sticky top-0 z-50 transition-all duration-300 ${
@@ -79,13 +81,13 @@ export function DayOffBanner({ previewPeriod }: DayOffBannerProps) {
                 {activePeriod.banner_message || activePeriod.title}
               </span>
             </div>
-            <div className="hidden md:flex items-center">
+            <div className={`${isPreview ? 'flex' : 'hidden md:flex'} items-center`}>
               <div className={`bg-amber-600/30 rounded-full px-4 flex items-center space-x-2 shadow-inner transition-all duration-300 ${
                 isScrolled ? 'py-1' : 'py-2'
               }`}>
-                <span className="text-amber-900 transition-all duration-300 ${
+                <span className={`text-amber-900 transition-all duration-300 ${
                   isScrolled ? 'text-sm' : 'text-lg'
-                }">📅</span>
+                }`}>📅</span>
                 <span className={`font-semibold text-amber-900 transition-all duration-300 ${
                   isScrolled ? 'text-xs' : 'text-sm'
                 }`}>
