@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDayOffPeriods, DayOffPeriod } from '@/hooks/useDayOffPeriods';
 import { DayOffBanner } from './DayOffBanner';
 
@@ -27,6 +27,77 @@ const defaultForm: DayOffPeriod = {
 };
 
 export function AdminDayOffManager() {
+  // Horizontal drag-to-scroll helper for preview
+  function DraggableScroll({ children }: { children: React.ReactNode }) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const isDraggingRef = useRef(false);
+    const startXRef = useRef(0);
+    const scrollLeftRef = useRef(0);
+
+    const onMouseDown = (e: React.MouseEvent) => {
+      const el = containerRef.current;
+      if (!el) return;
+      isDraggingRef.current = true;
+      startXRef.current = e.pageX - el.offsetLeft;
+      scrollLeftRef.current = el.scrollLeft;
+      el.classList.add('cursor-grabbing');
+    };
+
+    const onMouseLeave = () => {
+      isDraggingRef.current = false;
+      containerRef.current?.classList.remove('cursor-grabbing');
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      containerRef.current?.classList.remove('cursor-grabbing');
+    };
+
+    const onMouseMove = (e: React.MouseEvent) => {
+      const el = containerRef.current;
+      if (!el || !isDraggingRef.current) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startXRef.current) * 1; // scroll-fastness
+      el.scrollLeft = scrollLeftRef.current - walk;
+    };
+
+    const onTouchStart = (e: React.TouchEvent) => {
+      const el = containerRef.current;
+      if (!el) return;
+      isDraggingRef.current = true;
+      startXRef.current = e.touches[0].pageX - el.offsetLeft;
+      scrollLeftRef.current = el.scrollLeft;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+      const el = containerRef.current;
+      if (!el || !isDraggingRef.current) return;
+      const x = e.touches[0].pageX - el.offsetLeft;
+      const walk = (x - startXRef.current) * 1;
+      el.scrollLeft = scrollLeftRef.current - walk;
+    };
+
+    const onTouchEnd = () => {
+      isDraggingRef.current = false;
+    };
+
+    return (
+      <div
+        ref={containerRef}
+        className="overflow-x-auto whitespace-nowrap cursor-grab select-none"
+        onMouseDown={onMouseDown}
+        onMouseLeave={onMouseLeave}
+        onMouseUp={onMouseUp}
+        onMouseMove={onMouseMove}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {children}
+      </div>
+    );
+  }
   const { periods, loading, error, addPeriod, updatePeriod, deletePeriod } = useDayOffPeriods();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<DayOffPeriod>(defaultForm);
@@ -230,31 +301,32 @@ export function AdminDayOffManager() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-4">
-          <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl transform transition-all animate-fade-in-up overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start lg:items-center justify-center z-50 animate-fade-in p-2 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className=" w-full max-w-3xl xl:max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl transform transition-all animate-fade-in-up overflow-hidden max-h-[90vh] sm:max-h-[85vh] lg:max-h-none lg:overflow-visible flex flex-col mt-6 lg:mt-0">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
+            <div className="bg-white dark:bg-gray-800 px-6 py-3 text-gray-900 dark:text-white sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-7 h-7 rounded-md bg-blue-600/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold">
-                  {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
-                </h3>
-                    <p className="text-blue-100 text-xs">
+                    <h3 className="text-base sm:text-lg font-semibold">
+                      {editingId ? 'Edit Day Off Period' : 'Add New Day Off Period'}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">
                       {editingId ? 'Update your day off period settings' : 'Create a new day off period for your business'}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowModal(false)}
-                  className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200"
+                  className="w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all duration-200"
+                  aria-label="Close"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -262,8 +334,8 @@ export function AdminDayOffManager() {
             </div>
             
             {/* Content */}
-            <div className="p-5 space-y-4">
-              {/* Basic Information */}
+            <div className="p-5 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 overflow-y-auto lg:overflow-visible">
+              {/* Left column: Basic Information */}
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -334,9 +406,9 @@ export function AdminDayOffManager() {
                   </div>
                 )}
               </div>
-
-              {/* Settings */}
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-3">
+              {/* Right column: Settings */}
+              <div className="space-y-3">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-3">
                 <h4 className="text-xs font-semibold text-gray-900 dark:text-white">
                   Settings
                 </h4>
@@ -407,12 +479,12 @@ export function AdminDayOffManager() {
                   )}
 
                   {form.is_recurring && (
-                  <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Recurrence Type
-                    </label>
+                    <div className="p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Recurrence Type
+                      </label>
                       <select
-                      className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
+                        className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
                         value={form.recurrence_type || 'null'}
                         onChange={e => {
                           const value = e.target.value === 'null' ? null : e.target.value;
@@ -425,23 +497,27 @@ export function AdminDayOffManager() {
                       </select>
                     </div>
                   )}
+                </div>
+
               </div>
 
-              {/* Preview */}
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+              {/* Preview - full width, draggable horizontally on small screens */}
+              <div className="lg:col-span-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
                 <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
                   Preview
                 </h4>
-                <div className="bg-white dark:bg-gray-600 rounded-lg p-2 border border-gray-200 dark:border-gray-500">
-                  <DayOffBanner 
-                    key={`preview-${form.start_date}-${form.end_date}-${form.show_banner}-${form.banner_message}`}
-                    previewPeriod={form} 
-                  />
-                </div>
+                <DraggableScroll>
+                  <div className="inline-block min-w-[820px] sm:min-w-[1000px] md:min-w-[1100px] lg:min-w-full">
+                    <DayOffBanner 
+                      key={`preview-${form.start_date}-${form.end_date}-${form.show_banner}-${form.banner_message}`}
+                      previewPeriod={form} 
+                    />
+                  </div>
+                </DraggableScroll>
               </div>
 
               {formError && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300 rounded-lg">
+                <div className="lg:col-span-2 p-3 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300 rounded-lg">
                   <div className="flex items-center gap-2">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -452,22 +528,22 @@ export function AdminDayOffManager() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div className="lg:col-span-2 flex justify-end gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <button
-                  className="px-4 py-1.5 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-all duration-200 text-xs"
+                  className="px-5 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-all duration-200 text-sm"
                   onClick={() => setShowModal(false)}
                   disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 text-xs"
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 text-sm min-w-[140px]"
                   onClick={handleSave}
                   disabled={saving}
                 >
                   {saving ? (
                     <span className="flex items-center gap-1">
-                      <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -475,7 +551,7 @@ export function AdminDayOffManager() {
                     </span>
                   ) : (
                     <span className="flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       {editingId ? 'Update Period' : 'Create Period'}
