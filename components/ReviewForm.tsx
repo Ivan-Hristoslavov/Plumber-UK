@@ -323,7 +323,7 @@ export function ReviewForm() {
                 Rate Your Experience
               </label>
               <div className="flex items-center justify-center gap-2 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <button
                     type="button"
                     key={i}
@@ -355,10 +355,7 @@ export function ReviewForm() {
                 ))}
                 <div className="ml-4 text-center">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {form.rating}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    / 6
+                    {form.rating}/5
                   </div>
                 </div>
               </div>
