@@ -201,7 +201,7 @@ export function AdminReviewsManager() {
 
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
+                  {Array.from({ length: 5 }).map((_, i) => (
                     <svg
                       key={i}
                       className={`w-4 h-4 ${
@@ -214,7 +214,7 @@ export function AdminReviewsManager() {
                     </svg>
                   ))}
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-2">
-                    {review.rating}/6
+                    {review.rating}/5
                   </span>
                 </div>
 
