@@ -150,8 +150,8 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
 
   const handleSave = async () => {
     try {
-      if (editingItem) {
-        await updateFAQItem(Number(editingItem.id), formData);
+      if (editingItem && editingItem.id) {
+        await updateFAQItem(editingItem.id, formData);
         showSuccess(ToastMessages.faq.itemUpdated.title, ToastMessages.faq.itemUpdated.message);
         setEditingItem(null);
         setShowModal(false);
@@ -183,7 +183,7 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await confirm(
         {
@@ -205,7 +205,7 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
 
   const handleToggleActive = async (item: FAQItem) => {
     try {
-      await updateFAQItem(Number(item.id), { is_active: !item.is_active });
+      await updateFAQItem(item.id, { is_active: !item.is_active });
       showSuccess(
         item.is_active ? "FAQ Item Disabled" : "FAQ Item Enabled", 
         item.is_active 
@@ -313,7 +313,7 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(Number(item.id))}
+                    onClick={() => handleDelete(item.id)}
                     className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium dark:bg-red-900/30 dark:text-red-300"
                   >
                     Delete
