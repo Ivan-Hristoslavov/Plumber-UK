@@ -43,7 +43,7 @@ export function useFAQ(adminMode = false) {
     return data.faqItem;
   };
 
-  const updateFAQItem = async (id: number, faqItem: Partial<FAQItem>) => {
+  const updateFAQItem = async (id: string, faqItem: Partial<FAQItem>) => {
     const res = await fetch(`/api/faq/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,7 @@ export function useFAQ(adminMode = false) {
     return data.faqItem;
   };
 
-  const deleteFAQItem = async (id: number) => {
+  const deleteFAQItem = async (id: string) => {
     const res = await fetch(`/api/faq/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete FAQ item');
