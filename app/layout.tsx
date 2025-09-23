@@ -162,7 +162,8 @@ export default async function RootLayout({
   // Create structured data for the business
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "PlumbingService",
+    "@type": ["LocalBusiness", "Plumber"],
+    "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`,
     "name": adminProfile?.company_name || "FixMyLeak",
     "description": `Professional emergency plumber covering South West London with ${adminProfile?.response_time || "45"}-minute response time.`,
     "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
@@ -219,7 +220,7 @@ export default async function RootLayout({
       "Kitchen Plumbing",
       "Gas Safe Services"
     ],
-    "openingHours": [
+    "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
@@ -269,7 +270,10 @@ export default async function RootLayout({
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
-      "reviewCount": "150"
+      "reviewCount": "150",
+      "itemReviewed": {
+        "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`
+      }
     },
     "sameAs": [
       "https://www.facebook.com/fixmyleak",
@@ -301,6 +305,22 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData),
+          }}
+        />
+        
+        {/* Google Analytics */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-K9F3CSXPFK"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-K9F3CSXPFK');
+            `,
           }}
         />
       </head>
