@@ -1,3 +1,5 @@
+"use client";
+
 import { useReviews } from '@/hooks/useReviews';
 import { useState } from 'react';
 

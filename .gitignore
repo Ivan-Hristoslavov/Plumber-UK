@@ -33,6 +33,9 @@ build/
 out/
 .next/
 
+# TypeScript
+*.tsbuildinfo
+
 # Logs
 *.log
 logs/
