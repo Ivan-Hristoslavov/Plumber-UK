@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface Area {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   postcode: string;
@@ -9,6 +9,8 @@ interface Area {
   response_time: string;
   is_active: boolean;
   order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // Global cache to prevent multiple API calls

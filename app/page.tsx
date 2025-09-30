@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from 'next';
 import Image from "next/image";
 import { SectionHero } from "@/components/SectionHero";
 import { SectionPricing } from "@/components/SectionPricing";
@@ -8,13 +7,94 @@ import { ReviewsSection } from "@/components/ReviewsSection";
 import { GallerySection } from "@/components/GallerySection";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
-import { useAreas } from "@/hooks/useAreas";
 import { ReviewForm } from "@/components/ReviewForm";
 import SectionContact from "@/components/SectionContact";
 import { FloatingCTA } from "@/components/FloatingCTA";
+import { getAdminProfile } from "@/lib/admin-profile";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
-  const { areas, loading: areasLoading } = useAreas();
+interface Area {
+  id: string;
+  name: string;
+  slug: string;
+  postcode: string;
+  description: string;
+  response_time: string;
+  is_active: boolean;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const profile = await getAdminProfile();
+  const companyName = profile?.company_name || "FixMyLeak";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
+  
+  const responseTime = profile?.response_time || "45 minutes";
+  // Normalize response time to avoid duplication (remove any existing "minute/minutes")
+  const responseTimeNormalized = responseTime.replace(/\s+(minutes?|mins?)\s*/gi, '').trim();
+  
+  const yearsExperience = profile?.years_of_experience 
+    ? (profile.years_of_experience.toLowerCase().includes('years') 
+        ? profile.years_of_experience 
+        : `${profile.years_of_experience} Years`)
+    : "10+ Years";
+
+  return {
+    title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Gas Safe registered, fully insured.`,
+    alternates: {
+      canonical: base,
+    },
+    openGraph: {
+      title: `${companyName} - Emergency Plumber London | Same Day Service`,
+      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Gas Safe registered, fully insured.`,
+      url: base,
+      type: "website",
+      locale: "en_GB",
+      siteName: companyName,
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: `${companyName} - Professional Emergency Plumber London`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${companyName} - Emergency Plumber London`,
+      description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time.`,
+      images: ["/og-image.png"],
+    },
+  };
+}
+
+async function getAreas(): Promise<Area[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('admin_areas_cover')
+      .select('*')
+      .eq('is_active', true)
+      .order('order', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching areas:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAreas:', error);
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const areas = await getAreas();
 
   return (
     <main className="min-h-screen">
@@ -238,12 +318,6 @@ export default function HomePage() {
               <a
                 href="#contact"
                 className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white font-semibold rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl border border-blue-500/20"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document
-                    .getElementById("contact")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
               >
                 <svg
                   className="w-5 h-5 mr-3 group-hover:animate-pulse"
@@ -303,15 +377,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          {areasLoading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-600 dark:text-gray-300">
-                Loading service areas...
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {areas.map((area) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {areas.map((area) => (
                 <div
                   key={area.id}
                   className="group bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 transform hover:-translate-y-1"
@@ -351,8 +418,7 @@ export default function HomePage() {
                   </p>
                 </div>
               ))}
-            </div>
-          )}
+          </div>
 
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 text-center transition-all duration-300">
             <div className="flex items-center justify-center mb-4">
