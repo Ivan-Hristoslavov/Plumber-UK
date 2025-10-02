@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 
 export async function GET() {
   try {
@@ -131,6 +132,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = createClient();
+    // Use service role client for storage operations
+    const supabaseService = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
 
@@ -138,6 +145,19 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Gallery item ID is required" }, { status: 400 });
     }
 
+    // First, get the gallery item to extract image URLs
+    const { data: galleryItem, error: fetchError } = await supabase
+      .from("gallery")
+      .select("before_image_url, after_image_url")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching gallery item:", fetchError);
+      return NextResponse.json({ error: "Failed to fetch gallery item" }, { status: 500 });
+    }
+
+    // Delete the gallery item from database
     const { error } = await supabase
       .from("gallery")
       .delete()
@@ -146,6 +166,68 @@ export async function DELETE(request: NextRequest) {
     if (error) {
       console.error("Error deleting gallery item:", error);
       return NextResponse.json({ error: "Failed to delete gallery item" }, { status: 500 });
+    }
+
+    // Delete images from Supabase Storage
+    const imagesToDelete = [];
+    
+    if (galleryItem.before_image_url) {
+      console.log('Before image URL:', galleryItem.before_image_url);
+      // Extract filename from Supabase storage URL
+      // URL format: https://[project].supabase.co/storage/v1/object/public/gallery/filename
+      const urlParts = galleryItem.before_image_url.split('/');
+      console.log('URL parts:', urlParts);
+      const filename = urlParts[urlParts.length - 1];
+      console.log('Extracted filename:', filename);
+      if (filename && filename !== 'gallery' && filename.includes('.')) {
+        imagesToDelete.push(filename);
+        console.log('Added before image to delete:', filename);
+      } else {
+        console.log('Skipped before image - invalid filename:', filename);
+      }
+    }
+    
+    if (galleryItem.after_image_url) {
+      console.log('After image URL:', galleryItem.after_image_url);
+      // Extract filename from Supabase storage URL
+      const urlParts = galleryItem.after_image_url.split('/');
+      console.log('URL parts:', urlParts);
+      const filename = urlParts[urlParts.length - 1];
+      console.log('Extracted filename:', filename);
+      if (filename && filename !== 'gallery' && filename.includes('.')) {
+        imagesToDelete.push(filename);
+        console.log('Added after image to delete:', filename);
+      } else {
+        console.log('Skipped after image - invalid filename:', filename);
+      }
+    }
+
+    console.log('Images to delete:', imagesToDelete);
+
+    // Delete images from storage
+    if (imagesToDelete.length > 0) {
+      console.log('Attempting to delete images from storage...');
+      console.log('Using Supabase client:', {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      });
+      
+      const { data: deleteResult, error: storageError } = await supabaseService.storage
+        .from('gallery')
+        .remove(imagesToDelete);
+
+      console.log('Storage deletion result:', { deleteResult, storageError });
+
+      if (storageError) {
+        console.error("Error deleting images from storage:", storageError);
+        // Don't fail the request if storage deletion fails
+        // The database record is already deleted
+      } else {
+        console.log('Successfully deleted images from storage');
+        console.log('Deleted files:', deleteResult);
+      }
+    } else {
+      console.log('No images to delete from storage');
     }
 
     return NextResponse.json({ success: true });
