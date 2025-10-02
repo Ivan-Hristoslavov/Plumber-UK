@@ -138,8 +138,13 @@ export default function AdminLayout({
     }
 
     // For admin pages, assume authenticated (middleware will handle redirects)
-    setIsAuthenticated(true);
-    setIsLoading(false);
+    // Add a small delay to show the loading animation briefly
+    const timer = setTimeout(() => {
+      setIsAuthenticated(true);
+      setIsLoading(false);
+    }, 300); // Reduced from default to make it faster
+
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   // If we're on the login page, just render the children
@@ -152,8 +157,29 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 dark:border-blue-400 border-t-transparent mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-300 font-medium transition-colors duration-300">Loading Admin Panel...</p>
+          {/* Modern loading animation */}
+          <div className="relative mb-6">
+            <div className="w-20 h-20 mx-auto">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-800"></div>
+              {/* Animated ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 dark:border-t-blue-400 animate-spin"></div>
+              {/* Inner dot */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          
+          {/* Loading text with animation */}
+          <div className="space-y-2">
+            <p className="text-gray-600 dark:text-gray-300 font-medium transition-colors duration-300">
+              Loading Admin Panel
+            </p>
+            <div className="flex justify-center space-x-1">
+              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );

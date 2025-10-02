@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
+import { useAreas } from "@/hooks/useAreas";
 import { GalleryItem, GallerySection } from "@/types";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { useConfirmation } from "@/hooks/useConfirmation";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { getSupportedFormatsText, processImageFile } from "@/lib/image-utils";
+import { getSupportedFormatsText, processImageFile, getImageDimensions, compressImage } from "@/lib/image-utils";
 import Pagination from "@/components/Pagination";
 
 export function AdminGalleryManager({ 
@@ -33,6 +34,7 @@ export function AdminGalleryManager({
     updateGallerySection,
     deleteGallerySection,
   } = useGallerySections();
+  const { areas, loading: areasLoading } = useAreas();
   const { showSuccess, showError } = useToast();
   const { confirm, modalProps } = useConfirmation();
 
@@ -50,6 +52,16 @@ export function AdminGalleryManager({
       // Set the active tab based on the defaultTab prop
       setActiveTab(defaultTab);
       if (defaultTab === "items") {
+        // Clear editing state and reset form
+        setEditingItem(null);
+        setEditingSection(null);
+        setFormData({ ...defaultItem });
+        setBeforeImage(null);
+        setAfterImage(null);
+        setBeforeImagePreview("");
+        setAfterImagePreview("");
+        setImageErrors({});
+        setUseCustomLocation(false);
         setShowAddForm(true);
       } else {
         setShowAddSectionForm(true);
@@ -60,12 +72,36 @@ export function AdminGalleryManager({
   // Image file states
   const [beforeImage, setBeforeImage] = useState<File | null>(null);
   const [afterImage, setAfterImage] = useState<File | null>(null);
+  
+  // Location selection state
+  const [useCustomLocation, setUseCustomLocation] = useState(false);
   const [beforeImagePreview, setBeforeImagePreview] = useState<string>("");
   const [afterImagePreview, setAfterImagePreview] = useState<string>("");
   const [imageErrors, setImageErrors] = useState<{
     before?: string;
     after?: string;
   }>({});
+  
+  // Individual image compression settings
+  const [beforeImageSettings, setBeforeImageSettings] = useState({
+    quality: 0.85,
+    originalFile: null as File | null,
+    compressedFile: null as File | null,
+    originalSize: 0,
+    compressedSize: 0,
+    originalDimensions: { width: 0, height: 0 },
+    compressedDimensions: { width: 0, height: 0 }
+  });
+  
+  const [afterImageSettings, setAfterImageSettings] = useState({
+    quality: 0.85,
+    originalFile: null as File | null,
+    compressedFile: null as File | null,
+    originalSize: 0,
+    compressedSize: 0,
+    originalDimensions: { width: 0, height: 0 },
+    compressedDimensions: { width: 0, height: 0 }
+  });
 
   const defaultItem = {
     title: "",
@@ -93,45 +129,148 @@ export function AdminGalleryManager({
 
   const handleImageUpload = async (file: File, type: "before" | "after") => {
     try {
-      // Use new image validation and processing
-      const processedImage = await processImageFile(file, 10);
-      
-      console.log('Image processing result:', {
-        originalType: processedImage.originalType,
-        finalType: processedImage.finalType,
-        wasConverted: processedImage.wasConverted,
-        fileName: processedImage.file.name
-      });
+      // Validate the file first
+      const validation = await processImageFile(file, 10, false); // Don't compress yet
       
       // Clear error and set file
       setImageErrors((prev) => ({ ...prev, [type]: undefined }));
 
+      // Get original dimensions
+      const dimensions = await getImageDimensions(file);
+      
+      // Set original file data
       if (type === "before") {
-        setBeforeImage(processedImage.file);
-        setBeforeImagePreview(URL.createObjectURL(processedImage.file));
+        setBeforeImageSettings(prev => ({
+          ...prev,
+          originalFile: file,
+          originalSize: file.size,
+          originalDimensions: dimensions,
+          compressedFile: file, // Start with original
+          compressedSize: file.size,
+          compressedDimensions: dimensions
+        }));
+        
+        // Revoke previous object URL if it exists
+        if (beforeImagePreview && beforeImagePreview.startsWith('blob:')) {
+          URL.revokeObjectURL(beforeImagePreview);
+        }
+        setBeforeImage(file);
+        setBeforeImagePreview(URL.createObjectURL(file));
       } else {
-        setAfterImage(processedImage.file);
-        setAfterImagePreview(URL.createObjectURL(processedImage.file));
+        setAfterImageSettings(prev => ({
+          ...prev,
+          originalFile: file,
+          originalSize: file.size,
+          originalDimensions: dimensions,
+          compressedFile: file, // Start with original
+          compressedSize: file.size,
+          compressedDimensions: dimensions
+        }));
+        
+        // Revoke previous object URL if it exists
+        if (afterImagePreview && afterImagePreview.startsWith('blob:')) {
+          URL.revokeObjectURL(afterImagePreview);
+        }
+        setAfterImage(file);
+        setAfterImagePreview(URL.createObjectURL(file));
       }
     } catch (error) {
-      console.error('Error processing image:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to process image";
       setImageErrors((prev) => ({
         ...prev,
-        [type]: error instanceof Error ? error.message : "Failed to process image",
+        [type]: errorMessage,
       }));
+      
+      // Show toast error for better user feedback
+      showError(
+        "Image Upload Error",
+        `Failed to process ${type} image: ${errorMessage}`
+      );
     }
   };
 
+  const handleQualityChange = async (quality: number, type: "before" | "after") => {
+    const settings = type === "before" ? beforeImageSettings : afterImageSettings;
+    if (!settings.originalFile) return;
+
+    try {
+      // Compress the original file with new quality
+      const compressedFile = await compressImage(settings.originalFile, 1920, 1080, quality);
+      const dimensions = await getImageDimensions(compressedFile);
+
+      if (type === "before") {
+        setBeforeImageSettings(prev => ({
+          ...prev,
+          quality,
+          compressedFile,
+          compressedSize: compressedFile.size,
+          compressedDimensions: dimensions
+        }));
+        
+        // Update preview
+        if (beforeImagePreview && beforeImagePreview.startsWith('blob:')) {
+          URL.revokeObjectURL(beforeImagePreview);
+        }
+        setBeforeImage(compressedFile);
+        setBeforeImagePreview(URL.createObjectURL(compressedFile));
+      } else {
+        setAfterImageSettings(prev => ({
+          ...prev,
+          quality,
+          compressedFile,
+          compressedSize: compressedFile.size,
+          compressedDimensions: dimensions
+        }));
+        
+        // Update preview
+        if (afterImagePreview && afterImagePreview.startsWith('blob:')) {
+          URL.revokeObjectURL(afterImagePreview);
+        }
+        setAfterImage(compressedFile);
+        setAfterImagePreview(URL.createObjectURL(compressedFile));
+      }
+    } catch (error) {
+      console.error('Error compressing image:', error);
+    }
+  };
+
+
   const clearImage = (type: "before" | "after") => {
     if (type === "before") {
+      // Revoke the object URL to free memory
+      if (beforeImagePreview && beforeImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(beforeImagePreview);
+      }
       setBeforeImage(null);
       setBeforeImagePreview("");
+      setBeforeImageSettings({
+        quality: 0.85,
+        originalFile: null,
+        compressedFile: null,
+        originalSize: 0,
+        compressedSize: 0,
+        originalDimensions: { width: 0, height: 0 },
+        compressedDimensions: { width: 0, height: 0 }
+      });
       if (editingItem) {
         setFormData((prev) => ({ ...prev, before_image_url: "" }));
       }
     } else {
+      // Revoke the object URL to free memory
+      if (afterImagePreview && afterImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(afterImagePreview);
+      }
       setAfterImage(null);
       setAfterImagePreview("");
+      setAfterImageSettings({
+        quality: 0.85,
+        originalFile: null,
+        compressedFile: null,
+        originalSize: 0,
+        compressedSize: 0,
+        originalDimensions: { width: 0, height: 0 },
+        compressedDimensions: { width: 0, height: 0 }
+      });
       if (editingItem) {
         setFormData((prev) => ({ ...prev, after_image_url: "" }));
       }
@@ -170,6 +309,7 @@ export function AdminGalleryManager({
     }
 
     const result = await response.json();
+    
     return {
       beforeUrl: result.beforeUrl || formData.before_image_url,
       afterUrl: result.afterUrl || formData.after_image_url,
@@ -193,17 +333,10 @@ export function AdminGalleryManager({
 
       if (beforeImage || afterImage) {
         try {
-          console.log('Starting image upload...');
-          console.log('Before image:', beforeImage ? { name: beforeImage.name, size: beforeImage.size, type: beforeImage.type } : 'None');
-          console.log('After image:', afterImage ? { name: afterImage.name, size: afterImage.size, type: afterImage.type } : 'None');
-          
           const uploadResult = await uploadImages();
           beforeUrl = uploadResult.beforeUrl || beforeUrl;
           afterUrl = uploadResult.afterUrl || afterUrl;
-          
-          console.log('Upload successful:', { beforeUrl, afterUrl });
         } catch (uploadError) {
-          console.error('Upload error:', uploadError);
           showError(
             "Upload Error",
             uploadError instanceof Error ? uploadError.message : "Failed to upload images. Please try again."
@@ -243,9 +376,39 @@ export function AdminGalleryManager({
       setFormData({ ...defaultItem });
       setBeforeImage(null);
       setAfterImage(null);
+      setUseCustomLocation(false);
+      
+      // Revoke object URLs before clearing
+      if (beforeImagePreview && beforeImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(beforeImagePreview);
+      }
+      if (afterImagePreview && afterImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(afterImagePreview);
+      }
+      
       setBeforeImagePreview("");
       setAfterImagePreview("");
       setImageErrors({});
+      
+      // Reset image settings
+      setBeforeImageSettings({
+        quality: 0.85,
+        originalFile: null,
+        compressedFile: null,
+        originalSize: 0,
+        compressedSize: 0,
+        originalDimensions: { width: 0, height: 0 },
+        compressedDimensions: { width: 0, height: 0 }
+      });
+      setAfterImageSettings({
+        quality: 0.85,
+        originalFile: null,
+        compressedFile: null,
+        originalSize: 0,
+        compressedSize: 0,
+        originalDimensions: { width: 0, height: 0 },
+        compressedDimensions: { width: 0, height: 0 }
+      });
     } catch (err) {
       console.error('Save error:', err);
       showError(
@@ -255,8 +418,52 @@ export function AdminGalleryManager({
     }
   };
 
+  const handleAdd = () => {
+    // Clear editing state
+    setEditingItem(null);
+    setEditingSection(null);
+    
+    // Reset form data to defaults
+    setFormData({ ...defaultItem });
+    
+    // Clear all image states
+    setBeforeImage(null);
+    setAfterImage(null);
+    setBeforeImagePreview("");
+    setAfterImagePreview("");
+    setImageErrors({});
+    setUseCustomLocation(false);
+    
+    // Reset image settings
+    setBeforeImageSettings({
+      quality: 0.85,
+      originalFile: null,
+      compressedFile: null,
+      originalSize: 0,
+      compressedSize: 0,
+      originalDimensions: { width: 0, height: 0 },
+      compressedDimensions: { width: 0, height: 0 }
+    });
+    setAfterImageSettings({
+      quality: 0.85,
+      originalFile: null,
+      compressedFile: null,
+      originalSize: 0,
+      compressedSize: 0,
+      originalDimensions: { width: 0, height: 0 },
+      compressedDimensions: { width: 0, height: 0 }
+    });
+    
+    // Show the form
+    setShowAddForm(true);
+  };
+
   const handleEdit = (item: GalleryItem) => {
     setEditingItem(item);
+    // Check if location is in areas list or custom
+    const isCustomLocation = !areas.some(area => area.name === item.location);
+    setUseCustomLocation(isCustomLocation);
+    
     setFormData({
       title: item.title,
       description: item.description || "",
@@ -408,7 +615,18 @@ export function AdminGalleryManager({
           </button>
         </div>
 
-
+        {/* Add New Item Button */}
+        {activeTab === "items" && (
+          <button
+            onClick={handleAdd}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add New Item
+          </button>
+        )}
       </div>
 
       {/* Gallery Items Tab */}
@@ -428,7 +646,7 @@ export function AdminGalleryManager({
                   <button
                     className="p-2 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-200 flex items-center justify-center group-hover:scale-110"
                     title="Edit"
-                    onClick={() => { setEditingItem(item); setShowAddForm(true); }}
+                    onClick={() => handleEdit(item)}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                   </button>
@@ -611,18 +829,73 @@ export function AdminGalleryManager({
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Location
                     </label>
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          location: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., Clapham, Battersea"
-                    />
+                    
+                    {/* Location Type Selection */}
+                    <div className="mb-3">
+                      <div className="flex space-x-4">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="locationType"
+                            checked={!useCustomLocation}
+                            onChange={() => {
+                              setUseCustomLocation(false);
+                              setFormData((prev) => ({ ...prev, location: "" }));
+                            }}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Select from areas</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="locationType"
+                            checked={useCustomLocation}
+                            onChange={() => {
+                              setUseCustomLocation(true);
+                              setFormData((prev) => ({ ...prev, location: "" }));
+                            }}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Custom location</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Location Input */}
+                    {!useCustomLocation ? (
+                      <select
+                        value={formData.location}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        disabled={areasLoading}
+                      >
+                        <option value="">Select an area...</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.name}>
+                            {area.name} ({area.postcode})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g., Custom location name"
+                      />
+                    )}
                   </div>
 
                   <div>
@@ -704,10 +977,13 @@ export function AdminGalleryManager({
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) =>
-                              e.target.files?.[0] &&
-                              handleImageUpload(e.target.files[0], "before")
-                            }
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                handleImageUpload(e.target.files[0], "before");
+                                // Clear the input value to allow selecting the same file again
+                                e.target.value = '';
+                              }
+                            }}
                             className="hidden"
                           />
                         </label>
@@ -722,31 +998,97 @@ export function AdminGalleryManager({
 
                       {/* Preview */}
                       {beforeImagePreview && (
-                        <div className="relative">
-                          <img
-                            src={beforeImagePreview}
-                            alt="Before preview"
-                            className="w-full h-32 object-cover rounded"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => clearImage("before")}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <img
+                              src={beforeImagePreview}
+                              alt="Before preview"
+                              className="w-full h-32 object-cover rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => clearImage("before")}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          
+                          {/* Quality Slider */}
+                          {beforeImageSettings.originalFile && (
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                  Image Quality
+                                </h4>
+                                <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                  {Math.round(beforeImageSettings.quality * 100)}%
+                                </span>
+                              </div>
+                              
+                              {/* Quality Slider */}
+                              <div className="mb-3">
+                                <input
+                                  type="range"
+                                  min="0.1"
+                                  max="1"
+                                  step="0.05"
+                                  value={beforeImageSettings.quality}
+                                  onChange={(e) => handleQualityChange(parseFloat(e.target.value), "before")}
+                                  className="w-full h-2 bg-gradient-to-r from-red-200 via-yellow-200 to-green-200 rounded-lg appearance-none cursor-pointer slider"
+                                  style={{
+                                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #10b981 100%)`
+                                  }}
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  <span>Low Quality</span>
+                                  <span>High Quality</span>
+                                </div>
+                              </div>
+                              
+                              {/* Compression Stats */}
+                              <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                  <div className="text-gray-600 dark:text-gray-400">Original</div>
+                                  <div className="font-medium text-gray-900 dark:text-white">
+                                    {beforeImageSettings.originalDimensions.width}×{beforeImageSettings.originalDimensions.height}
+                                  </div>
+                                  <div className="text-gray-500 dark:text-gray-400">
+                                    {(beforeImageSettings.originalSize / 1024 / 1024).toFixed(2)}MB
+                                  </div>
+                                </div>
+                                <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                  <div className="text-gray-600 dark:text-gray-400">Compressed</div>
+                                  <div className="font-medium text-gray-900 dark:text-white">
+                                    {beforeImageSettings.compressedDimensions.width}×{beforeImageSettings.compressedDimensions.height}
+                                  </div>
+                                  <div className="text-gray-500 dark:text-gray-400">
+                                    {(beforeImageSettings.compressedSize / 1024 / 1024).toFixed(2)}MB
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Savings */}
+                              <div className="mt-2 text-center">
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Space saved: </span>
+                                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                                  {((beforeImageSettings.originalSize - beforeImageSettings.compressedSize) / beforeImageSettings.originalSize * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -790,10 +1132,13 @@ export function AdminGalleryManager({
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) =>
-                              e.target.files?.[0] &&
-                              handleImageUpload(e.target.files[0], "after")
-                            }
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                handleImageUpload(e.target.files[0], "after");
+                                // Clear the input value to allow selecting the same file again
+                                e.target.value = '';
+                              }
+                            }}
                             className="hidden"
                           />
                         </label>
@@ -808,31 +1153,97 @@ export function AdminGalleryManager({
 
                       {/* Preview */}
                       {afterImagePreview && (
-                        <div className="relative">
-                          <img
-                            src={afterImagePreview}
-                            alt="After preview"
-                            className="w-full h-32 object-cover rounded"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => clearImage("after")}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <img
+                              src={afterImagePreview}
+                              alt="After preview"
+                              className="w-full h-32 object-cover rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => clearImage("after")}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          
+                          {/* Quality Slider */}
+                          {afterImageSettings.originalFile && (
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-medium text-green-900 dark:text-green-100">
+                                  Image Quality
+                                </h4>
+                                <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                                  {Math.round(afterImageSettings.quality * 100)}%
+                                </span>
+                              </div>
+                              
+                              {/* Quality Slider */}
+                              <div className="mb-3">
+                                <input
+                                  type="range"
+                                  min="0.1"
+                                  max="1"
+                                  step="0.05"
+                                  value={afterImageSettings.quality}
+                                  onChange={(e) => handleQualityChange(parseFloat(e.target.value), "after")}
+                                  className="w-full h-2 bg-gradient-to-r from-red-200 via-yellow-200 to-green-200 rounded-lg appearance-none cursor-pointer slider"
+                                  style={{
+                                    background: `linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #10b981 100%)`
+                                  }}
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  <span>Low Quality</span>
+                                  <span>High Quality</span>
+                                </div>
+                              </div>
+                              
+                              {/* Compression Stats */}
+                              <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                  <div className="text-gray-600 dark:text-gray-400">Original</div>
+                                  <div className="font-medium text-gray-900 dark:text-white">
+                                    {afterImageSettings.originalDimensions.width}×{afterImageSettings.originalDimensions.height}
+                                  </div>
+                                  <div className="text-gray-500 dark:text-gray-400">
+                                    {(afterImageSettings.originalSize / 1024 / 1024).toFixed(2)}MB
+                                  </div>
+                                </div>
+                                <div className="bg-white/50 dark:bg-gray-800/50 p-2 rounded">
+                                  <div className="text-gray-600 dark:text-gray-400">Compressed</div>
+                                  <div className="font-medium text-gray-900 dark:text-white">
+                                    {afterImageSettings.compressedDimensions.width}×{afterImageSettings.compressedDimensions.height}
+                                  </div>
+                                  <div className="text-gray-500 dark:text-gray-400">
+                                    {(afterImageSettings.compressedSize / 1024 / 1024).toFixed(2)}MB
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Savings */}
+                              <div className="mt-2 text-center">
+                                <span className="text-xs text-gray-600 dark:text-gray-400">Space saved: </span>
+                                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                                  {((afterImageSettings.originalSize - afterImageSettings.compressedSize) / afterImageSettings.originalSize * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -874,9 +1285,39 @@ export function AdminGalleryManager({
                     setFormData({ ...defaultItem });
                     setBeforeImage(null);
                     setAfterImage(null);
+                    
+                    // Revoke object URLs before clearing
+                    if (beforeImagePreview && beforeImagePreview.startsWith('blob:')) {
+                      URL.revokeObjectURL(beforeImagePreview);
+                    }
+                    if (afterImagePreview && afterImagePreview.startsWith('blob:')) {
+                      URL.revokeObjectURL(afterImagePreview);
+                    }
+                    
                     setBeforeImagePreview("");
+                    setUseCustomLocation(false);
                     setAfterImagePreview("");
                     setImageErrors({});
+                    
+                    // Reset image settings
+                    setBeforeImageSettings({
+                      quality: 0.85,
+                      originalFile: null,
+                      compressedFile: null,
+                      originalSize: 0,
+                      compressedSize: 0,
+                      originalDimensions: { width: 0, height: 0 },
+                      compressedDimensions: { width: 0, height: 0 }
+                    });
+                    setAfterImageSettings({
+                      quality: 0.85,
+                      originalFile: null,
+                      compressedFile: null,
+                      originalSize: 0,
+                      compressedSize: 0,
+                      originalDimensions: { width: 0, height: 0 },
+                      compressedDimensions: { width: 0, height: 0 }
+                    });
                   }}
                   className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                 >

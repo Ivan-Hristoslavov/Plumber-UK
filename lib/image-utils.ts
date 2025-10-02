@@ -126,13 +126,78 @@ export async function convertHeicToJpeg(file: File): Promise<File | null> {
 }
 
 /**
- * Process image file (convert HEIC if needed)
+ * Compress image using Canvas API
  */
-export async function processImageFile(file: File, maxSizeMB: number = 10): Promise<{
+export async function compressImage(
+  file: File, 
+  maxWidth: number = 1920, 
+  maxHeight: number = 1080, 
+  quality: number = 0.85
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      let { width, height } = img;
+      
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and compress
+      ctx?.drawImage(img, 0, 0, width, height);
+      
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error('Failed to compress image'));
+          }
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/**
+ * Process image file (convert HEIC if needed and compress)
+ */
+export async function processImageFile(
+  file: File, 
+  maxSizeMB: number = 10,
+  compress: boolean = true,
+  maxWidth: number = 1920,
+  maxHeight: number = 1080,
+  quality: number = 0.85
+): Promise<{
   file: File;
   wasConverted: boolean;
+  wasCompressed: boolean;
   originalType: string;
   finalType: string;
+  originalSize: number;
+  finalSize: number;
+  originalDimensions?: { width: number; height: number };
+  finalDimensions?: { width: number; height: number };
 }> {
   const validation = validateImageFile(file, maxSizeMB);
   
@@ -142,6 +207,14 @@ export async function processImageFile(file: File, maxSizeMB: number = 10): Prom
   
   let processedFile = file;
   let wasConverted = false;
+  let wasCompressed = false;
+  let originalDimensions: { width: number; height: number } | undefined;
+  let finalDimensions: { width: number; height: number } | undefined;
+  
+  // Get original dimensions
+  if (typeof window !== 'undefined') {
+    originalDimensions = await getImageDimensions(file);
+  }
   
   // Check if it's a HEIC file that needs conversion
   const fileName = file.name.toLowerCase();
@@ -158,12 +231,49 @@ export async function processImageFile(file: File, maxSizeMB: number = 10): Prom
     }
   }
   
+  // Compress image if requested and in browser environment
+  if (compress && typeof window !== 'undefined') {
+    try {
+      const compressedFile = await compressImage(processedFile, maxWidth, maxHeight, quality);
+      finalDimensions = await getImageDimensions(compressedFile);
+      processedFile = compressedFile;
+      wasCompressed = true;
+      console.log('Image compressed:', {
+        originalSize: file.size,
+        compressedSize: compressedFile.size,
+        compressionRatio: ((file.size - compressedFile.size) / file.size * 100).toFixed(1) + '%'
+      });
+    } catch (error) {
+      console.warn('Image compression failed, using original:', error);
+    }
+  }
+  
   return {
     file: processedFile,
     wasConverted,
+    wasCompressed,
     originalType: validation.originalType,
-    finalType: processedFile.type
+    finalType: processedFile.type,
+    originalSize: file.size,
+    finalSize: processedFile.size,
+    originalDimensions,
+    finalDimensions
   };
+}
+
+/**
+ * Get image dimensions
+ */
+export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = URL.createObjectURL(file);
+  });
 }
 
 /**
