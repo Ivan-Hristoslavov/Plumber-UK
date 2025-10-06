@@ -78,10 +78,10 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
         { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-        { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
       ],
       shortcut: "/favicon.ico",
-      apple: "/favicon-48x48.png",
+      apple: "/apple-touch-icon.png",
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
@@ -92,7 +92,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
       images: [
         {
-          url: "/og-image.png",
+          url: "/fix_my_leak_logo.jpg",
           width: 1200,
           height: 630,
           alt: `${companyName} - Professional Emergency Plumber London`,
@@ -103,7 +103,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: `${companyName} - Emergency Plumber London`,
       description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time.`,
-      images: ["/og-image.png"],
+      images: ["/fix_my_leak_logo.jpg"],
       creator: "@fixmyleak",
       site: "@fixmyleak",
     },
@@ -295,12 +295,11 @@ export default async function RootLayout({
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-        <link rel="apple-touch-icon" href="/favicon-48x48.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="msapplication-TileImage" content="/favicon-48x48.png" />
+        <meta name="msapplication-TileImage" content="/apple-touch-icon.png" />
         <meta name="application-name" content="FixMyLeak" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -315,21 +314,25 @@ export default async function RootLayout({
           }}
         />
         
-        {/* Google Analytics */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-K9F3CSXPFK"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-K9F3CSXPFK');
-            `,
-          }}
-        />
+        {/* Google tag (gtag.js) */}
+        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
+                `,
+              }}
+            />
+          </>
+        )}
       </head>
       <body
         className={clsx(
