@@ -22,7 +22,7 @@ NEXT_PUBLIC_SITE_URL=https://fixmyleak.co.uk
 GOOGLE_SITE_VERIFICATION=your_google_verification_code
 YANDEX_VERIFICATION=your_yandex_verification_code
 YAHOO_VERIFICATION=your_yahoo_verification_code
-GOOGLE_ANALYTICS_ID=your_ga_id
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-LQ5Y01GKTW
 GOOGLE_TAG_MANAGER_ID=your_gtm_id
 
 # Social Media

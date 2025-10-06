@@ -56,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: companyName,
       images: [
         {
-          url: "/og-image.png",
+          url: "/fix_my_leak_logo.jpg",
           width: 1200,
           height: 630,
           alt: `${companyName} - Professional Emergency Plumber London`,
@@ -67,7 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: `${companyName} - Emergency Plumber London`,
       description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time.`,
-      images: ["/og-image.png"],
+      images: ["/fix_my_leak_logo.jpg"],
     },
   };
 }
