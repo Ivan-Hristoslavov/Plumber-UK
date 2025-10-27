@@ -236,14 +236,23 @@ export default function NavigationNavbar() {
   }
 
   return (
-    <nav className=" w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300">
-      <div
-        className={`transition-all duration-300 ease-out ${
-          isScrolled
-            ? "bg-white/95 dark:bg-gray-900/95 py-3 border-b border-blue-100/50 dark:border-gray-700/50"
-            : "bg-white/80 dark:bg-gray-900/80 py-4"
-        }`}
-      >
+    <>
+      {/* Backdrop overlay for mobile menu */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
+      <nav className="w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300 relative z-50">
+        <div
+          className={`transition-all duration-300 ease-out ${
+            isScrolled
+              ? "bg-white/95 dark:bg-gray-900/95 py-3 border-b border-blue-100/50 dark:border-gray-700/50"
+              : "bg-white/80 dark:bg-gray-900/80 py-4"
+          }`}
+        >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -369,8 +378,8 @@ export default function NavigationNavbar() {
         <div
           className={`lg:hidden transition-all duration-300 overflow-hidden ${
             isMobileMenuOpen
-              ? "max-h-96 opacity-100 mt-4 pb-4"
-              : "max-h-0 opacity-0"
+              ? "max-h-[800px] opacity-100 mt-4 pb-4 visible"
+              : "max-h-0 opacity-0 invisible"
           }`}
         >
           <div className="flex flex-col space-y-2 p-6 rounded-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl border border-blue-100/50 dark:border-gray-600/50 mx-4">
@@ -428,5 +437,6 @@ export default function NavigationNavbar() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
