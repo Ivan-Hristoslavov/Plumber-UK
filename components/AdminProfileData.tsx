@@ -3,7 +3,7 @@
 import { useAdminProfile } from '@/hooks/useAdminProfile';
 import { useAdminSettings } from '@/hooks/useAdminSettings';
 import { AdminProfile } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ListManagerProps {
   value: string;
@@ -112,15 +112,29 @@ interface AdminProfileDataProps {
 export function AdminProfileData({ type, fallback = '', className, asList = false }: AdminProfileDataProps) {
   const { profile } = useAdminProfile();
   const { settings: adminSettings } = useAdminSettings();
+  const [isMounted, setIsMounted] = useState(false);
 
-  if (!profile && !adminSettings) {
-    return <span className={className}>{fallback}</span>;
-  }
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Handle special cases that should come from admin settings
   if (type === 'response_time') {
-    const value = adminSettings?.responseTime || profile?.response_time || fallback;
-    return <span className={className}>{value}</span>;
+    // During SSR/initial render, always use fallback to prevent hydration mismatch
+    // After mount, use actual data
+    const rawValue = isMounted 
+      ? (adminSettings?.responseTime || profile?.response_time || fallback || '45-minute')
+      : (fallback || '45-minute');
+    
+    // Normalize the value - remove any existing "minutes" or "minute" text
+    const normalizedValue = String(rawValue).replace(/\s*(minutes?|mins?)\s*/gi, '').trim() || '45';
+    // Format with capitalized "Minutes Response Time"
+    const formattedValue = `${normalizedValue} Minutes Response Time`;
+    return <span className={className}>{formattedValue}</span>;
+  }
+
+  if (!profile && !adminSettings) {
+    return <span className={className}>{fallback}</span>;
   }
 
   // Handle company_status from admin settings

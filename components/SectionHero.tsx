@@ -150,7 +150,7 @@ export function SectionHero() {
                   clipRule="evenodd"
                 />
               </svg>
-              <AdminProfileData type="response_time" fallback="45-minute" /> response time
+              <AdminProfileData type="response_time" fallback="45-minute" />
             </div>
           </div>
 
