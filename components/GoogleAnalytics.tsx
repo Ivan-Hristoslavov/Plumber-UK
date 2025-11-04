@@ -5,21 +5,23 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 // Replace with your actual Google Analytics Measurement ID
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-LQ5Y01GKTW';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (GA_MEASUREMENT_ID && typeof window !== "undefined" && window.gtag) {
+    if (GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG') {
       // Track page view when pathname changes
-      window.gtag("config", GA_MEASUREMENT_ID, {
-        page_path: pathname,
-      });
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("config", GA_MEASUREMENT_ID, {
+          page_path: pathname,
+        });
+      }
     }
   }, [pathname]);
 
-  if (!GA_MEASUREMENT_ID) {
+  if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === 'G-QPF9F5SRFG') {
     return null;
   }
 
@@ -48,7 +50,7 @@ export function GoogleAnalytics() {
 
 // Utility function to track custom events
 export function trackEvent(eventName: string, parameters?: Record<string, unknown>) {
-  if (typeof window !== "undefined" && window.gtag && GA_MEASUREMENT_ID) {
+  if (typeof window !== "undefined" && window.gtag && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG') {
     window.gtag("event", eventName, parameters);
   }
 }
