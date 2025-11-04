@@ -17,7 +17,7 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({ subsets: ["latin"] });
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-LQ5Y01GKTW';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
