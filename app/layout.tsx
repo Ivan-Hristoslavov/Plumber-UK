@@ -9,6 +9,7 @@ import { Providers } from "./providers";
 import { ToastProvider } from "@/components/Toast";
 import HashNavigation from "@/components/HashNavigation";
 import { AdminProfileProvider } from "@/components/AdminProfileContext";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
@@ -16,6 +17,7 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({ subsets: ["latin"] });
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-LQ5Y01GKTW';
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
@@ -316,10 +318,10 @@ export default async function RootLayout({
         />
         
         {/* Google Analytics */}
-        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+        {GA_MEASUREMENT_ID && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
               strategy="afterInteractive"
             />
             <Script id="google-analytics" strategy="afterInteractive">
@@ -327,7 +329,7 @@ export default async function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
+                gtag('config', '${GA_MEASUREMENT_ID}');
               `}
             </Script>
           </>
@@ -356,6 +358,7 @@ export default async function RootLayout({
             </AdminProfileProvider>
           </ToastProvider>
         </Providers>
+        <GoogleAnalytics />
         <SpeedInsights />
       </body>
     </html>
