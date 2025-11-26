@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useReviews } from "@/hooks/useReviews";
 import { useToast, ToastMessages } from "@/components/Toast";
 
@@ -19,6 +19,13 @@ export function ReviewForm() {
     success: boolean;
     message: string;
   }>(null);
+  
+  // Fix hydration mismatch using React's recommended two-pass rendering
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,11 +258,12 @@ export function ReviewForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Name Field */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
+                <label {...(isClient && { htmlFor: "review-name" })} className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
                   Your Name *
                 </label>
                 <div className="relative">
                   <input
+                    {...(isClient && { id: "review-name" })}
                     type="text"
                     value={form.name}
                     onChange={(e) =>
@@ -285,11 +293,12 @@ export function ReviewForm() {
 
               {/* Email Field */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
+                <label {...(isClient && { htmlFor: "review-email" })} className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
                   Email Address (Optional)
                 </label>
                 <div className="relative">
                   <input
+                    {...(isClient && { id: "review-email" })}
                     type="email"
                     value={form.email}
                     onChange={(e) =>
@@ -363,11 +372,12 @@ export function ReviewForm() {
 
             {/* Message Field */}
             <div className="mt-8">
-              <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
+              <label {...(isClient && { htmlFor: "review-message" })} className="block text-sm font-semibold text-gray-900 dark:text-white mb-3 transition-colors duration-300">
                 Your Review *
               </label>
               <div className="relative">
                 <textarea
+                  {...(isClient && { id: "review-message" })}
                   value={form.message}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, message: e.target.value }))

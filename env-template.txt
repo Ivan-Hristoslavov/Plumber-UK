@@ -24,6 +24,9 @@ YANDEX_VERIFICATION=your_yandex_verification_code
 YAHOO_VERIFICATION=your_yahoo_verification_code
 NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-QPF9F5SRFG
 GOOGLE_TAG_MANAGER_ID=your_gtm_id
+# Google Ads Conversion Tracking (get this from Google Ads → Tools → Conversions)
+# Replace with your actual conversion ID: AW-123456789/AbCdEfGhIj
+NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID=
 
 # Social Media
 NEXT_PUBLIC_FACEBOOK_URL=https://www.facebook.com/fixmyleak

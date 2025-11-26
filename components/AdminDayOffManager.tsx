@@ -339,10 +339,11 @@ export function AdminDayOffManager() {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="dayoff-title" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Title <span className="text-red-500">*</span>
                     </label>
                   <input
+                    id="dayoff-title"
                     type="text"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="e.g., Christmas Holiday"
@@ -351,10 +352,11 @@ export function AdminDayOffManager() {
                   />
                 </div>
                 <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="dayoff-description" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Description
                     </label>
                     <input
+                      id="dayoff-description"
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="Optional description"

@@ -246,13 +246,13 @@ export default function NavigationNavbar() {
       )}
       
       <nav className="w-full backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-lg border-b border-white/20 dark:border-gray-800/30 transition-all duration-300 relative z-50">
-        <div
-          className={`transition-all duration-300 ease-out ${
-            isScrolled
-              ? "bg-white/95 dark:bg-gray-900/95 py-3 border-b border-blue-100/50 dark:border-gray-700/50"
-              : "bg-white/80 dark:bg-gray-900/80 py-4"
-          }`}
-        >
+      <div
+        className={`transition-all duration-300 ease-out ${
+          isScrolled
+            ? "bg-white/95 dark:bg-gray-900/95 py-3 border-b border-blue-100/50 dark:border-gray-700/50"
+            : "bg-white/80 dark:bg-gray-900/80 py-4"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             {/* Logo */}

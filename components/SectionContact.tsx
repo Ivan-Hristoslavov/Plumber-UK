@@ -447,7 +447,7 @@ export default function SectionContact() {
                 </div>
               </div>
             </div>
-            <div className="p-8">
+            <div className="py-16 px-8">
               <FormBooking />
             </div>
           </div>

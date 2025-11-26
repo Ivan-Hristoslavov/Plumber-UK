@@ -3,6 +3,8 @@
 import Image from "next/image";
 import FormBooking from "./FormBooking";
 import { ButtonCallNow } from "./ButtonCallNow";
+import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 interface AreaPageProps {
   areaName: string;
@@ -13,6 +15,14 @@ interface AreaPageProps {
 }
 
 export function AreaPage({ areaName, postcode, description, localKeywords, nearbyAreas }: AreaPageProps) {
+  const { profile } = useAdminProfile();
+  
+  // Get phone from database, fallback to default
+  const businessPhone = profile?.phone || "+44 7541777225";
+  
+  // Format phone for display (convert +44 to 0, handles optional whitespace)
+  const displayPhone = businessPhone.replace(/^\+44\s?/, '0');
+  
   return (
     <div className="space-y-20">
       {/* Hero Section */}
@@ -300,7 +310,13 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Call Now</div>
-                      <div className="text-green-600 font-bold text-xl">07476 746635</div>
+                      <a 
+                        href={`tel:${businessPhone}`}
+                        className="text-green-600 font-bold text-xl hover:text-green-700 transition-colors"
+                        onClick={() => trackPhoneCall("area_page")}
+                      >
+                        {displayPhone}
+                      </a>
                     </div>
                   </div>
 
