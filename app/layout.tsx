@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'),
     title: {
       default: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-      template: `%s | ${companyName} - Emergency Plumber London`
+      template: `%s | ${companyName} - Emergency Plumber London`,
     },
     description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Gas Safe registered, fully insured.`,
     keywords: [

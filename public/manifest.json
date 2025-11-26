@@ -53,7 +53,7 @@
       "name": "Emergency Call",
       "short_name": "Emergency",
       "description": "Call for emergency plumbing",
-      "url": "tel:07476746635",
+      "url": "tel:+447541777225",
       "icons": [
         {
           "src": "/favicon-32x32.png",

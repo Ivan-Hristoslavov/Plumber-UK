@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAdminProfile } from "@/components/AdminProfileContext";
+import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 export function FloatingCTA() {
   const [showText, setShowText] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const adminProfile = useAdminProfile();
+  const { profile } = useAdminProfile();
 
-  const businessPhone = adminProfile?.phone || "+44 7541777225";
+  const businessPhone = profile?.phone || "+44 7541777225";
+  
+  // Format phone for display (convert +44 to 0)
+  const displayPhone = businessPhone.replace(/^\+44\s?/, '0');
 
   // Hide text after 5 seconds, show again on hover
   useEffect(() => {
@@ -30,13 +34,17 @@ export function FloatingCTA() {
           {/* Button */}
           <a
             href={`tel:${businessPhone}`}
+            onClick={() => {
+              // Track phone call click for Google Analytics/Ads
+              trackPhoneCall("floating_cta");
+            }}
             onMouseEnter={() => {
               setIsHovered(true);
               setShowText(true);
             }}
             onMouseLeave={() => setIsHovered(false)}
             className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-red-600 via-red-500 to-orange-600 hover:from-red-700 hover:via-red-600 hover:to-orange-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 active:scale-95 border-2 border-white"
-            aria-label={`Call ${businessPhone} for 10 minute free consultation`}
+            aria-label={`Call ${displayPhone} for 10 minute free consultation`}
           >
             {/* Ripple effect */}
             <div className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-25"></div>

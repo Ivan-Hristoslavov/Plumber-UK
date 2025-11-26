@@ -7,6 +7,9 @@ import { useEffect } from "react";
 // Replace with your actual Google Analytics Measurement ID
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 
+// Google Ads Conversion ID from environment variables
+const GOOGLE_ADS_CONVERSION_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID;
+
 export function GoogleAnalytics() {
   const pathname = usePathname();
 
@@ -82,6 +85,24 @@ export function trackScrollDepth(depth: number) {
     event_category: "engagement",
     event_label: `${depth}%`
   });
+}
+
+// Utility function to track phone calls (CRITICAL for conversion tracking)
+export function trackPhoneCall(location: string) {
+  trackEvent("phone_call", {
+    event_category: "conversion",
+    event_label: location,
+    value: 1
+  });
+  
+  // Also track as Google Ads conversion
+  if (typeof window !== 'undefined' && window.gtag && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG' && GOOGLE_ADS_CONVERSION_ID) {
+    window.gtag('event', 'conversion', {
+      'send_to': GOOGLE_ADS_CONVERSION_ID,
+      'value': 1.0,
+      'currency': 'GBP'
+    });
+  }
 }
 
 // Declare gtag on window object

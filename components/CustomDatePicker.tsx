@@ -13,6 +13,7 @@ interface CustomDatePickerProps {
     title: string;
   }>;
   className?: string;
+  id?: string;
 }
 
 export default function CustomDatePicker({
@@ -21,10 +22,16 @@ export default function CustomDatePicker({
   minDate,
   maxDate,
   dayOffPeriods,
-  className = ""
+  className = "",
+  id
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Check if a date is in a day-off period
   const isDateDisabled = (date: string) => {
@@ -110,10 +117,32 @@ export default function CustomDatePicker({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Input field */}
+      {/* Hidden input for accessibility - allows label association */}
+      <input
+        id={id}
+        type="text"
+        value={value || ''}
+        readOnly
+        className="sr-only"
+        onFocus={() => setIsOpen(true)}
+        aria-label="Select date"
+      />
+      
+      {/* Visual input field */}
       <div
         className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
+        tabIndex={0}
+        role="button"
+        aria-label="Select date"
+        aria-expanded={isMounted ? isOpen : false}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
+        suppressHydrationWarning
       >
         <div className="flex items-center justify-between">
           <span className={value ? "text-gray-900 dark:text-white" : "text-gray-500"}>
@@ -131,6 +160,7 @@ export default function CustomDatePicker({
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
             <button
+              type="button"
               onClick={goToPreviousMonth}
               className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
             >
@@ -142,6 +172,7 @@ export default function CustomDatePicker({
               {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
             </h3>
             <button
+              type="button"
               onClick={goToNextMonth}
               className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
             >
@@ -164,6 +195,7 @@ export default function CustomDatePicker({
           <div className="grid grid-cols-7 gap-1 p-2">
             {getCalendarDays().map((day, index) => (
               <button
+                type="button"
                 key={index}
                 onClick={() => handleDateClick(day.dateString, day.isDisabled)}
                 disabled={day.isDisabled}

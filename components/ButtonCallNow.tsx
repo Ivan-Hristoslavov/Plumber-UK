@@ -1,12 +1,13 @@
 "use client";
 
 import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 export function ButtonCallNow() {
   const { profile, loading, error } = useAdminProfile();
 
   // Use fallback phone number if profile is not available
-  const phone = profile?.phone || "0800 123 4567";
+  const phone = profile?.phone || "+44 7541777225";
 
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center">
@@ -14,6 +15,10 @@ export function ButtonCallNow() {
         aria-label="Call Now"
         className="animate-pulse flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-colors group mb-2"
         href={`tel:${phone}`}
+        onClick={() => {
+          // Track phone call click for Google Analytics/Ads
+          trackPhoneCall("call_now_button");
+        }}
       >
         <svg
           className="w-8 h-8"
