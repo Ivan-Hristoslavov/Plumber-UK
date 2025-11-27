@@ -12,12 +12,9 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/admin*',
           '/api*',
-          '/_next*',
           '/private*',
           '/temp*',
           '/uploads/temp*',
-          '/*.json$',
-          '/*.xml$',
           '/search?*',
           '/filter?*',
           '/*?utm_*',
