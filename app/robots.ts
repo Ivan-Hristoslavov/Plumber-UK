@@ -32,7 +32,6 @@ export default function robots(): MetadataRoute.Robots {
           '/admin*',
           '/api/auth*',
           '/api/admin*',
-          '/_next/static/chunks/pages/admin*',
           '/search?*',
           '/*?utm_*',
           '/*?fbclid=*',
