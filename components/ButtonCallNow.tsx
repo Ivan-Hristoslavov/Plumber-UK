@@ -12,7 +12,7 @@ export function ButtonCallNow() {
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center">
       <a
-        aria-label="Call Now"
+        aria-label="Free Call"
         className="animate-pulse flex items-center justify-center w-16 h-16 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-colors group mb-2"
         href={`tel:${phone}`}
         onClick={() => {
@@ -36,7 +36,7 @@ export function ButtonCallNow() {
       </a>
       <div className="text-center">
         <p className="rounded-full text-xs font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 shadow-lg border border-gray-200 dark:border-gray-700">
-          10 Min Free <br /> Consultation
+          Free Call
         </p>
       </div>
     </div>

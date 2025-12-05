@@ -309,7 +309,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Call Now</div>
+                      <div className="font-semibold text-gray-900">Free Call</div>
                       <a 
                         href={`tel:${businessPhone}`}
                         className="text-green-600 font-bold text-xl hover:text-green-700 transition-colors"

@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
       template: `%s | ${companyName} - Emergency Plumber London`,
     },
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Gas Safe registered, fully insured.`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation. Gas Safe registered, fully insured.`,
     keywords: [
       "emergency plumber London",
       "plumber Clapham",
@@ -88,7 +88,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Gas Safe registered, fully insured.`,
+      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation. Gas Safe registered, fully insured.`,
       type: "website",
       locale: "en_GB",
       siteName: companyName,

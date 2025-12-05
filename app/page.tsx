@@ -43,13 +43,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Gas Safe registered, fully insured.`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation. Gas Safe registered, fully insured.`,
     alternates: {
       canonical: base,
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Gas Safe registered, fully insured.`,
+      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation. Gas Safe registered, fully insured.`,
       url: base,
       type: "website",
       locale: "en_GB",
@@ -66,7 +66,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: `${companyName} - Emergency Plumber London`,
-      description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time.`,
+      description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time. Free call consultation.`,
       images: ["/fix_my_leak_logo.jpg"],
     },
   };

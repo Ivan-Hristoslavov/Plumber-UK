@@ -10,9 +10,9 @@ export function FloatingCTA() {
   const { profile } = useAdminProfile();
 
   const businessPhone = profile?.phone || "+44 7541777225";
-  
+
   // Format phone for display (convert +44 to 0)
-  const displayPhone = businessPhone.replace(/^\+44\s?/, '0');
+  const displayPhone = businessPhone.replace(/^\+44\s?/, "0");
 
   // Hide text after 5 seconds, show again on hover
   useEffect(() => {
@@ -44,7 +44,7 @@ export function FloatingCTA() {
             }}
             onMouseLeave={() => setIsHovered(false)}
             className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-red-600 via-red-500 to-orange-600 hover:from-red-700 hover:via-red-600 hover:to-orange-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 active:scale-95 border-2 border-white"
-            aria-label={`Call ${displayPhone} for 10 minute free consultation`}
+            aria-label={`Free Call ${displayPhone}`}
           >
             {/* Ripple effect */}
             <div className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-25"></div>
@@ -86,8 +86,7 @@ export function FloatingCTA() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="hidden sm:inline">10 Min Free Consultation</span>
-              <span className="sm:hidden">Free Call</span>
+              <span>Free Call</span>
             </span>
           </div>
         </div>
