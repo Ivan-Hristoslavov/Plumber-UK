@@ -77,6 +77,12 @@ export async function GET(request: NextRequest) {
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
       },
+    }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     });
   } catch (error) {
     return NextResponse.json(

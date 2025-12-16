@@ -56,6 +56,7 @@ export default function InvoicesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,10 +77,17 @@ export default function InvoicesPage() {
   const loadData = async (page: number = 1) => {
     try {
       setLoading(true);
+      const fetchOptions = {
+        cache: 'no-store' as RequestCache,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      };
       const [invoicesRes, customersRes, bookingsRes] = await Promise.all([
-        fetch(`/api/invoices?page=${page}&limit=${limit}`),
-        fetch("/api/customers"),
-        fetch("/api/bookings"),
+        fetch(`/api/invoices?page=${page}&limit=${limit}`, fetchOptions),
+        fetch("/api/customers", fetchOptions),
+        fetch("/api/bookings", fetchOptions),
       ]);
 
       if (invoicesRes.ok) {
@@ -129,6 +137,18 @@ export default function InvoicesPage() {
 
   const handlePageChange = async (page: number) => {
     await loadData(page);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await loadData(currentPage);
+      showSuccess("Refreshed", "Invoices have been refreshed.");
+    } catch {
+      showError("Error", "Failed to refresh invoices.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleViewModeChange = (mode: "table" | "cards") => {
@@ -339,6 +359,17 @@ export default function InvoicesPage() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
           {/* View Toggle */}
           <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
             <button
