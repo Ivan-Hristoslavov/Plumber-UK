@@ -4,14 +4,26 @@ import { useReviews } from "@/hooks/useReviews";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 
+interface Review {
+  id: string;
+  customer_name: string;
+  customer_email?: string;
+  rating: number;
+  comment: string;
+  is_approved: boolean;
+  created_at: string;
+}
+
 export function AdminReviewsManager() {
   const { reviews, isLoading, error, approveReview, deleteReview, refetch } = useReviews(true);
   const { showSuccess, showError } = useToast();
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showApproveModal, setShowApproveModal] = useState(false);
-  const [selectedReview, setSelectedReview] = useState<any>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,14 +42,31 @@ export function AdminReviewsManager() {
     setCurrentPage(page);
   };
 
-  const handleApproveClick = (review: any) => {
+  const handleApproveClick = (review: Review) => {
     setSelectedReview(review);
     setShowApproveModal(true);
   };
 
-  const handleDeleteClick = (review: any) => {
+  const handleDeleteClick = (review: Review) => {
     setSelectedReview(review);
     setShowDeleteModal(true);
+  };
+
+  const handleViewClick = (review: Review) => {
+    setSelectedReview(review);
+    setShowViewModal(true);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+      showSuccess("Refreshed", "Reviews have been refreshed.");
+    } catch {
+      showError("Error", "Failed to refresh reviews.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleApproveConfirm = async () => {
@@ -147,13 +176,14 @@ export function AdminReviewsManager() {
         </div>
         
         <button 
-          onClick={() => refetch()}
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Refresh
+          {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
@@ -170,20 +200,20 @@ export function AdminReviewsManager() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr">
             {currentReviews.map((review) => (
-              <div key={review.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200">
+              <div key={review.id} className="flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">
+                <div className="flex items-start justify-between gap-2 mb-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-xs sm:text-sm">
                           {review.customer_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">
                           {review.customer_name}
                         </h3>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -196,7 +226,9 @@ export function AdminReviewsManager() {
                       </div>
                     </div>
                   </div>
-                  {getStatusBadge(review.is_approved)}
+                  <div className="flex-shrink-0">
+                    {getStatusBadge(review.is_approved)}
+                  </div>
                 </div>
 
                 {/* Rating */}
@@ -218,42 +250,62 @@ export function AdminReviewsManager() {
                   </span>
                 </div>
 
-                {/* Comment */}
-                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">
-                  {review.comment}
-                </p>
+                {/* Comment - grows to fill space */}
+                <div className="flex-1 mb-4">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-3 break-words">
+                    {review.comment}
+                  </p>
+                  {review.comment && review.comment.length > 150 && (
+                    <button
+                      onClick={() => handleViewClick(review)}
+                      className="text-blue-600 dark:text-blue-400 text-xs font-medium hover:underline mt-1"
+                    >
+                      View full review
+                    </button>
+                  )}
+                </div>
 
                 {/* Customer Email */}
                 {review.customer_email && (
-                  <div className="flex items-center gap-2 mb-4 text-xs text-gray-500 dark:text-gray-400">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 mb-4 text-xs text-gray-500 dark:text-gray-400 min-w-0">
+                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    {review.customer_email}
+                    <span className="truncate">{review.customer_email}</span>
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                {/* Actions - always at bottom */}
+                <div className="flex flex-wrap items-center gap-2 pt-4 mt-auto border-t border-gray-100 dark:border-gray-700">
+                  <button
+                    onClick={() => handleViewClick(review)}
+                    className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span className="hidden xs:inline">View</span>
+                  </button>
                   {!review.is_approved && (
                     <button
                       onClick={() => handleApproveClick(review)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors"
                     >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      Approve
+                      <span className="hidden xs:inline">Approve</span>
                     </button>
                   )}
                   <button
                     onClick={() => handleDeleteClick(review)}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors"
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 012 0v6a1 1 0 11-2 0V9zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V9z" clipRule="evenodd" />
                     </svg>
-                    Delete
+                    <span className="hidden xs:inline">Delete</span>
                   </button>
                 </div>
               </div>
@@ -342,6 +394,132 @@ export function AdminReviewsManager() {
           isDestructive={true}
           isLoading={processing}
         />
+      )}
+
+      {/* View Full Review Modal */}
+      {showViewModal && selectedReview && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={() => setShowViewModal(false)} />
+            
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full mx-4 overflow-hidden">
+              {/* Header */}
+              <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">
+                        {selectedReview.customer_name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                        {selectedReview.customer_name}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(selectedReview.created_at).toLocaleDateString('en-GB', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                        {getStatusBadge(selectedReview.is_approved)}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowViewModal(false)}
+                    className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-4 sm:p-6 max-h-[60vh] overflow-y-auto">
+                {/* Rating */}
+                <div className="flex items-center gap-1 mb-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg
+                      key={i}
+                      className={`w-5 h-5 ${
+                        i < selectedReview.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
+                      }`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
+                    </svg>
+                  ))}
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-2">
+                    {selectedReview.rating} out of 5 stars
+                  </span>
+                </div>
+
+                {/* Full Comment */}
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 mb-4">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words">
+                    {selectedReview.comment}
+                  </p>
+                </div>
+
+                {/* Customer Email */}
+                {selectedReview.customer_email && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="break-all">{selectedReview.customer_email}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {!selectedReview.is_approved && (
+                      <button
+                        onClick={() => {
+                          setShowViewModal(false);
+                          handleApproveClick(selectedReview);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/40 hover:bg-green-200 dark:hover:bg-green-900/60 rounded-lg transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Approve
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setShowViewModal(false);
+                        handleDeleteClick(selectedReview);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/40 hover:bg-red-200 dark:hover:bg-red-900/60 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 012 0v6a1 1 0 11-2 0V9zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V9z" clipRule="evenodd" />
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setShowViewModal(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
