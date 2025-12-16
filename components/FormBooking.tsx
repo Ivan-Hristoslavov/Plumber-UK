@@ -44,24 +44,28 @@ export default function FormBooking() {
   // Get business phone from admin profile
   const businessPhone = adminProfile?.phone || "+44 7541777225";
 
-  // Get today's date for the minimum date and default value
-  const today = new Date();
-  const minDate = today.toISOString().split("T")[0];
+  // Helper function to get local date string
+  const getLocalDateString = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  // Compute minDate immediately (safe for SSR as it's just used for validation)
+  const minDate = getLocalDateString(new Date());
 
   // Function to find the next available date after day-off periods
-  const findNextAvailableDate = (dayOffPeriods: Array<{ start_date: string; end_date: string; title: string }>) => {
-    let checkDate = new Date(today);
+  const findNextAvailableDate = (dayOffPeriods: Array<{ start_date: string; end_date: string; title: string }>, startDate: Date) => {
+    let checkDate = new Date(startDate);
     
     // Check up to 30 days in the future
     for (let i = 0; i < 30; i++) {
-      const dateString = checkDate.toISOString().split("T")[0];
+      const dateString = getLocalDateString(checkDate);
       
       // Check if this date is not in any day-off period
       const isDisabled = dayOffPeriods.some(period => {
         const checkDateObj = new Date(dateString);
-        const startDate = new Date(period.start_date);
-        const endDate = new Date(period.end_date);
-        return checkDateObj >= startDate && checkDateObj <= endDate;
+        const periodStart = new Date(period.start_date);
+        const periodEnd = new Date(period.end_date);
+        return checkDateObj >= periodStart && checkDateObj <= periodEnd;
       });
       
       if (!isDisabled) {
@@ -72,12 +76,19 @@ export default function FormBooking() {
       checkDate.setDate(checkDate.getDate() + 1);
     }
     
-    // If no available date found in 30 days, return today
-    return minDate;
+    // If no available date found in 30 days, return start date
+    return getLocalDateString(startDate);
   };
 
-  // Initialize with today's date, will be updated when day-off periods are loaded
-  const [selectedDate, setSelectedDate] = useState(minDate);
+  // Initialize with empty string to avoid hydration mismatch, will be set on client
+  const [selectedDate, setSelectedDate] = useState("");
+
+  // Set initial date on client side only to avoid hydration mismatch
+  useEffect(() => {
+    if (!selectedDate) {
+      setSelectedDate(minDate);
+    }
+  }, []);
 
   // Check if a date is in day off period
   const isDateInDayOff = (date: string) => {
@@ -112,7 +123,7 @@ export default function FormBooking() {
           setDayOffPeriods(periods);
           
           // Automatically set the next available date
-          const nextAvailableDate = findNextAvailableDate(periods);
+          const nextAvailableDate = findNextAvailableDate(periods, new Date());
           setSelectedDate(nextAvailableDate);
         }
       } catch (error) {
@@ -143,7 +154,7 @@ export default function FormBooking() {
   // Update selected date when day-off periods change
   useEffect(() => {
     if (dayOffPeriods.length > 0) {
-      const nextAvailableDate = findNextAvailableDate(dayOffPeriods);
+      const nextAvailableDate = findNextAvailableDate(dayOffPeriods, new Date());
       setSelectedDate(nextAvailableDate);
     }
   }, [dayOffPeriods]);
@@ -260,10 +271,11 @@ export default function FormBooking() {
       let customerId: string;
 
       // Check if customer already exists by email
-      const existingCustomerResponse = await fetch("/api/customers");
-      const existingCustomers = await existingCustomerResponse.json();
-      const existingCustomer = existingCustomers.find(
-        (c: any) => c.email === data.email,
+      const existingCustomerResponse = await fetch(`/api/customers?email=${encodeURIComponent(data.email)}`);
+      const existingCustomersData = await existingCustomerResponse.json();
+      const customersList = Array.isArray(existingCustomersData.customers) ? existingCustomersData.customers : [];
+      const existingCustomer = customersList.find(
+        (c: { email: string }) => c.email === data.email,
       );
 
       if (existingCustomer) {

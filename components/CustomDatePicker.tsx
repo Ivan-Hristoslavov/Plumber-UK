@@ -55,8 +55,16 @@ export default function CustomDatePicker({
     const days = [];
     const today = new Date();
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const minDateObj = new Date(minDate);
-    const maxDateObj = new Date(maxDate);
+    
+    // Parse minDate and maxDate as local dates to avoid timezone issues
+    const parseLocalDate = (dateStr: string) => {
+      if (!dateStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+    
+    const minDateObj = parseLocalDate(minDate);
+    const maxDateObj = parseLocalDate(maxDate);
 
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
@@ -68,11 +76,16 @@ export default function CustomDatePicker({
       const day = String(date.getDate()).padStart(2, '0');
       const dateString = `${year}-${month}-${day}`;
       
+      // Normalize the date to midnight local time for comparison
+      const dateNormalized = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      
       const isCurrentMonth = date.getMonth() === (parseInt(month) - 1);
       const isToday = date.toDateString() === today.toDateString();
       const isSelected = dateString === value;
-      const isDisabled = date < minDateObj || date > maxDateObj || isDateDisabled(dateString);
-      const isPast = date < todayStart;
+      const isBeforeMin = minDateObj ? dateNormalized < minDateObj : false;
+      const isAfterMax = maxDateObj ? dateNormalized > maxDateObj : false;
+      const isDisabled = isBeforeMin || isAfterMax || isDateDisabled(dateString);
+      const isPast = dateNormalized < todayStart;
 
       days.push({
         date,
@@ -145,7 +158,7 @@ export default function CustomDatePicker({
         suppressHydrationWarning
       >
         <div className="flex items-center justify-between">
-          <span className={value ? "text-gray-900 dark:text-white" : "text-gray-500"}>
+          <span className={value ? "text-gray-900 dark:text-white" : "text-gray-500"} suppressHydrationWarning>
             {formatDate(value)}
           </span>
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -2,13 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
 
-// GET - Fetch customers with pagination
+// GET - Fetch customers with pagination or search by email
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const email = searchParams.get("email");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = (page - 1) * limit;
+
+    // If searching by email, return matching customer(s)
+    if (email) {
+      const { data: customers, error } = await supabase
+        .from("customers")
+        .select("*")
+        .eq("email", email);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+
+      return NextResponse.json({
+        customers: customers || [],
+        pagination: {
+          page: 1,
+          limit: customers?.length || 0,
+          totalCount: customers?.length || 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
+    }
 
     // Get total count for pagination
     const { count: totalCount, error: countError } = await supabase
