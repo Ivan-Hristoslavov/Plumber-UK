@@ -16,16 +16,28 @@ export function useReviews(adminMode = false) {
   const fetchReviews = async () => {
     try {
       setIsLoading(true);
+      // Clear cache to force fresh data
+      delete reviewsCache[cacheKey];
+      cachePromises[cacheKey] = null;
+      
       const url = adminMode ? '/api/reviews?all=1' : '/api/reviews';
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch reviews');
       const reviewsData = data.reviews || [];
       reviewsCache[cacheKey] = reviewsData; // Update cache
       setReviews(reviewsData);
       setError(null);
+      return reviewsData;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +100,13 @@ export function useReviews(adminMode = false) {
 
     // Make the API call
     const url = adminMode ? '/api/reviews?all=1' : '/api/reviews';
-    cachePromises[cacheKey] = fetch(url)
+    cachePromises[cacheKey] = fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    })
       .then(response => response.json())
       .then(data => {
         if (!data.reviews) {

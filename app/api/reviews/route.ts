@@ -24,7 +24,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 });
     }
 
-    return NextResponse.json({ reviews });
+    return NextResponse.json({ reviews }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error("Error in reviews GET:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
