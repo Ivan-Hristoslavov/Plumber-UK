@@ -9,13 +9,17 @@ import { useToast, ToastMessages } from "@/components/Toast";
 type LegalContent = {
   terms: string;
   privacy_policy: string;
+  cookies_policy: string;
+  gdpr_policy: string;
 };
 
 export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) {
-  const [activeTab, setActiveTab] = useState<"terms" | "privacy">("terms");
+  const [activeTab, setActiveTab] = useState<"terms" | "privacy" | "cookies" | "gdpr">("terms");
   const [content, setContent] = useState<LegalContent>({
     terms: "",
     privacy_policy: "",
+    cookies_policy: "",
+    gdpr_policy: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,13 +34,17 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
       setLoading(true);
       
       // Load from separate tables
-      const [termsResult, privacyResult] = await Promise.all([
+      const [termsResult, privacyResult, cookiesResult, gdprResult] = await Promise.all([
         supabase.from("terms").select("content").single(),
-        supabase.from("privacy_policy").select("content").single()
+        supabase.from("privacy_policy").select("content").single(),
+        supabase.from("cookies_policy").select("content").single(),
+        supabase.from("gdpr_policy").select("content").single()
       ]);
 
       let termsContent = "";
       let privacyContent = "";
+      let cookiesContent = "";
+      let gdprContent = "";
 
       if (termsResult.data) {
         termsContent = termsResult.data.content;
@@ -46,9 +54,19 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         privacyContent = privacyResult.data.content;
       }
 
+      if (cookiesResult.data) {
+        cookiesContent = cookiesResult.data.content;
+      }
+
+      if (gdprResult.data) {
+        gdprContent = gdprResult.data.content;
+      }
+
       setContent({
         terms: termsContent,
         privacy_policy: privacyContent,
+        cookies_policy: cookiesContent,
+        gdpr_policy: gdprContent,
       });
     } catch (error) {
       console.error("Error loading legal content:", error);
@@ -61,7 +79,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
     try {
       setSaving(true);
       
-      // Update both tables
+      // Update all tables
       const promises = [];
       
       // Update terms
@@ -80,6 +98,22 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         })
       );
 
+      // Update cookies policy
+      promises.push(
+        supabase.from("cookies_policy").upsert({ 
+          id: 1, 
+          content: content.cookies_policy 
+        })
+      );
+
+      // Update GDPR policy
+      promises.push(
+        supabase.from("gdpr_policy").upsert({ 
+          id: 1, 
+          content: content.gdpr_policy 
+        })
+      );
+
       const results = await Promise.all(promises);
       
       // Check for errors
@@ -89,7 +123,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         }
       }
 
-      showSuccess("Legal Content Updated", "Terms and Privacy Policy have been saved successfully!");
+      showSuccess("Legal Content Updated", "All legal pages have been saved successfully!");
     } catch (error) {
       console.error("Error saving legal content:", error);
       showError("Save Error", "Failed to save legal content. Please try again.");
@@ -117,6 +151,24 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         </svg>
       )
     },
+    { 
+      id: "cookies", 
+      name: "Cookie Policy", 
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      )
+    },
+    { 
+      id: "gdpr", 
+      name: "GDPR Compliance", 
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      )
+    },
   ];
 
   if (loading) {
@@ -133,7 +185,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-            Manage your Terms & Conditions and Privacy Policy content.
+            Manage your Terms & Conditions, Privacy Policy, Cookie Policy, and GDPR Compliance content.
           </p>
         </div>
         <button
@@ -176,7 +228,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as "terms" | "privacy")}
+              onClick={() => setActiveTab(tab.id as "terms" | "privacy" | "cookies" | "gdpr")}
               className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-300 flex items-center ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"
@@ -227,6 +279,42 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
             />
           </div>
         )}
+
+        {activeTab === "cookies" && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              Cookie Policy
+            </h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Use Markdown formatting for rich text. This content will be displayed on your Cookie Policy page.
+              </p>
+            </div>
+            <MarkdownEditor
+              value={content.cookies_policy}
+              onChange={(value) => setContent({ ...content, cookies_policy: value })}
+              placeholder="Enter your Cookie Policy here using Markdown formatting..."
+            />
+          </div>
+        )}
+
+        {activeTab === "gdpr" && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+              GDPR Compliance
+            </h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Use Markdown formatting for rich text. This content will be displayed on your GDPR Compliance page.
+              </p>
+            </div>
+            <MarkdownEditor
+              value={content.gdpr_policy}
+              onChange={(value) => setContent({ ...content, gdpr_policy: value })}
+              placeholder="Enter your GDPR Compliance information here using Markdown formatting..."
+            />
+          </div>
+        )}
       </div>
 
       {/* Preview Section */}
@@ -239,6 +327,10 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
             <MarkdownRenderer content={content.terms} />
           ) : activeTab === "privacy" && content.privacy_policy ? (
             <MarkdownRenderer content={content.privacy_policy} />
+          ) : activeTab === "cookies" && content.cookies_policy ? (
+            <MarkdownRenderer content={content.cookies_policy} />
+          ) : activeTab === "gdpr" && content.gdpr_policy ? (
+            <MarkdownRenderer content={content.gdpr_policy} />
           ) : (
             <p className="text-gray-500 dark:text-gray-400 italic">
               No content to preview. Start typing in the editor above.

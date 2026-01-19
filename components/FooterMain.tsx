@@ -29,6 +29,8 @@ const navigation = [
   { name: "Contact", href: "#contact" },
   { name: "Terms", href: "/terms" },
   { name: "Privacy", href: "/privacy" },
+  { name: "Cookies", href: "/cookies" },
+  { name: "GDPR", href: "/gdpr" },
 ];
 
 type ServiceArea = {
@@ -129,7 +131,7 @@ export default function FooterMain() {
   return (
     <footer className="bg-white/40 dark:bg-gray-900/40 backdrop-blur shadow-lg border-t border-white/20 dark:border-gray-800/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className={`grid grid-cols-1 md:grid-cols-${serviceAreas.length > 0 ? '4' : '3'} gap-8`}>
+        <div className={`grid grid-cols-1 ${serviceAreas.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`} suppressHydrationWarning>
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <Link
@@ -262,10 +264,43 @@ export default function FooterMain() {
           )}
         </div>
 
-        {/* Bottom Section */}
+        {/* Legal Links */}
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+            <Link
+              href="/terms"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+            >
+              Terms & Conditions
+            </Link>
+            <span className="text-gray-400 dark:text-gray-600">•</span>
+            <Link
+              href="/privacy"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-gray-400 dark:text-gray-600">•</span>
+            <Link
+              href="/cookies"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+            >
+              Cookie Policy
+            </Link>
+            <span className="text-gray-400 dark:text-gray-600">•</span>
+            <Link
+              href="/gdpr"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+            >
+              GDPR Compliance
+            </Link>
+          </div>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+            <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300" suppressHydrationWarning>
               © {new Date().getFullYear()} {businessData.businessName}. All rights reserved.
             </div>
             <div className="flex items-center space-x-6">

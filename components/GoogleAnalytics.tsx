@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Replace with your actual Google Analytics Measurement ID
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
@@ -10,11 +10,53 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9
 // Google Ads Conversion ID from environment variables
 const GOOGLE_ADS_CONVERSION_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID;
 
+// Check if cookies are accepted
+function hasCookieConsent(): boolean {
+  if (typeof window === "undefined") return false;
+  const consent = localStorage.getItem("cookieConsent");
+  return consent === "accepted";
+}
+
 export function GoogleAnalytics() {
   const pathname = usePathname();
+  const [hasConsent, setHasConsent] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG') {
+    setIsMounted(true);
+    // Check consent on mount
+    setHasConsent(hasCookieConsent());
+
+    // Listen for storage changes (when user accepts/rejects)
+    const handleStorageChange = () => {
+      setHasConsent(hasCookieConsent());
+    };
+
+    // Listen for custom event from CookieConsent
+    const handleConsentChange = () => {
+      setHasConsent(hasCookieConsent());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("cookieConsentChanged", handleConsentChange);
+    
+    // Also check periodically in case consent was set in same window
+    const interval = setInterval(() => {
+      const currentConsent = hasCookieConsent();
+      if (currentConsent !== hasConsent) {
+        setHasConsent(currentConsent);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("cookieConsentChanged", handleConsentChange);
+      clearInterval(interval);
+    };
+  }, [hasConsent]);
+
+  useEffect(() => {
+    if (hasConsent && isMounted && GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG') {
       // Track page view when pathname changes
       if (typeof window !== "undefined" && window.gtag) {
         window.gtag("config", GA_MEASUREMENT_ID, {
@@ -22,9 +64,10 @@ export function GoogleAnalytics() {
         });
       }
     }
-  }, [pathname]);
+  }, [pathname, hasConsent, isMounted]);
 
-  if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === 'G-QPF9F5SRFG') {
+  // Don't render until mounted to avoid hydration issues
+  if (!isMounted || !GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === 'G-QPF9F5SRFG' || !hasConsent) {
     return null;
   }
 
@@ -53,7 +96,7 @@ export function GoogleAnalytics() {
 
 // Utility function to track custom events
 export function trackEvent(eventName: string, parameters?: Record<string, unknown>) {
-  if (typeof window !== "undefined" && window.gtag && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG') {
+  if (typeof window !== "undefined" && window.gtag && GA_MEASUREMENT_ID !== 'G-QPF9F5SRFG' && hasCookieConsent()) {
     window.gtag("event", eventName, parameters);
   }
 }

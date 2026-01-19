@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { DayOffBanner } from "./DayOffBanner";
 import { AdminProfile } from "@/lib/admin-profile";
 import { useActiveDayOffPeriods } from "@/hooks/useDayOffPeriods";
+import { CookieConsent } from "./CookieConsent";
 
 import NavigationNavbar from "./NavigationNavbar";
 import FooterMain from './FooterMain';
@@ -50,6 +51,9 @@ export default function LayoutMain({
         {children}
       </main>
       <FooterMain />
+      
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
     </div>
   );
 }
