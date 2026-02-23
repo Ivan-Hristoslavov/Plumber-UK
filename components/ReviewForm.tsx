@@ -10,7 +10,7 @@ export function ReviewForm() {
     name: "",
     email: "",
     message: "",
-    rating: 0,
+    rating: 5,
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
@@ -68,7 +68,7 @@ export function ReviewForm() {
       // Reset form and success state after 5 seconds
       setTimeout(() => {
         setSubmitResult(null);
-        setForm({ name: "", email: "", message: "", rating: 0 });
+        setForm({ name: "", email: "", message: "", rating: 5 });
         setSuccess("");
         setError("");
       }, 5000);
@@ -329,40 +329,31 @@ export function ReviewForm() {
             {/* Rating Section */}
             <div className="mt-8">
               <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                Rate Your Experience
+                Your Rating
               </label>
-              <div className="flex items-center justify-center gap-2 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-center gap-3 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <button
                     type="button"
                     key={i}
                     onClick={() => setForm((f) => ({ ...f, rating: i + 1 }))}
-                    className={`group relative w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 ${
-                      form.rating > i
-                        ? "bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/30"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600"
-                    }`}
+                    className="group transition-transform duration-200 hover:scale-125 focus:outline-none"
                     aria-label={`Rate ${i + 1} stars`}
                   >
                     <svg
-                      className={`w-6 h-6 mx-auto transition-colors duration-300 ${
+                      className={`w-10 h-10 sm:w-12 sm:h-12 drop-shadow-sm transition-colors duration-200 ${
                         form.rating > i
-                          ? "text-white"
-                          : "text-gray-400 dark:text-gray-500"
+                          ? "text-yellow-400"
+                          : "text-gray-300 dark:text-gray-600 group-hover:text-yellow-300"
                       }`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
                     </svg>
-                    {form.rating > i && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full shadow-lg flex items-center justify-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      </div>
-                    )}
                   </button>
                 ))}
-                <div className="ml-4 text-center">
+                <div className="ml-3 text-center">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {form.rating}/5
                   </div>

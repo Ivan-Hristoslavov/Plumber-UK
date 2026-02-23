@@ -279,8 +279,6 @@ export default async function RootLayout({
       }
     },
     "sameAs": [
-      "https://www.facebook.com/fixmyleak",
-      "https://www.instagram.com/fixmyleak",
       "https://www.linkedin.com/company/fixmyleak"
     ],
     "bankDetails": {

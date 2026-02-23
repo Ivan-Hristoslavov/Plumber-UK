@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { testSendGridConnection, sendEmail } from "@/lib/sendgrid-smtp";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Test SendGrid configuration
 export async function GET() {
   try {

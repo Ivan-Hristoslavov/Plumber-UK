@@ -14,11 +14,6 @@ export interface DayOffPeriod {
   updated_at?: string;
 }
 
-// Global cache to prevent duplicate API calls
-let cachedData: DayOffPeriod[] | null = null;
-let cacheTimestamp = 0;
-const CACHE_DURATION = 30000; // 30 seconds cache
-
 export function useDayOffPeriods() {
   const [periods, setPeriods] = useState<DayOffPeriod[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,20 +22,18 @@ export function useDayOffPeriods() {
   const isMountedRef = useRef(true);
 
   const fetchPeriods = useCallback(async () => {
-    // Check if we have valid cached data
-    const now = Date.now();
-    if (cachedData && (now - cacheTimestamp) < CACHE_DURATION) {
-      setPeriods(cachedData);
-      setLoading(false);
-      return;
-    }
-
     if (!isMountedRef.current) return;
 
     try {
       setError(null);
       
-      const response = await fetch('/api/admin/day-off');
+      const response = await fetch(`/api/admin/day-off?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch day-off periods');
       }
@@ -48,10 +41,6 @@ export function useDayOffPeriods() {
       const data: DayOffPeriod[] = await response.json();
       
       if (!isMountedRef.current) return;
-
-      // Update cache
-      cachedData = data;
-      cacheTimestamp = now;
       
       setPeriods(data);
     } catch (err) {
@@ -69,12 +58,10 @@ export function useDayOffPeriods() {
   useEffect(() => {
     isMountedRef.current = true;
     
-    // Clear any existing timeout
     if (fetchTimeoutRef.current) {
       clearTimeout(fetchTimeoutRef.current);
     }
     
-    // Debounce API calls
     fetchTimeoutRef.current = setTimeout(() => {
       fetchPeriods();
     }, 100);
@@ -88,14 +75,10 @@ export function useDayOffPeriods() {
   }, [fetchPeriods]);
 
   const refetch = useCallback(() => {
-    // Clear cache to force fresh data
-    cachedData = null;
-    cacheTimestamp = 0;
     setLoading(true);
     fetchPeriods();
   }, [fetchPeriods]);
 
-  // CRUD operations that clear cache
   const addPeriod = useCallback(async (period: Omit<DayOffPeriod, 'id' | 'created_at' | 'updated_at'>) => {
     const res = await fetch('/api/admin/day-off', {
       method: 'POST',
@@ -105,9 +88,6 @@ export function useDayOffPeriods() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to add period');
     
-    // Clear cache and refetch
-    cachedData = null;
-    cacheTimestamp = 0;
     await fetchPeriods();
     return data;
   }, [fetchPeriods]);
@@ -121,9 +101,6 @@ export function useDayOffPeriods() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to update period');
     
-    // Clear cache and refetch
-    cachedData = null;
-    cacheTimestamp = 0;
     await fetchPeriods();
     return data;
   }, [fetchPeriods]);
@@ -137,9 +114,6 @@ export function useDayOffPeriods() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to delete period');
     
-    // Clear cache and refetch
-    cachedData = null;
-    cacheTimestamp = 0;
     await fetchPeriods();
     return data;
   }, [fetchPeriods]);
@@ -155,15 +129,13 @@ export function useDayOffPeriods() {
   };
 }
 
-// Helper hook for getting only active periods
 export function useActiveDayOffPeriods() {
   const { periods, loading, error } = useDayOffPeriods();
   
-  // Parse YYYY-MM-DD safely in local time to avoid timezone off-by-one issues
   function parseLocalDate(dateString: string, isEnd: boolean = false): Date {
     const [year, month, day] = dateString.split('-').map(Number);
     if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
-      return new Date(dateString); // fallback
+      return new Date(dateString);
     }
     if (isEnd) {
       return new Date(year, month - 1, day, 23, 59, 59, 999);
@@ -181,7 +153,6 @@ export function useActiveDayOffPeriods() {
     const start = parseLocalDate(period.start_date, false);
     const end = parseLocalDate(period.end_date, true);
 
-    // Today overlaps the period if any intersection exists
     const overlapsToday = start <= todayEnd && end >= todayStart;
     return overlapsToday;
   });
@@ -191,4 +162,4 @@ export function useActiveDayOffPeriods() {
     loading,
     error
   };
-} 
+}

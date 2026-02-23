@@ -1,96 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 export function FloatingCTA() {
-  const [showText, setShowText] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasAutoShown, setHasAutoShown] = useState(false);
   const { profile } = useAdminProfile();
 
   const businessPhone = profile?.phone || "+44 7541777225";
-
-  // Format phone for display (convert +44 to 0)
   const displayPhone = businessPhone.replace(/^\+44\s?/, "0");
 
-  // Hide text after 5 seconds, show again on hover
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowText(false);
-    }, 20000);
-
+  const expandAndCollapse = useCallback((duration = 4000) => {
+    setIsExpanded(true);
+    const timer = setTimeout(() => setIsExpanded(false), duration);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (hasAutoShown) return;
+    const showTimer = setTimeout(() => {
+      setHasAutoShown(true);
+      expandAndCollapse(5000);
+    }, 1500);
+    return () => clearTimeout(showTimer);
+  }, [hasAutoShown, expandAndCollapse]);
+
   return (
-    <div className="fixed bottom-6 right-4 sm:right-0 z-50">
-      <div className="flex flex-col items-center gap-3">
-        {/* Main CTA Button */}
-        <div className="relative group">
-          {/* Glow effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity duration-300 animate-pulse"></div>
-
-          {/* Button */}
-          <a
-            href={`tel:${businessPhone}`}
-            onClick={() => {
-              // Track phone call click for Google Analytics/Ads
-              trackPhoneCall("floating_cta");
-            }}
-            onMouseEnter={() => {
-              setIsHovered(true);
-              setShowText(true);
-            }}
-            onMouseLeave={() => setIsHovered(false)}
-            className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-red-600 via-red-500 to-orange-600 hover:from-red-700 hover:via-red-600 hover:to-orange-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 active:scale-95 border-2 border-white"
-            aria-label={`Free Call ${displayPhone}`}
-          >
-            {/* Ripple effect */}
-            <div className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-25"></div>
-
-            {/* Phone icon */}
-            <svg
-              className="relative w-6 h-6 sm:w-8 sm:h-8 group-hover:scale-110 transition-transform duration-300 drop-shadow-lg z-10"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-              />
-            </svg>
-          </a>
-        </div>{" "}
-        {/* Text label with auto-hide */}
+    <div className="fixed bottom-6 right-4 sm:right-6 z-50">
+      <a
+        href={`tel:${businessPhone}`}
+        onClick={() => trackPhoneCall("floating_cta")}
+        onMouseEnter={() => setIsExpanded(true)}
+        onMouseLeave={() => setIsExpanded(false)}
+        className="flex items-center h-14 sm:h-16 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-orange-600 hover:from-red-700 hover:via-red-600 hover:to-orange-700 shadow-2xl hover:shadow-red-500/30 transition-all duration-500 ease-out border-2 border-white/90 group"
+        aria-label={`Call now – speak to an engineer ${displayPhone}`}
+      >
+        {/* Text that slides out to the left */}
         <div
-          className={`transition-all duration-500 transform ${
-            showText || isHovered
-              ? "translate-y-0 opacity-100 scale-100"
-              : "translate-y-2 opacity-0 scale-95 pointer-events-none"
+          className={`overflow-hidden transition-all duration-500 ease-out ${
+            isExpanded
+              ? "max-w-[260px] sm:max-w-[300px] opacity-100 pl-5 pr-1"
+              : "max-w-0 opacity-0 pl-0 pr-0"
           }`}
         >
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-xl border border-blue-500 whitespace-nowrap">
-            <span className="flex items-center justify-center gap-1 sm:gap-2">
-              <svg
-                className="w-3 h-3 sm:w-4 sm:h-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>Free Call</span>
-            </span>
-          </div>
+          <span className="whitespace-nowrap text-white font-semibold text-xs sm:text-sm">
+            Call now – speak to an engineer
+          </span>
         </div>
-      </div>
+
+        {/* Phone icon circle - always visible */}
+        <div className="relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0">
+          <div className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />
+          <svg
+            className="relative w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:scale-110 transition-transform duration-300 z-10"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          </svg>
+        </div>
+      </a>
     </div>
   );
 }

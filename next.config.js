@@ -18,11 +18,42 @@ const nextConfig = {
         ],
       },
       {
-        source: '/:path*',
+        // Never cache API responses
+        source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, must-revalidate',
+            value: 'no-store, max-age=0',
+          },
+        ],
+      },
+      {
+        // Never cache HTML/documents (prevents users seeing stale pages)
+        source: '/((?!_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0',
+          },
+        ],
+      },
+      {
+        // Cache Next.js static assets aggressively (they are content-hashed)
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache optimized images (safe to cache)
+        source: '/_next/image',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

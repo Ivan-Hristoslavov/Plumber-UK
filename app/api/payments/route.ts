@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import { createCheckoutSession, createPaymentLink, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch payments with pagination
 export async function GET(request: NextRequest) {
   try {

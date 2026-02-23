@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { stripe, isStripeAvailable } from "@/lib/stripe";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Verify payment by session ID or test Stripe configuration
 export async function GET(request: NextRequest) {
   try {
