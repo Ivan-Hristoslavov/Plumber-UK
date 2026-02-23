@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
 import { createCheckoutSession, createPaymentLink, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../lib/stripe";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch payments with pagination
 export async function GET(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -73,12 +77,21 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new payment or payment intent
 export async function POST(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { type, ...paymentData } = body;
 
     if (type === "create_payment_link") {
-      // Check if Stripe is configured
+      if (typeof paymentData.amount !== 'number' || paymentData.amount <= 0) {
+        return NextResponse.json({ error: "Amount must be a positive number" }, { status: 400 });
+      }
+      if (paymentData.currency && typeof paymentData.currency !== 'string') {
+        return NextResponse.json({ error: "Currency must be a string" }, { status: 400 });
+      }
+
       if (!isStripeAvailable()) {
         return NextResponse.json(
           { error: "Stripe is not configured. Please contact support for payment options." },
@@ -215,6 +228,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update payment status (usually called by webhooks)
 export async function PUT(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { session_id, payment_intent_id, status, payment_method } = body;

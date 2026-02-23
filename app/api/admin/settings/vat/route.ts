@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch VAT settings
 export async function GET() {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const { data: settings, error } = await supabase
       .from("vat_settings")
@@ -45,6 +49,9 @@ export async function GET() {
 
 // PUT - Update VAT settings
 export async function PUT(request: Request) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { is_enabled, vat_rate, vat_number } = body;

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdminAuth } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function GET() {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const { data, error } = await supabase
     .from('day_off_periods')
@@ -21,8 +25,16 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
+
+  if (!body.start_date || !body.end_date) {
+    return NextResponse.json({ error: 'Missing required fields: start_date, end_date' }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from('day_off_periods')
     .insert([body])
@@ -36,6 +48,9 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update day off period (expects id in body)
 export async function PUT(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
   if (!body.id) {
@@ -55,6 +70,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: Delete day off period (expects id in body)
 export async function DELETE(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
   if (!body.id) {

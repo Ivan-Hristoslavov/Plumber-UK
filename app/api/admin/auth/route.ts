@@ -3,8 +3,15 @@ import { cookies } from "next/headers";
 import bcrypt from "bcrypt";
 
 import { supabase } from "../../../../lib/supabase";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { limited } = rateLimit(`auth-login:${ip}`, { maxRequests: 5, windowMs: 300_000 });
+  if (limited) {
+    return NextResponse.json({ error: "Too many login attempts. Please try again in 5 minutes." }, { status: 429 });
+  }
+
   try {
     const { email, password } = await request.json();
 

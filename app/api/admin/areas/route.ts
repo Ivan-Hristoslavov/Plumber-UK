@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdminAuth } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
 // GET: List all areas
 export async function GET() {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const { data, error } = await supabase
     .from('admin_areas_cover')
@@ -18,6 +22,9 @@ export async function GET() {
 
 // POST: Create new area
 export async function POST(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
   const { data, error } = await supabase
@@ -33,6 +40,9 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update area (expects id in body)
 export async function PUT(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
   if (!body.id) {
@@ -52,6 +62,9 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: Delete area (expects id in body)
 export async function DELETE(req: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   const supabase = createClient();
   const body = await req.json();
   if (!body.id) {

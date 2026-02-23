@@ -47,7 +47,6 @@ type ServiceArea = {
 export default function FooterMain() {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
   const router = useRouter();
   const adminProfile = useAdminProfile();
@@ -70,37 +69,14 @@ export default function FooterMain() {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
         }
-      } catch (error) {
-        console.error('Error fetching footer data:', error);
+      } catch {
+        // Silently handle fetch errors — footer shows defaults
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    // Check if there's a hash in the URL on initial load
-    if (typeof window !== "undefined" && window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
-        setActiveSection(hash);
-      }
-    }
-
-    // Listen for hash changes
-    const handleHashChange = () => {
-      if (typeof window !== "undefined" && window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        if (["home", "services", "about", "our-story", "service-areas", "gallery", "pricing", "faq", "reviews", "contact"].includes(hash)) {
-          setActiveSection(hash);
-        }
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleClick = (

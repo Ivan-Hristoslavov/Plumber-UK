@@ -30,6 +30,7 @@ export function AccordionAbout({ children }: { children: React.ReactNode }) {
     <div>
       <div className="relative">
         <div
+          id="accordion-about-content"
           ref={contentRef}
           className="overflow-hidden transition-all duration-500 ease-in-out"
           style={{ maxHeight }}
@@ -44,6 +45,8 @@ export function AccordionAbout({ children }: { children: React.ReactNode }) {
       <div className="flex justify-center mt-2">
         <button
           onClick={() => setIsOpen((prev) => !prev)}
+          aria-expanded={isOpen}
+          aria-controls="accordion-about-content"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200"
         >
           <span>{isOpen ? "Read Less" : "Read More"}</span>

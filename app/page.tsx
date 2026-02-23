@@ -1,18 +1,28 @@
 import type { Metadata } from 'next';
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { SectionHero } from "@/components/SectionHero";
 import { SectionPricing } from "@/components/SectionPricing";
-import { FAQSection } from "@/components/FAQSection";
-import { ReviewsSection } from "@/components/ReviewsSection";
-import { GallerySection } from "@/components/GallerySection";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
-import { ReviewForm } from "@/components/ReviewForm";
 import SectionContact from "@/components/SectionContact";
 import { FloatingCTA } from "@/components/FloatingCTA";
 import { AccordionAbout } from "@/components/AccordionAbout";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
+
+const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
+  loading: () => <div className="py-20 text-center text-gray-400">Loading gallery...</div>,
+});
+const FAQSection = dynamic(() => import("@/components/FAQSection").then(m => m.FAQSection), {
+  loading: () => <div className="py-20 text-center text-gray-400">Loading FAQ...</div>,
+});
+const ReviewsSection = dynamic(() => import("@/components/ReviewsSection").then(m => m.ReviewsSection), {
+  loading: () => <div className="py-20 text-center text-gray-400">Loading reviews...</div>,
+});
+const ReviewForm = dynamic(() => import("@/components/ReviewForm").then(m => m.ReviewForm), {
+  loading: () => <div className="py-20 text-center text-gray-400">Loading review form...</div>,
+});
 
 interface Area {
   id: string;
@@ -83,13 +93,11 @@ async function getAreas(): Promise<Area[]> {
       .order('order', { ascending: true });
     
     if (error) {
-      console.error('Error fetching areas:', error);
       return [];
     }
     
     return data || [];
-  } catch (error) {
-    console.error('Error in getAreas:', error);
+  } catch {
     return [];
   }
 }
