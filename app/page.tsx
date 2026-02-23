@@ -10,6 +10,7 @@ import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
 import { ReviewForm } from "@/components/ReviewForm";
 import SectionContact from "@/components/SectionContact";
 import { FloatingCTA } from "@/components/FloatingCTA";
+import { AccordionAbout } from "@/components/AccordionAbout";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -113,25 +114,6 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-              <span>About</span>
-              <span className="mx-2">•</span>
-              <AdminProfileData type="name" fallback="Plamen Zhelev" />
-              <AdminProfileData type="company_status" fallback="" className="ml-2 text-xs opacity-75" />
-            </div>
             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
               Professional Plumbing Services You Can Trust
             </h2>
@@ -158,156 +140,103 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* About Text - Under Image */}
-            <div className="text-center mb-12">
-              <div className="relative bg-gradient-to-br from-white via-blue-50/50 to-purple-50/50 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-10 max-w-5xl mx-auto backdrop-blur-sm">
-                {/* Decorative elements */}
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-60"></div>
-                <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full opacity-60"></div>
-                <div className="absolute top-1/2 -left-4 w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-40"></div>
-                
-                <div className="prose prose-xl dark:prose-invert max-w-none">
-                  <AdminProfileMarkdown
-                    type="about"
-                    fallback=""
-                    className="text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300 text-lg"
-                  />
+            {/* About Text */}
+            <div className="mb-12 max-w-4xl mx-auto">
+              <div className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-600 px-8 py-8 sm:px-10 sm:py-9 overflow-hidden transition-all duration-500 hover:shadow-xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full -translate-y-16 translate-x-16" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-full translate-y-12 -translate-x-12" />
+                <div className="relative z-10">
+                  <AccordionAbout>
+                    <div className="prose prose-base dark:prose-invert max-w-none prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-headings:text-gray-900 dark:prose-headings:text-white">
+                      <AdminProfileMarkdown
+                        type="about"
+                        fallback=""
+                        className="text-gray-600 dark:text-gray-300 leading-relaxed text-[15px]"
+                      />
+                    </div>
+                  </AccordionAbout>
                 </div>
               </div>
             </div>
 
-            {/* Certifications Grid - Under Text */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-              {/* Experience Card */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-green-200/50 dark:border-green-800/50 p-4 transition-all duration-500 hover:shadow-lg hover:scale-[1.01] hover:border-green-300 dark:hover:border-green-700">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 rounded-md flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    <svg
-                      className="h-5 w-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
+            {/* Credentials */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
+              {/* Experience */}
+              <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 hover:shadow-xl transition-all duration-300 hover:border-green-200 dark:hover:border-green-800 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-green-800 dark:text-green-200 mb-1 group-hover:text-green-900 dark:group-hover:text-green-100 transition-colors duration-300">
-                      Experience
-                    </h3>
-                    <p className="text-green-700 dark:text-green-300 leading-relaxed group-hover:text-green-800 dark:group-hover:text-green-200 transition-colors duration-300 text-xs">
-                      <AdminProfileData
-                        type="years_of_experience"
-                        fallback="10+ Years"
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Response Time Card */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-purple-50 via-violet-50 to-pink-50 dark:from-purple-900/20 dark:via-violet-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200/50 dark:border-purple-800/50 p-4 transition-all duration-500 hover:shadow-lg hover:scale-[1.01] hover:border-purple-300 dark:hover:border-purple-700">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-violet-500 to-pink-600 rounded-md flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    <svg
-                      className="h-5 w-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M13 10V3L4 14h7v7l9-11h-7z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-purple-800 dark:text-purple-200 mb-1 group-hover:text-purple-900 dark:group-hover:text-purple-100 transition-colors duration-300">
-                      Response Time
-                    </h3>
-                    <p className="text-purple-700 dark:text-purple-300 leading-relaxed group-hover:text-purple-800 dark:group-hover:text-purple-200 transition-colors duration-300 text-xs">
-                      <AdminProfileData
-                        type="response_time"
-                        fallback="45 minutes"
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Certifications Card */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200/50 dark:border-blue-800/50 p-4 transition-all duration-500 hover:shadow-lg hover:scale-[1.01] hover:border-blue-300 dark:hover:border-blue-700">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-md flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    <svg
-                      className="h-5 w-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-blue-800 dark:text-blue-200 mb-1 group-hover:text-blue-900 dark:group-hover:text-blue-100 transition-colors duration-300">
-                      Certifications
-                    </h3>
-                    <div className="text-blue-700 dark:text-blue-300 leading-relaxed group-hover:text-blue-800 dark:group-hover:text-blue-200 transition-colors duration-300 text-xs">
-                      <AdminProfileData
-                        type="certifications"
-                        asList={true}
-                        fallback="Kitchen plumbing specialist. Registered professional with City & Guilds Level 3 in Plumbing & Heating. Holder of CSCS JIB Gold Card."
-                      />
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Experience</div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      <AdminProfileData type="years_of_experience" fallback="10+ Years" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Specializations Card */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-red-900/20 rounded-lg border border-amber-200/50 dark:border-amber-800/50 p-4 transition-all duration-500 hover:shadow-lg hover:scale-[1.01] hover:border-amber-300 dark:hover:border-amber-700">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 rounded-md flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    <svg
-                      className="h-5 w-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
+              {/* Response Time */}
+              <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 hover:shadow-xl transition-all duration-300 hover:border-purple-200 dark:hover:border-purple-800 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-amber-800 dark:text-amber-200 mb-1 group-hover:text-amber-900 dark:group-hover:text-amber-100 transition-colors duration-300">
-                      Specializations
-                    </h3>
-                    <div className="text-amber-700 dark:text-amber-300 leading-relaxed group-hover:text-amber-800 dark:group-hover:text-amber-200 transition-colors duration-300 text-xs">
-                      <AdminProfileData
-                        type="specializations"
-                        asList={true}
-                        fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
-                      />
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Response</div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      <AdminProfileData type="response_time" fallback="45 Minutes Response Time" />
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Certifications */}
+              <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 hover:shadow-xl transition-all duration-300 hover:border-blue-200 dark:hover:border-blue-800 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Certifications</h3>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <AdminProfileData
+                      type="certifications"
+                      asList={true}
+                      fallback="Kitchen plumbing specialist. Registered professional with City & Guilds Level 3 in Plumbing & Heating. Holder of CSCS JIB Gold Card."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Specializations */}
+              <div className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 hover:shadow-xl transition-all duration-300 hover:border-amber-200 dark:hover:border-amber-800 hover:-translate-y-1 overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-500" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg className="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Specializations</h3>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <AdminProfileData
+                      type="specializations"
+                      asList={true}
+                      fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
+                    />
                   </div>
                 </div>
               </div>

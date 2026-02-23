@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { supabase } from "../../../../lib/supabase";
 
+export const dynamic = 'force-dynamic';
+
 // Helper function to map activity types to status values
 function getActivityStatus(activityType: string): string {
   switch (activityType) {

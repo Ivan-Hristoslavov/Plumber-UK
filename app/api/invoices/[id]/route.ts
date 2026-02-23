@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createStorageClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
+export const dynamic = 'force-dynamic';
+
 const supabaseStorage = createStorageClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!

@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 
 import { supabase } from "../../../../lib/supabase";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch single payment by ID
 export async function GET(
   request: NextRequest,

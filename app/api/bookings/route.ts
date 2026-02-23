@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import { sendEmail } from "@/lib/sendgrid";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch bookings with pagination
 export async function GET(request: NextRequest) {
   try {
