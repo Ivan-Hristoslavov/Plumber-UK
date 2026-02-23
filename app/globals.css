@@ -145,33 +145,3 @@ html {
   background-size: 200px 100%;
   animation: skeleton-loading 1.5s infinite;
 }
-
-/* Hover glow effect */
-.glow-on-hover {
-  transition: all 0.3s ease;
-}
-
-.glow-on-hover:hover {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
-}
-
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Custom focus styles */
-.focus-ring:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
-}
-
-/* Backdrop blur fallback */
-@supports not (backdrop-filter: blur(10px)) {
-  .backdrop-blur-fallback {
-    background-color: rgba(255, 255, 255, 0.9);
-  }
-} 

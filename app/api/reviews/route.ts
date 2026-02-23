@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { limited } = rateLimit(`reviews-post:${ip}`, { maxRequests: 3, windowMs: 60_000 });
+  if (limited) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   try {
     const supabase = createClient();
     const body = await request.json();
@@ -58,9 +65,9 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    if (rating < 0 || rating > 6) {
+    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
       return NextResponse.json({ 
-        error: "Rating must be between 0 and 6" 
+        error: "Rating must be between 1 and 5" 
       }, { status: 400 });
     }
 

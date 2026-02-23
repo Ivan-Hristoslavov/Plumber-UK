@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { supabase } from "../../../lib/supabase";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch customers with pagination or search by email
 export async function GET(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
@@ -92,8 +96,19 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new customer
 export async function POST(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const body = await request.json();
+
+    if (!body.name) {
+      return NextResponse.json({ error: "Missing required field: name" }, { status: 400 });
+    }
+
+    if (body.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+    }
 
     const { data: customer, error } = await supabase
       .from("customers")

@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch admin profile
 export async function GET() {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const supabase = createClient();
     
@@ -27,6 +31,9 @@ export async function GET() {
 
 // PUT - Update admin profile
 export async function PUT(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const supabase = createClient();
     const body = await request.json();

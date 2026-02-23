@@ -5,7 +5,6 @@ import { AdminProfileData } from "@/components/AdminProfileData";
 import FormBooking from "@/components/FormBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
-import { useToast, ToastMessages } from "@/components/Toast";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 
 type ServiceArea = {
@@ -26,18 +25,12 @@ type BusinessSettings = {
 };
 
 export default function SectionContact() {
-  const { showSuccess, showError } = useToast();
   const adminProfile = useAdminProfile();
   const { settings: adminSettings, isLoading: isLoadingSettings } =
     useAdminSettings();
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
   const [isLoadingAreas, setIsLoadingAreas] = useState(true);
   const { workingHours } = useWorkingHours();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitResult, setSubmitResult] = useState<null | {
-    success: boolean;
-    message: string;
-  }>(null);
 
   // Get business data from admin profile and settings
   const businessData = {
@@ -63,8 +56,8 @@ export default function SectionContact() {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
         }
-      } catch (error) {
-        console.error("Error fetching service areas:", error);
+      } catch {
+        // Silently handle fetch errors — contact section shows defaults
       } finally {
         setIsLoadingAreas(false);
       }

@@ -2,7 +2,6 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import Script from "next/script";
 import clsx from "clsx";
-import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "./providers";
@@ -16,7 +15,6 @@ import LayoutMain from "@/components/LayoutMain";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 
-const inter = Inter({ subsets: ["latin"] });
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -160,26 +158,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch admin profile data once at the layout level
-  const adminProfile = await getAdminProfile();
-  
-  // Fetch areas, pricing cards, and admin settings data for structured data
   const supabase = createClient();
-  const { data: areas } = await supabase
-    .from('admin_areas_cover')
-    .select('*')
-    .eq('is_active', true)
-    .order('order', { ascending: true });
-    
-  const { data: pricingCards } = await supabase
-    .from('pricing_cards')
-    .select('*')
-    .eq('is_enabled', true)
-    .order('order', { ascending: true });
-    
-  const { data: adminSettings } = await supabase
-    .from('admin_settings')
-    .select('*');
+
+  const [adminProfile, { data: areas }, { data: pricingCards }, { data: adminSettings }] = await Promise.all([
+    getAdminProfile(),
+    supabase.from('admin_areas_cover').select('*').eq('is_active', true).order('order', { ascending: true }),
+    supabase.from('pricing_cards').select('*').eq('is_enabled', true).order('order', { ascending: true }),
+    supabase.from('admin_settings').select('*'),
+  ]);
     
   // Convert admin settings to object
   const settingsMap: { [key: string]: any } = {};
@@ -337,7 +323,7 @@ export default async function RootLayout({
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
-          inter.className
+          fontSans.className
         )}
         suppressHydrationWarning
       >

@@ -83,6 +83,8 @@ export function FAQSection() {
                   style={{ opacity }}
                 >
                   <button
+                    aria-expanded={openItems.includes(index)}
+                    aria-controls={`faq-panel-${item.id}`}
                     className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                     onClick={() => toggleItem(index)}
                   >
@@ -111,6 +113,9 @@ export function FAQSection() {
                   </button>
 
                   <div
+                    id={`faq-panel-${item.id}`}
+                    role="region"
+                    aria-hidden={!openItems.includes(index)}
                     className={`transition-all duration-300 ease-in-out ${
                       openItems.includes(index)
                         ? "max-h-96 opacity-100"
@@ -144,6 +149,8 @@ export function FAQSection() {
                         className="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600 overflow-hidden"
                       >
                         <button
+                          aria-expanded={openItems.includes(index)}
+                          aria-controls={`faq-panel-${item.id}`}
                           className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                           onClick={() => toggleItem(index)}
                         >
@@ -172,6 +179,9 @@ export function FAQSection() {
                         </button>
 
                         <div
+                          id={`faq-panel-${item.id}`}
+                          role="region"
+                          aria-hidden={!openItems.includes(index)}
                           className={`transition-all duration-300 ease-in-out ${
                             openItems.includes(index)
                               ? "max-h-96 opacity-100"

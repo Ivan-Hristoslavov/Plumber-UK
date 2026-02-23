@@ -28,6 +28,10 @@ function useReviewsPerPage() {
 }
 
 function ReviewModal({ review, onClose }: { review: Review; onClose: () => void }) {
+  const modalRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) node.focus();
+  }, []);
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -43,14 +47,20 @@ function ReviewModal({ review, onClose }: { review: Review; onClose: () => void 
   }, [handleKeyDown]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" aria-hidden="true" />
       <div
-        className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col animate-scale-in overflow-hidden"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Review by ${review.customer_name}`}
+        tabIndex={-1}
+        className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] flex flex-col animate-scale-in overflow-hidden outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
+          aria-label="Close review"
           className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,6 +174,10 @@ export function ReviewsSection() {
                     key={review.id}
                     className={`group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 hover:-translate-y-1 overflow-hidden flex flex-col ${isLong ? 'cursor-pointer' : ''}`}
                     onClick={isLong ? () => setSelectedReview(review) : undefined}
+                    onKeyDown={isLong ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReview(review); } } : undefined}
+                    role={isLong ? 'button' : undefined}
+                    tabIndex={isLong ? 0 : undefined}
+                    aria-label={isLong ? `Read full review by ${review.customer_name}` : undefined}
                   >
                     <div className="absolute top-3 right-4 text-5xl leading-none font-serif text-blue-100 dark:text-blue-900/40 pointer-events-none select-none">&ldquo;</div>
                     <div className="flex items-center mb-4 relative z-10">

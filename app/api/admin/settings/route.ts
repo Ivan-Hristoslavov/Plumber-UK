@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch admin settings
 export async function GET(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const supabase = createClient();
     const { searchParams } = new URL(request.url);
@@ -67,6 +71,9 @@ export async function GET(request: NextRequest) {
 
 // PUT - Update admin settings
 export async function PUT(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const supabase = createClient();
     const body = await request.json();
@@ -103,6 +110,9 @@ export async function PUT(request: NextRequest) {
 
 // POST - Create or update admin setting
 export async function POST(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const supabase = createClient();
     const { key, value } = await request.json();

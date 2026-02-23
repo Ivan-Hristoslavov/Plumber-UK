@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import { sendEmail } from "@/lib/sendgrid";
+import { requireAdminAuth } from "@/lib/api-auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch bookings with pagination
 export async function GET(request: NextRequest) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -71,6 +76,12 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new booking with conflict check and email notification
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { limited } = rateLimit(`bookings-post:${ip}`, { maxRequests: 5, windowMs: 60_000 });
+  if (limited) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const {
