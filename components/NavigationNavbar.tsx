@@ -120,49 +120,11 @@ export default function NavigationNavbar() {
       }
     };
 
-    // Check if there's a hash in the URL on initial load
-    if (typeof window !== "undefined" && window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      if (["home", "services", "about", "our-story", "service-areas", "gallery", "faq", "reviews", "contact"].includes(hash)) {
-        setActiveSection(hash);
-        previousSection = hash;
-        
-        // Scroll to the section after a short delay to ensure DOM is ready
-        setTimeout(() => {
-          const element = document.getElementById(hash);
-          if (element) {
-            const navbar = document.querySelector('nav');
-            const dayOffBanner = document.querySelector('[data-day-off-banner]') as HTMLElement;
-            
-            // Get navbar height
-            const navbarHeight = navbar ? navbar.offsetHeight : 80;
-            
-            // Get banner height if it exists
-            const bannerHeight = dayOffBanner && dayOffBanner.offsetHeight > 0 ? dayOffBanner.offsetHeight : 0;
-            
-            // Calculate total offset with more precise positioning
-            const totalOffset = navbarHeight + bannerHeight + 30; // 30px extra padding for better visibility
-            
-            // Get element position and calculate final scroll position
-            const elementTop = element.offsetTop;
-            const finalScrollPosition = Math.max(0, elementTop - totalOffset);
-            
-            // Scroll to precise position
-            window.scrollTo({
-              top: finalScrollPosition,
-              behavior: 'smooth'
-            });
-          }
-        }, 100);
-      }
-    }
-
-    // Throttle scroll handler to run at most every 300ms (increased from 200ms)
+    // Scroll-spy only activates once the user actually scrolls (not on mount).
+    // HashNavigation handles initial positioning — always top on load.
     const throttledHandleScrollSpy = throttle(handleScrollSpy, 300);
-    
+
     window.addEventListener("scroll", throttledHandleScrollSpy);
-    // Initial check when component mounts
-    handleScrollSpy();
 
     return () => {
       window.removeEventListener("scroll", throttledHandleScrollSpy);

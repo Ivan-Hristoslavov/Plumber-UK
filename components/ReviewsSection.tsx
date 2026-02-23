@@ -1,7 +1,7 @@
 "use client";
 
 import { useReviews } from '@/hooks/useReviews';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const REVIEWS_DESKTOP = 6;
 const REVIEWS_MOBILE = 3;
@@ -108,8 +108,14 @@ export function ReviewsSection() {
   const startIndex = (safePage - 1) * reviewsPerPage;
   const currentReviews = reviews.slice(startIndex, startIndex + reviewsPerPage);
 
+  const isInitialMount = useRef(true);
+
   useEffect(() => {
     if (totalPages <= 1) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     const id = setTimeout(() => {
       document.getElementById(`review-page-${safePage}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }, 0);
