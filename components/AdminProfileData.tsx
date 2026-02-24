@@ -153,10 +153,10 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
     return <span className={className}>{displayValue}</span>;
   }
 
-  // Handle list-based fields (certifications and specializations)
+  // Handle list-based fields (certifications and specializations) with "Show more" when > 4
   if (asList && (type === 'certifications' || type === 'specializations')) {
     const value = (profile as any)?.[type] || fallback;
-    
+
     if (!value) {
       return <span className={className}>{fallback}</span>;
     }
@@ -171,15 +171,49 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
       return <span className={className}>{fallback}</span>;
     }
 
+    const maxVisible = 4;
+    const visibleItems = items.slice(0, maxVisible);
+    const extraItems = items.slice(maxVisible);
+    const hasMore = extraItems.length > 0;
+
+    const listItem = (item: string, index: number) => (
+      <li key={index} className="flex items-start">
+        <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0" />
+        <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
+      </li>
+    );
+
+    if (!hasMore) {
+      return (
+        <ul className={`${className} space-y-1`}>
+          {items.map((item: string, index: number) => listItem(item, index))}
+        </ul>
+      );
+    }
+
     return (
-      <ul className={`${className} space-y-1`}>
-        {items.map((item: string, index: number) => (
-          <li key={index} className="flex items-start">
-            <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-            <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
-          </li>
-        ))}
-      </ul>
+      <div className={className}>
+        <ul className="space-y-1">
+          {visibleItems.map((item: string, index: number) => listItem(item, index))}
+        </ul>
+        <details className="group/details mt-2">
+          <summary className="list-expand-summary flex items-center gap-2 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:underline text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded px-1 py-0.5">
+            <span>Show {extraItems.length} more</span>
+            <svg
+              className="w-4 h-4 transition-transform duration-200 group-open/details:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <ul className="space-y-1 mt-2 pl-0">
+            {extraItems.map((item: string, index: number) => listItem(item, maxVisible + index))}
+          </ul>
+        </details>
+      </div>
     );
   }
 

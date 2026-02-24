@@ -7,14 +7,19 @@ export const dynamic = 'force-dynamic';
 
 // GET - Fetch customers with pagination or search by email
 export async function GET(request: NextRequest) {
-  const authError = await requireAdminAuth();
-  if (authError) return authError;
+  const { searchParams } = new URL(request.url);
+  const email = searchParams.get("email");
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+
+  // Public: allow unauthenticated lookup by email only (used by booking form)
+  const isPublicEmailLookup = !!email && !searchParams.has("page") && !searchParams.has("limit");
+  if (!isPublicEmailLookup) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+  }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get("email");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
     const offset = (page - 1) * limit;
 
     // If searching by email, return matching customer(s)
@@ -96,9 +101,6 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new customer
 export async function POST(request: NextRequest) {
-  const authError = await requireAdminAuth();
-  if (authError) return authError;
-
   try {
     const body = await request.json();
 
@@ -110,9 +112,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
 
+    // Public booking: allow unauthenticated create only with limited fields (name, email, phone, address, customer_type)
+    const allowedPublicKeys = ["name", "email", "phone", "address", "customer_type"];
+    const isPublicBookingCreate =
+      Object.keys(body).every((k) => allowedPublicKeys.includes(k)) &&
+      Object.keys(body).length <= allowedPublicKeys.length;
+
+    if (!isPublicBookingCreate) {
+      const authError = await requireAdminAuth();
+      if (authError) return authError;
+    }
+
+    const insertPayload = isPublicBookingCreate
+      ? {
+          name: body.name,
+          email: body.email ?? null,
+          phone: body.phone ?? null,
+          address: body.address ?? null,
+          customer_type: body.customer_type ?? "individual",
+        }
+      : body;
+
     const { data: customer, error } = await supabase
       .from("customers")
-      .insert([body])
+      .insert([insertPayload])
       .select()
       .single();
 

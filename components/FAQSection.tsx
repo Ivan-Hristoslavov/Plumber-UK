@@ -18,7 +18,7 @@ export function FAQSection() {
 
   if (isLoading) {
     return (
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="text-gray-600 dark:text-gray-300">Loading FAQ...</div>
@@ -30,13 +30,13 @@ export function FAQSection() {
 
   if (error || faqItems.length === 0) {
     return (
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Frequently Asked Questions
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               {error ? "Error loading FAQ" : "No FAQ items available yet."}
             </p>
           </div>
@@ -48,56 +48,41 @@ export function FAQSection() {
   const hasMore = faqItems.length > VISIBLE_COUNT;
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
+    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-500" id="faq">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Find answers to common questions about our plumbing services
           </p>
         </div>
 
         <div className="relative">
           <div className="space-y-4">
-            {/* Visible items (first 4) - gradient fade on 2nd→4th when collapsed */}
-            {faqItems.slice(0, VISIBLE_COUNT).map((item, index) => {
-              const gradientFade =
-                hasMore &&
-                !showAll &&
-                index >= 1 &&
-                index <= 3;
-              const opacity =
-                gradientFade && index === 1
-                  ? 0.88
-                  : gradientFade && index === 2
-                    ? 0.62
-                    : gradientFade && index === 3
-                      ? 0.38
-                      : 1;
-              return (
+            {/* Visible items (first 4) - no fade so no clipped edges */}
+            {faqItems.slice(0, VISIBLE_COUNT).map((item, index) => (
                 <div
                   key={item.id}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600 overflow-hidden"
-                  style={{ opacity }}
                 >
                   <button
                     aria-expanded={openItems.includes(index)}
                     aria-controls={`faq-panel-${item.id}`}
-                    className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                    className="w-full px-5 sm:px-8 py-4 sm:py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                     onClick={() => toggleItem(index)}
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
+                    <h3 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 dark:text-white pr-3 sm:pr-4">
                       {item.question}
                     </h3>
                     <div
-                      className={`flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center transition-transform duration-300 ${
+                      className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center transition-transform duration-300 ${
                         openItems.includes(index) ? "rotate-180" : ""
                       }`}
                     >
                       <svg
-                        className="w-4 h-4 text-white"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -122,17 +107,16 @@ export function FAQSection() {
                         : "max-h-0 opacity-0"
                     } overflow-hidden`}
                   >
-                    <div className="px-8 pb-6">
-                      <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
-                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <div className="px-5 sm:px-8 pb-4 sm:pb-6">
+                      <div className="border-t border-gray-100 dark:border-gray-600 pt-3 sm:pt-4">
+                        <p className="text-[11px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                           {item.answer}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+            ))}
 
             {/* Expandable: extra items with height animation */}
             {hasMore && (
@@ -151,19 +135,19 @@ export function FAQSection() {
                         <button
                           aria-expanded={openItems.includes(index)}
                           aria-controls={`faq-panel-${item.id}`}
-                          className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                          className="w-full px-5 sm:px-8 py-4 sm:py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                           onClick={() => toggleItem(index)}
                         >
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
+                          <h3 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 dark:text-white pr-3 sm:pr-4">
                             {item.question}
                           </h3>
                           <div
-                            className={`flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center transition-transform duration-300 ${
+                            className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center transition-transform duration-300 ${
                               openItems.includes(index) ? "rotate-180" : ""
                             }`}
                           >
                             <svg
-                              className="w-4 h-4 text-white"
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -188,9 +172,9 @@ export function FAQSection() {
                               : "max-h-0 opacity-0"
                           } overflow-hidden`}
                         >
-                          <div className="px-8 pb-6">
-                            <div className="border-t border-gray-100 dark:border-gray-600 pt-4">
-                              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                          <div className="px-5 sm:px-8 pb-4 sm:pb-6">
+                            <div className="border-t border-gray-100 dark:border-gray-600 pt-3 sm:pt-4">
+                              <p className="text-[11px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                                 {item.answer}
                               </p>
                             </div>
@@ -204,20 +188,17 @@ export function FAQSection() {
             )}
           </div>
 
-          {hasMore && !showAll && (
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 via-gray-50/95 to-transparent dark:from-gray-900 dark:via-gray-900/95 pointer-events-none" />
-          )}
         </div>
 
         {hasMore && (
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-4 sm:mt-6">
             <button
               onClick={() => setShowAll((prev) => !prev)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-700 dark:text-gray-300 font-medium shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
+              className="inline-flex items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-700 dark:text-gray-300 font-medium shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
             >
               <span>{showAll ? "Show Less" : `Show All ${faqItems.length} Questions`}</span>
               <svg
-                className={`w-4 h-4 transition-transform duration-300 ${showAll ? "rotate-180" : ""}`}
+                className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 ${showAll ? "rotate-180" : ""}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -234,15 +215,15 @@ export function FAQSection() {
         )}
 
         {/* Contact CTA */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>
-            <p className="text-white/90 mb-6 max-w-2xl mx-auto">
+        <div className="mt-6 sm:mt-8 md:mt-10 text-center">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 lg:p-8 text-white">
+            <h3 className="text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 md:mb-4">Still have questions?</h3>
+            <p className="text-white/90 text-xs sm:text-sm md:text-base mb-3 sm:mb-4 md:mb-6 max-w-2xl mx-auto">
               Our friendly team is here to help. Get in touch and we'll answer
               any questions you have about our services.
             </p>
             <a
-              className="inline-flex items-center bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center bg-white text-blue-600 px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full text-xs sm:text-sm md:text-base font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               href="#contact"
               onClick={(e) => {
                 e.preventDefault();
@@ -252,7 +233,7 @@ export function FAQSection() {
               }}
             >
               <svg
-                className="w-5 h-5 mr-2"
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1.5 sm:mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

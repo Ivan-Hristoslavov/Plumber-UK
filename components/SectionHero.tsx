@@ -1,14 +1,33 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useAreas } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { AdminProfileData } from "@/components/AdminProfileData";
 
+const MOBILE_AREAS_LIMIT = 6;
+const SKELETON_COUNT = 6;
+
 export function SectionHero() {
   const { areas, loading: areasLoading } = useAreas();
   const adminProfile = useAdminProfile();
   const { settings: adminSettings } = useAdminSettings();
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [mounted]);
 
   // Check if credentials are available
   const hasGasSafe = adminProfile?.gas_safe_registered === true;
@@ -114,13 +133,13 @@ export function SectionHero() {
 
         {/* Main Content */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 animate-fade-in-up">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up">
             <span className="text-white">Professional</span>
             <span className="block text-blue-400 mt-1">Plumbing Services</span>
           </h1>
 
           <p
-            className="text-lg md:text-xl text-white/90 font-medium mb-4 animate-fade-in-up"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-4 animate-fade-in-up"
             style={{ animationDelay: "0.2s" }}
           >
             <span className="text-blue-200">
@@ -135,7 +154,7 @@ export function SectionHero() {
           style={{ animationDelay: "0.4s" }}
         >
           <div className="text-center mb-6 w-full">
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-2">
               Areas We Cover
             </h3>
             <div className="flex items-center justify-center text-green-400 text-sm mb-4">
@@ -154,29 +173,28 @@ export function SectionHero() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto w-full">
-            {areasLoading
-              ? // Loading skeleton
-                Array.from({ length: 6 }).map((_, index) => (
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-4xl mx-auto w-full">
+            {!mounted || areasLoading
+              ? Array.from({ length: SKELETON_COUNT }).map((_, index) => (
                   <div
                     key={index}
-                    className="bg-white/10 backdrop-blur-md rounded-lg py-3 px-2 text-center animate-pulse w-32 sm:w-36 lg:w-28 flex flex-col items-center justify-center"
+                    className="bg-white/10 backdrop-blur-md rounded-lg py-2 sm:py-3 px-2 text-center animate-pulse w-24 sm:w-32 lg:w-28 flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-1">
-                      <div className="w-5 h-5 bg-white/20 rounded"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 bg-white/20 rounded" />
                     </div>
-                    <div className="h-4 bg-white/20 rounded mb-1 w-full"></div>
-                    <div className="h-3 bg-white/20 rounded w-8 mx-auto"></div>
+                    <div className="h-3 sm:h-4 bg-white/20 rounded mb-1 w-full" />
+                    <div className="h-3 bg-white/20 rounded w-8 mx-auto" />
                   </div>
                 ))
-              : areas.map((area) => (
+              : (isMobile ? areas.slice(0, MOBILE_AREAS_LIMIT) : areas).map((area) => (
                   <div
                     key={area.id}
-                    className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30 w-32 sm:w-36 lg:w-28 flex flex-col items-center justify-center"
+                    className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-2 sm:py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30 w-24 sm:w-32 lg:w-28 flex flex-col items-center justify-center"
                   >
-                    <div className="flex justify-center mb-1">
+                    <div className="flex justify-center mb-0.5 sm:mb-1">
                       <svg
-                        className="w-5 h-5 text-blue-300"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -195,14 +213,22 @@ export function SectionHero() {
                         />
                       </svg>
                     </div>
-                    <div className="text-white font-semibold text-sm mb-1">
+                    <div className="text-white font-semibold text-xs sm:text-sm mb-0.5 sm:mb-1">
                       {area.name}
                     </div>
-                    <div className="text-blue-200 text-xs">
+                    <div className="text-blue-200 text-[10px] sm:text-xs">
                       {area.postcode}
                     </div>
                   </div>
                 ))}
+            {!areasLoading && isMobile && areas.length > MOBILE_AREAS_LIMIT && (
+              <a
+                href="#service-areas"
+                className="bg-white/15 backdrop-blur-md rounded-lg py-2 sm:py-3 px-3 text-center text-white text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/20 transition-all w-auto shrink-0 self-center"
+              >
+                View all areas
+              </a>
+            )}
           </div>
         </div>
 

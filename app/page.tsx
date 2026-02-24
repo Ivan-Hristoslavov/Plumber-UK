@@ -4,24 +4,53 @@ import dynamic from "next/dynamic";
 import { SectionHero } from "@/components/SectionHero";
 import { SectionPricing } from "@/components/SectionPricing";
 import { AdminProfileData } from "@/components/AdminProfileData";
-import { AdminProfileMarkdown } from "@/components/AdminProfileMarkdown";
+
 import SectionContact from "@/components/SectionContact";
 import { FloatingCTA } from "@/components/FloatingCTA";
-import { AccordionAbout } from "@/components/AccordionAbout";
 import { getAdminProfile } from "@/lib/admin-profile";
+import { renderMarkdownToHtml } from "@/lib/render-markdown";
 import { createClient } from "@/lib/supabase/server";
+import { AboutExpandable } from "@/components/AboutExpandable";
+import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
-  loading: () => <div className="py-20 text-center text-gray-400">Loading gallery...</div>,
+  loading: () => (
+    <section className="py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="animate-pulse">
+          <div className="h-6 sm:h-8 bg-gray-300 dark:bg-gray-700 rounded w-48 sm:w-64 mx-auto mb-4" />
+          <div className="h-64 sm:h-80 md:h-96 bg-gray-300 dark:bg-gray-700 rounded-xl" />
+        </div>
+      </div>
+    </section>
+  ),
 });
 const FAQSection = dynamic(() => import("@/components/FAQSection").then(m => m.FAQSection), {
-  loading: () => <div className="py-20 text-center text-gray-400">Loading FAQ...</div>,
+  loading: () => (
+    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="text-gray-600 dark:text-gray-300">Loading FAQ...</div>
+      </div>
+    </section>
+  ),
 });
 const ReviewsSection = dynamic(() => import("@/components/ReviewsSection").then(m => m.ReviewsSection), {
-  loading: () => <div className="py-20 text-center text-gray-400">Loading reviews...</div>,
+  loading: () => (
+    <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="text-gray-600 dark:text-gray-300">Loading reviews...</div>
+      </div>
+    </section>
+  ),
 });
 const ReviewForm = dynamic(() => import("@/components/ReviewForm").then(m => m.ReviewForm), {
-  loading: () => <div className="py-20 text-center text-gray-400">Loading review form...</div>,
+  loading: () => (
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="text-gray-600 dark:text-gray-300">Loading review form...</div>
+      </div>
+    </section>
+  ),
 });
 
 interface Area {
@@ -103,7 +132,8 @@ async function getAreas(): Promise<Area[]> {
 }
 
 export default async function HomePage() {
-  const areas = await getAreas();
+  const [areas, profile] = await Promise.all([getAreas(), getAdminProfile()]);
+  const aboutHtml = profile?.about ? renderMarkdownToHtml(profile.about) : "";
 
   return (
     <main className="min-h-screen">
@@ -114,15 +144,22 @@ export default async function HomePage() {
       <section id="services">
         <SectionPricing />
       </section>
-      {/* Our Story Section */}
+      {/* Our Story / About Section — id="about" anchor so nav #about scrolls here */}
       <section
-        className="py-20 bg-white dark:bg-gray-900 transition-colors duration-500"
+        className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900 transition-colors duration-500 scroll-mt-24 relative"
         id="our-story"
       >
+        <span id="about" className="absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none" aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <div className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-3 sm:mb-6">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+              About Us
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
               Professional Plumbing Services You Can Trust
             </h2>
           </div>
@@ -148,21 +185,13 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* About Text */}
+            {/* About Text - FAQ-style expandable (same pattern as FAQ, works in Safari) */}
             <div className="mb-12 max-w-4xl mx-auto">
-              <div className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-600 px-8 py-8 sm:px-10 sm:py-9 overflow-hidden transition-all duration-500 hover:shadow-xl">
+              <div className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-600 px-6 py-6 sm:px-8 sm:py-8 overflow-hidden transition-all duration-500 hover:shadow-xl">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full -translate-y-16 translate-x-16" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-full translate-y-12 -translate-x-12" />
                 <div className="relative z-10">
-                  <AccordionAbout>
-                    <div className="prose prose-base dark:prose-invert max-w-none prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-headings:text-gray-900 dark:prose-headings:text-white">
-                      <AdminProfileMarkdown
-                        type="about"
-                        fallback=""
-                        className="text-gray-600 dark:text-gray-300 leading-relaxed text-[15px]"
-                      />
-                    </div>
-                  </AccordionAbout>
+                  <AboutExpandable aboutHtml={aboutHtml} />
                 </div>
               </div>
             </div>
@@ -218,9 +247,8 @@ export default async function HomePage() {
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Certifications</h3>
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <AdminProfileData
-                      type="certifications"
-                      asList={true}
+                    <ProfileListWithShowMore
+                      value={profile?.certifications}
                       fallback="Kitchen plumbing specialist. Registered professional with City & Guilds Level 3 in Plumbing & Heating. Holder of CSCS JIB Gold Card."
                     />
                   </div>
@@ -240,9 +268,8 @@ export default async function HomePage() {
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Specializations</h3>
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <AdminProfileData
-                      type="specializations"
-                      asList={true}
+                    <ProfileListWithShowMore
+                      value={profile?.specializations}
                       fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
                     />
                   </div>
@@ -251,13 +278,13 @@ export default async function HomePage() {
             </div>
 
             {/* Contact Button */}
-            <div className="mt-12 text-center">
+            <div className="mt-8 sm:mt-10 md:mt-12 text-center">
               <a
                 href="#contact"
-                className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white font-semibold rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl border border-blue-500/20"
+                className="group inline-flex items-center px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl border border-blue-500/20"
               >
                 <svg
-                  className="w-5 h-5 mr-3 group-hover:animate-pulse"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 group-hover:animate-pulse"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -278,12 +305,12 @@ export default async function HomePage() {
 
       {/* Service Areas Section */}
       <section
-        className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500"
+        className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500 scroll-mt-24"
         id="service-areas"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
               <svg
                 className="w-4 h-4 mr-2"
                 fill="none"
@@ -305,16 +332,34 @@ export default async function HomePage() {
               </svg>
               Service Coverage
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 md:mb-4 transition-colors duration-300">
               Areas We Cover
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors duration-300">
               Professional plumbing services across South West London with rapid
               response times
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {/* Mobile: compact list (name + postcode only) */}
+          <ul className="md:hidden space-y-2 mb-8">
+            {areas.map((area) => (
+              <li
+                key={area.id}
+                className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-xl px-4 py-3 border border-gray-100 dark:border-gray-700"
+              >
+                <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                  {area.name}
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs tabular-nums">
+                  {area.postcode}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop: full cards with description */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {areas.map((area) => (
                 <div
                   key={area.id}
@@ -357,10 +402,10 @@ export default async function HomePage() {
               ))}
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 text-center transition-all duration-300">
-            <div className="flex items-center justify-center mb-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 text-center transition-all duration-300">
+            <div className="flex items-center justify-center mb-3 sm:mb-4">
               <svg
-                className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-2"
+                className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -378,16 +423,16 @@ export default async function HomePage() {
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+              <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
                 Outside Our Main Areas?
               </h4>
             </div>
-            <p className="text-gray-700 dark:text-gray-300 mb-4 transition-colors duration-300">
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 transition-colors duration-300">
               If you're outside these zones, feel free to contact us to check
               availability – we prioritise local response but may be able to
               help or refer you to a trusted colleague.
             </p>
-            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium transition-colors duration-300">
+            <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 font-medium transition-colors duration-300">
               We aim to arrive within 45 minutes for emergency callouts in our
               main service areas.
             </p>

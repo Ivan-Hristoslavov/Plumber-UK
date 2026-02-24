@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
 import { useToast, ToastMessages } from "@/components/Toast";
 import { usePricingCardsForBooking, type BookingService } from "@/hooks/usePricingCardsForBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
@@ -389,168 +391,157 @@ export default function FormBooking() {
   }
 
   return (
-    <form key={formKey} className="space-y-8" onSubmit={handleSubmit}>
-      
-      {/* Grid Layout for Form Fields */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+    <form key={formKey} className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
+      {/* Grid: single column on mobile, two on desktop; responsive gaps */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Left Column - Personal Details */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="w-7 h-7 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
+        <div className="space-y-4 sm:space-y-5">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center shrink-0">
+              <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">1</span>
             </div>
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white">Your Details</h4>
+            <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Your Details</h4>
           </div>
-          
-          {/* Name */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="name">
-              Full Name *
-            </label>
-            <input
-              required
-              className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-              id="name"
-              name="name"
-              placeholder="Your full name"
-              type="text"
+
+          <Input
+            isRequired
+            label="Full Name"
+            name="name"
+            placeholder="Your full name"
+            type="text"
+            variant="bordered"
+            size="md"
+            radius="lg"
+            classNames={{ input: "text-base" }}
+            className="w-full"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              isRequired
+              label="Email"
+              name="email"
+              placeholder="your@email.com"
+              type="email"
+              variant="bordered"
+              size="md"
+              radius="lg"
+              classNames={{ input: "text-base" }}
+              className="w-full"
+            />
+            <Input
+              isRequired
+              label="Phone"
+              name="phone"
+              placeholder="+44 7XXX XXXXXX"
+              type="tel"
+              variant="bordered"
+              size="md"
+              radius="lg"
+              classNames={{ input: "text-base" }}
+              className="w-full"
             />
           </div>
 
-          {/* Email and Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
-                Email *
-              </label>
-              <input
-                required
-                className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-                id="email"
-                name="email"
-                placeholder="your@email.com"
-                type="email"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="phone">
-                Phone *
-              </label>
-              <input
-                required
-                className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-                id="phone"
-                name="phone"
-                placeholder="+44 7XXX XXXXXX"
-                type="tel"
-              />
-            </div>
-          </div>
-
-          {/* Address */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="address">
-              Service Address *
+            <label className="text-sm text-gray-700 dark:text-gray-300 mb-1.5 block" htmlFor="address">
+              Service Address <span className="text-red-500">*</span>
             </label>
             <textarea
               required
-              className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none text-sm"
               id="address"
               name="address"
               placeholder="Full address where service is needed"
               rows={2}
+              className="w-full min-h-[80px] px-3 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none text-base"
             />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="description">
+            <label className="text-sm text-gray-700 dark:text-gray-300 mb-1.5 block" htmlFor="description">
               Problem Description
             </label>
             <textarea
-              className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none text-sm"
               id="description"
               name="description"
               placeholder="Describe your plumbing issue..."
               rows={2}
+              className="w-full min-h-[80px] px-3 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none text-base"
             />
           </div>
         </div>
 
         {/* Right Column - Service & Schedule */}
-        <div className="space-y-6">
-          
-          {/* Service Selection */}
-          <div>
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-7 h-7 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                <span className="text-green-600 dark:text-green-400 font-bold text-xs">2</span>
-              </div>
-              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Service & Schedule</h4>
+        <div className="space-y-4 sm:space-y-5">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center shrink-0">
+              <span className="text-green-600 dark:text-green-400 font-bold text-sm">2</span>
             </div>
-            
-            <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Select Service *
-              </label>
-              {isLoadingServices ? (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-16"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {services.map((service: BookingService) => (
-                    <div
-                      key={service.id}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-sm ${
-                        selectedService === service.id
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
-                          : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
-                      }`}
-                      onClick={() => setSelectedService(service.id)}
-                    >
-                      <input
-                        checked={selectedService === service.id}
-                        className="sr-only"
-                        name="service"
-                        type="radio"
-                        value={service.id}
-                        onChange={(e) => setSelectedService(e.target.value)}
-                      />
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 flex-1">
-                          <span className="text-lg">{service.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <h5 className="font-medium text-gray-900 dark:text-white text-xs">
-                              {service.name}
-                            </h5>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-1">
-                              {service.description}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full whitespace-nowrap">
-                            {service.price}
-                          </span>
-                          {selectedService === service.id && (
-                            <div className="text-blue-500">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                              </svg>
-                            </div>
-                          )}
+            <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Service & Schedule</h4>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Select Service <span className="text-red-500">*</span>
+            </label>
+            {isLoadingServices ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-14 sm:h-16" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-44 sm:max-h-52 overflow-y-auto pr-1">
+                {services.map((service: BookingService) => (
+                  <div
+                    key={service.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedService(service.id)}
+                    onKeyDown={(e) => e.key === "Enter" && setSelectedService(service.id)}
+                    className={`p-3 sm:p-3.5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                      selectedService === service.id
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    <input
+                      checked={selectedService === service.id}
+                      className="sr-only"
+                      name="service"
+                      type="radio"
+                      value={service.id}
+                      onChange={(e) => setSelectedService(e.target.value)}
+                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-lg shrink-0">{service.icon}</span>
+                        <div className="min-w-0 flex-1">
+                          <h5 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">
+                            {service.name}
+                          </h5>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-1">
+                            {service.description}
+                          </p>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-lg whitespace-nowrap">
+                          {service.price}
+                        </span>
+                        {selectedService === service.id && (
+                          <span className="text-blue-500">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Date and Time */}
@@ -667,7 +658,7 @@ export default function FormBooking() {
                 <>
                   <select
                     required
-                    className="w-full px-3 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none text-sm"
+                    className="w-full min-h-[40px] px-3 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white appearance-none text-base"
                     id="timeSlot"
                     name="timeSlot"
                     disabled={availableTimeSlots.length === 0}
@@ -729,36 +720,21 @@ export default function FormBooking() {
         </div>
       </div>
 
-      {/* Submit Button */}
-      <div className="border-t border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center py-12 space-y-4">
-        <button
-          className={`px-8 py-3 rounded-lg font-semibold text-white text-base transition-all ${
-            isSubmitting
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02] shadow-md hover:shadow-lg"
-          }`}
-          disabled={isSubmitting}
+      {/* Submit */}
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-8 sm:pt-10 flex flex-col items-center justify-center gap-4">
+        <Button
           type="submit"
+          color="primary"
+          size="lg"
+          radius="lg"
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+          className="w-full sm:w-auto min-w-[200px] font-semibold"
         >
-          {isSubmitting ? (
-            <div className="flex items-center justify-center">
-              <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
-              Sending...
-            </div>
-          ) : (
-            <div className="flex items-center justify-center">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
-              Send Request
-            </div>
-          )}
-        </button>
-
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          {isSubmitting ? "Sending..." : "Send Request"}
+        </Button>
+        <div className="text-center px-2">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             * Required fields. Emergency? Call{" "}
             <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
               {businessPhone}
