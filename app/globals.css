@@ -145,3 +145,25 @@ html {
   background-size: 200px 100%;
   animation: skeleton-loading 1.5s infinite;
 }
+
+/* About accordion: native <details>/<summary> for Safari compatibility – hide default marker */
+.about-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+.about-accordion-summary::marker {
+  display: none;
+}
+.about-accordion-summary {
+  list-style: none;
+}
+
+/* List "Show more" summary (Specializations / Certifications) – hide default marker */
+.list-expand-summary::-webkit-details-marker {
+  display: none;
+}
+.list-expand-summary::marker {
+  display: none;
+}
+.list-expand-summary {
+  list-style: none;
+}

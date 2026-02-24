@@ -67,10 +67,10 @@ export function CardPricing() {
     <div className="py-12 bg-white dark:bg-gray-900 transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
             Transparent Pricing
           </h2>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300">
             Clear, upfront pricing with no hidden costs
           </p>
         </div>
@@ -91,12 +91,12 @@ export function CardPricing() {
                 </div>
               )}
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                   {tier.name}
                 </h3>
-                <p className="mt-4 text-gray-500 dark:text-gray-400">{tier.description}</p>
-                <p className="mt-8">
-                  <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                <p className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-500 dark:text-gray-400">{tier.description}</p>
+                <p className="mt-6 sm:mt-8">
+                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
                     £{getPrice(tier.price)}
                   </span>
                   {tier.name === "Bathroom Installation" ? (

@@ -74,7 +74,7 @@ export function SectionPricing() {
 
   if (loading) {
     return (
-      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+      <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         {/* Background with gradient and pattern */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />
         <div className="absolute inset-0 opacity-5">
@@ -86,8 +86,8 @@ export function SectionPricing() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Enhanced Section Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
               <svg
                 className="w-4 h-4 mr-2"
                 fill="none"
@@ -103,10 +103,10 @@ export function SectionPricing() {
               </svg>
               Transparent Pricing
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               FixMyLeak - Professional Rates
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Clear, competitive pricing with no hidden fees. Choose the service
               that best fits your needs.
             </p>
@@ -124,7 +124,7 @@ export function SectionPricing() {
 
   if (error) {
     return (
-      <section className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+      <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-red-600 dark:text-red-400">Error loading pricing information</div>
         </div>
@@ -133,7 +133,7 @@ export function SectionPricing() {
   }
   return (
     <section
-      className="relative py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500"
+      className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500"
     >
       {/* Background with gradient and pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />
@@ -163,10 +163,10 @@ export function SectionPricing() {
             </svg>
             Transparent Pricing
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             FixMyLeak - Professional Rates
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Clear, competitive pricing with no hidden fees. Choose the service
             that best fits your needs.
           </p>
@@ -199,7 +199,7 @@ export function SectionPricing() {
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                       {card.title}
                     </h3>
                     {card.subtitle && (
@@ -288,7 +288,7 @@ export function SectionPricing() {
                 />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
               Important Information
             </h3>
           </div>

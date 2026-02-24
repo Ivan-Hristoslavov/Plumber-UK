@@ -35,6 +35,7 @@ export default function HashNavigation() {
 
       if (!validSections.includes(targetId)) return;
 
+      // #about is an anchor inside our-story; scroll to it so About nav works
       const element = document.getElementById(targetId);
       if (!element) return;
 
