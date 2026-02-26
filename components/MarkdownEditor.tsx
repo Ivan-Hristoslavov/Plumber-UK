@@ -58,12 +58,12 @@ export function MarkdownEditor({
     }, 0);
   };
 
-  const formatButtonClass = "p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors duration-200";
+  const formatButtonClass = "p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200";
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`flex flex-col gap-3 min-h-0 ${className}`}>
       {/* Formatting Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap gap-1.5 p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 shrink-0">
         {/* Text Formatting */}
         <button
           type="button"
@@ -176,24 +176,22 @@ export function MarkdownEditor({
       {/* Textarea */}
       <textarea
         ref={textareaRef}
-        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 font-mono text-sm"
+        className="flex-1 min-h-[200px] w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-mono text-sm resize-y"
         rows={rows}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
 
-      {/* Preview Toggle */}
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        <p>💡 <strong>Formatting Tips:</strong></p>
-        <ul className="mt-1 space-y-1">
-          <li>• <code>**text**</code> for <strong>bold</strong></li>
-          <li>• <code>*text*</code> for <em>italic</em></li>
-          <li>• <code># Heading</code> for titles</li>
-          <li>• <code>- item</code> for bullet lists</li>
-          <li>• <code>1. item</code> for numbered lists</li>
-          <li>• <code>---</code> for horizontal lines</li>
-        </ul>
+      {/* Formatting tips - compact */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
+        <span><code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700">**bold**</code></span>
+        <span className="mx-2">·</span>
+        <span><code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700">*italic*</code></span>
+        <span className="mx-2">·</span>
+        <span><code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700"># H1</code></span>
+        <span className="mx-2">·</span>
+        <span><code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700">- list</code></span>
       </div>
     </div>
   );

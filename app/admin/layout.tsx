@@ -369,8 +369,8 @@ export default function AdminLayout({
         </header>
 
         {/* Quick Actions - Top Navigation */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 sm:p-4 lg:p-6 sticky top-16 z-20 transition-colors duration-300">
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-5 sticky top-16 z-20 transition-colors duration-300">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             <Link
               className="flex items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
               href="/admin/bookings"

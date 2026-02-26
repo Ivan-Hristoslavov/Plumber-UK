@@ -104,21 +104,19 @@ export default function TestEmailPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-            Test Email & Payment Configuration
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
-            Test SendGrid email functionality and Stripe payment configuration.
-          </p>
-        </div>
+      <div>
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          Test Email & Payment Configuration
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          Test SendGrid email and Stripe payment configuration
+        </p>
       </div>
 
       {/* Configuration Status */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* SendGrid Status */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">

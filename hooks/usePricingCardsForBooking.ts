@@ -18,14 +18,14 @@ export function usePricingCardsForBooking() {
     try {
       setIsLoading(true);
       const response = await fetch('/api/pricing-cards');
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch pricing cards');
       }
-      
+
       const data = await response.json();
       const pricingCards = data.pricingCards || [];
-      
+
       // Convert pricing cards to booking services format
       const bookingServices: BookingService[] = pricingCards.map((card: any) => {
         // Get the first price from table_rows if available
@@ -33,13 +33,30 @@ export function usePricingCardsForBooking() {
         if (card.table_rows && card.table_rows.length > 0) {
           const firstRow = card.table_rows[0];
           // Look for price-like fields in the row
-          const priceField = Object.values(firstRow).find((value: any) => 
-            typeof value === 'string' && 
-            (value.includes('£') || value.includes('€') || value.includes('$') || 
-             /^\d+(\.\d{2})?$/.test(value))
+          const priceField = Object.values(firstRow).find((value: any) =>
+            typeof value === 'string' &&
+            (value.includes('£') || /^\d+(\.\d{2})?$/.test(value))
           );
+
           if (priceField) {
-            price = priceField.toString();
+            let priceStr = priceField.toString();
+            
+            // Remove any hour-related text (e.g., "/hour", "per hour", "hourly", etc.)
+            priceStr = priceStr.replace(/\s*\/\s*h(ou)?r(s)?/gi, '');
+            priceStr = priceStr.replace(/\s*per\s*h(ou)?r(s)?/gi, '');
+            priceStr = priceStr.replace(/\s*h(ou)?r(ly)?/gi, '');
+            
+            // Ensure it has £ symbol if it's just a number
+            if (/^\d+(\.\d{2})?$/.test(priceStr.trim())) {
+              priceStr = `£${priceStr.trim()}`;
+            }
+            
+            // If it doesn't have £, add it
+            if (!priceStr.includes('£')) {
+              priceStr = `£${priceStr}`;
+            }
+            
+            price = priceStr.trim();
           }
         }
 
@@ -52,7 +69,7 @@ export function usePricingCardsForBooking() {
           type: 'pricing_card' as const
         };
       });
-      
+
       setServices(bookingServices);
       setError(null);
     } catch (err) {

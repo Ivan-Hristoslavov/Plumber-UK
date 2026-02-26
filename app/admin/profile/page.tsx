@@ -235,18 +235,18 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
             My Profile
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
-            Manage your personal information and professional credentials.
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Manage your personal information and professional credentials
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
           {saveMessage && (
             <div
               className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
@@ -311,8 +311,8 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex space-x-8 px-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <nav className="flex space-x-6 sm:space-x-8 px-4 sm:px-6 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

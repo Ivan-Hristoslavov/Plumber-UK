@@ -120,11 +120,8 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
 
   // Handle special cases that should come from admin settings
   if (type === 'response_time') {
-    // During SSR/initial render, always use fallback to prevent hydration mismatch
-    // After mount, use actual data
-    const rawValue = isMounted 
-      ? (adminSettings?.responseTime || profile?.response_time || fallback || '45-minute')
-      : (fallback || '45-minute');
+    // Always use fallback during SSR to prevent hydration mismatch
+    const rawValue = fallback || '45-minute';
     
     // Normalize the value - remove any existing "minutes" or "minute" text
     const normalizedValue = String(rawValue).replace(/\s*(minutes?|mins?)\s*/gi, '').trim() || '45';
@@ -150,7 +147,10 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
     const displayValue = value && !value.toLowerCase().includes('years') 
       ? `${value} Years` 
       : value;
-    return <span className={className}>{displayValue}</span>;
+    // During SSR/initial render, always use fallback to prevent hydration mismatch
+    // After mount, use actual data
+    const finalDisplayValue = isMounted ? displayValue : (fallback || '10+ Years');
+    return <span className={className}>{finalDisplayValue}</span>;
   }
 
   // Handle list-based fields (certifications and specializations) with "Show more" when > 4

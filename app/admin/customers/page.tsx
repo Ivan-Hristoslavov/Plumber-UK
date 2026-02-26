@@ -280,9 +280,12 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customers</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Customers</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Manage your customer database</p>
+        </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Refresh Button */}
           <button

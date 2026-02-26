@@ -13,7 +13,7 @@ type LegalContent = {
   gdpr_policy: string;
 };
 
-export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) {
+export function AdminLegalManager() {
   const [activeTab, setActiveTab] = useState<"terms" | "privacy" | "cookies" | "gdpr">("terms");
   const [content, setContent] = useState<LegalContent>({
     terms: "",
@@ -33,40 +33,24 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
     try {
       setLoading(true);
       
-      // Load from separate tables
-      const [termsResult, privacyResult, cookiesResult, gdprResult] = await Promise.all([
+      // Load from separate tables (use allSettled so missing tables don't block others)
+      const [termsResult, privacyResult, cookiesResult, gdprResult] = await Promise.allSettled([
         supabase.from("terms").select("content").single(),
         supabase.from("privacy_policy").select("content").single(),
         supabase.from("cookies_policy").select("content").single(),
         supabase.from("gdpr_policy").select("content").single()
       ]);
 
-      let termsContent = "";
-      let privacyContent = "";
-      let cookiesContent = "";
-      let gdprContent = "";
-
-      if (termsResult.data) {
-        termsContent = termsResult.data.content;
-      }
-
-      if (privacyResult.data) {
-        privacyContent = privacyResult.data.content;
-      }
-
-      if (cookiesResult.data) {
-        cookiesContent = cookiesResult.data.content;
-      }
-
-      if (gdprResult.data) {
-        gdprContent = gdprResult.data.content;
-      }
+      const getContent = (result: PromiseSettledResult<{ data: { content: string } | null; error: unknown }>) =>
+        result.status === "fulfilled" && !result.value.error && result.value.data?.content != null
+          ? result.value.data.content
+          : "";
 
       setContent({
-        terms: termsContent,
-        privacy_policy: privacyContent,
-        cookies_policy: cookiesContent,
-        gdpr_policy: gdprContent,
+        terms: getContent(termsResult),
+        privacy_policy: getContent(privacyResult),
+        cookies_policy: getContent(cookiesResult),
+        gdpr_policy: getContent(gdprResult),
       });
     } catch (error) {
       console.error("Error loading legal content:", error);
@@ -82,12 +66,14 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
       // Update all tables
       const promises = [];
       
+      const upsertOpts = { onConflict: "id" };
+      
       // Update terms
       promises.push(
         supabase.from("terms").upsert({ 
           id: 1, 
           content: content.terms 
-        })
+        }, upsertOpts)
       );
       
       // Update privacy policy
@@ -95,7 +81,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         supabase.from("privacy_policy").upsert({ 
           id: 1, 
           content: content.privacy_policy 
-        })
+        }, upsertOpts)
       );
 
       // Update cookies policy
@@ -103,7 +89,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         supabase.from("cookies_policy").upsert({ 
           id: 1, 
           content: content.cookies_policy 
-        })
+        }, upsertOpts)
       );
 
       // Update GDPR policy
@@ -111,7 +97,7 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         supabase.from("gdpr_policy").upsert({ 
           id: 1, 
           content: content.gdpr_policy 
-        })
+        }, upsertOpts)
       );
 
       const results = await Promise.all(promises);
@@ -124,9 +110,12 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
       }
 
       showSuccess("Legal Content Updated", "All legal pages have been saved successfully!");
-    } catch (error) {
-      console.error("Error saving legal content:", error);
-      showError("Save Error", "Failed to save legal content. Please try again.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 
+        (error && typeof error === 'object' && 'message' in error) ? String((error as { message: unknown }).message) : 
+        "Unknown error";
+      console.error("Error saving legal content:", message, error);
+      showError("Save Error", `Failed to save legal content: ${message}. Ensure cookies_policy and gdpr_policy tables exist (run migrations).`);
     } finally {
       setSaving(false);
     }
@@ -209,133 +198,83 @@ export function AdminLegalManager({ triggerModal }: { triggerModal?: boolean }) 
         </button>
       </div>
 
-      {/* Tips Section */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
-          💡 Quick Tips
-        </h4>
-        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-          <li>• Use clear, simple language your customers can understand</li>
-          <li>• Include data collection, usage, and storage information</li>
-          <li>• Specify service terms, cancellation policies, and payment terms</li>
-          <li>• Add contact information for legal inquiries</li>
-        </ul>
+      {/* Tips - compact */}
+      <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
+        <span>💡 Use clear language</span>
+        <span>·</span>
+        <span>Include contact info</span>
+        <span>·</span>
+        <span>Specify terms & cancellation</span>
       </div>
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
+        <nav className="-mb-px flex gap-1 overflow-x-auto pb-px">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as "terms" | "privacy" | "cookies" | "gdpr")}
-              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-300 flex items-center ${
+              className={`py-3 px-4 rounded-t-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex items-center gap-2 ${
                 activeTab === tab.id
-                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                  ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border border-b-0 border-gray-200 dark:border-gray-600 shadow-sm -mb-px"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800/50"
               }`}
             >
-              <span className="mr-2 flex-shrink-0">{tab.icon}</span>
+              <span className={activeTab === tab.id ? "text-blue-600 dark:text-blue-400" : ""}>{tab.icon}</span>
               {tab.name}
             </button>
           ))}
         </nav>
       </div>
 
-      {/* Content Editor */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-300">
-        {activeTab === "terms" && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-              Terms & Conditions
+      {/* Editor + Preview side-by-side */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 min-h-[480px]">
+        {/* Editor panel */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Edit · {tabs.find((t) => t.id === activeTab)?.name}
             </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Use Markdown formatting for rich text. This content will be displayed on your Terms of Service page.
-              </p>
-            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Markdown supported</p>
+          </div>
+          <div className="p-4 flex-1 flex flex-col min-h-0">
             <MarkdownEditor
-              value={content.terms}
-              onChange={(value) => setContent({ ...content, terms: value })}
-              placeholder="Enter your Terms & Conditions here using Markdown formatting..."
+              value={activeTab === "terms" ? content.terms : activeTab === "privacy" ? content.privacy_policy : activeTab === "cookies" ? content.cookies_policy : content.gdpr_policy}
+              onChange={(value) => setContent({ ...content, [activeTab === "terms" ? "terms" : activeTab === "privacy" ? "privacy_policy" : activeTab === "cookies" ? "cookies_policy" : "gdpr_policy"]: value })}
+              placeholder={`Write your ${tabs.find((t) => t.id === activeTab)?.name} here. Use # for headings, **bold**, - for lists...`}
+              rows={16}
+              className="flex-1 min-h-0"
             />
           </div>
-        )}
+        </div>
 
-        {activeTab === "privacy" && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-              Privacy Policy
+        {/* Preview panel */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex items-center justify-between gap-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Preview
             </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Use Markdown formatting for rich text. This content will be displayed on your Privacy Policy page.
-              </p>
-            </div>
-            <MarkdownEditor
-              value={content.privacy_policy}
-              onChange={(value) => setContent({ ...content, privacy_policy: value })}
-              placeholder="Enter your Privacy Policy here using Markdown formatting..."
-            />
+            <a
+              href={`/${activeTab}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              View live →
+            </a>
           </div>
-        )}
-
-        {activeTab === "cookies" && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-              Cookie Policy
-            </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Use Markdown formatting for rich text. This content will be displayed on your Cookie Policy page.
-              </p>
+          <div className="p-4 lg:p-6 flex-1 overflow-y-auto min-h-[320px] bg-gray-50/30 dark:bg-gray-900/30">
+            <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-semibold prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-blue-600 dark:prose-a:text-blue-400">
+              {(activeTab === "terms" && content.terms) || (activeTab === "privacy" && content.privacy_policy) || (activeTab === "cookies" && content.cookies_policy) || (activeTab === "gdpr" && content.gdpr_policy) ? (
+                <MarkdownRenderer content={activeTab === "terms" ? content.terms : activeTab === "privacy" ? content.privacy_policy : activeTab === "cookies" ? content.cookies_policy : content.gdpr_policy} />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-400 dark:text-gray-500 italic text-sm">No content yet</p>
+                  <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Start typing in the editor to see a preview</p>
+                </div>
+              )}
             </div>
-            <MarkdownEditor
-              value={content.cookies_policy}
-              onChange={(value) => setContent({ ...content, cookies_policy: value })}
-              placeholder="Enter your Cookie Policy here using Markdown formatting..."
-            />
           </div>
-        )}
-
-        {activeTab === "gdpr" && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-              GDPR Compliance
-            </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Use Markdown formatting for rich text. This content will be displayed on your GDPR Compliance page.
-              </p>
-            </div>
-            <MarkdownEditor
-              value={content.gdpr_policy}
-              onChange={(value) => setContent({ ...content, gdpr_policy: value })}
-              placeholder="Enter your GDPR Compliance information here using Markdown formatting..."
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Preview Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 lg:p-6 transition-colors duration-300">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-          Preview
-        </h3>
-        <div className="prose prose-lg max-w-none dark:prose-invert">
-          {activeTab === "terms" && content.terms ? (
-            <MarkdownRenderer content={content.terms} />
-          ) : activeTab === "privacy" && content.privacy_policy ? (
-            <MarkdownRenderer content={content.privacy_policy} />
-          ) : activeTab === "cookies" && content.cookies_policy ? (
-            <MarkdownRenderer content={content.cookies_policy} />
-          ) : activeTab === "gdpr" && content.gdpr_policy ? (
-            <MarkdownRenderer content={content.gdpr_policy} />
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 italic">
-              No content to preview. Start typing in the editor above.
-            </p>
-          )}
         </div>
       </div>
     </div>

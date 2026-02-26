@@ -9,31 +9,15 @@ import { useAdminProfile } from "@/components/AdminProfileContext";
 const SHOW_FACEBOOK = false;
 const SHOW_INSTAGRAM = false;
 
-const navigation = [
+// Main nav links only (legal links are in the bottom bar)
+const quickLinks = [
   { name: "Home", href: "#home" },
   { name: "Services", href: "#services" },
-  { 
-    name: "About", 
-    href: "#about",
-    dropdown: [
-      { name: "Our Story", href: "#our-story" },
-      { name: "Service Areas", href: "#service-areas" },
-      { name: "Gallery", href: "#gallery" }
-    ]
-  },
-  { 
-    name: "Support", 
-    href: "#faq",
-    dropdown: [
-      { name: "FAQ", href: "#faq" },
-      { name: "Reviews", href: "#reviews" },
-    ]
-  },
+  { name: "About", href: "#about" },
+  { name: "Gallery", href: "#gallery" },
+  { name: "FAQ", href: "#faq" },
+  { name: "Reviews", href: "#reviews" },
   { name: "Contact", href: "#contact" },
-  { name: "Terms", href: "/terms" },
-  { name: "Privacy", href: "/privacy" },
-  { name: "Cookies", href: "/cookies" },
-  { name: "GDPR", href: "/gdpr" },
 ];
 
 type ServiceArea = {
@@ -137,10 +121,16 @@ export default function FooterMain() {
               ) : (
                 <>
                   <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                    📞 Emergency 24/7: <span className="font-semibold text-blue-600 dark:text-blue-400">{businessData.businessPhone}</span>
+                    📞 Emergency 24/7:{" "}
+                    <a href={`tel:${businessData.businessPhone.replace(/\s/g, "")}`} className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                      {businessData.businessPhone}
+                    </a>
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                    📧 Email: <span className="font-semibold">{businessData.businessEmail}</span>
+                    📧 Email:{" "}
+                    <a href={`mailto:${businessData.businessEmail}`} className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                      {businessData.businessEmail}
+                    </a>
                   </p>
                 </>
               )}
@@ -179,123 +169,59 @@ export default function FooterMain() {
             )}
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - 2-column grid, flat list */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Quick Links
             </h3>
-            <ul className="mt-4 space-y-3">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    onClick={(e) => handleClick(e, item.href)}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                  >
-                    {item.name}
-                  </Link>
-                  {item.dropdown && (
-                    <ul className="mt-2 ml-4 space-y-2">
-                      {item.dropdown.map((subItem) => (
-                        <li key={subItem.name}>
-                          <Link
-                            href={subItem.href}
-                            onClick={(e) => handleClick(e, subItem.href)}
-                            className="text-xs text-gray-500 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                          >
-                            {subItem.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-6 gap-y-2">
+              {quickLinks.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleClick(e, item.href)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+                >
+                  {item.name}
+                </Link>
               ))}
-            </ul>
-          </div>
-
-          {/* Service Areas - Only show if areas are available */}
-          {serviceAreas.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
-                Service Areas
-              </h3>
-              {isLoading ? (
-                <div className="mt-4 animate-pulse space-y-3">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                  ))}
-                </div>
-              ) : (
-                <ul className="mt-4 space-y-3">
-                  {serviceAreas.map((area) => (
-                    <li key={area.id}>
-                      <Link
-                        href="#service-areas"
-                        onClick={(e) => handleClick(e, "#service-areas")}
-                        className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-                      >
-                        {area.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
-          )}
-        </div>
-
-        {/* Legal Links */}
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-            <Link
-              href="/terms"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-            >
-              Terms & Conditions
-            </Link>
-            <span className="text-gray-400 dark:text-gray-600">•</span>
-            <Link
-              href="/privacy"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-            >
-              Privacy Policy
-            </Link>
-            <span className="text-gray-400 dark:text-gray-600">•</span>
-            <Link
-              href="/cookies"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-            >
-              Cookie Policy
-            </Link>
-            <span className="text-gray-400 dark:text-gray-600">•</span>
-            <Link
-              href="/gdpr"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
-            >
-              GDPR Compliance
-            </Link>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300" suppressHydrationWarning>
+        {/* Bottom bar: Copyright | Legal | Developer */}
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div suppressHydrationWarning>
               © {new Date().getFullYear()} {businessData.businessName}. All rights reserved.
             </div>
-            <div className="flex items-center space-x-6">
-              <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                Developed by{" "}
-                <a
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                  href="https://serenity.rapid-frame.co.uk/"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Serenity Web Studio
-                </a>
-              </div>
+            <div className="flex flex-wrap items-center justify-center md:justify-center gap-2 md:gap-4">
+              <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Terms
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Privacy
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <Link href="/cookies" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Cookies
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <Link href="/gdpr" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                GDPR
+              </Link>
+            </div>
+            <div>
+              Developed by{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                href="https://serenity.rapid-frame.co.uk/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Serenity Web Studio
+              </a>
             </div>
           </div>
         </div>

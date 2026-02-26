@@ -167,32 +167,30 @@ export function AdminDayOffManager() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white shadow-xl">
+    <div className="max-w-5xl mx-auto space-y-3 sm:space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-4xl font-extrabold tracking-tight mb-2">Day Off Periods</h2>
-          <p className="text-blue-100">Manage your business's non-working days and holiday periods</p>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Day Off Periods</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Manage non-working days and holidays</p>
         </div>
-        <button 
+        <button
           onClick={openAdd}
-          className="flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg shadow-lg hover:from-blue-700 hover:to-purple-700 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shrink-0"
           aria-label="Add Day Off"
         >
-          <span className="flex items-center justify-center w-9 h-9 rounded-full bg-white/20">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </span>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
           Add Day Off
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200/80 dark:border-gray-600/50 overflow-hidden">
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-blue-500 dark:border-gray-600"></div>
           </div>
         )}
         
@@ -202,91 +200,139 @@ export function AdminDayOffManager() {
           </div>
         )}
 
-        <div className="overflow-x-auto">
+        {/* Mobile: Compact list */}
+        <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-600/50">
+          {periods.length === 0 && !loading && (
+            <div className="py-8 px-4 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">No day off periods</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Tap Add Day Off to create one</p>
+            </div>
+          )}
+          {periods.map((p: DayOffPeriod) => (
+            <div key={p.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-gray-900 dark:text-white text-sm truncate">{p.title}</span>
+                  {p.show_banner && (
+                    <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100/80 text-green-700 dark:bg-green-900/40 dark:text-green-300 shrink-0">
+                      Active
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5 text-xs flex-wrap">
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">{p.start_date}</span>
+                  <span className="text-gray-400 dark:text-gray-500">→</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
+                  {p.banner_message && (
+                    <span className="truncate max-w-[140px] text-gray-500 dark:text-gray-400" title={p.banner_message}>· {p.banner_message}</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <button
+                  onClick={() => openEdit(p)}
+                  className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  aria-label="Edit"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => { setDeleteId(p.id || null); setDeleteConfirm(true); }}
+                  className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                  aria-label="Delete"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="table w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Period</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Message</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Recurring</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+              <tr className="bg-gray-50/80 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-600/50">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Title</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Period</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Message</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Recurring</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {periods.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="text-lg font-medium">No day off periods found</p>
-                      <p className="text-sm">Click the "Add Day Off" button to create one</p>
-                    </div>
+                  <td colSpan={6} className="px-6 py-8 text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No day off periods</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Click Add Day Off to create one</p>
                   </td>
                 </tr>
               )}
               {periods.map((p: DayOffPeriod) => (
-                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900 dark:text-white">{p.title}</div>
+                <tr key={p.id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/30 transition-colors">
+                  <td className="px-4 py-2.5">
+                    <div className="font-medium text-gray-900 dark:text-white text-sm">{p.title}</div>
                     {p.description && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{p.description}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{p.description}</div>
                     )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm">
-                      <span className="text-gray-700 dark:text-gray-300">{p.start_date}</span>
-                      <span className="mx-2 text-gray-400">→</span>
-                      <span className="text-gray-700 dark:text-gray-300">{p.end_date}</span>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">{p.start_date}</span>
+                      <span className="text-gray-400 dark:text-gray-500">→</span>
+                      <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2.5">
                     {p.show_banner ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                        Active Banner
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100/80 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                        Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-600/50 dark:text-gray-400">
                         Hidden
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="max-w-xs truncate text-sm text-gray-500 dark:text-gray-400">
-                      {p.banner_message || '-'}
+                  <td className="px-4 py-2.5">
+                    <div className="max-w-[180px] truncate text-xs text-gray-500 dark:text-gray-400">
+                      {p.banner_message || '—'}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-2.5">
                     {p.is_recurring ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100/80 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                         {p.recurrence_type}
                       </span>
                     ) : (
-                      <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-4 py-2.5 text-right">
+                    <div className="flex items-center justify-end gap-0.5">
                       <button
                         onClick={() => openEdit(p)}
-                        className="rounded-full p-2 hover:bg-blue-100 dark:hover:bg-blue-900 group transition-colors"
+                        className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         aria-label="Edit"
                         title="Edit"
                       >
-                        <svg className="w-5 h-5 text-blue-600 group-hover:text-blue-800 dark:text-blue-400 dark:group-hover:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 5.487a2.25 2.25 0 113.182 3.182L8.25 20.463 4 21.75l1.287-4.25 11.575-11.575z" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                       </button>
                       <button
                         onClick={() => { setDeleteId(p.id || null); setDeleteConfirm(true); }}
-                        className="rounded-full p-2 hover:bg-red-100 dark:hover:bg-red-900 group transition-colors"
+                        className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         aria-label="Delete"
                         title="Delete"
                       >
-                        <svg className="w-5 h-5 text-red-600 group-hover:text-red-800 dark:text-red-400 dark:group-hover:text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>

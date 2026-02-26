@@ -404,23 +404,21 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 transition-colors duration-300">
-            Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
-          </p>
-        </div>
+      <div>
+        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
+        </p>
       </div>
 
       {/* Quick Tips */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200 dark:border-blue-800">
+        <h4 className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1.5 sm:mb-2 flex items-center">
           💡 Dashboard Tips
         </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
           <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
             <li>• Check your daily bookings and update their status regularly</li>
             <li>• Monitor pending payments and send reminders if needed</li>

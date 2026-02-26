@@ -299,7 +299,7 @@ export default function SectionContact() {
                     <a href={`tel:${businessData.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
                       {businessData.businessPhone}
                     </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.emergencyRate}/hour</div>
+                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.emergencyRate}</div>
                   </>
                 )}
               </div>
