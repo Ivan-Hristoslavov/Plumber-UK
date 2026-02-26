@@ -92,13 +92,13 @@ export default function FooterMain() {
   };
 
   return (
-    <footer className="bg-white/40 dark:bg-gray-900/40 backdrop-blur shadow-lg border-t border-white/20 dark:border-gray-800/30 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className={`grid grid-cols-1 ${serviceAreas.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`} suppressHydrationWarning>
-          {/* Company Info */}
-          <div className="col-span-1 md:col-span-2">
+    <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500">
+      <div className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div className={`flex flex-col md:grid ${serviceAreas.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`} suppressHydrationWarning>
+          {/* Company Info - First on mobile */}
+          <div className="order-1 md:col-span-2">
             <Link
-              className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-300"
+              className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-300"
               href="/"
             >
               {businessData.businessName.toUpperCase()}
@@ -108,11 +108,11 @@ export default function FooterMain() {
                 </span>
               )}
             </Link>
-            <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 max-w-md">
+            <p className="mt-3 sm:mt-4 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 max-w-md">
               Professional plumbing services across South West London. Emergency repairs, 
               installations.
             </p>
-            <div className="mt-4 space-y-2">
+            <div className="mt-3 sm:mt-4 space-y-2">
               {isLoading ? (
                 <div className="animate-pulse space-y-2">
                   <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
@@ -169,12 +169,12 @@ export default function FooterMain() {
             )}
           </div>
 
-          {/* Quick Links - 2-column grid, flat list */}
-          <div>
+          {/* Quick Links - Single column on mobile, 2-col on larger */}
+          <div className="order-2">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Quick Links
             </h3>
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-6 gap-y-2">
+            <nav className="mt-3 sm:mt-4 flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-x-6 sm:gap-y-2">
               {quickLinks.map((item) => (
                 <Link
                   key={item.name}
@@ -185,29 +185,27 @@ export default function FooterMain() {
                   {item.name}
                 </Link>
               ))}
-            </div>
+            </nav>
           </div>
         </div>
 
-        {/* Bottom bar: Copyright | Legal | Developer */}
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <div suppressHydrationWarning>
-              © {new Date().getFullYear()} {businessData.businessName}. All rights reserved.
-            </div>
-            <div className="flex flex-wrap items-center justify-center md:justify-center gap-2 md:gap-4">
+        {/* Bottom bar: Desktop = Copyright left | Developed by right; Mobile = Terms/Privacy, Developed by, Copyright */}
+        <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+          {/* Mobile: stacked order - Legal links, Developed by, Copyright */}
+          <div className="flex flex-col gap-3 md:hidden text-sm text-gray-500 dark:text-gray-400 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
               <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Terms
               </Link>
-              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
               <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Privacy
               </Link>
-              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
               <Link href="/cookies" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Cookies
               </Link>
-              <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
               <Link href="/gdpr" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 GDPR
               </Link>
@@ -220,7 +218,43 @@ export default function FooterMain() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                Serenity Web Studio
+                Serenity
+              </a>
+            </div>
+            <div suppressHydrationWarning>
+              © {new Date().getFullYear()} {businessData.businessName}
+            </div>
+          </div>
+          {/* Desktop: Copyright + legal left | Developed by right */}
+          <div className="hidden md:flex items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span suppressHydrationWarning>© {new Date().getFullYear()} {businessData.businessName}</span>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Terms
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Privacy
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <Link href="/cookies" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Cookies
+              </Link>
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <Link href="/gdpr" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                GDPR
+              </Link>
+            </div>
+            <div>
+              Developed by{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                href="https://serenity.rapid-frame.co.uk/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Serenity
               </a>
             </div>
           </div>

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode background - dark gray, not pure black */
+html.dark {
+  background-color: #111827 !important;
+}
+html.dark body {
+  background-color: #111827 !important;
+}
+
 /* Custom animations */
 @keyframes gradient-x {
   0%, 100% {

@@ -43,7 +43,7 @@ export function GallerySection() {
 
   if (loading || sectionsLoading) {
     return (
-      <section className="py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+      <section className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-pulse">
             <div className="h-6 sm:h-8 bg-gray-300 dark:bg-gray-700 rounded w-48 sm:w-64 mx-auto mb-4" />
@@ -56,7 +56,7 @@ export function GallerySection() {
 
   if (error || filteredItems.length === 0) {
     return (
-      <section className="py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+      <section className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Our Work Gallery
@@ -72,7 +72,7 @@ export function GallerySection() {
   const currentItem = filteredItems[currentIndex];
 
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900 transition-colors duration-500" id="gallery">
+    <section className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900 transition-colors duration-500" id="gallery">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-6 sm:mb-10 md:mb-16">

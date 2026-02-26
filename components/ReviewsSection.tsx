@@ -126,7 +126,7 @@ export function ReviewsSection() {
   if (error) return <div className="py-8 text-center text-red-600">{error}</div>;
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900" id="reviews">
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500" id="reviews">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">

@@ -149,7 +149,7 @@ export default function AdminLayout({
 
   // If we're on the login page, just render the children
   if (pathname === "/admin/login") {
-    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
+    return <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
   }
 
   // Show loading state
@@ -191,7 +191,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -493,7 +493,7 @@ export default function AdminLayout({
         </div>
 
         {/* Page content */}
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <main className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
           <div className="p-3 sm:p-4 lg:p-6 xl:p-8">{children}</div>
         </main>
       </div>

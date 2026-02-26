@@ -24,22 +24,35 @@ export function AdminReviewsManager() {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [processing, setProcessing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
+  const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "not_approved">("all");
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 6;
+
+  // Filter reviews by status
+  const filteredReviews = statusFilter === "approved"
+    ? reviews.filter((r) => r.is_approved)
+    : statusFilter === "not_approved"
+      ? reviews.filter((r) => !r.is_approved)
+      : reviews;
 
   // Calculate pagination
   const totalReviews = reviews.length;
   const approvedReviews = reviews.filter(r => r.is_approved).length;
   const pendingReviews = reviews.filter(r => !r.is_approved).length;
-  const totalPages = Math.ceil(totalReviews / reviewsPerPage);
+  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
   const startIndex = (currentPage - 1) * reviewsPerPage;
   const endIndex = startIndex + reviewsPerPage;
-  const currentReviews = reviews.slice(startIndex, endIndex);
+  const currentReviews = filteredReviews.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleStatusFilterChange = (filter: "all" | "approved" | "not_approved") => {
+    setStatusFilter(filter);
+    setCurrentPage(1);
   };
 
   const handleApproveClick = (review: Review) => {
@@ -175,16 +188,27 @@ export function AdminReviewsManager() {
           </div>
         </div>
         
-        <button 
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => handleStatusFilterChange(e.target.value as "all" | "approved" | "not_approved")}
+            className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All ({totalReviews})</option>
+            <option value="approved">Approved ({approvedReviews})</option>
+            <option value="not_approved">Not approved ({pendingReviews})</option>
+          </select>
+          <button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {/* Reviews Grid */}
@@ -200,6 +224,13 @@ export function AdminReviewsManager() {
         </div>
       ) : (
         <>
+          {filteredReviews.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+              <p className="text-gray-500 dark:text-gray-400">
+                No {statusFilter === "approved" ? "approved" : statusFilter === "not_approved" ? "pending" : ""} reviews.
+              </p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr">
             {currentReviews.map((review) => (
               <div key={review.id} className="flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200 overflow-hidden">
@@ -311,6 +342,7 @@ export function AdminReviewsManager() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (

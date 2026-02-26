@@ -15,7 +15,7 @@ import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
   loading: () => (
-    <section className="py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900">
+    <section className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="animate-pulse">
           <div className="h-6 sm:h-8 bg-gray-300 dark:bg-gray-700 rounded w-48 sm:w-64 mx-auto mb-4" />
@@ -27,7 +27,7 @@ const GallerySection = dynamic(() => import("@/components/GallerySection").then(
 });
 const FAQSection = dynamic(() => import("@/components/FAQSection").then(m => m.FAQSection), {
   loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="text-gray-600 dark:text-gray-300">Loading FAQ...</div>
       </div>
@@ -36,7 +36,7 @@ const FAQSection = dynamic(() => import("@/components/FAQSection").then(m => m.F
 });
 const ReviewsSection = dynamic(() => import("@/components/ReviewsSection").then(m => m.ReviewsSection), {
   loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900">
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="text-gray-600 dark:text-gray-300">Loading reviews...</div>
       </div>
@@ -45,7 +45,7 @@ const ReviewsSection = dynamic(() => import("@/components/ReviewsSection").then(
 });
 const ReviewForm = dynamic(() => import("@/components/ReviewForm").then(m => m.ReviewForm), {
   loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800">
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="text-gray-600 dark:text-gray-300">Loading review form...</div>
       </div>
@@ -136,7 +136,7 @@ export default async function HomePage() {
   const aboutHtml = profile?.about ? renderMarkdownToHtml(profile.about) : "";
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       {/* Hero Section */}
       <SectionHero />
 
@@ -146,7 +146,7 @@ export default async function HomePage() {
       </section>
       {/* Our Story / About Section — id="about" anchor so nav #about scrolls here */}
       <section
-        className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900 transition-colors duration-500 scroll-mt-24 relative"
+        className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500 scroll-mt-24 relative"
         id="our-story"
       >
         <span id="about" className="absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none" aria-hidden="true" />

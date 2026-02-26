@@ -321,7 +321,7 @@ export default async function RootLayout({
       </head>
       <body
         className={clsx(
-          "min-h-screen text-foreground bg-background font-sans antialiased",
+          "min-h-screen text-foreground bg-gray-100 dark:bg-gray-900 font-sans antialiased",
           fontSans.variable,
           fontSans.className
         )}

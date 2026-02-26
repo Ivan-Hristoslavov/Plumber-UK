@@ -160,7 +160,7 @@ export default function SectionContact() {
 
   return (
     <section
-      className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500"
+      className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
       id="contact"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -209,7 +209,7 @@ export default function SectionContact() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-bold text-sm text-gray-900 dark:text-white">Emergency 24/7</span>
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.emergencyRate}/hr</span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.emergencyRate}</span>
                 </div>
                 <span className="text-red-600 dark:text-red-400 font-semibold text-sm">{businessData.businessPhone}</span>
               </div>
