@@ -299,18 +299,19 @@ export function EditInvoiceModal({
   const { subtotal, vatAmount, totalAmount } = calculateTotals();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+          <div className="flex items-center justify-between min-w-0 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Edit Invoice {invoice.invoice_number}
             </h3>
             <button
+              type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+              className="p-2 -m-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 touch-manipulation"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -319,7 +320,8 @@ export function EditInvoiceModal({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div className="p-4 sm:p-6 space-y-5 overflow-y-auto overflow-x-hidden flex-1 min-h-0 min-w-0">
           {/* Business Info Section */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
@@ -354,7 +356,7 @@ export function EditInvoiceModal({
                 setFormData({ ...formData, customer_id: e.target.value, booking_id: "" });
                 setErrors(prev => ({ ...prev, customer_id: '', booking_id: '' }));
               }}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.customer_id 
                   ? 'border-red-300 dark:border-red-600' 
                   : 'border-gray-300 dark:border-gray-600'
@@ -375,7 +377,7 @@ export function EditInvoiceModal({
 
           {/* Booking Selection or Manual Entry */}
           <div>
-            <div className="flex items-center space-x-4 mb-4">
+            <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -413,7 +415,7 @@ export function EditInvoiceModal({
                     setFormData({ ...formData, booking_id: e.target.value });
                     setErrors(prev => ({ ...prev, booking_id: '' }));
                   }}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.booking_id 
                       ? 'border-red-300 dark:border-red-600' 
                       : 'border-gray-300 dark:border-gray-600'
@@ -447,7 +449,7 @@ export function EditInvoiceModal({
                     value={formData.manual_service}
                     onChange={(e) => setFormData({ ...formData, manual_service: e.target.value })}
                     placeholder="e.g., Emergency pipe repair"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       errors.manual_service 
                         ? 'border-red-300 dark:border-red-600' 
                         : 'border-gray-300 dark:border-gray-600'
@@ -469,7 +471,7 @@ export function EditInvoiceModal({
                     value={formData.manual_amount}
                     onChange={(e) => setFormData({ ...formData, manual_amount: e.target.value })}
                     placeholder="0.00"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       errors.manual_amount 
                         ? 'border-red-300 dark:border-red-600' 
                         : 'border-gray-300 dark:border-gray-600'
@@ -489,7 +491,7 @@ export function EditInvoiceModal({
                     onChange={(e) => setFormData({ ...formData, manual_description: e.target.value })}
                     placeholder="Optional additional details about the service"
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     disabled={isLoading}
                   />
                 </div>
@@ -650,44 +652,44 @@ export function EditInvoiceModal({
             </div>
           </div>
 
-          {/* Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {/* Dates - compact layout */}
+          <div className="flex flex-col sm:flex-row gap-3 min-w-0">
+            <div className="flex-1 min-w-0">
+              <label className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
                 Invoice Date *
               </label>
               <input
                 type="date"
                 value={formData.invoice_date}
                 onChange={(e) => setFormData({ ...formData, invoice_date: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 box-border ${
                   errors.invoice_date 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+                } bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300`}
                 disabled={isLoading}
               />
               {errors.invoice_date && (
-                <p className="text-red-500 text-xs mt-1">{errors.invoice_date}</p>
+                <p className="text-red-500 text-xs mt-0.5">{errors.invoice_date}</p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="flex-1 min-w-0">
+              <label className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
                 Due Date *
               </label>
               <input
                 type="date"
                 value={formData.due_date}
                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 box-border ${
                   errors.due_date 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
-                } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+                } bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300`}
                 disabled={isLoading}
               />
               {errors.due_date && (
-                <p className="text-red-500 text-xs mt-1">{errors.due_date}</p>
+                <p className="text-red-500 text-xs mt-0.5">{errors.due_date}</p>
               )}
             </div>
           </div>
@@ -734,25 +736,26 @@ export function EditInvoiceModal({
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Optional notes for the invoice"
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
               disabled={isLoading}
             />
           </div>
 
+          </div>
           {/* Footer */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md hover:bg-gray-50 dark:hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-5 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-5 py-3 min-h-[44px] text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center touch-manipulation"
             >
               {isLoading ? (
                 <>

@@ -139,10 +139,10 @@ function PricingCardModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {editingCard ? "Edit Pricing Card" : "Add New Pricing Card"}
           </h3>
@@ -157,7 +157,7 @@ function PricingCardModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Basic Info */}
           <div className="space-y-4">
             <div>
@@ -168,7 +168,7 @@ function PricingCardModal({
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, title: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="e.g., Call-out & Hourly Labour Rates"
               />
             </div>
@@ -201,16 +201,16 @@ function PricingCardModal({
 
           {/* Table Headers */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h5 className="text-lg font-semibold text-gray-900 dark:text-white">Table Headers</h5>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h5 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Table Headers</h5>
               <button
                 onClick={addTableHeader}
-                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
+                className="px-3 py-2 sm:px-4 min-h-[44px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium touch-manipulation"
               >
                 Add Column
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {formData.table_headers.map((header: string, index: number) => (
                 <div key={index} className="flex gap-2">
                   <input
@@ -235,18 +235,18 @@ function PricingCardModal({
 
           {/* Table Rows */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h5 className="text-lg font-semibold text-gray-900 dark:text-white">Table Rows</h5>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h5 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Table Rows</h5>
               <button
                 onClick={addTableRow}
-                className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+                className="px-3 py-2 sm:px-4 min-h-[44px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors text-sm font-medium touch-manipulation"
               >
                 Add Row
               </button>
             </div>
             <div className="space-y-3">
               {formData.table_rows.map((row: any, index: number) => (
-                <div key={index} className="grid gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg" style={{gridTemplateColumns: `repeat(${formData.table_headers.length}, 1fr) auto`}}>
+                <div key={index} className="grid gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg overflow-x-auto min-w-0" style={{ gridTemplateColumns: `repeat(${formData.table_headers.length}, minmax(70px, 1fr)) auto` }}>
                   {formData.table_headers.map((header: string) => (
                     <input
                       key={header}
@@ -259,9 +259,11 @@ function PricingCardModal({
                   ))}
                   <button
                     onClick={() => removeTableRow(index)}
-                    className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    className="px-2 sm:px-3 py-2 min-h-[44px] bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors touch-manipulation flex items-center justify-center"
+                    aria-label="Remove row"
                   >
-                    Remove
+                    <span className="sm:hidden">×</span>
+                    <span className="hidden sm:inline">Remove</span>
                   </button>
                 </div>
               ))}
@@ -281,7 +283,7 @@ function PricingCardModal({
             </div>
             <div className="space-y-3">
               {formData.notes.map((note: any, index: number) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <input
                     type="text"
                     value={note.icon || ""}
@@ -294,7 +296,7 @@ function PricingCardModal({
                     value={note.text}
                     onChange={(e) => updateNote(index, "text", e.target.value)}
                     placeholder="Note text"
-                    className="col-span-2 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="sm:col-span-2 px-3 py-2 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                   <button
                     onClick={() => removeNote(index)}
@@ -309,16 +311,16 @@ function PricingCardModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="sticky bottom-0 bg-white dark:bg-gray-800 flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+            className="px-5 py-3 sm:px-6 min-h-[44px] bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium touch-manipulation"
           >
             Cancel
           </button>
           <button
             onClick={onSubmit}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="px-5 py-3 sm:px-6 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-manipulation"
           >
             {editingCard ? "Update Card" : "Add Card"}
           </button>

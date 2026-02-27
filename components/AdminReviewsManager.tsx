@@ -192,7 +192,7 @@ export function AdminReviewsManager() {
           <select
             value={statusFilter}
             onChange={(e) => handleStatusFilterChange(e.target.value as "all" | "approved" | "not_approved")}
-            className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="min-h-[44px] px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 touch-manipulation"
           >
             <option value="all">All ({totalReviews})</option>
             <option value="approved">Approved ({approvedReviews})</option>
@@ -201,7 +201,7 @@ export function AdminReviewsManager() {
           <button 
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center min-h-[44px] px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
           >
             <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -289,7 +289,7 @@ export function AdminReviewsManager() {
                   {review.comment && review.comment.length > 150 && (
                     <button
                       onClick={() => handleViewClick(review)}
-                      className="text-blue-600 dark:text-blue-400 text-xs font-medium hover:underline mt-1"
+                      className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline mt-1 py-1 -mb-1 touch-manipulation"
                     >
                       View full review
                     </button>
@@ -306,37 +306,37 @@ export function AdminReviewsManager() {
                   </div>
                 )}
 
-                {/* Actions - always at bottom */}
-                <div className="flex flex-wrap items-center gap-2 pt-4 mt-auto border-t border-gray-100 dark:border-gray-700">
+                {/* Actions - touch-friendly on mobile */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-4 mt-auto border-t border-gray-100 dark:border-gray-700">
                   <button
                     onClick={() => handleViewClick(review)}
-                    className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                    className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl transition-colors touch-manipulation"
                   >
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    <span className="hidden xs:inline">View</span>
+                    <span>View</span>
                   </button>
                   {!review.is_approved && (
                     <button
                       onClick={() => handleApproveClick(review)}
-                      className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors"
+                      className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-xl transition-colors touch-manipulation"
                     >
-                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <span className="hidden xs:inline">Approve</span>
+                      <span>Approve</span>
                     </button>
                   )}
                   <button
                     onClick={() => handleDeleteClick(review)}
-                    className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                    className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl transition-colors touch-manipulation"
                   >
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 012 0v6a1 1 0 11-2 0V9zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V9z" clipRule="evenodd" />
                     </svg>
-                    <span className="hidden xs:inline">Delete</span>
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>

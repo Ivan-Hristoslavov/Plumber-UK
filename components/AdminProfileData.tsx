@@ -43,38 +43,39 @@ function ListManager({ value, onChange, placeholder, label, description }: ListM
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
       </label>
       
-      {/* Current items */}
+      {/* Badge-style items */}
       {items.length > 0 && (
-        <div className="space-y-1">
+        <div className="flex flex-wrap gap-2">
           {items.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <span className="flex items-center">
-                <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full mr-2"></span>
-                <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
-              </span>
+            <span
+              key={index}
+              className="inline-flex items-start gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-xl text-sm font-medium border border-blue-200 dark:border-blue-800 max-w-full"
+            >
+              <span className="max-w-[240px] sm:max-w-[320px] break-words text-left leading-snug">{item}</span>
               <button
                 type="button"
                 onClick={() => handleRemoveItem(index)}
-                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
+                className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-300 hover:text-red-600 dark:hover:text-red-400 transition-colors touch-manipulation"
+                aria-label={`Remove ${item}`}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-            </div>
+            </span>
           ))}
         </div>
       )}
 
       {/* Add new item */}
-      <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
-          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 text-sm"
+          className="flex-1 min-w-0 px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
           type="text"
           placeholder={placeholder}
           value={newItem}
@@ -85,11 +86,12 @@ function ListManager({ value, onChange, placeholder, label, description }: ListM
           type="button"
           onClick={handleAddItem}
           disabled={!newItem.trim()}
-          className="px-3 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+          className="min-h-[44px] px-4 py-3 sm:px-5 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 flex items-center justify-center gap-2 touch-manipulation font-medium"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
+          <span>Add</span>
         </button>
       </div>
 
@@ -177,27 +179,29 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
     const hasMore = extraItems.length > 0;
 
     const listItem = (item: string, index: number) => (
-      <li key={index} className="flex items-start">
-        <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0" />
-        <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
-      </li>
+      <span
+        key={index}
+        className="inline-block max-w-[280px] sm:max-w-[360px] px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-xl text-sm font-medium border border-blue-200 dark:border-blue-800 break-words"
+      >
+        {item}
+      </span>
     );
 
     if (!hasMore) {
       return (
-        <ul className={`${className} space-y-1`}>
+        <div className={`${className} flex flex-wrap gap-2`}>
           {items.map((item: string, index: number) => listItem(item, index))}
-        </ul>
+        </div>
       );
     }
 
     return (
       <div className={className}>
-        <ul className="space-y-1">
+        <div className="flex flex-wrap gap-2">
           {visibleItems.map((item: string, index: number) => listItem(item, index))}
-        </ul>
+        </div>
         <details className="group/details mt-2">
-          <summary className="list-expand-summary flex items-center gap-2 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:underline text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded px-1 py-0.5">
+          <summary className="list-expand-summary flex items-center gap-2 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:underline text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded px-1 py-0.5 touch-manipulation">
             <span>Show {extraItems.length} more</span>
             <svg
               className="w-4 h-4 transition-transform duration-200 group-open/details:rotate-180"
@@ -209,9 +213,9 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </summary>
-          <ul className="space-y-1 mt-2 pl-0">
+          <div className="flex flex-wrap gap-2 mt-2">
             {extraItems.map((item: string, index: number) => listItem(item, maxVisible + index))}
-          </ul>
+          </div>
         </details>
       </div>
     );

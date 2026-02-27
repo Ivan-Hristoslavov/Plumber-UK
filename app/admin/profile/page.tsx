@@ -218,7 +218,7 @@ export default function ProfilePage() {
       id: "personal", 
       name: "Personal Info", 
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       )
@@ -227,7 +227,7 @@ export default function ProfilePage() {
       id: "security", 
       name: "Security", 
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       )
@@ -235,109 +235,86 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-            My Profile
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Manage your personal information and professional credentials
-          </p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+      <div>
+        <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+          My Profile
+        </h1>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
+          Manage your personal information and professional credentials
+        </p>
+      </div>
+
+      {/* Profile Header Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-8 transition-colors duration-300">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+          <div className="relative shrink-0">
+            <div className="w-14 h-14 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg sm:text-3xl">
+                {profileData.firstName[0] || "?"}
+                {profileData.lastName[0] || "?"}
+              </span>
+            </div>
+          </div>
+          <div className="flex-1 text-center sm:text-left min-w-0">
+            <h2 className="text-base sm:text-2xl font-bold text-gray-900 dark:text-white">
+              {profileData.firstName} {profileData.lastName}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-0.5 truncate">{profileData.email}</p>
+            <p className="text-gray-500 dark:text-gray-500 text-xs sm:text-sm truncate">{profileData.phone}</p>
+            <span className="inline-flex items-center mt-2 sm:mt-3 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-1.5 sm:mr-2" />
+              Administrator
+            </span>
+          </div>
           {saveMessage && (
-            <div
-              className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                saveMessage.includes("Error") ||
-                saveMessage.includes("do not match") ||
-                saveMessage.includes("must be")
-                  ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
-                  : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800"
-              } transition-colors duration-300`}
-            >
+            <div className={`px-4 py-2 rounded-xl text-sm font-medium ${
+              saveMessage.includes("Error") || saveMessage.includes("do not match") || saveMessage.includes("must be")
+                ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+            }`}>
               {saveMessage}
             </div>
           )}
         </div>
       </div>
 
-      {/* Profile Header Card */}
-      {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
-        <div className="flex items-center space-x-6">
-          <div className="relative">
-            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full flex items-center justify-center transition-colors duration-300">
-              <span className="text-white font-bold text-2xl">
-                {profileData.firstName[0]}
-                {profileData.lastName[0]}
-              </span>
-            </div>
-            <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-            </button>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-              {profileData.firstName} {profileData.lastName}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
-              {profileData.email}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">
-              {profileData.phone}
-            </p>
-            <div className="flex items-center mt-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 transition-colors duration-300">
-                <span className="w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full mr-1 transition-colors duration-300" />
-                Administrator
-              </span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-          <nav className="flex space-x-6 sm:space-x-8 px-4 sm:px-6 min-w-max">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-300 flex items-center ${
-                  activeTab === tab.id
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
-                }`}
-                onClick={() => setActiveTab(tab.id as any)}
-              >
-                <span className="mr-2 flex-shrink-0">{tab.icon}</span>
-                {tab.name}
-              </button>
-            ))}
-          </nav>
+      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+        <div className="flex bg-gray-50 dark:bg-gray-700/50 p-0.5 sm:p-1 gap-0.5 sm:gap-1 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 ${
+                activeTab === tab.id
+                  ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+              onClick={() => setActiveTab(tab.id as any)}
+            >
+              <span className="flex-shrink-0">{tab.icon}</span>
+              {tab.name}
+            </button>
+          ))}
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           {/* Personal Information Tab */}
           {activeTab === "personal" && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Personal Information
-                </h3>
+            <div className="space-y-6 sm:space-y-8">
+              {/* Personal Information Card */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Personal Information
+                  </h3>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
@@ -424,7 +401,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div>
+              {/* About Me Card */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-700">
                 <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
                   About Me
                 </h4>
@@ -439,10 +417,18 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <div>
-                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Professional Information
-                </h4>
+              {/* Professional Information Card */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Professional Information
+                  </h4>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
@@ -533,10 +519,18 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div>
-                <h4 className="text-md font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Company Information
-                </h4>
+              {/* Company Information Card */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Company Information
+                  </h4>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
@@ -575,9 +569,9 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-4">
                 <button
-                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 font-medium shadow-sm"
                   disabled={isSaving}
                   onClick={handleSave}
                 >
@@ -590,11 +584,18 @@ export default function ProfilePage() {
           {/* Security Tab */}
           {activeTab === "security" && (
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 transition-colors duration-300">
-                  Account Security
-                </h3>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 transition-colors duration-300">
+              <div className="p-5 sm:p-6 rounded-2xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Account Security
+                  </h3>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-600">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
