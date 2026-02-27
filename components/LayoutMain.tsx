@@ -37,12 +37,10 @@ export default function LayoutMain({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Day Off Banner - Always at the top */}
-      <DayOffBanner />
-      
-      {/* Navigation - Positioned below sticky banner */}
-      <div className={`sticky z-40 transition-all duration-300 ${hasDayOffBanner ? 'top-[40px]' : 'top-0'}`}>
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900" suppressHydrationWarning>
+      {/* Sticky header: banner + nav together to avoid any gap */}
+      <div className="sticky top-0 z-50">
+        <DayOffBanner />
         <NavigationNavbar />
       </div>
       
