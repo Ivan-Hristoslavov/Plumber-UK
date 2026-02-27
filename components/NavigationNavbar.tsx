@@ -15,7 +15,6 @@ const navigation = [
     href: "#about",
     dropdown: [
       { name: "Our Story", href: "#our-story" },
-      { name: "Service Areas", href: "#service-areas" },
       { name: "Gallery", href: "#gallery" }
     ]
   },

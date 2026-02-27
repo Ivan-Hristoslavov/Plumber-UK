@@ -18,7 +18,6 @@ const quickLinks = [
   { name: "FAQ", href: "#faq" },
   { name: "Reviews", href: "#reviews" },
   { name: "Contact", href: "#contact" },
-  { name: "Service Areas", href: "#service-areas" },
 ];
 
 type ServiceArea = {
