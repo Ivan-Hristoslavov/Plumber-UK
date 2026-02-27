@@ -348,14 +348,14 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
             Invoices
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-            Manage and generate UK-compliant invoices for your services
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            Manage and generate UK-compliant invoices
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

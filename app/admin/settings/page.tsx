@@ -500,15 +500,7 @@ export default function AdminSettingsPage() {
           onClick: () => triggerChildModal("areas"),
         };
       case "legal":
-        return {
-          label: "Add Legal Page",
-          icon: (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          ),
-          onClick: () => triggerChildModal("legal"),
-        };
+        return null; // No add action - legal pages are fixed (Terms, Privacy, Cookies, GDPR)
       default:
         return null;
     }
@@ -566,16 +558,16 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Desktop Horizontal Navigation */}
       <div className="hidden lg:block bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="px-8 py-4">
-          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                 Settings
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 Manage your business configuration
               </p>
             </div>
@@ -622,7 +614,7 @@ export default function AdminSettingsPage() {
 
       {/* Main Content - Full width */}
       <div className="w-full">
-        <div className="p-4 lg:p-8 pb-8 w-full max-w-full lg:pt-4 pt-0">
+        <div className="p-3 sm:p-4 lg:p-8 pb-8 w-full max-w-full pt-14 lg:pt-4">
           {/* Success/Error Message - Show on both mobile and desktop */}
           {message && (
             <div
@@ -637,13 +629,13 @@ export default function AdminSettingsPage() {
           )}
 
           {/* Page Header with Action Buttons */}
-          <div className="mb-6 lg:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="mb-3 sm:mb-6 lg:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">
                   {tabs.find((tab) => tab.id === activeTab)?.name}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">
                   {tabs.find((tab) => tab.id === activeTab)?.description}
                 </p>
               </div>
@@ -721,7 +713,7 @@ export default function AdminSettingsPage() {
           {activeTab === "business" && (
             <div className="space-y-8">
               {/* Business Information */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Business Information
                 </h2>
@@ -840,14 +832,14 @@ export default function AdminSettingsPage() {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {/* MCS Certification */}
-                  <div className="relative">
-                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                  <div className="relative overflow-hidden">
+                    <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.mcsCertified 
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
                         : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
                     }`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
                             settings.mcsCertified 
                               ? 'bg-green-500 text-white' 
@@ -874,14 +866,14 @@ export default function AdminSettingsPage() {
                             </p>
                           </div>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer ml-3">
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
                             checked={settings.mcsCertified}
                             className="sr-only peer"
                             type="checkbox"
                             onChange={(e) => handleInputChange("mcsCertified", e.target.checked)}
                           />
-                          <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
                         </label>
                       </div>
                       
@@ -904,14 +896,14 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* Gas Safe Registered */}
-                  <div className="relative">
-                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                  <div className="relative overflow-hidden">
+                    <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.gasSafeRegistered 
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
                         : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
                     }`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
                             settings.gasSafeRegistered 
                               ? 'bg-green-500 text-white' 
@@ -938,14 +930,14 @@ export default function AdminSettingsPage() {
                             </p>
                           </div>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer ml-3">
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
                             checked={settings.gasSafeRegistered}
                             className="sr-only peer"
                             type="checkbox"
                             onChange={(e) => handleInputChange("gasSafeRegistered", e.target.checked)}
                           />
-                          <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-600" />
                         </label>
                       </div>
                       
@@ -968,14 +960,14 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* Insurance */}
-                  <div className="relative">
-                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                  <div className="relative overflow-hidden">
+                    <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.fullyInsured 
                         ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
                         : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
                     }`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
                             settings.fullyInsured 
                               ? 'bg-blue-500 text-white' 
@@ -1002,14 +994,14 @@ export default function AdminSettingsPage() {
                             </p>
                           </div>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer ml-3">
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
                             checked={settings.fullyInsured}
                             className="sr-only peer"
                             type="checkbox"
                             onChange={(e) => handleInputChange("fullyInsured", e.target.checked)}
                           />
-                          <div className="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600" />
                         </label>
                       </div>
                       
@@ -1047,7 +1039,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Pricing */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Service Rates
                 </h2>
@@ -1096,7 +1088,7 @@ export default function AdminSettingsPage() {
           {activeTab === "working-hours" && (
             <div className="space-y-8">
               {/* Working Hours */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
@@ -1131,22 +1123,22 @@ export default function AdminSettingsPage() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
                           Start Time
                         </label>
-                        <div className="relative">
+                        <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
                           <input
-                            className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            className="w-full min-w-0 py-3 pl-4 pr-10 text-gray-900 dark:text-white bg-transparent border-0 focus:ring-0 focus:outline-none text-base"
                             type="time"
                             value={settings.workingHoursStart}
                             onChange={(e) =>
                               handleInputChange("workingHoursStart", e.target.value)
                             }
                           />
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                             </svg>
                           </div>
@@ -1156,17 +1148,17 @@ export default function AdminSettingsPage() {
                         <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
                           End Time
                         </label>
-                        <div className="relative">
+                        <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
                           <input
-                            className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            className="w-full min-w-0 py-3 pl-4 pr-10 text-gray-900 dark:text-white bg-transparent border-0 focus:ring-0 focus:outline-none text-base"
                             type="time"
                             value={settings.workingHoursEnd}
                             onChange={(e) =>
                               handleInputChange("workingHoursEnd", e.target.value)
                             }
                           />
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                             </svg>
                           </div>
@@ -1361,7 +1353,7 @@ export default function AdminSettingsPage() {
           {activeTab === "vat" && (
             <div className="space-y-8">
               {/* VAT Configuration */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   VAT Configuration
                 </h2>
@@ -1489,7 +1481,7 @@ export default function AdminSettingsPage() {
             <AdminFAQManager triggerModal={triggerModal === "faq"} />
           )}
           {activeTab === "legal" && (
-            <AdminLegalManager triggerModal={triggerModal === "legal"} />
+            <AdminLegalManager />
           )}
 
           {activeTab === "connections" && (

@@ -75,48 +75,42 @@ export function SectionHero() {
             24/7 Emergency Service
           </div>
 
-          {/* Trust Badges - Responsive, no text overflow */}
+          {/* Trust Badges - Fixed structure; defer visibility until mounted to avoid hydration mismatch */}
           <div className="flex flex-col md:flex-row justify-center items-center gap-y-4 md:gap-y-0 md:gap-x-8 w-full max-w-2xl mx-auto mt-2">
-            {/* Fully Insured - Dynamic */}
-            {hasInsurance && (
-              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
-                <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                  Fully Insured
-                </span>
+            {/* Fully Insured - Dynamic (hidden until mounted so server/client match) */}
+            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasInsurance ? "hidden" : ""}`}>
+              <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                </svg>
               </div>
-            )}
-            
-            {/* Gas Safe Registered - Dynamic */}
-            {hasGasSafe && (
-              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
-                <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                  Gas Safe Registered
-                </span>
+              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                Fully Insured
+              </span>
+            </div>
+
+            {/* Gas Safe Registered - Dynamic (hidden until mounted) */}
+            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasGasSafe ? "hidden" : ""}`}>
+              <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
+                <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
               </div>
-            )}
-            
-            {/* MCS Certified - Dynamic */}
-            {hasMscCertified && (
-              <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
-                <img
-                  src="/mcs-logo.png"
-                  alt="MCS Certified - Microgeneration Certificate Scheme"
-                  className="h-10 md:h-12 w-auto object-contain mx-auto"
-                  style={{ maxWidth: "120px" }}
-                />
-              </div>
-            )}
-            
+              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                Gas Safe Registered
+              </span>
+            </div>
+
+            {/* MCS Certified - Dynamic (hidden until mounted) */}
+            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasMscCertified ? "hidden" : ""}`}>
+              <img
+                src="/mcs-logo.png"
+                alt="MCS Certified - Microgeneration Certificate Scheme"
+                className="h-10 md:h-12 w-auto object-contain mx-auto"
+                style={{ maxWidth: "120px" }}
+              />
+            </div>
+
             {/* Years of Experience - Always show */}
             <div className="flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20">
               <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-yellow-400">
@@ -221,14 +215,7 @@ export function SectionHero() {
                     </div>
                   </div>
                 ))}
-            {!areasLoading && isMobile && areas.length > MOBILE_AREAS_LIMIT && (
-              <a
-                href="#service-areas"
-                className="bg-white/15 backdrop-blur-md rounded-lg py-2 sm:py-3 px-3 text-center text-white text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/20 transition-all w-auto shrink-0 self-center"
-              >
-                View all areas
-              </a>
-            )}
+            
           </div>
         </div>
 

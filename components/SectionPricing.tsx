@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
 
 function PricingCardSkeleton() {
@@ -69,62 +70,55 @@ function PricingCardSkeleton() {
   );
 }
 
+function SectionPricingLoading() {
+  return (
+    <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+            </svg>
+            Transparent Pricing
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            FixMyLeak - Professional Rates
+          </h2>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Clear, competitive pricing with no hidden fees. Choose the service that best fits your needs.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center max-w-6xl mx-auto mb-16">
+          <PricingCardSkeleton />
+          <PricingCardSkeleton />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function SectionPricing() {
+  const [mounted, setMounted] = useState(false);
   const { pricingCards, loading, error } = usePricingCards();
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch: server and initial client render must match.
+  // usePricingCards uses a global cache that exists only on client, so loading
+  // can differ between server (no cache) and client (has cache).
+  if (!mounted) {
+    return <SectionPricingLoading />;
+  }
+
   if (loading) {
-    return (
-      <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
-        {/* Background with gradient and pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full" />
-          <div className="absolute top-40 right-20 w-24 h-24 bg-purple-500 rounded-full" />
-          <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-yellow-500 rounded-full" />
-          <div className="absolute bottom-40 right-10 w-20 h-20 bg-green-500 rounded-full" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Enhanced Section Header */}
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-              Transparent Pricing
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              FixMyLeak - Professional Rates
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Clear, competitive pricing with no hidden fees. Choose the service
-              that best fits your needs.
-            </p>
-          </div>
-
-          {/* Loading Skeleton Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center max-w-6xl mx-auto mb-16">
-            <PricingCardSkeleton />
-            <PricingCardSkeleton />
-          </div>
-        </div>
-      </section>
-    );
+    return <SectionPricingLoading />;
   }
 
   if (error) {
     return (
-      <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+      <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-red-600 dark:text-red-400">Error loading pricing information</div>
         </div>
@@ -133,17 +127,8 @@ export function SectionPricing() {
   }
   return (
     <section
-      className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors duration-500"
+      className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
     >
-      {/* Background with gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" />
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full" />
-        <div className="absolute top-40 right-20 w-24 h-24 bg-purple-500 rounded-full" />
-        <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-yellow-500 rounded-full" />
-        <div className="absolute bottom-40 right-10 w-20 h-20 bg-green-500 rounded-full" />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Section Header */}
         <div className="text-center mb-16">

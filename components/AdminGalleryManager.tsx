@@ -756,12 +756,24 @@ export function AdminGalleryManager({
             className="mt-8"
           />
 
-          {/* Add/Edit Form */}
+          {/* Add/Edit Item Modal */}
           {showAddForm && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+              <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingItem ? "Edit Gallery Item" : "Add New Gallery Item"}
               </h4>
+              <button
+                onClick={() => { setShowAddForm(false); setEditingItem(null); }}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              </div>
+              <div className="p-4 sm:p-6">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
@@ -779,7 +791,7 @@ export function AdminGalleryManager({
                           title: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="e.g., Bathroom Renovation in Clapham"
                     />
                   </div>
@@ -796,7 +808,7 @@ export function AdminGalleryManager({
                           section_id: e.target.value || undefined,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">No specific section</option>
                       {gallerySections.map((section) => (
@@ -820,7 +832,7 @@ export function AdminGalleryManager({
                           project_type: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="e.g., Bathroom, Kitchen, Leak Repair"
                     />
                   </div>
@@ -832,8 +844,8 @@ export function AdminGalleryManager({
                     
                     {/* Location Type Selection */}
                     <div className="mb-3">
-                      <div className="flex space-x-4">
-                        <label className="flex items-center">
+                      <div className="flex flex-wrap gap-3 sm:gap-4">
+                        <label className="flex items-center gap-2 min-h-[44px] cursor-pointer touch-manipulation">
                           <input
                             type="radio"
                             name="locationType"
@@ -842,11 +854,11 @@ export function AdminGalleryManager({
                               setUseCustomLocation(false);
                               setFormData((prev) => ({ ...prev, location: "" }));
                             }}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                            className="text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700 dark:text-gray-300">Select from areas</span>
                         </label>
-                        <label className="flex items-center">
+                        <label className="flex items-center gap-2 min-h-[44px] cursor-pointer touch-manipulation">
                           <input
                             type="radio"
                             name="locationType"
@@ -855,7 +867,7 @@ export function AdminGalleryManager({
                               setUseCustomLocation(true);
                               setFormData((prev) => ({ ...prev, location: "" }));
                             }}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                            className="text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700 dark:text-gray-300">Custom location</span>
                         </label>
@@ -872,7 +884,7 @@ export function AdminGalleryManager({
                             location: e.target.value,
                           }))
                         }
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                         disabled={areasLoading}
                       >
                         <option value="">Select an area...</option>
@@ -892,7 +904,7 @@ export function AdminGalleryManager({
                             location: e.target.value,
                           }))
                         }
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                         placeholder="e.g., Custom location name"
                       />
                     )}
@@ -911,7 +923,7 @@ export function AdminGalleryManager({
                           completion_date: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -1324,6 +1336,8 @@ export function AdminGalleryManager({
                   Cancel
                 </button>
               </div>
+              </div>
+              </div>
             </div>
           )}
         </>
@@ -1383,14 +1397,26 @@ export function AdminGalleryManager({
             ))}
           </div>
 
-          {/* Add/Edit Section Form */}
+          {/* Add/Edit Section Modal */}
           {showAddSectionForm && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+              <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingSection
                   ? "Edit Gallery Section"
                   : "Add New Gallery Section"}
               </h4>
+              <button
+                onClick={() => { setShowAddSectionForm(false); setEditingSection(null); setSectionFormData({ ...defaultSection }); }}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              </div>
+              <div className="p-4 sm:p-6">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -1406,7 +1432,7 @@ export function AdminGalleryManager({
                         title: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Bathroom Projects"
                   />
                 </div>
@@ -1424,7 +1450,7 @@ export function AdminGalleryManager({
                         color: e.target.value,
                       }))
                     }
-                    className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-12 min-h-[44px] border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                 </div>
 
@@ -1441,12 +1467,12 @@ export function AdminGalleryManager({
                         order: parseInt(e.target.value) || 0,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                     min="0"
                   />
                 </div>
 
-                <div className="flex items-center">
+                <label className="flex items-center gap-3 min-h-[44px] cursor-pointer touch-manipulation">
                   <input
                     type="checkbox"
                     id="section_is_active"
@@ -1457,15 +1483,10 @@ export function AdminGalleryManager({
                         is_active: e.target.checked,
                       }))
                     }
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label
-                    htmlFor="section_is_active"
-                    className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                  >
-                    Active
-                  </label>
-                </div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Active</span>
+                </label>
               </div>
 
               <div className="mt-4">
@@ -1481,29 +1502,33 @@ export function AdminGalleryManager({
                     }))
                   }
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                   placeholder="Describe this gallery section..."
                 />
               </div>
 
               {/* Form Actions */}
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-wrap gap-3 mt-6">
                 <button
+                  type="button"
                   onClick={handleSaveSection}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-5 py-3 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors touch-manipulation"
                 >
                   {editingSection ? "Update Section" : "Add Section"}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setShowAddSectionForm(false);
                     setEditingSection(null);
                     setSectionFormData({ ...defaultSection });
                   }}
-                  className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  className="px-5 py-3 min-h-[44px] bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors touch-manipulation"
                 >
                   Cancel
                 </button>
+              </div>
+              </div>
               </div>
             </div>
           )}

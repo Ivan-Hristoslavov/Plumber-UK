@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { AdminProfileData } from "@/components/AdminProfileData";
+import { useAdminProfile } from "@/hooks/useAdminProfile";
 
 const navigation = [
   {
@@ -126,9 +127,19 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { profile } = useAdminProfile();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const adminInitials = profile?.name?.trim()
+    ? profile.name
+        .split(/\s+/)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "AD"
+    : "AD";
 
   useEffect(() => {
     // Check if we're on the login page
@@ -149,7 +160,7 @@ export default function AdminLayout({
 
   // If we're on the login page, just render the children
   if (pathname === "/admin/login") {
-    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
+    return <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
   }
 
   // Show loading state
@@ -191,7 +202,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -208,23 +219,24 @@ export default function AdminLayout({
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-blue-700">
-          <Link className="flex items-center space-x-2" href="/admin/dashboard">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+        {/* Sidebar Header - compact on mobile */}
+        <div className="flex items-center justify-between h-14 lg:h-16 px-4 lg:px-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
+          <Link className="flex items-center gap-2 min-w-0" href="/admin/dashboard" onClick={() => setSidebarOpen(false)}>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 bg-white/95 rounded-lg flex items-center justify-center shrink-0">
               <svg
-                className="w-5 h-5 text-blue-600"
+                className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
                 <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
               </svg>
             </div>
-            <span className="text-white font-bold text-lg">Admin Panel</span>
+            <span className="text-white font-semibold text-base lg:text-lg truncate">Admin</span>
           </Link>
           <button
-            className="lg:hidden text-white hover:text-gray-200 transition-colors"
+            className="lg:hidden p-2 -mr-2 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
           >
             <svg
               className="w-6 h-6"
@@ -278,21 +290,11 @@ export default function AdminLayout({
           </div>
         </nav>
 
-        {/* User section - Fixed at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">PZ</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                <AdminProfileData type="name" fallback="Plamen Zhelev" />
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
-            </div>
-          </div>
+        {/* User section - Fixed at bottom, refined for mobile */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 lg:p-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
+          
           <button
-            className="w-full flex items-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-900/50"
             onClick={async () => {
               try {
                 await fetch("/api/admin/auth", { method: "DELETE" });
@@ -304,7 +306,7 @@ export default function AdminLayout({
             }}
           >
             <svg
-              className="w-4 h-4 mr-2"
+              className="w-4 h-4 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -368,11 +370,12 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Quick Actions - Top Navigation */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 sm:p-4 lg:p-6 sticky top-16 z-20 transition-colors duration-300">
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        {/* Quick Actions - Top Navigation (hidden on mobile when in Settings to reduce clutter) */}
+        {!(pathname?.startsWith("/admin/settings") ?? false) && (
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 sm:p-4 lg:p-5 sticky top-16 z-20 transition-colors duration-300">
+          <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             <Link
-              className="flex items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
+              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group min-w-0"
               href="/admin/bookings"
             >
               <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/70 transition-colors">
@@ -397,7 +400,7 @@ export default function AdminLayout({
             </Link>
 
             <Link
-              className="flex items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group"
+              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group min-w-0"
               href="/admin/invoices"
             >
               <div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-800/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800/70 transition-colors relative">
@@ -437,7 +440,7 @@ export default function AdminLayout({
             </Link>
 
             <Link
-              className="flex items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group"
+              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group min-w-0"
               href="/admin/customers"
             >
               <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-800/70 transition-colors">
@@ -464,7 +467,7 @@ export default function AdminLayout({
             </Link>
 
             <Link
-              className="flex items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group"
+              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group min-w-0"
               href="/admin/dashboard"
             >
               <div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-800/50 rounded-lg group-hover:bg-yellow-200 dark:group-hover:bg-yellow-800/70 transition-colors">
@@ -491,10 +494,11 @@ export default function AdminLayout({
             </Link>
           </div>
         </div>
+        )}
 
         {/* Page content */}
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-          <div className="p-3 sm:p-4 lg:p-6 xl:p-8">{children}</div>
+        <main className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+          <div className={`p-3 sm:p-4 lg:p-6 xl:p-8 ${pathname?.startsWith("/admin/settings") ? "pt-0 lg:pt-6" : ""}`}>{children}</div>
         </main>
       </div>
     </div>

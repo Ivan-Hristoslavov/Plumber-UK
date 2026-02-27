@@ -85,7 +85,7 @@ export function ReviewForm() {
   if (submitResult) {
     return (
       <section
-        className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500"
+        className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
         id="leave-review"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,7 +159,7 @@ export function ReviewForm() {
 
   return (
     <section
-      className="py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-500"
+      className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
       id="leave-review"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

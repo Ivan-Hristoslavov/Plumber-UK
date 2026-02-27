@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, startOfWeek, addDays, isSameDay, parseISO } from "date-fns";
+import { format, startOfWeek, startOfMonth, endOfMonth, addDays, addWeeks, addMonths, isSameDay, isSameMonth, parseISO, eachDayOfInterval } from "date-fns";
 
 type Booking = {
   id: string;
@@ -25,7 +25,7 @@ export default function CalendarPage() {
     format(new Date(), "yyyy-MM-dd")
   );
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [view, setView] = useState<"week" | "day">("week");
+  const [view, setView] = useState<"month" | "week" | "day">("month");
   const [multiSlotBookings, setMultiSlotBookings] = useState<Booking[] | null>(
     null
   );
@@ -33,9 +33,26 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [editForm, setEditForm] = useState({
+    customer_name: "",
+    customer_email: "",
+    customer_phone: "",
+    service: "",
+    date: "",
+    time: "",
+    amount: "",
+    address: "",
+    notes: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
-  const weekStart = startOfWeek(parseISO(selectedDate), { weekStartsOn: 1 });
+  const currentDate = parseISO(selectedDate);
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const monthStart = startOfMonth(currentDate);
+  const firstDisplayDay = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const monthCalendarDays = Array.from({ length: 42 }, (_, i) => addDays(firstDisplayDay, i));
 
   // Load bookings from Supabase
   useEffect(() => {
@@ -112,22 +129,72 @@ export default function CalendarPage() {
   const updateBookingStatus = async (bookingId: string, status: string) => {
     try {
       const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-
       if (response.ok) {
-        await loadBookings(); // Reload bookings
-        setSelectedBooking(null);
-      } else {
-        throw new Error("Failed to update booking status");
-      }
+        const data = await response.json();
+        await loadBookings();
+        if (selectedBooking?.id === bookingId && data?.booking) {
+          setSelectedBooking(data.booking);
+        }
+      } else throw new Error("Failed to update booking status");
     } catch (err) {
       console.error("Error updating booking status:", err);
       setError("Failed to update booking status");
+    }
+  };
+
+  const openEditBooking = (booking: Booking) => {
+    setEditingBooking(booking);
+    setEditForm({
+      customer_name: booking.customer_name,
+      customer_email: booking.customer_email || "",
+      customer_phone: booking.customer_phone || "",
+      service: booking.service,
+      date: booking.date,
+      time: booking.time,
+      amount: booking.amount.toString(),
+      address: booking.address || "",
+      notes: booking.notes || "",
+    });
+  };
+
+  const closeEditBooking = () => {
+    setEditingBooking(null);
+  };
+
+  const saveEditBooking = async () => {
+    if (!editingBooking) return;
+    setSavingEdit(true);
+    try {
+      const response = await fetch(`/api/bookings/${editingBooking.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: editForm.customer_name,
+          customer_email: editForm.customer_email || null,
+          customer_phone: editForm.customer_phone || null,
+          service: editForm.service,
+          date: editForm.date,
+          time: editForm.time,
+          amount: parseFloat(editForm.amount) || 0,
+          address: editForm.address || null,
+          notes: editForm.notes || null,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        await loadBookings();
+        setSelectedBooking(data.booking);
+        setEditingBooking(null);
+      } else throw new Error("Failed to update booking");
+    } catch (err) {
+      console.error("Error updating booking:", err);
+      setError("Failed to update booking");
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -179,27 +246,37 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Calendar Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Calendar</h1>
-          <div className="flex space-x-2">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Calendar</h1>
+          <div className="flex space-x-1 sm:space-x-2">
             <button
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                view === "month"
+                  ? "bg-blue-600 text-white dark:bg-blue-500"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              }`}
+              onClick={() => setView("month")}
+            >
+              Month
+            </button>
+            <button
+              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 view === "week"
-                  ? "bg-primary text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+                  ? "bg-blue-600 text-white dark:bg-blue-500"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               }`}
               onClick={() => setView("week")}
             >
               Week
             </button>
             <button
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 view === "day"
-                  ? "bg-primary text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+                  ? "bg-blue-600 text-white dark:bg-blue-500"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               }`}
               onClick={() => setView("day")}
             >
@@ -229,53 +306,37 @@ export default function CalendarPage() {
               Cancelled ({bookings.filter((b) => b.status === "cancelled").length})
             </option>
           </select>
-          
-          {/* Legend - Hidden on mobile, shown on larger screens */}
-          <div className="hidden lg:flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
-              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Pending</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
-              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Scheduled</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
-              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Completed</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
-              <span className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Cancelled</span>
-            </div>
-          </div>
         </div>
         
         {/* Navigation Controls */}
         <div className="flex items-center justify-between sm:justify-end gap-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center gap-2 flex-1 sm:flex-initial">
             <button
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
-              onClick={() =>
-                setSelectedDate(
-                  format(addDays(parseISO(selectedDate), -7), "yyyy-MM-dd")
-                )
-              }
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors shrink-0"
+              onClick={() => {
+                const d = parseISO(selectedDate);
+                const next = view === "month" ? addMonths(d, -1) : view === "week" ? addWeeks(d, -1) : addDays(d, -1);
+                setSelectedDate(format(next, "yyyy-MM-dd"));
+              }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
               </svg>
             </button>
-            <span className="text-sm sm:text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
-              {format(weekStart, "MMM d")} - {format(addDays(weekStart, 6), "MMM d, yyyy")}
+            <span className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap tabular-nums">
+              {view === "month"
+                ? format(monthStart, "MMMM yyyy")
+                : view === "day"
+                  ? format(currentDate, "EEE, MMM d, yyyy")
+                  : `${format(weekStart, "MMM d")} – ${format(addDays(weekStart, 6), "MMM d, yyyy")}`}
             </span>
             <button
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors duration-300"
-              onClick={() =>
-                setSelectedDate(
-                  format(addDays(parseISO(selectedDate), 7), "yyyy-MM-dd")
-                )
-              }
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors shrink-0"
+              onClick={() => {
+                const d = parseISO(selectedDate);
+                const next = view === "month" ? addMonths(d, 1) : view === "week" ? addWeeks(d, 1) : addDays(d, 1);
+                setSelectedDate(format(next, "yyyy-MM-dd"));
+              }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
@@ -316,266 +377,390 @@ export default function CalendarPage() {
 
       {/* Calendar Grid */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-300 overflow-hidden">
-        {/* Mobile Legend */}
-        <div className="lg:hidden p-4 border-b dark:border-gray-700">
-          <div className="flex flex-wrap gap-3 text-xs">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-yellow-100 dark:bg-yellow-800/50 rounded border border-yellow-200 dark:border-yellow-700" />
-              <span className="text-gray-600 dark:text-gray-300">Pending</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-100 dark:bg-blue-800/50 rounded border border-blue-200 dark:border-blue-700" />
-              <span className="text-gray-600 dark:text-gray-300">Scheduled</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-100 dark:bg-green-800/50 rounded border border-green-200 dark:border-green-700" />
-              <span className="text-gray-600 dark:text-gray-300">Completed</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-red-100 dark:bg-red-800/50 rounded border border-red-200 dark:border-red-700" />
-              <span className="text-gray-600 dark:text-gray-300">Cancelled</span>
+        {/* Month View */}
+        {view === "month" && (
+          <div className="p-4">
+            <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-600 rounded-lg overflow-hidden">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+                <div key={d} className="bg-gray-50 dark:bg-gray-800 p-2 text-center text-xs font-semibold text-gray-600 dark:text-gray-400">
+                  {d}
+                </div>
+              ))}
+              {monthCalendarDays.map((day) => {
+                const dayBookings = getBookingsForDate(day);
+                const isCurrentMonth = isSameMonth(day, monthStart);
+                return (
+                  <div
+                    key={day.toString()}
+                    className={`min-h-[80px] sm:min-h-[100px] p-2 bg-white dark:bg-gray-800 ${
+                      !isCurrentMonth ? "opacity-40" : ""
+                    } ${isSameDay(day, new Date()) ? "ring-2 ring-blue-500 ring-inset" : ""}`}
+                  >
+                    <div className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {format(day, "d")}
+                    </div>
+                    <div className="space-y-0.5 overflow-y-auto max-h-[70px] sm:max-h-[85px]">
+                      {dayBookings.slice(0, 3).map((b) => (
+                        <button
+                          key={b.id}
+                          className="w-full text-left p-1 rounded text-xs truncate bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                          onClick={() => setSelectedBooking(b)}
+                        >
+                          {b.time} {b.customer_name}
+                        </button>
+                      ))}
+                      {dayBookings.length > 3 && (
+                        <button
+                          className="w-full text-xs text-center text-gray-500 hover:text-blue-600"
+                          onClick={() => setMultiSlotBookings(dayBookings)}
+                        >
+                          +{dayBookings.length - 3} more
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-        
-        {/* Calendar header with better mobile handling */}
-        <div className="overflow-x-auto">
-          <div className="min-w-[640px]">
-            <div className="grid grid-cols-8 border-b dark:border-gray-700 transition-colors duration-300">
-              <div className="p-2 sm:p-4 border-r dark:border-gray-700 transition-colors duration-300 w-16 sm:w-auto" />
-              {weekDays.map((day) => (
+        )}
+
+        {/* Week View & Day View - Time slot grid */}
+        {(view === "week" || view === "day") && (
+          <div className="w-full overflow-hidden">
+            <div className="max-h-[70vh] overflow-y-auto">
+            <div
+              className="grid w-full border-b dark:border-gray-700"
+              style={{
+                gridTemplateColumns: view === "day"
+                  ? "4rem 1fr"
+                  : "4rem repeat(7, minmax(0, 1fr))",
+              }}
+            >
+              {/* Header row: time cell + day cells */}
+              <div className="p-2 border-r dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50" />
+              {(view === "day" ? [currentDate] : weekDays).map((day) => (
                 <div
                   key={day.toString()}
-                  className={`p-2 sm:p-4 text-center border-r dark:border-gray-700 transition-colors duration-300 ${
-                    isSameDay(day, new Date()) ? "bg-primary/5 dark:bg-primary/20" : ""
+                  className={`p-2 text-center border-r dark:border-gray-700 min-w-0 ${
+                    isSameDay(day, new Date())
+                      ? "bg-blue-50 dark:bg-blue-900/20"
+                      : "bg-gray-50 dark:bg-gray-800/50"
                   }`}
                 >
-                  <div className="font-medium dark:text-white transition-colors duration-300 text-xs sm:text-sm">
+                  <div className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
                     {format(day, "EEE")}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {format(day, "MMM d")}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Time slots with better mobile handling */}
-            {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
-              <div key={hour} className="grid grid-cols-8 border-b dark:border-gray-700 last:border-b-0 transition-colors duration-300">
-                <div className="p-2 sm:p-4 border-r dark:border-gray-700 text-xs sm:text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300 w-16 sm:w-auto">
-                  {format(new Date().setHours(hour, 0), "HH:00")}
+            {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+              <div
+                key={hour}
+                className="grid w-full border-b dark:border-gray-700 last:border-b-0"
+                style={{
+                  gridTemplateColumns: view === "day"
+                    ? "4rem 1fr"
+                    : "4rem repeat(7, minmax(0, 1fr))",
+                }}
+              >
+                <div className="p-2 border-r dark:border-gray-700 text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/30 shrink-0">
+                  {format(new Date(2000, 0, 1, hour, 0), "HH:mm")}
                 </div>
-                {weekDays.map((day) => {
-                  const bookings = getBookingsForDate(day).filter(
-                    (booking) => parseInt(booking.time.split(":")[0]) === hour
-                  );
-
+                {(view === "day" ? [currentDate] : weekDays).map((day) => {
+                  const slotBookings = getBookingsForDate(day).filter((b) => {
+                    const h = parseInt(b.time?.split(":")[0] || "0", 10);
+                    return !isNaN(h) && h === hour;
+                  });
                   return (
                     <div
                       key={day.toString()}
-                      className="p-1 sm:p-2 border-r dark:border-gray-700 min-h-[80px] sm:min-h-[120px] relative transition-colors duration-300"
+                      className="p-1 sm:p-2 border-r dark:border-gray-700 min-h-[50px] sm:min-h-[80px] min-w-0 overflow-hidden"
                     >
-                      {bookings.length > 0 && (
-                        <div className="space-y-1">
-                          {/* Show first booking */}
-                          <button
-                            key={bookings[0].id}
-                            className={`w-full p-1 sm:p-2 text-left rounded-lg transition-all duration-300 transform hover:scale-105 ${
-                              bookings[0].status === "completed"
-                                ? "bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800"
-                                : bookings[0].status === "cancelled"
-                                  ? "bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800"
-                                  : bookings[0].status === "pending"
-                                    ? "bg-yellow-50 dark:bg-yellow-900/30 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800"
-                                    : "bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
-                            }`}
-                            onClick={() => setSelectedBooking(bookings[0])}
-                          >
-                            <div className="text-xs sm:text-sm font-medium dark:text-white transition-colors duration-300 truncate">
-                              {bookings[0].customer_name}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300 truncate">
-                              {bookings[0].service}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                              {bookings[0].time}
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              <span className={`px-1 py-0.5 rounded text-xs ${getStatusColor(bookings[0].status)}`}>
-                                {bookings[0].status}
-                              </span>
-                              <span className={`px-1 py-0.5 rounded text-xs ${getPaymentStatusColor(bookings[0].payment_status)}`}>
-                                {bookings[0].payment_status}
-                              </span>
-                            </div>
-                          </button>
-                          
-                          {/* Show additional bookings indicator */}
-                          {bookings.length > 1 && (
+                        {slotBookings.length > 0 && (
+                          <div className="space-y-1">
                             <button
-                              className="w-full p-1 text-xs text-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors duration-300 text-gray-700 dark:text-gray-300 font-medium"
-                              onClick={() => setMultiSlotBookings(bookings)}
+                              className="w-full p-1 sm:p-2 text-left rounded-lg text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+                              onClick={() => setSelectedBooking(slotBookings[0])}
                             >
-                              +{bookings.length - 1} more
+                              <div className="font-medium truncate">{slotBookings[0].customer_name}</div>
+                              <div className="text-gray-600 dark:text-gray-400 truncate">{slotBookings[0].service}</div>
                             </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+                            {slotBookings.length > 1 && (
+                              <button
+                                className="w-full p-1 text-xs text-center rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                onClick={() => setMultiSlotBookings(slotBookings)}
+                              >
+                                +{slotBookings.length - 1} more
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Booking Details Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full transition-colors duration-300">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Booking Details</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transition-colors duration-300 border border-gray-200/50 dark:border-gray-700/50">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 px-6 py-5">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-lg font-semibold text-white">Booking Details</h2>
+                  <p className="text-blue-100 text-sm mt-0.5">
+                    {format(parseISO(selectedBooking.date), "EEEE, MMM d, yyyy")} · {selectedBooking.time}
+                  </p>
+                </div>
                 <button
-                  className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors duration-300"
+                  className="p-2 rounded-lg text-white/80 hover:bg-white/20 hover:text-white transition-colors -m-2"
                   onClick={() => setSelectedBooking(null)}
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M6 18L18 6M6 6l12 12"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                    />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                    Customer
-                  </label>
-                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                    {selectedBooking.customer_name}
-                  </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-5">
+              {/* Customer */}
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+                  <span className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                    {selectedBooking.customer_name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-gray-900 dark:text-white truncate">{selectedBooking.customer_name}</p>
                   {selectedBooking.customer_email && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    <a
+                      href={`mailto:${selectedBooking.customer_email}`}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline truncate block"
+                    >
                       {selectedBooking.customer_email}
-                    </div>
+                    </a>
                   )}
                   {selectedBooking.customer_phone && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    <a
+                      href={`tel:${selectedBooking.customer_phone}`}
+                      className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 truncate block"
+                    >
                       {selectedBooking.customer_phone}
-                    </div>
+                    </a>
                   )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                    Service
-                  </label>
-                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                    {selectedBooking.service}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Date
-                    </label>
-                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                      {format(parseISO(selectedBooking.date), "MMM dd, yyyy")}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Time
-                    </label>
-                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                      {selectedBooking.time}
-                    </div>
-                  </div>
-                </div>
-                {selectedBooking.address && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Address
-                    </label>
-                    <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                      {selectedBooking.address}
-                    </div>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Status
-                    </label>
-                    <div className="mt-1">
-                      <select
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                        value={selectedBooking.status}
-                        onChange={(e) =>
-                          updateBookingStatus(
-                            selectedBooking.id,
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Payment
-                    </label>
-                    <div className="mt-1">
-                      <span
-                        className={`px-2 py-1 rounded text-sm ${getPaymentStatusColor(selectedBooking.payment_status)}`}
-                      >
-                        {selectedBooking.payment_status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                    Amount
-                  </label>
-                  <div className="mt-1 text-gray-900 dark:text-white transition-colors duration-300">
-                    £{selectedBooking.amount.toFixed(2)}
-                  </div>
-                </div>
-                {selectedBooking.notes && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Notes
-                    </label>
-                    <div className="mt-1 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm transition-colors duration-300">
-                      {selectedBooking.notes}
-                    </div>
-                  </div>
-                )}
               </div>
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
-                  onClick={() => setSelectedBooking(null)}
+
+              {/* Service & Amount */}
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-600/50">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Service</p>
+                  <p className="font-medium text-gray-900 dark:text-white mt-0.5">{selectedBooking.service}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">£{selectedBooking.amount.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Status & Payment */}
+              <div className="flex flex-wrap gap-2">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Status</p>
+                  <select
+                    className="px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    value={selectedBooking.status}
+                    onChange={(e) => updateBookingStatus(selectedBooking.id, e.target.value)}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Payment</p>
+                  <span className={`inline-flex px-3 py-2 rounded-lg text-sm font-medium ${getPaymentStatusColor(selectedBooking.payment_status)}`}>
+                    {selectedBooking.payment_status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Address */}
+              {selectedBooking.address && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Address</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{selectedBooking.address}</p>
+                </div>
+              )}
+
+              {/* Notes */}
+              {selectedBooking.notes && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Notes</p>
+                  <div className="p-3 rounded-lg bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{selectedBooking.notes}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-100 dark:border-gray-700 flex gap-2">
+              <button
+                className="flex-1 py-2.5 px-4 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                onClick={() => openEditBooking(selectedBooking)}
+              >
+                Edit
+              </button>
+              <button
+                className="flex-1 py-2.5 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => setSelectedBooking(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Booking Modal */}
+      {editingBooking && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60] animate-fade-in overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full my-8 overflow-hidden transition-colors duration-300 border border-gray-200/50 dark:border-gray-700/50">
+            <div className="px-6 py-4 border-b dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Booking</h2>
+            </div>
+            <form
+              onSubmit={(e) => { e.preventDefault(); saveEditBooking(); }}
+              className="p-6 space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Customer Name</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.customer_name}
+                  onChange={(e) => setEditForm((p) => ({ ...p, customer_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                <input
+                  type="email"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.customer_email}
+                  onChange={(e) => setEditForm((p) => ({ ...p, customer_email: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.customer_phone}
+                  onChange={(e) => setEditForm((p) => ({ ...p, customer_phone: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service</label>
+                <select
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.service}
+                  onChange={(e) => setEditForm((p) => ({ ...p, service: e.target.value }))}
                 >
-                  Close
+                  <option value="Leak Detection">Leak Detection</option>
+                  <option value="Pipe Repair">Pipe Repair</option>
+                  <option value="Drain Cleaning">Drain Cleaning</option>
+                  <option value="Emergency Plumbing">Emergency Plumbing</option>
+                  <option value="Boiler Service">Boiler Service</option>
+                  <option value="Bathroom Installation">Bathroom Installation</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                  <input
+                    type="date"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    value={editForm.date}
+                    onChange={(e) => setEditForm((p) => ({ ...p, date: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
+                  <input
+                    type="time"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    value={editForm.time}
+                    onChange={(e) => setEditForm((p) => ({ ...p, time: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount (£)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.amount}
+                  onChange={(e) => setEditForm((p) => ({ ...p, amount: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm((p) => ({ ...p, address: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                <textarea
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))}
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className="flex-1 py-2.5 px-4 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl disabled:opacity-50"
+                >
+                  {savingEdit ? "Saving..." : "Save"}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeEditBooking}
+                  className="flex-1 py-2.5 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  Cancel
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}

@@ -280,9 +280,12 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customers</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Customers</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Manage your customer database</p>
+        </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Refresh Button */}
           <button
@@ -449,11 +452,11 @@ export default function CustomersPage() {
 
           {/* Cards View */}
           {viewMode === "cards" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {customers.map((customer) => (
                 <div
                   key={customer.id}
-                  className="group bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden relative"
+                  className="group bg-white dark:bg-gray-800 shadow-md sm:shadow-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg sm:hover:shadow-2xl sm:hover:scale-[1.02] transition-all duration-300 overflow-hidden relative"
                 >
                   {/* Background gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -461,16 +464,16 @@ export default function CustomersPage() {
                   {/* Content */}
                   <div className="relative z-10">
                     {/* Header */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                    <div className="flex items-start justify-between mb-3 sm:mb-6">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center mb-1 sm:mb-2">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-lg flex-shrink-0">
                             <span className="text-white font-semibold text-sm">
                               {customer.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white transition-colors duration-300">
+                          <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white transition-colors duration-300 truncate">
                               {customer.name}
                             </h3>
                             {customer.customer_type === "company" && customer.contact_person && (
@@ -482,7 +485,7 @@ export default function CustomersPage() {
                         </div>
                       </div>
                       <span
-                        className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-300 ${
+                        className={`inline-flex px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full flex-shrink-0 transition-colors duration-300 ${
                           customer.customer_type === "individual"
                             ? "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
                             : "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800"
@@ -493,64 +496,67 @@ export default function CustomersPage() {
                     </div>
                     
                     {/* Contact Info */}
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                        <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="space-y-2 sm:space-y-4 mb-3 sm:mb-6">
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300 min-w-0">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
                         </div>
                         <span className="truncate font-medium">{customer.email}</span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                        <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3">
-                          <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300 min-w-0">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
                         </div>
-                        <span className="font-medium">{customer.phone}</span>
+                        <span className="font-medium truncate">{customer.phone}</span>
                       </div>
-                      <div className="flex items-start text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                        <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                          <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-start text-xs sm:text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300 min-w-0">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mr-2 sm:mr-3 mt-0.5 flex-shrink-0">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                         </div>
-                        <span className="break-words">{customer.address}</span>
+                        <span className="break-words line-clamp-2 sm:line-clamp-none">{customer.address}</span>
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    {/* Action Buttons - touch-friendly on mobile */}
+                    <div className="flex justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
                       <button
-                        className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 group-hover:scale-110"
+                        className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] sm:min-w-0 p-2.5 sm:p-2 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 touch-manipulation"
                         onClick={() => setSelectedCustomer(customer)}
                         title="View Details"
+                        aria-label="View details"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                       </button>
                       <button
-                        className="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors duration-300 group-hover:scale-110"
+                        className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] sm:min-w-0 p-2.5 sm:p-2 flex items-center justify-center bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors duration-300 touch-manipulation"
                         onClick={() => {
                           setEditingCustomer(customer);
                           setShowEditModal(true);
                         }}
                         title="Edit Customer"
+                        aria-label="Edit customer"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
                       <button
-                        className="p-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors duration-300 group-hover:scale-110"
+                        className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] sm:min-w-0 p-2.5 sm:p-2 flex items-center justify-center bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors duration-300 touch-manipulation"
                         onClick={() => handleDeleteClick(customer)}
                         title="Delete Customer"
+                        aria-label="Delete customer"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
@@ -575,46 +581,39 @@ export default function CustomersPage() {
 
       {/* Add Customer Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] relative transition-colors duration-300">
-            {/* Close button */}
-            <button
-              aria-label="Close"
-              className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none transition-colors duration-300"
-              type="button"
-              onClick={() => setShowAddModal(false)}
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M6 18L18 6M6 6l12 12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
-              </svg>
-            </button>
-            <form
-              className="p-8 space-y-6 overflow-y-auto max-h-[70vh]"
-              onSubmit={handleAddCustomer}
-            >
-              <h2 className="text-2xl font-bold mb-4 text-primary dark:text-primary-light transition-colors duration-300">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none transition-colors duration-300">
+            {/* Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+              <h2 className="text-lg sm:text-xl font-bold text-primary dark:text-primary-light transition-colors duration-300">
                 Add Customer
               </h2>
-              <div className="flex space-x-2 mb-6">
+              <button
+                aria-label="Close"
+                className="p-2 -m-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none transition-colors duration-300 touch-manipulation"
+                type="button"
+                onClick={() => setShowAddModal(false)}
+              >
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+              </button>
+            </div>
+            <form
+              className="flex flex-col flex-1 min-h-0 overflow-hidden"
+              onSubmit={handleAddCustomer}
+            >
+            <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
+              <div className="flex gap-2 sm:gap-3">
                 <button
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-300 ${addType === "individual" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
+                  className={`flex-1 min-h-[44px] px-4 py-3 rounded-xl font-medium border transition-colors duration-300 touch-manipulation ${addType === "individual" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
                   type="button"
                   onClick={() => setAddType("individual")}
                 >
                   Individual
                 </button>
                 <button
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium border transition-colors duration-300 ${addType === "company" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
+                  className={`flex-1 min-h-[44px] px-4 py-3 rounded-xl font-medium border transition-colors duration-300 touch-manipulation ${addType === "company" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
                   type="button"
                   onClick={() => setAddType("company")}
                 >
@@ -625,14 +624,14 @@ export default function CustomersPage() {
                 <div className="text-red-600 dark:text-red-400 text-sm mb-2 transition-colors duration-300">{formError}</div>
               )}
               {addType === "individual" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
                       Name<span className="text-red-500 dark:text-red-400 transition-colors duration-300">*</span>
                     </label>
                     <input
                       required
-                      className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.name}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -648,7 +647,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       type="email"
                       value={newCustomer.email}
                       onChange={(e) =>
@@ -665,7 +664,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.phone}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -681,7 +680,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.address}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -694,17 +693,17 @@ export default function CustomersPage() {
                 </div>
               ) : (
                 <>
-                  <div className="text-lg font-semibold text-gray-700 mb-2">
+                  <div className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Company Details
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Name<span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Name<span className="text-red-500 dark:text-red-400">*</span>
                       </label>
                       <input
                         required
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyName}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -715,12 +714,12 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Email<span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Email<span className="text-red-500 dark:text-red-400">*</span>
                       </label>
                       <input
                         required
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
                         value={newCustomer.companyEmail}
                         onChange={(e) =>
@@ -732,12 +731,12 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Phone<span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Phone<span className="text-red-500 dark:text-red-400">*</span>
                       </label>
                       <input
                         required
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyPhone}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -748,12 +747,12 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Company Address<span className="text-red-500">*</span>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Address<span className="text-red-500 dark:text-red-400">*</span>
                       </label>
                       <input
                         required
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyAddress}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -764,11 +763,11 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         VAT Number
                       </label>
                       <input
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.vat}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -779,16 +778,16 @@ export default function CustomersPage() {
                       />
                     </div>
                   </div>
-                  <div className="text-lg font-semibold text-gray-700 mb-2">
+                  <div className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Contact Person (optional)
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Person
                       </label>
                       <input
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPerson}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -799,11 +798,11 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Email
                       </label>
                       <input
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
                         value={newCustomer.contactEmail}
                         onChange={(e) =>
@@ -815,11 +814,11 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Phone
                       </label>
                       <input
-                        className="block w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPhone}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -832,16 +831,17 @@ export default function CustomersPage() {
                   </div>
                 </>
               )}
-              <div className="mt-8 flex justify-end space-x-2">
+              </div>
+              <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-5 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors touch-manipulation"
                   type="button"
                   onClick={() => setShowAddModal(false)}
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark shadow"
+                  className="px-5 py-3 min-h-[44px] text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark shadow touch-manipulation"
                   type="submit"
                 >
                   Add Customer
