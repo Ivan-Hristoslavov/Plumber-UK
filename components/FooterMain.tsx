@@ -18,11 +18,13 @@ const quickLinks = [
   { name: "FAQ", href: "#faq" },
   { name: "Reviews", href: "#reviews" },
   { name: "Contact", href: "#contact" },
+  { name: "Service Areas", href: "#service-areas" },
 ];
 
 type ServiceArea = {
-  id: number;
+  id: number | string;
   name: string;
+  postcode?: string;
   description: string;
   is_active: boolean;
   slug: string;
@@ -169,12 +171,12 @@ export default function FooterMain() {
             )}
           </div>
 
-          {/* Quick Links - Single column on mobile, 2-col on larger */}
+          {/* Quick Links */}
           <div className="order-2">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Quick Links
             </h3>
-            <nav className="mt-3 sm:mt-4 flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-x-6 sm:gap-y-2">
+            <nav className="mt-3 sm:mt-4 flex flex-col gap-2">
               {quickLinks.map((item) => (
                 <Link
                   key={item.name}
@@ -187,6 +189,25 @@ export default function FooterMain() {
               ))}
             </nav>
           </div>
+
+          {/* Service Areas - from DB, display only (no links) */}
+          {serviceAreas.length > 0 && (
+            <div className="order-3">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
+                Service Areas
+              </h3>
+              <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+                {serviceAreas.map((area) => (
+                  <span
+                    key={area.id}
+                    className="text-sm text-gray-600 dark:text-gray-400"
+                  >
+                    {area.postcode ? `${area.name} (${area.postcode})` : area.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom bar: Desktop = Copyright left | Developed by right; Mobile = Terms/Privacy, Developed by, Copyright */}

@@ -15,6 +15,7 @@ const navigation = [
     href: "#about",
     dropdown: [
       { name: "Our Story", href: "#our-story" },
+      { name: "Service Areas", href: "#service-areas" },
       { name: "Gallery", href: "#gallery" }
     ]
   },
@@ -198,21 +199,21 @@ export default function NavigationNavbar() {
     <>
       {/* ── Mobile slide-in panel ── */}
       <div
-        className={`fixed inset-0 z-[60] lg:hidden transition-all duration-300 ${
+        className={`fixed inset-0 z-[60] lg:hidden transition-[visibility] duration-200 ${
           isMobileMenuOpen ? "visible" : "invisible pointer-events-none"
         }`}
       >
         {/* Scrim */}
         <div
-          className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ease-out ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}`}
           onClick={() => { setIsMobileMenuOpen(false); setOpenMobileGroup(null); }}
         />
 
-        {/* Panel – slides in from right */}
+        {/* Panel – slides in from right with smooth spring-like easing */}
         <div
           ref={mobileMenuRef}
           id="mobile-nav-menu"
-          className={`absolute top-0 right-0 h-full w-[min(85vw,360px)] bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(.4,0,.2,1)] ${
+          className={`absolute top-0 right-0 h-full w-[min(85vw,360px)] bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-250 ease-[cubic-bezier(0.32,0.72,0,1)] ${
             isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -258,7 +259,7 @@ export default function NavigationNavbar() {
                       </svg>
                     </button>
 
-                    <div className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${groupOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
+                    <div className={`overflow-hidden transition-[max-height,opacity] duration-200 ease-out ${groupOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
                       <div className="ml-3 mt-1 mb-2 border-l-2 border-blue-200 dark:border-blue-800 pl-3 space-y-0.5">
                         {item.dropdown.map((sub) => (
                           <Link
