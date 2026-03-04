@@ -1,31 +1,25 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useAdminProfile as useAdminProfileHook } from "@/hooks/useAdminProfile";
+import { usePublicProfile } from "@/hooks/usePublicProfile";
 
 interface AdminProfileContextType {
-  adminProfile: any; // Using any to accommodate the combined profile data
+  adminProfile: any;
   loading: boolean;
   error: string | null;
-  refresh: () => void;
 }
 
 const AdminProfileContext = createContext<AdminProfileContextType | undefined>(undefined);
 
-export function AdminProfileProvider({ 
-  children
-}: { 
+export function AdminProfileProvider({
+  children,
+}: {
   children: ReactNode;
 }) {
-  const { profile, loading, error, refresh } = useAdminProfileHook();
+  const { profile, loading, error } = usePublicProfile();
 
   return (
-    <AdminProfileContext.Provider value={{ 
-      adminProfile: profile, 
-      loading, 
-      error, 
-      refresh 
-    }}>
+    <AdminProfileContext.Provider value={{ adminProfile: profile, loading, error }}>
       {children}
     </AdminProfileContext.Provider>
   );
@@ -45,4 +39,4 @@ export function useAdminProfileContext() {
     throw new Error("useAdminProfileContext must be used within an AdminProfileProvider");
   }
   return context;
-} 
+}

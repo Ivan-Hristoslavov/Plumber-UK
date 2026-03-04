@@ -1,6 +1,6 @@
 "use client";
 
-import { useAdminProfile } from '@/hooks/useAdminProfile';
+import { useAdminProfileContext } from '@/components/AdminProfileContext';
 import { useAdminSettings } from '@/hooks/useAdminSettings';
 import { AdminProfile } from '@/types';
 import { useState, useEffect } from 'react';
@@ -112,7 +112,7 @@ interface AdminProfileDataProps {
 }
 
 export function AdminProfileData({ type, fallback = '', className, asList = false }: AdminProfileDataProps) {
-  const { profile } = useAdminProfile();
+  const { adminProfile: profile, loading: profileLoading } = useAdminProfileContext();
   const { settings: adminSettings } = useAdminSettings();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -120,16 +120,19 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
     setIsMounted(true);
   }, []);
 
-  // Handle special cases that should come from admin settings
+  // Handle response_time: show exactly what is stored (free text)
   if (type === 'response_time') {
-    // Always use fallback during SSR to prevent hydration mismatch
-    const rawValue = fallback || '45-minute';
-    
-    // Normalize the value - remove any existing "minutes" or "minute" text
-    const normalizedValue = String(rawValue).replace(/\s*(minutes?|mins?)\s*/gi, '').trim() || '45';
-    // Format with capitalized "Minutes Response Time"
-    const formattedValue = `${normalizedValue} Minutes Response Time`;
-    return <span className={className}>{formattedValue}</span>;
+    if (profileLoading) {
+      return (
+        <span
+          className={`${className ?? ""} inline-block h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse`}
+        />
+      );
+    }
+
+    const value = (profile?.response_time ?? "").toString().trim();
+    const displayValue = value || fallback || "";
+    return <span className={className}>{displayValue}</span>;
   }
 
   if (!profile && !adminSettings) {
@@ -142,17 +145,19 @@ export function AdminProfileData({ type, fallback = '', className, asList = fals
     return <span className={className}>{value}</span>;
   }
 
-  // Handle years_of_experience to ensure it includes "Years"
+  // Handle years_of_experience: show exactly what is stored (free text)
   if (type === 'years_of_experience') {
-    const value = profile?.years_of_experience || fallback;
-    // If the value doesn't already include "Years", add it
-    const displayValue = value && !value.toLowerCase().includes('years') 
-      ? `${value} Years` 
-      : value;
-    // During SSR/initial render, always use fallback to prevent hydration mismatch
-    // After mount, use actual data
-    const finalDisplayValue = isMounted ? displayValue : (fallback || '10+ Years');
-    return <span className={className}>{finalDisplayValue}</span>;
+    if (profileLoading) {
+      return (
+        <span
+          className={`${className ?? ""} inline-block h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse`}
+        />
+      );
+    }
+
+    const value = (profile?.years_of_experience ?? "").toString().trim();
+    const displayValue = value || fallback || "";
+    return <span className={className}>{displayValue}</span>;
   }
 
   // Handle list-based fields (certifications and specializations) with "Show more" when > 4

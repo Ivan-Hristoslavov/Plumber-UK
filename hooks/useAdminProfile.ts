@@ -83,9 +83,6 @@ export function useAdminProfile() {
       // Use settings data for professional credentials if available
       gas_safe_number: settings?.gasSafeNumber || profile.gas_safe_number,
       insurance_provider: settings?.insuranceProvider || profile.insurance_provider,
-      // Add boolean flags for UI display
-      gas_safe_registered: settings?.gasSafeRegistered || false,
-      fully_insured: settings?.fullyInsured || false,
     };
   }, [profile, settings]);
 

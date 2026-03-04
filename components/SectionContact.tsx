@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { AdminProfileData } from "@/components/AdminProfileData";
-import FormBooking from "@/components/FormBooking";
+import dynamic from "next/dynamic";
+const FormBooking = dynamic(() => import("@/components/FormBooking"), { ssr: false });
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useAdminProfile } from "@/components/AdminProfileContext";

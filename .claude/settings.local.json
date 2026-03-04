@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /Users/ivanivanov/Documents/Projects/Plumbe-2/.env* 2>/dev/null)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "Bash(npx tsc --noEmit 2>&1 | head -40)"
+    ]
+  }
+}

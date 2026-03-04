@@ -29,10 +29,11 @@ export function SectionHero() {
     return () => mq.removeEventListener("change", handler);
   }, [mounted]);
 
-  // Check if credentials are available
-  const hasGasSafe = adminProfile?.gas_safe_registered === true;
-  const hasInsurance = adminProfile?.fully_insured && adminProfile?.insurance_provider && adminProfile.insurance_provider.trim() !== "";
-  const hasCertifications = adminProfile?.certifications && adminProfile.certifications.trim() !== "";
+  // Check if credentials are available (from public settings / profile)
+  const hasGasSafe = adminSettings?.gasSafeRegistered === true;
+  const hasInsurance =
+    adminSettings?.fullyInsured === true &&
+    (adminSettings?.insuranceProvider || adminProfile?.insurance_provider || "").trim() !== "";
   const hasMscCertified = adminSettings?.mcsCertified === true;
 
   return (
@@ -75,50 +76,59 @@ export function SectionHero() {
             24/7 Emergency Service
           </div>
 
-          {/* Trust Badges - Fixed structure; defer visibility until mounted to avoid hydration mismatch */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-y-4 md:gap-y-0 md:gap-x-8 w-full max-w-2xl mx-auto mt-2">
-            {/* Fully Insured - Dynamic (hidden until mounted so server/client match) */}
-            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasInsurance ? "hidden" : ""}`}>
-              <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
-                </svg>
+          {/* Trust Badges - equal size cards, middle slightly wider on desktop */}
+          <div className="flex flex-col md:flex-row justify-center items-stretch gap-3 md:gap-4 w-full max-w-2xl mx-auto mt-2">
+            {/* Fully Insured - show only when enabled in settings */}
+            {mounted && hasInsurance && (
+              <div className="flex w-full md:flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
+                <div className="w-7 h-7 md:w-8 md:h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-white text-sm md:text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                  Fully Insured
+                </span>
               </div>
-              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                Fully Insured
-              </span>
-            </div>
+            )}
 
-            {/* Gas Safe Registered - Dynamic (hidden until mounted) */}
-            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasGasSafe ? "hidden" : ""}`}>
-              <div className="w-8 h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-white text-lg font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                Gas Safe Registered
-              </span>
-            </div>
+            {/* MCS / Gas Safe column – slightly wider on desktop */}
+            <div className="flex w-full md:flex-[1.2] gap-3">
+              {/* Gas Safe Registered - show only when enabled */}
+              {mounted && hasGasSafe && (
+                <div className="hidden md:flex flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
+                  <div className="w-7 h-7 md:w-8 md:h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-white text-sm md:text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                    Gas Safe Registered
+                  </span>
+                </div>
+              )}
 
-            {/* MCS Certified - Dynamic (hidden until mounted) */}
-            <div className={`flex flex-1 items-center justify-center w-full md:min-w-[200px] md:max-w-[320px] min-h-[64px] bg-white/30 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/20 ${!mounted || !hasMscCertified ? "hidden" : ""}`}>
-              <img
-                src="/mcs-logo.png"
-                alt="MCS Certified - Microgeneration Certificate Scheme"
-                className="h-10 md:h-12 w-auto object-contain mx-auto"
-                style={{ maxWidth: "120px" }}
-              />
+              {/* MCS Certified - show only when enabled */}
+              {mounted && hasMscCertified && (
+                <div className="flex flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
+                  <img
+                    src="/mcs-logo.png"
+                    alt="MCS Certified - Microgeneration Certificate Scheme"
+                    className="h-8 md:h-10 w-auto object-contain mx-auto"
+                    style={{ maxWidth: "110px" }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Years of Experience - Always show */}
-            <div className="flex items-center justify-center gap-1.5 md:gap-2 min-h-[36px] md:min-h-[48px] px-2.5 md:px-3 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-lg md:rounded-xl shadow-sm border border-white/20 md:min-w-[100px] md:max-w-[160px]">
-              <div className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 flex items-center justify-center text-yellow-400">
+            <div className="flex w-full md:flex-1 items-center justify-center gap-2 min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
+              <div className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 flex items-center justify-center text-yellow-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
-              <span className="text-white text-xs md:text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="text-white text-sm md:text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                 <AdminProfileData type="years_of_experience" fallback="10+ Years" />
               </span>
             </div>
