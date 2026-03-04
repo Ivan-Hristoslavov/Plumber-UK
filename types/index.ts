@@ -26,11 +26,6 @@ export type AdminProfile = {
   gas_safe_registered?: boolean;
   fully_insured?: boolean;
   service_areas?: string;
-  service_areas_description?: string;
-  service_areas_image?: string;
-  service_areas_image_alt?: string;
-  service_areas_image_description?: string;
-  service_areas_image_title?: string;
   created_at: string;
   updated_at: string;
 };

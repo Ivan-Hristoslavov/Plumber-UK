@@ -18,6 +18,7 @@ const quickLinks = [
   { name: "FAQ", href: "#faq" },
   { name: "Reviews", href: "#reviews" },
   { name: "Contact", href: "#contact" },
+  { name: "Service Areas", href: "#service-areas" },
 ];
 
 type ServiceArea = {
@@ -95,7 +96,7 @@ export default function FooterMain() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500">
       <div className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-        <div className={`flex flex-col md:grid ${serviceAreas.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`} suppressHydrationWarning>
+        <div className="flex flex-col md:grid md:grid-cols-4 gap-8" suppressHydrationWarning>
           {/* Company Info - First on mobile */}
           <div className="order-1 md:col-span-2">
             <Link
@@ -175,7 +176,7 @@ export default function FooterMain() {
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Quick Links
             </h3>
-            <nav className="mt-3 sm:mt-4 flex flex-col gap-2">
+            <nav className="mt-3 sm:mt-4 flex flex-col gap-2" suppressHydrationWarning>
               {quickLinks.map((item) => (
                 <Link
                   key={item.name}
@@ -189,24 +190,28 @@ export default function FooterMain() {
             </nav>
           </div>
 
-          {/* Service Areas - from DB, display only (no links) */}
-          {serviceAreas.length > 0 && (
-            <div className="order-3">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
-                Service Areas
-              </h3>
-              <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
-                {serviceAreas.map((area) => (
+          {/* Service Areas - from DB, display only (no links); always render wrapper for consistent hydration */}
+          <div className="order-3">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
+              Service Areas
+            </h3>
+            <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+              {isLoading ? (
+                <span className="text-sm text-gray-400 dark:text-gray-500">Loading…</span>
+              ) : serviceAreas.length > 0 ? (
+                serviceAreas.map((area) => (
                   <span
                     key={area.id}
                     className="text-sm text-gray-600 dark:text-gray-400"
                   >
                     {area.postcode ? `${area.name} (${area.postcode})` : area.name}
                   </span>
-                ))}
-              </div>
+                ))
+              ) : (
+                <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Bottom bar: Desktop = Copyright left | Developed by right; Mobile = Terms/Privacy, Developed by, Copyright */}

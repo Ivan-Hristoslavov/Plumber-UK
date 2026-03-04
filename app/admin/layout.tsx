@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { AdminProfileData } from "@/components/AdminProfileData";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 
 const navigation = [
@@ -360,7 +359,7 @@ export default function AdminLayout({
               <div className="hidden sm:block text-right">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Welcome back,</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  <AdminProfileData type="name" fallback="Plamen Zhelev" />
+                  {profile?.name || "Plamen Zhelev"}
                 </p>
               </div>
 

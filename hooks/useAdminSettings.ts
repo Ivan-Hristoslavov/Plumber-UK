@@ -65,8 +65,9 @@ export function useAdminSettings() {
       return;
     }
 
-    // Make the API call
-    cachePromise = fetch('/api/admin/settings')
+    // Use the public settings endpoint so this hook works on public pages too.
+    // Sensitive settings (VAT, email config, etc.) remain behind /api/admin/settings.
+    cachePromise = fetch('/api/settings')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch admin settings');

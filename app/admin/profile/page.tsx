@@ -477,7 +477,7 @@ export default function ProfilePage() {
                           specializations: value,
                         })
                       }
-                      label="Specializations"
+                      label="Areas of Expertise"
                       placeholder="e.g., Emergency repairs"
                       description="List your main areas of expertise. Press Enter or click + to add each item."
                     />

@@ -34,6 +34,9 @@ NEXT_PUBLIC_INSTAGRAM_URL=https://www.instagram.com/fixmyleak
 NEXT_PUBLIC_LINKEDIN_URL=https://www.linkedin.com/company/fixmyleak
 NEXT_PUBLIC_TWITTER_URL=https://twitter.com/fixmyleak
 
+# Admin Auth - generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+ADMIN_JWT_SECRET=your_random_32_byte_hex_secret
+
 # Business Information
 NEXT_PUBLIC_BUSINESS_PHONE=07476 746635
 NEXT_PUBLIC_BUSINESS_ADDRESS=London, UK
