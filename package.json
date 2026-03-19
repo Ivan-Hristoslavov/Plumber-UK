@@ -20,6 +20,7 @@
     "@heroui/switch": "2.2.19",
     "@heroui/system": "2.4.17",
     "@heroui/theme": "2.4.17",
+    "@next/third-parties": "^16.2.0",
     "@react-aria/ssr": "3.9.9",
     "@react-aria/visually-hidden": "3.8.24",
     "@sendgrid/mail": "^8.1.5",
