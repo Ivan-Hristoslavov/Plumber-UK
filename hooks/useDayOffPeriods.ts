@@ -27,7 +27,7 @@ export function useDayOffPeriods() {
     try {
       setError(null);
       
-      const response = await fetch(`/api/admin/day-off?_t=${Date.now()}`, {
+      const response = await fetch(`/api/day-off?_t=${Date.now()}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',

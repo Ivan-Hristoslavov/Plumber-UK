@@ -3,6 +3,7 @@ import { Metadata, Viewport } from "next";
 import Script from "next/script";
 import clsx from "clsx";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 import { Providers } from "./providers";
 import { ToastProvider } from "@/components/Toast";
@@ -16,6 +17,7 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
@@ -342,6 +344,7 @@ export default async function RootLayout({
             </AdminProfileProvider>
           </ToastProvider>
         </Providers>
+        {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
         <GoogleAnalytics />
         <SpeedInsights />
       </body>

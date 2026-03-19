@@ -119,7 +119,7 @@ export default function FormBooking() {
   useEffect(() => {
     const fetchDayOffPeriods = async () => {
       try {
-        const response = await fetch("/api/admin/day-off");
+        const response = await fetch("/api/day-off");
         if (response.ok) {
           const periods = await response.json();
           setDayOffPeriods(periods);
