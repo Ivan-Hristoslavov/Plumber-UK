@@ -47,21 +47,43 @@ export function SectionHero() {
       className="relative min-h-screen flex items-start justify-center overflow-hidden py-8 bg-black"
       id="home"
     >
-      {/* Background Video - full screen, slightly less zoom on mobile (wider crop) */}
+      {/* Background - the video is 6.8MB, so mobile (usually on cellular, and the
+          bulk of emergency traffic) gets the poster still instead. Desktop keeps
+          the video but only after mount, so it never blocks first paint. */}
       <div className="absolute inset-0 overflow-hidden z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%] min-w-full min-h-full object-cover md:w-full md:h-full md:top-0 md:left-0 md:min-w-0 md:min-h-0"
-        >
-          <source src="/video.mp4" type="video/mp4" />
-        </video>
+        {mounted && !isMobile ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/video-poster.jpg"
+            preload="none"
+            className="absolute w-full h-full top-0 left-0 object-cover brightness-[0.45] saturate-[0.8]"
+          >
+            <source src="/video.mp4" type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src="/video-poster.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%] min-w-full min-h-full object-cover brightness-[0.45] saturate-[0.8]"
+          />
+        )}
       </div>
 
-      {/* Video Overlay - Darker gradient for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/90 z-10" />
+      {/* Two-part scrim. The video has bright frames that swallowed light text, so
+          the media itself is dimmed above; this adds an even vertical wash plus a
+          soft radial pool behind the centred copy — no hard-edged box. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-blue-950/40 to-black/85 z-10" />
+      <div
+        className="absolute inset-0 z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 55% at 50% 45%, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.35) 55%, transparent 80%)",
+        }}
+      />
 
       <div className="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
         {/* Top Row with Emergency Badge and Trust Badges */}
@@ -82,12 +104,13 @@ export function SectionHero() {
             24/7 Emergency Service
           </div>
 
-          {/* Trust Badges - wrap inline on mobile so the headline and call CTA
-              stay above the fold; equal-size cards from md up. */}
-          <div className="flex flex-wrap md:flex-nowrap justify-center items-stretch gap-2 md:gap-4 w-full max-w-2xl mx-auto mt-2">
+          {/* Trust Badges - content-width pills that stay grouped in the centre
+              however many of them are enabled, and wrap on narrow screens so the
+              headline and call CTA stay above the fold. */}
+          <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full max-w-3xl mx-auto mt-2">
             {/* Fully Insured - show only when enabled in settings */}
             {mounted && hasInsurance && (
-              <div className="flex md:flex-1 items-center justify-center min-h-[40px] md:min-h-[64px] px-3 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full md:rounded-2xl shadow-sm border border-white/20">
+              <div className="flex items-center justify-center min-h-[40px] md:min-h-[56px] px-4 md:px-6 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
                 <div className="w-5 h-5 md:w-8 md:h-8 mr-2 md:mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
                   <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
@@ -99,12 +122,10 @@ export function SectionHero() {
               </div>
             )}
 
-            {/* MCS / Gas Safe column – slightly wider on desktop */}
-            <div className="flex md:flex-[1.2] gap-2 md:gap-3">
-              {/* Gas Safe Registered - show only when enabled */}
-              {mounted && hasGasSafe && (
-                <div className="hidden md:flex flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
-                  <div className="w-7 h-7 md:w-8 md:h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
+            {/* Gas Safe Registered - show only when enabled */}
+            {mounted && hasGasSafe && (
+              <div className="hidden md:flex items-center justify-center min-h-[56px] px-6 py-2 bg-white/30 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
+                <div className="w-7 h-7 md:w-8 md:h-8 mr-3 flex-shrink-0 flex items-center justify-center text-green-400">
                     <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                       <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                     </svg>
@@ -115,21 +136,20 @@ export function SectionHero() {
                 </div>
               )}
 
-              {/* MCS Certified - show only when enabled */}
-              {mounted && hasMscCertified && (
-                <div className="flex flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
-                  <img
-                    src="/mcs-logo.png"
-                    alt="MCS Certified - Microgeneration Certificate Scheme"
-                    className="h-8 md:h-10 w-auto object-contain mx-auto"
-                    style={{ maxWidth: "110px" }}
-                  />
-                </div>
-              )}
-            </div>
+            {/* MCS Certified - show only when enabled */}
+            {mounted && hasMscCertified && (
+              <div className="flex items-center justify-center min-h-[40px] md:min-h-[56px] px-4 md:px-6 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
+                <img
+                  src="/mcs-logo.png"
+                  alt="MCS Certified - Microgeneration Certificate Scheme"
+                  className="h-6 md:h-9 w-auto object-contain"
+                  style={{ maxWidth: "110px" }}
+                />
+              </div>
+            )}
 
             {/* Years of Experience - Always show */}
-            <div className="flex md:flex-1 items-center justify-center gap-2 min-h-[40px] md:min-h-[64px] px-3 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full md:rounded-2xl shadow-sm border border-white/20">
+            <div className="flex items-center justify-center gap-2 min-h-[40px] md:min-h-[56px] px-4 md:px-6 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
               <div className="w-4 h-4 md:w-6 md:h-6 flex-shrink-0 flex items-center justify-center text-yellow-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -144,18 +164,16 @@ export function SectionHero() {
 
         {/* Main Content */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up [text-shadow:0_2px_20px_rgba(0,0,0,0.85)]">
             <span className="text-white">Emergency Plumber in</span>
-            <span className="block text-blue-400 mt-1">South West London</span>
+            <span className="block text-blue-300 mt-1">South West London</span>
           </h1>
 
           <p
-            className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-4 animate-fade-in-up"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-white font-medium mb-4 animate-fade-in-up max-w-3xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
             style={{ animationDelay: "0.2s" }}
           >
-            <span className="text-blue-200">
-              Leaks, burst pipes &amp; blockages fixed today — {responseTimeShort} response across Clapham, Balham, Chelsea, Battersea &amp; Wandsworth
-            </span>
+            Leaks, burst pipes &amp; blockages fixed today — {responseTimeShort} response across Clapham, Balham, Chelsea, Battersea &amp; Wandsworth
           </p>
         </div>
 
@@ -165,10 +183,10 @@ export function SectionHero() {
           style={{ animationDelay: "0.4s" }}
         >
           <div className="text-center mb-6 w-full">
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-2">
+            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-2 [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
               Areas We Cover
             </h3>
-            <div className="flex items-center justify-center text-green-400 text-sm mb-4">
+            <div className="flex items-center justify-center text-green-300 text-sm mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
               <svg
                 className="w-4 h-4 mr-1"
                 fill="currentColor"
@@ -184,12 +202,14 @@ export function SectionHero() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-4xl mx-auto w-full">
+          {/* Grid rather than wrap: with a wrapping flex row the last area was
+              left stranded alone on its own line. */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 max-w-3xl mx-auto w-full">
             {!mounted || areasLoading
               ? Array.from({ length: SKELETON_COUNT }).map((_, index) => (
                   <div
                     key={index}
-                    className="bg-white/10 backdrop-blur-md rounded-lg py-2 sm:py-3 px-2 text-center animate-pulse w-24 sm:w-32 lg:w-28 flex flex-col items-center justify-center"
+                    className="bg-white/10 backdrop-blur-md rounded-lg py-2 sm:py-3 px-2 text-center animate-pulse flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-1">
                       <div className="w-4 h-4 sm:w-5 sm:h-5 bg-white/20 rounded" />
@@ -203,7 +223,7 @@ export function SectionHero() {
                     key={area.id}
                     href={`/areas/${area.slug}`}
                     aria-label={`Emergency plumber in ${area.name} ${area.postcode}`}
-                    className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-2 sm:py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30 w-24 sm:w-32 lg:w-28 flex flex-col items-center justify-center"
+                    className="bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl py-2.5 sm:py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/15 hover:border-blue-400/40 flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-0.5 sm:mb-1">
                       <svg

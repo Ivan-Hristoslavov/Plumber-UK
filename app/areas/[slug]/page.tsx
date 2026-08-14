@@ -96,7 +96,7 @@ export default async function AreaSlugPage({
   const nearbyAreas = areas
     .filter((a) => a.slug !== area.slug)
     .slice(0, 6)
-    .map((a) => a.name);
+    .map((a) => ({ name: a.name, slug: a.slug }));
 
   const localKeywords = [
     `emergency plumber ${area.name}`,

@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import FormBooking from "./FormBooking";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
+import { responseTimeMinutes } from "@/lib/response-time";
 
 interface AreaPageProps {
   areaName: string;
   postcode: string;
   description: string;
   localKeywords: string[];
-  nearbyAreas: string[];
+  nearbyAreas: { name: string; slug: string }[];
 }
 
 export function AreaPage({ areaName, postcode, description, localKeywords, nearbyAreas }: AreaPageProps) {
@@ -112,7 +114,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
               </div>
               
               {/* Floating Stats */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-6 max-w-xs">
+              <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 max-w-xs">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,8 +122,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </svg>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">45min</div>
-                    <div className="text-sm text-gray-600">Response Time in {areaName}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{responseTimeMinutes(profile?.response_time)}min</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Response Time in {areaName}</div>
                   </div>
                 </div>
               </div>
@@ -134,10 +136,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Plumbing Services in {areaName}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Professional plumbing solutions for {areaName} residents and businesses
             </p>
           </div>
@@ -199,14 +201,14 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                 description: "Professional pipe repair and replacement services throughout {areaName}."
               },
             ].map((service, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600">
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100 dark:border-gray-700">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 rounded-2xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
                   {service.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                   {service.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   {service.description}
                 </p>
               </div>
@@ -216,13 +218,13 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       </section>
 
       {/* Why Choose Us for Area */}
-      <section className="py-20 bg-blue-50">
+      <section className="py-20 bg-blue-50 dark:bg-blue-900/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Why Choose FixMyLeak in {areaName}?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Local expertise you can trust
             </p>
           </div>
@@ -254,10 +256,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                       {benefit.title}
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                       {benefit.description}
                     </p>
                   </div>
@@ -266,24 +268,25 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-3xl shadow-2xl p-8">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     Serving {areaName} & Nearby Areas
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     We also cover the surrounding areas
                   </p>
                 </div>
                 
                 <div className="flex flex-wrap gap-3 justify-center">
                   {nearbyAreas.map((area) => (
-                    <span 
-                      key={area}
-                      className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium"
+                    <Link
+                      key={area.slug}
+                      href={`/areas/${area.slug}`}
+                      className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-800 dark:hover:text-blue-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
                     >
-                      {area}
-                    </span>
+                      {area.name}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -296,10 +299,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       <section className="py-20" id="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Need a Plumber in {areaName}?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Get in touch for fast, professional service
             </p>
           </div>
@@ -307,8 +310,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Contact Info */}
             <div className="space-y-8">
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Emergency Callout {areaName}
                 </h3>
                 
@@ -320,7 +323,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Call now – speak to an engineer</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Call now – speak to an engineer</div>
                       <a 
                         href={`tel:${businessPhone}`}
                         className="text-green-600 font-bold text-xl hover:text-green-700 transition-colors"
@@ -338,8 +341,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Response Time</div>
-                      <div className="text-blue-600 font-bold">Under 45 minutes</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Response Time</div>
+                      <div className="text-blue-600 dark:text-blue-400 font-bold">Under 45 minutes</div>
                     </div>
                   </div>
 
@@ -351,7 +354,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Service Area</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Service Area</div>
                       <div className="text-purple-600 font-bold">{areaName} & {postcode}</div>
                     </div>
                   </div>
@@ -360,8 +363,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                 Book Your Service
               </h3>
               <FormBooking />
