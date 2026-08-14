@@ -6,9 +6,9 @@ import { SectionPricing } from "@/components/SectionPricing";
 import { AdminProfileData } from "@/components/AdminProfileData";
 
 import SectionContact from "@/components/SectionContact";
-import { FloatingCTA } from "@/components/FloatingCTA";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { renderMarkdownToHtml } from "@/lib/render-markdown";
+import { responseTimeMinutes } from "@/lib/response-time";
 import { createClient } from "@/lib/supabase/server";
 import { AboutExpandable } from "@/components/AboutExpandable";
 import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
@@ -71,10 +71,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const companyName = profile?.company_name || "FixMyLeak";
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
   
-  const responseTime = profile?.response_time || "45 minutes";
-  // Normalize response time to avoid duplication (remove any existing "minute/minutes")
-  const responseTimeNormalized = responseTime.replace(/\s+(minutes?|mins?)\s*/gi, '').trim();
-  
+  const responseTimeNormalized = responseTimeMinutes(profile?.response_time);
+
   const yearsExperience = profile?.years_of_experience 
     ? (profile.years_of_experience.toLowerCase().includes('years') 
         ? profile.years_of_experience 
@@ -317,9 +315,6 @@ export default async function HomePage() {
 
       {/* Review Form Section */}
       <ReviewForm />
-
-      {/* Floating Elements */}
-      <FloatingCTA />
     </main>
   );
 }

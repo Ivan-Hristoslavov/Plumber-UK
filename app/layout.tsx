@@ -192,7 +192,7 @@ export default async function RootLayout({
     "name": adminProfile?.company_name || "FixMyLeak",
     "description": `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time.`,
     "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
-    "telephone": adminProfile?.phone || "07476 746635",
+    "telephone": adminProfile?.phone || "+44 7541777225",
     "email": adminProfile?.business_email || "pzplumbingservices@gmail.com",
     "founder": {
       "@type": "Person",

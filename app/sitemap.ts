@@ -44,8 +44,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // 🗺️ SPA AREAS - All areas are displayed on homepage, no separate pages needed
-  const serviceAreaPages: MetadataRoute.Sitemap = []
+  // 🗺️ AREA LANDING PAGES - one indexable page per covered area, driven by
+  // admin_areas_cover. These are what rank for "emergency plumber <area>".
+  let serviceAreaPages: MetadataRoute.Sitemap = []
+
+  try {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('admin_areas_cover')
+      .select('slug, updated_at')
+      .eq('is_active', true)
+      .order('order', { ascending: true })
+
+    serviceAreaPages = (data || []).map((area: { slug: string; updated_at: string }) => ({
+      url: `${baseUrl}/areas/${area.slug}`,
+      lastModified: area.updated_at ? new Date(area.updated_at) : currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    }))
+  } catch {
+    serviceAreaPages = []
+  }
 
   // 🔧 SPA SECTIONS - All content is on homepage with anchors
   // No separate service pages needed for SPA
@@ -56,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 🏆 SPA SITEMAP - Only Real Pages
   return [
     ...corePages,           // Priority 1.0 - Homepage with all SPA content
+    ...serviceAreaPages,    // Priority 0.9 - One landing page per covered area
     ...legalPages,          // Priority 0.3 - Privacy & Terms pages only
   ]
 } 

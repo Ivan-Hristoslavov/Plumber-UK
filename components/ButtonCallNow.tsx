@@ -1,10 +1,10 @@
 "use client";
 
-import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 export function ButtonCallNow() {
-  const { profile, loading, error } = useAdminProfile();
+  const profile = useAdminProfile();
 
   // Use fallback phone number if profile is not available
   const phone = profile?.phone || "+44 7541777225";

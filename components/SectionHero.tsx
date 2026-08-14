@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAreas } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { AdminProfileData } from "@/components/AdminProfileData";
+import { trackPhoneCall } from "@/components/GoogleAnalytics";
+import { responseTimeMinutes } from "@/lib/response-time";
 
 const MOBILE_AREAS_LIMIT = 6;
 const SKELETON_COUNT = 6;
@@ -13,6 +16,9 @@ export function SectionHero() {
   const { areas, loading: areasLoading } = useAreas();
   const adminProfile = useAdminProfile();
   const { settings: adminSettings } = useAdminSettings();
+  const businessPhone = adminProfile?.phone || "+44 7541777225";
+  const displayPhone = businessPhone.replace(/^\+44\s?/, "0");
+  const responseTimeShort = `${responseTimeMinutes(adminProfile?.response_time)}-minute`;
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -76,12 +82,13 @@ export function SectionHero() {
             24/7 Emergency Service
           </div>
 
-          {/* Trust Badges - equal size cards, middle slightly wider on desktop */}
-          <div className="flex flex-col md:flex-row justify-center items-stretch gap-3 md:gap-4 w-full max-w-2xl mx-auto mt-2">
+          {/* Trust Badges - wrap inline on mobile so the headline and call CTA
+              stay above the fold; equal-size cards from md up. */}
+          <div className="flex flex-wrap md:flex-nowrap justify-center items-stretch gap-2 md:gap-4 w-full max-w-2xl mx-auto mt-2">
             {/* Fully Insured - show only when enabled in settings */}
             {mounted && hasInsurance && (
-              <div className="flex w-full md:flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
-                <div className="w-7 h-7 md:w-8 md:h-8 mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
+              <div className="flex md:flex-1 items-center justify-center min-h-[40px] md:min-h-[64px] px-3 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full md:rounded-2xl shadow-sm border border-white/20">
+                <div className="w-5 h-5 md:w-8 md:h-8 mr-2 md:mr-3 flex-shrink-0 flex items-center justify-center text-blue-400">
                   <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" clipRule="evenodd" />
                   </svg>
@@ -93,7 +100,7 @@ export function SectionHero() {
             )}
 
             {/* MCS / Gas Safe column – slightly wider on desktop */}
-            <div className="flex w-full md:flex-[1.2] gap-3">
+            <div className="flex md:flex-[1.2] gap-2 md:gap-3">
               {/* Gas Safe Registered - show only when enabled */}
               {mounted && hasGasSafe && (
                 <div className="hidden md:flex flex-1 items-center justify-center min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
@@ -122,8 +129,8 @@ export function SectionHero() {
             </div>
 
             {/* Years of Experience - Always show */}
-            <div className="flex w-full md:flex-1 items-center justify-center gap-2 min-h-[56px] md:min-h-[64px] px-3 py-2 bg-white/30 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20">
-              <div className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 flex items-center justify-center text-yellow-400">
+            <div className="flex md:flex-1 items-center justify-center gap-2 min-h-[40px] md:min-h-[64px] px-3 py-1.5 md:py-2 bg-white/30 backdrop-blur-sm rounded-full md:rounded-2xl shadow-sm border border-white/20">
+              <div className="w-4 h-4 md:w-6 md:h-6 flex-shrink-0 flex items-center justify-center text-yellow-400">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-full h-full">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
@@ -138,8 +145,8 @@ export function SectionHero() {
         {/* Main Content */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up">
-            <span className="text-white">Professional</span>
-            <span className="block text-blue-400 mt-1">Plumbing Services</span>
+            <span className="text-white">Emergency Plumber in</span>
+            <span className="block text-blue-400 mt-1">South West London</span>
           </h1>
 
           <p
@@ -147,7 +154,7 @@ export function SectionHero() {
             style={{ animationDelay: "0.2s" }}
           >
             <span className="text-blue-200">
-              Fast response • Quality guaranteed • Fair pricing
+              Leaks, burst pipes &amp; blockages fixed today — {responseTimeShort} response across Clapham, Balham, Chelsea, Battersea &amp; Wandsworth
             </span>
           </p>
         </div>
@@ -192,8 +199,10 @@ export function SectionHero() {
                   </div>
                 ))
               : (isMobile ? areas.slice(0, MOBILE_AREAS_LIMIT) : areas).map((area) => (
-                  <div
+                  <Link
                     key={area.id}
+                    href={`/areas/${area.slug}`}
+                    aria-label={`Emergency plumber in ${area.name} ${area.postcode}`}
                     className="bg-white/10 backdrop-blur-md hover:bg-white/15 rounded-lg py-2 sm:py-3 px-2 text-center transition-all duration-300 shadow-lg border border-white/10 hover:border-blue-400/30 w-24 sm:w-32 lg:w-28 flex flex-col items-center justify-center"
                   >
                     <div className="flex justify-center mb-0.5 sm:mb-1">
@@ -223,7 +232,7 @@ export function SectionHero() {
                     <div className="text-blue-200 text-[10px] sm:text-xs">
                       {area.postcode}
                     </div>
-                  </div>
+                  </Link>
                 ))}
             
           </div>
@@ -235,14 +244,10 @@ export function SectionHero() {
           style={{ animationDelay: "0.6s" }}
         >
           <a
-            className="group bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-base font-bold transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
-            href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
+            className="group bg-red-600 hover:bg-red-500 text-white px-6 py-4 rounded-lg text-lg font-bold transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
+            href={`tel:${businessPhone}`}
+            onClick={() => trackPhoneCall("hero_primary")}
+            aria-label={`Call now ${displayPhone}`}
           >
             <svg
               className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform"
@@ -251,10 +256,25 @@ export function SectionHero() {
             >
               <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
             </svg>
-            Book Emergency Service
+            Call {displayPhone}
           </a>
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-3 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .getElementById("contact")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+            </svg>
+            Book Online
+          </a>
+          <a
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#services"
             onClick={(e) => {
               e.preventDefault();

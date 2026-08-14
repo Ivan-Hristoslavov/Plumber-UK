@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 export function FloatingCTA() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasAutoShown, setHasAutoShown] = useState(false);
-  const { profile } = useAdminProfile();
+  const profile = useAdminProfile();
 
   const businessPhone = profile?.phone || "+44 7541777225";
   const displayPhone = businessPhone.replace(/^\+44\s?/, "0");

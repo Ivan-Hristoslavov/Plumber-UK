@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import FormBooking from "./FormBooking";
-import { ButtonCallNow } from "./ButtonCallNow";
-import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 
 interface AreaPageProps {
@@ -15,8 +14,8 @@ interface AreaPageProps {
 }
 
 export function AreaPage({ areaName, postcode, description, localKeywords, nearbyAreas }: AreaPageProps) {
-  const { profile } = useAdminProfile();
-  
+  const profile = useAdminProfile();
+
   // Get phone from database, fallback to default
   const businessPhone = profile?.phone || "+44 7541777225";
   
@@ -26,7 +25,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
   return (
     <div className="space-y-20">
       {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800">
+      <section className="relative py-16 sm:py-24 md:py-32 overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full" />
@@ -49,7 +48,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                 </span>
               </div>
 
-              <h1 className="text-5xl font-bold mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
                 Emergency Plumber in <span className="text-yellow-300">{areaName}</span>
               </h1>
 
@@ -74,7 +73,19 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <ButtonCallNow />
+                {/* Inline, not the fixed-position ButtonCallNow — that one floats
+                    over the page and collided with this CTA row. */}
+                <a
+                  href={`tel:${businessPhone}`}
+                  onClick={() => trackPhoneCall("area_page_hero")}
+                  aria-label={`Call now ${displayPhone}`}
+                  className="bg-red-600 hover:bg-red-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-red-900/30 transition-all duration-300 inline-flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Call {displayPhone}
+                </a>
                 <button 
                   onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 inline-flex items-center justify-center"
