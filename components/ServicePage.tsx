@@ -41,6 +41,14 @@ export function ServicePage({
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <nav aria-label="Breadcrumb" className="mb-5 text-sm text-blue-100">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span className="mx-2 text-blue-300">/</span>
+            <Link href="/services" className="hover:text-white transition-colors">Services</Link>
+            <span className="mx-2 text-blue-300">/</span>
+            <span className="text-white font-medium">{name}</span>
+          </nav>
+
           <span className="inline-block bg-white/20 px-4 py-2 rounded-full text-sm font-medium mb-6">
             South West London • {responseTime}-minute response
           </span>

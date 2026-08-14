@@ -33,6 +33,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     servicePages = []
   }
 
+  // 🗂️ HUB PAGES - index pages that gather the area and service children
+  const hubPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/services`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/areas`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+  ]
+
   // 📄 LEGAL & POLICY PAGES - Standard Priority
   const legalPages: MetadataRoute.Sitemap = [
     {
@@ -92,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 🏆 SPA SITEMAP - Only Real Pages
   return [
     ...corePages,           // Priority 1.0 - Homepage with all SPA content
+    ...hubPages,            // Priority 0.8 - /services and /areas index pages
     ...serviceAreaPages,    // Priority 0.9 - One landing page per covered area
     ...servicePages,        // Priority 0.9 - One landing page per service
     ...legalPages,          // Priority 0.3 - Privacy & Terms pages only

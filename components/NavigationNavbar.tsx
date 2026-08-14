@@ -11,7 +11,15 @@ import { trackPhoneCall } from "./GoogleAnalytics";
 
 const navigation = [
   { name: "Home", href: "#home" },
-  { name: "Services", href: "#services" },
+  {
+    name: "Services",
+    href: "#services",
+    dropdown: [
+      { name: "Prices", href: "#services" },
+      { name: "All services", href: "/services" },
+      { name: "Areas we cover", href: "/areas" },
+    ],
+  },
   { 
     name: "About", 
     href: "#about",
@@ -166,10 +174,20 @@ export default function NavigationNavbar() {
       e.preventDefault();
       const targetId = href.substring(1);
       const element = document.getElementById(targetId);
-      if (element) {
-        setIsMobileMenuOpen(false);
-        setOpenDropdown(null);
-        setOpenMobileGroup(null);
+
+      setIsMobileMenuOpen(false);
+      setOpenDropdown(null);
+      setOpenMobileGroup(null);
+
+      // The section only exists on the homepage. On the area and service pages
+      // these links previously did nothing at all, because the handler bailed
+      // out when the element was missing.
+      if (!element) {
+        router.push(`/#${targetId}`);
+        return;
+      }
+
+      {
         setActiveSection(targetId);
 
         if (pathname === "/") {

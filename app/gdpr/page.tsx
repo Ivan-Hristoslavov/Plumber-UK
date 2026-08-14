@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-import { getAdminProfile } from "@/lib/admin-profile";
 import GDPRPageClient from './gdpr-client';
+import { BRAND_NAME } from "@/lib/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
+  const companyName = BRAND_NAME;
   const canonical = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}/gdpr`;
   
   return {
-    title: `GDPR Compliance | ${companyName} - Emergency Plumber London`,
+    title: `GDPR Compliance`,
     description: `GDPR compliance information for ${companyName} plumbing services. Your rights regarding personal data protection.`,
     alternates: {
       canonical,

@@ -122,9 +122,10 @@ export default async function ServiceSlugPage({
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
+      { "@type": "ListItem", position: 2, name: "Services", item: `${base}/services` },
       {
         "@type": "ListItem",
-        position: 2,
+        position: 3,
         name: service.name,
         item: `${base}/services/${service.slug}`,
       },

@@ -138,9 +138,10 @@ export default async function AreaSlugPage({
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
+      { "@type": "ListItem", position: 2, name: "Areas We Cover", item: `${base}/areas` },
       {
         "@type": "ListItem",
-        position: 2,
+        position: 3,
         name: `Emergency Plumber ${area.name}`,
         item: `${base}/areas/${area.slug}`,
       },

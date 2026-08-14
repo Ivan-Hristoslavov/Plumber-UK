@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-import { getAdminProfile } from "@/lib/admin-profile";
 import TermsPageClient from './terms-client';
+import { BRAND_NAME } from "@/lib/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
+  const companyName = BRAND_NAME;
   const canonical = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}/terms`;
   
   return {
-    title: `Terms & Conditions | ${companyName} - Emergency Plumber London`,
+    title: `Terms & Conditions`,
     description: `Terms and conditions for ${companyName} plumbing services. Professional emergency plumber covering South West London.`,
     alternates: {
       canonical,

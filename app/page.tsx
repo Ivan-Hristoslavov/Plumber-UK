@@ -13,6 +13,8 @@ import { createClient } from "@/lib/supabase/server";
 import { BRAND_NAME } from "@/lib/brand";
 import { AboutExpandable } from "@/components/AboutExpandable";
 import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
+import { SectionCoverage } from "@/components/SectionCoverage";
+import { getActiveServices } from "@/lib/services";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
   loading: () => (
@@ -158,10 +160,11 @@ async function getFaqAndReviews() {
 }
 
 export default async function HomePage() {
-  const [areas, profile, { faqItems, reviews }] = await Promise.all([
+  const [areas, profile, { faqItems, reviews }, services] = await Promise.all([
     getAreas(),
     getAdminProfile(),
     getFaqAndReviews(),
+    getActiveServices(),
   ]);
   const aboutHtml = profile?.about ? renderMarkdownToHtml(profile.about) : "";
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
@@ -329,6 +332,11 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <SectionCoverage
+        areas={areas.map((a) => ({ name: a.name, slug: a.slug, postcode: a.postcode }))}
+        services={services.map((s) => ({ name: s.name, slug: s.slug, price: s.price }))}
+      />
 
       {/* Gallery Section */}
       <GallerySection />

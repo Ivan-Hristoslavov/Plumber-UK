@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-import { getAdminProfile } from "@/lib/admin-profile";
 import PrivacyPageClient from './privacy-client';
+import { BRAND_NAME } from "@/lib/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
+  const companyName = BRAND_NAME;
   const canonical = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}/privacy`;
   
   return {
-    title: `Privacy Policy | ${companyName} - Emergency Plumber London`,
+    title: `Privacy Policy`,
     description: `Privacy policy for ${companyName} plumbing services. How we collect, use, and protect your personal information.`,
     alternates: {
       canonical,
