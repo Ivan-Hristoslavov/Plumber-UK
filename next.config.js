@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['bcryptjs'],
+  compiler: {
+    // Production code carried ~134 console.log/warn calls outside the admin
+    // area, the Stripe webhook alone accounting for 44. Stripping them at build
+    // time keeps the debugging statements in development without filling the
+    // production logs; console.error is kept so real failures still surface.
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
   images: {
     // Gallery before/after photos are uploaded to Supabase storage and were
     // previously rendered with a bare <img>, so full-size originals (up to

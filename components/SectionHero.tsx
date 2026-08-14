@@ -183,9 +183,11 @@ export function SectionHero() {
           style={{ animationDelay: "0.4s" }}
         >
           <div className="text-center mb-6 w-full">
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-2 [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
+            {/* h2, not h3 — this follows the page's h1 directly, and skipping a
+                level broke the heading outline. */}
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold text-white mb-2 [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
               Areas We Cover
-            </h3>
+            </h2>
             <div className="flex items-center justify-center text-green-300 text-sm mb-4 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
               <svg
                 className="w-4 h-4 mr-1"

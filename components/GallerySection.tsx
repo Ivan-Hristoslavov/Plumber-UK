@@ -210,12 +210,12 @@ export function GallerySection() {
               {/* Nav Arrows */}
               {filteredItems.length > 1 && (
                 <>
-                  <button onClick={prevSlide} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all z-20">
+                  <button onClick={prevSlide} aria-label="Previous project" className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all z-20">
                     <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                     </svg>
                   </button>
-                  <button onClick={nextSlide} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all z-20">
+                  <button onClick={nextSlide} aria-label="Next project" className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all z-20">
                     <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                     </svg>
@@ -282,11 +282,20 @@ export function GallerySection() {
                     {filteredItems.map((_, index) => (
                       <button
                         key={index}
+                        type="button"
                         onClick={() => { setCurrentIndex(index); setSliderPosition(50); }}
-                        className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                          index === currentIndex ? "bg-blue-600 scale-125" : "bg-gray-300 dark:bg-gray-600 hover:bg-blue-400"
-                        }`}
-                      />
+                        aria-label={`Go to project ${index + 1} of ${filteredItems.length}`}
+                        aria-current={index === currentIndex ? "true" : undefined}
+                        className="p-2.5 -m-1 rounded-full group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      >
+                        <span
+                          className={`block w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                            index === currentIndex
+                              ? "bg-blue-600 scale-125"
+                              : "bg-gray-300 dark:bg-gray-600 group-hover:bg-blue-400"
+                          }`}
+                        />
+                      </button>
                     ))}
                   </div>
                 )}

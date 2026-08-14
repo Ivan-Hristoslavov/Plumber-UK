@@ -499,13 +499,9 @@ export default function FormBooking() {
             ) : (
               <div className="space-y-2 max-h-44 sm:max-h-52 overflow-y-auto pr-1">
                 {services.map((service: BookingService) => (
-                  <div
+                  <label
                     key={service.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedService(service.id)}
-                    onKeyDown={(e) => e.key === "Enter" && setSelectedService(service.id)}
-                    className={`p-3 sm:p-3.5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
+                    className={`block p-3 sm:p-3.5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 ${
                       selectedService === service.id
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm"
                         : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
@@ -517,6 +513,7 @@ export default function FormBooking() {
                       name="service"
                       type="radio"
                       value={service.id}
+                      aria-label={`${service.name}${service.price ? `, from £${service.price}` : ""}`}
                       onChange={(e) => setSelectedService(e.target.value)}
                     />
                     <div className="flex items-center justify-between gap-2">
@@ -544,7 +541,7 @@ export default function FormBooking() {
                         )}
                       </div>
                     </div>
-                  </div>
+                  </label>
                 ))}
               </div>
             )}
