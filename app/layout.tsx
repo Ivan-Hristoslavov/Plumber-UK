@@ -163,12 +163,31 @@ export default async function RootLayout({
 }) {
   const supabase = createClient();
 
-  const [adminProfile, { data: areas }, { data: pricingCards }, { data: adminSettings }] = await Promise.all([
+  const [adminProfile, { data: areas }, { data: pricingCards }, { data: adminSettings }, { data: approvedReviews }] = await Promise.all([
     getAdminProfile(),
     supabase.from('admin_areas_cover').select('*').eq('is_active', true).order('order', { ascending: true }),
     supabase.from('pricing_cards').select('*').eq('is_enabled', true).order('order', { ascending: true }),
     supabase.from('admin_settings').select('*'),
+    supabase.from('reviews').select('rating').eq('is_approved', true),
   ]);
+
+  // Rating markup must describe the reviews actually shown on the page —
+  // inventing a count is a structured-data policy violation, so this is omitted
+  // entirely when there is nothing approved to summarise.
+  const ratings = (approvedReviews || [])
+    .map((r: { rating: number | null }) => Number(r.rating))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const aggregateRating =
+    ratings.length > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: Number((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)),
+          reviewCount: ratings.length,
+          itemReviewed: {
+            "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`,
+          },
+        }
+      : undefined;
     
   // Convert admin settings to object
   const settingsMap: { [key: string]: any } = {};
@@ -259,23 +278,10 @@ export default async function RootLayout({
         }
       })) || []
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": 4.8,
-      "reviewCount": 150,
-      "itemReviewed": {
-        "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`
-      }
-    },
+    ...(aggregateRating ? { aggregateRating } : {}),
     "sameAs": [
       "https://www.linkedin.com/company/fixmyleak"
     ],
-    "bankDetails": {
-      "@type": "BankAccount",
-      "bankName": adminProfile?.bank_name || "",
-      "accountNumber": adminProfile?.account_number || "",
-      "sortCode": adminProfile?.sort_code || ""
-    },
     "about": adminProfile?.about || ""
   };
 
