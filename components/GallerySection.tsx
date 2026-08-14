@@ -12,24 +12,50 @@ export function GallerySection() {
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  // The drag hint is only useful until someone has actually dragged.
+  const [hasCompared, setHasCompared] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const moveSlider = (clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setSliderPosition(Math.min(Math.max(((clientX - rect.left) / rect.width) * 100, 0), 100));
+    setHasCompared(true);
+  };
 
   const filteredItems = selectedFilter === 'all' 
     ? galleryItems 
     : galleryItems.filter(item => item.section_id === selectedFilter);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    setSliderPosition(Math.min(Math.max((x / rect.width) * 100, 0), 100));
+    if (!isDragging) return;
+    moveSlider(e.clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.touches[0].clientX - rect.left;
-    setSliderPosition(Math.min(Math.max((x / rect.width) * 100, 0), 100));
+    if (!isDragging) return;
+    moveSlider(e.touches[0].clientX);
+  };
+
+  // Dragging was mouse and touch only, leaving the comparison unusable by
+  // keyboard.
+  const handleSliderKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 10 : 4;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setSliderPosition((p) => Math.max(p - step, 0));
+      setHasCompared(true);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setSliderPosition((p) => Math.min(p + step, 100));
+      setHasCompared(true);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setSliderPosition(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setSliderPosition(100);
+    }
   };
 
   const nextSlide = () => {
@@ -130,7 +156,15 @@ export function GallerySection() {
             <div className="relative h-64 sm:h-80 md:h-96 lg:h-[520px] bg-gray-900">
               <div
                 ref={containerRef}
-                className="relative w-full h-full overflow-hidden cursor-col-resize select-none"
+                className="relative w-full h-full overflow-hidden cursor-col-resize select-none focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400/70 focus-visible:ring-inset"
+                role="slider"
+                tabIndex={0}
+                aria-label="Compare before and after. Use the arrow keys."
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(sliderPosition)}
+                aria-valuetext={`${Math.round(sliderPosition)}% before`}
+                onKeyDown={handleSliderKeyDown}
                 onMouseMove={handleMouseMove}
                 onMouseDown={() => setIsDragging(true)}
                 onMouseUp={() => setIsDragging(false)}
@@ -142,13 +176,13 @@ export function GallerySection() {
                 {/* After Image */}
                 <div className="absolute inset-0">
                   <Image src={currentItem.after_image_url} alt="After" fill sizes="(max-width: 768px) 100vw, 900px" className="object-cover" draggable={false} unoptimized={false} />
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-green-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium shadow-lg">After</div>
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider shadow-lg">After</div>
                 </div>
 
                 {/* Before Image */}
                 <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}>
                   <Image src={currentItem.before_image_url} alt="Before" fill sizes="(max-width: 768px) 100vw, 900px" className="object-cover" draggable={false} unoptimized={false} />
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-red-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium shadow-lg">Before</div>
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider shadow-lg">Before</div>
                 </div>
 
                 {/* Slider Line */}
@@ -156,17 +190,20 @@ export function GallerySection() {
                   className="absolute top-0 bottom-0 w-0.5 sm:w-1 bg-white shadow-lg z-10 cursor-col-resize"
                   style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
                 >
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white rounded-full shadow-xl flex items-center justify-center cursor-col-resize border-3 sm:border-4 border-blue-500">
-                    <div className="flex space-x-0.5 sm:space-x-1">
-                      <div className="w-0.5 sm:w-1 h-3 sm:h-4 bg-blue-500 rounded-full" />
-                      <div className="w-0.5 sm:w-1 h-3 sm:h-4 bg-blue-500 rounded-full" />
-                    </div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-xl flex items-center justify-center cursor-col-resize ring-1 ring-black/10">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 6l-4 6 4 6M15 6l4 6-4 6" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
                   </div>
                 </div>
 
                 {/* Helper */}
-                <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm">
-                  ← Drag to compare →
+                <div
+                  className={`absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs sm:text-sm pointer-events-none transition-opacity duration-500 ${
+                    hasCompared ? "opacity-0" : "opacity-100"
+                  }`}
+                >
+                  Drag to compare
                 </div>
               </div>
 
@@ -229,23 +266,11 @@ export function GallerySection() {
 
               {currentItem.description && (
                 <div className="mb-5 sm:mb-8">
-                  <h4 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-2 sm:mb-3">Project Details</h4>
                   <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                     {currentItem.description}
                   </p>
                 </div>
               )}
-
-              {/* Slider Indicator */}
-              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                <div className="flex items-center justify-between text-xs sm:text-sm text-blue-800 dark:text-blue-300">
-                  <span>Before: {Math.round(sliderPosition)}%</span>
-                  <span>After: {Math.round(100 - sliderPosition)}%</span>
-                </div>
-                <div className="mt-1.5 sm:mt-2 h-1.5 sm:h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-600 transition-all duration-150" style={{ width: `${sliderPosition}%` }} />
-                </div>
-              </div>
 
               {/* Counter + Dots */}
               <div className="flex items-center justify-between">

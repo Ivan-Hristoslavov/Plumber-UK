@@ -393,14 +393,17 @@ export default function FormBooking() {
   return (
     <form key={formKey} className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
       {/* Grid: single column on mobile, two on desktop; responsive gaps */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
         {/* Left Column - Personal Details */}
-        <div className="space-y-4 sm:space-y-5">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center shrink-0">
-              <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">1</span>
+        <div className="space-y-4 sm:space-y-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/30 p-5 sm:p-6">
+          <div className="flex items-center gap-3 pb-4 mb-1 border-b border-gray-200 dark:border-gray-700">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-sm">1</span>
             </div>
-            <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Your Details</h4>
+            <div className="min-w-0">
+              <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-tight">Your Details</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Where and who we&apos;re coming to</p>
+            </div>
           </div>
 
           <Input
@@ -472,12 +475,15 @@ export default function FormBooking() {
         </div>
 
         {/* Right Column - Service & Schedule */}
-        <div className="space-y-4 sm:space-y-5">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center shrink-0">
-              <span className="text-green-600 dark:text-green-400 font-bold text-sm">2</span>
+        <div className="space-y-4 sm:space-y-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/30 p-5 sm:p-6">
+          <div className="flex items-center gap-3 pb-4 mb-1 border-b border-gray-200 dark:border-gray-700">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-sm">2</span>
             </div>
-            <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Service & Schedule</h4>
+            <div className="min-w-0">
+              <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-tight">Service &amp; Schedule</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400">What you need and when</p>
+            </div>
           </div>
 
           <div>
@@ -721,7 +727,7 @@ export default function FormBooking() {
       </div>
 
       {/* Submit */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-8 sm:pt-10 flex flex-col items-center justify-center gap-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6 sm:pt-8">
         <Button
           type="submit"
           color="primary"
@@ -729,21 +735,39 @@ export default function FormBooking() {
           radius="lg"
           isLoading={isSubmitting}
           disabled={isSubmitting}
-          className="w-full sm:w-auto min-w-[200px] font-semibold"
+          className="w-full text-base font-semibold h-14"
         >
           {isSubmitting ? "Sending..." : "Send Request"}
         </Button>
-        <div className="text-center px-2">
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            * Required fields. Emergency? Call{" "}
-            <a href={`tel:${businessPhone}`} className="font-bold text-blue-600 dark:text-blue-400 hover:underline">
-              {businessPhone}
-            </a>
-          </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-            We'll contact you within 45 minutes to confirm your booking
-          </p>
+
+        {/* Reassurance sits directly under the button, where the hesitation is. */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
+            </svg>
+            No payment now
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
+            </svg>
+            We call to confirm
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
+            </svg>
+            No obligation
+          </span>
         </div>
+
+        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          Rather not wait?{" "}
+          <a href={`tel:${businessPhone}`} className="font-bold text-red-600 dark:text-red-400 hover:underline">
+            Call {businessPhone.replace(/^\+44\s?/, "0")}
+          </a>
+        </p>
       </div>
     </form>
   );
