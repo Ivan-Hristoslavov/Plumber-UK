@@ -129,12 +129,81 @@ async function getAreas(): Promise<Area[]> {
   }
 }
 
+// The FAQ and reviews sections are client-fetched, so their content never
+// reaches a crawler as markup it can summarise. Reading the same rows here lets
+// us emit matching JSON-LD, which is what earns the expandable FAQ result and
+// review stars.
+async function getFaqAndReviews() {
+  try {
+    const supabase = createClient();
+    const [{ data: faqItems }, { data: reviews }] = await Promise.all([
+      supabase
+        .from('faq')
+        .select('question, answer')
+        .eq('is_active', true)
+        .order('order', { ascending: true }),
+      supabase
+        .from('reviews')
+        .select('customer_name, rating, comment, created_at')
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false })
+        .limit(20),
+    ]);
+
+    return { faqItems: faqItems || [], reviews: reviews || [] };
+  } catch {
+    return { faqItems: [], reviews: [] };
+  }
+}
+
 export default async function HomePage() {
-  const [areas, profile] = await Promise.all([getAreas(), getAdminProfile()]);
+  const [areas, profile, { faqItems, reviews }] = await Promise.all([
+    getAreas(),
+    getAdminProfile(),
+    getFaqAndReviews(),
+  ]);
   const aboutHtml = profile?.about ? renderMarkdownToHtml(profile.about) : "";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
+  const businessName = profile?.company_name || "FixMyLeak";
+
+  const faqSchema = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item: { question: string; answer: string }) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  } : null;
+
+  const reviewSchema = reviews.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${base}#business`,
+    name: businessName,
+    review: reviews.map((r: { customer_name: string; rating: number; comment: string; created_at: string }) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: r.customer_name },
+      reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+      reviewBody: r.comment,
+      datePublished: r.created_at?.slice(0, 10),
+    })),
+  } : null;
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      {reviewSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
+        />
+      )}
       {/* Hero Section */}
       <SectionHero />
 

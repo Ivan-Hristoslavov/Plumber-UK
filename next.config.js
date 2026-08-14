@@ -1,6 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   serverExternalPackages: ['bcryptjs'],
+  images: {
+    // Gallery before/after photos are uploaded to Supabase storage and were
+    // previously rendered with a bare <img>, so full-size originals (up to
+    // ~3MB) went straight to the browser.
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+    formats: ['image/webp'],
+  },
   async headers() {
     return [
       {

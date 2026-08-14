@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { getActiveServices } from '@/lib/services'
 
 // 🎯 100% OPTIMIZED SITEMAP FOR GOOGLE ADS + SEO + NEXT.JS
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -15,6 +16,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
   ]
+
+  // 🔧 SERVICE LANDING PAGES - one per active service, driven by the services
+  // table. These rank for "<service> south west london" style queries.
+  let servicePages: MetadataRoute.Sitemap = []
+
+  try {
+    const services = await getActiveServices()
+    servicePages = services.map((service) => ({
+      url: `${baseUrl}/services/${service.slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    }))
+  } catch {
+    servicePages = []
+  }
 
   // 📄 LEGAL & POLICY PAGES - Standard Priority
   const legalPages: MetadataRoute.Sitemap = [
@@ -76,6 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...corePages,           // Priority 1.0 - Homepage with all SPA content
     ...serviceAreaPages,    // Priority 0.9 - One landing page per covered area
+    ...servicePages,        // Priority 0.9 - One landing page per service
     ...legalPages,          // Priority 0.3 - Privacy & Terms pages only
   ]
 } 

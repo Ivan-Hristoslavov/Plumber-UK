@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+import { slugify } from "@/lib/slug";
 
 // Social links: set to true to show in footer
 const SHOW_FACEBOOK = false;
@@ -32,6 +33,7 @@ type ServiceArea = {
 
 export default function FooterMain() {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
+  const [services, setServices] = useState<{ name: string; slug: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -54,6 +56,17 @@ export default function FooterMain() {
         if (areasResponse.ok) {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
+        }
+
+        // Fetch services for the footer link column
+        const servicesResponse = await fetch('/api/services');
+        if (servicesResponse.ok) {
+          const data = await servicesResponse.json();
+          setServices(
+            (Array.isArray(data) ? data : [])
+              .filter((s: { is_active: boolean }) => s.is_active)
+              .map((s: { name: string }) => ({ name: s.name, slug: slugify(s.name) }))
+          );
         }
       } catch {
         // Silently handle fetch errors — footer shows defaults
@@ -96,7 +109,7 @@ export default function FooterMain() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500">
       <div className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:grid md:grid-cols-4 gap-8" suppressHydrationWarning>
+        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-8" suppressHydrationWarning>
           {/* Company Info - First on mobile */}
           <div className="order-1 md:col-span-2">
             <Link
@@ -190,22 +203,46 @@ export default function FooterMain() {
             </nav>
           </div>
 
-          {/* Service Areas - from DB, display only (no links); always render wrapper for consistent hydration */}
+          {/* Service Areas - linked to their landing pages. The footer is on every
+              page, so this is the site's main internal-linking surface. */}
           <div className="order-3">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Service Areas
             </h3>
-            <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 sm:mt-4 flex flex-col gap-2">
               {isLoading ? (
                 <span className="text-sm text-gray-400 dark:text-gray-500">Loading…</span>
               ) : serviceAreas.length > 0 ? (
                 serviceAreas.map((area) => (
-                  <span
+                  <Link
                     key={area.id}
-                    className="text-sm text-gray-600 dark:text-gray-400"
+                    href={`/areas/${area.slug}`}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
                   >
                     {area.postcode ? `${area.name} (${area.postcode})` : area.name}
-                  </span>
+                  </Link>
+                ))
+              ) : (
+                <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+              )}
+            </div>
+          </div>
+
+          {/* Services - linked to their landing pages */}
+          <div className="order-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
+              Services
+            </h3>
+            <div className="mt-3 sm:mt-4 flex flex-col gap-2">
+              {services.length > 0 ? (
+                services.map((service) => (
+                  <Link
+                    key={service.slug}
+                    href={`/services/${service.slug}`}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+                  >
+                    {service.name}
+                  </Link>
                 ))
               ) : (
                 <span className="text-sm text-gray-400 dark:text-gray-500">—</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
 
@@ -140,13 +141,13 @@ export function GallerySection() {
               >
                 {/* After Image */}
                 <div className="absolute inset-0">
-                  <img src={currentItem.after_image_url} alt="After" className="w-full h-full object-cover" draggable={false} />
+                  <Image src={currentItem.after_image_url} alt="After" fill sizes="(max-width: 768px) 100vw, 900px" className="object-cover" draggable={false} unoptimized={false} />
                   <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-green-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium shadow-lg">After</div>
                 </div>
 
                 {/* Before Image */}
                 <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}>
-                  <img src={currentItem.before_image_url} alt="Before" className="w-full h-full object-cover" draggable={false} />
+                  <Image src={currentItem.before_image_url} alt="Before" fill sizes="(max-width: 768px) 100vw, 900px" className="object-cover" draggable={false} unoptimized={false} />
                   <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-red-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium shadow-lg">Before</div>
                 </div>
 

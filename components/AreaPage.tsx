@@ -75,8 +75,6 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                {/* Inline, not the fixed-position ButtonCallNow — that one floats
-                    over the page and collided with this CTA row. */}
                 <a
                   href={`tel:${businessPhone}`}
                   onClick={() => trackPhoneCall("area_page_hero")}
