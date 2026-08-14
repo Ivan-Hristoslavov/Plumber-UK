@@ -307,15 +307,17 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Contact Info */}
-            <div className="space-y-8">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          {/* Contact details run across the top rather than beside the form:
+              FormBooking has its own two-column layout inside, so giving it half
+              the width squeezed every field and left a tall empty gutter. */}
+          <div className="space-y-8">
+            <div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Emergency Callout {areaName}
                 </h3>
-                
-                <div className="space-y-6">
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +328,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       <div className="font-semibold text-gray-900 dark:text-white">Call now – speak to an engineer</div>
                       <a 
                         href={`tel:${businessPhone}`}
-                        className="text-green-600 font-bold text-xl hover:text-green-700 transition-colors"
+                        className="text-green-600 dark:text-green-400 font-bold text-xl hover:text-green-700 dark:hover:text-green-300 transition-colors"
                         onClick={() => trackPhoneCall("area_page")}
                       >
                         {displayPhone}
@@ -342,7 +344,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">Response Time</div>
-                      <div className="text-blue-600 dark:text-blue-400 font-bold">Under 45 minutes</div>
+                      <div className="text-blue-600 dark:text-blue-400 font-bold">Under {responseTimeMinutes(profile?.response_time)} minutes</div>
                     </div>
                   </div>
 
@@ -355,19 +357,40 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">Service Area</div>
-                      <div className="text-purple-600 font-bold">{areaName} & {postcode}</div>
+                      <div className="text-purple-600 dark:text-purple-400 font-bold">{areaName} & {postcode}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Book Your Service
-              </h3>
-              <FormBooking />
+            {/* Contact Form - full width so its internal two-column layout fits */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 sm:px-8 py-5 sm:py-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                      Book a Plumber in {areaName}
+                    </h3>
+                    <p className="text-blue-100 text-sm sm:text-base">
+                      Takes about a minute • No payment upfront • We call to confirm your slot
+                    </p>
+                  </div>
+                  <a
+                    href={`tel:${businessPhone}`}
+                    onClick={() => trackPhoneCall("area_page_form_header")}
+                    className="inline-flex items-center justify-center gap-2 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 px-4 py-2.5 text-white font-semibold text-sm backdrop-blur-sm transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
+                    In a hurry? Call instead
+                  </a>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8">
+                <FormBooking />
+              </div>
             </div>
           </div>
         </div>
