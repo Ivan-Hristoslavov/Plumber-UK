@@ -5,6 +5,7 @@ import { AreaPage } from "@/components/AreaPage";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 import { responseTimeMinutes } from "@/lib/response-time";
+import { BRAND_NAME } from "@/lib/brand";
 
 // Areas change rarely — regenerate hourly so new admin entries appear without a redeploy.
 export const revalidate = 3600;
@@ -52,7 +53,7 @@ export async function generateMetadata({
   if (!area) return {};
 
   const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
+  const companyName = BRAND_NAME;
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
   const responseTime = responseTimeMinutes(area.response_time || profile?.response_time);
 
@@ -125,7 +126,7 @@ export default async function AreaSlugPage({
     },
     provider: {
       "@type": "Plumber",
-      name: profile?.company_name || "FixMyLeak",
+      name: BRAND_NAME,
       telephone: profile?.phone || "+44 7541777225",
       url: base,
     },

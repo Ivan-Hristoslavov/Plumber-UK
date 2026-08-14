@@ -6,6 +6,7 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { getActiveServices } from "@/lib/services";
 import { createClient } from "@/lib/supabase/server";
 import { responseTimeMinutes } from "@/lib/response-time";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const revalidate = 3600;
 
@@ -59,7 +60,7 @@ export async function generateMetadata({
       url: `${base}/services/${service.slug}`,
       type: "website",
       locale: "en_GB",
-      siteName: profile?.company_name || "FixMyLeak",
+      siteName: BRAND_NAME,
       images: [{ url: "/fix_my_leak_logo.jpg", width: 1200, height: 630, alt: title }],
     },
   };
@@ -109,7 +110,7 @@ export default async function ServiceSlugPage({
     })),
     provider: {
       "@type": "Plumber",
-      name: profile?.company_name || "FixMyLeak",
+      name: BRAND_NAME,
       telephone: profile?.phone || "+44 7541777225",
       url: base,
     },

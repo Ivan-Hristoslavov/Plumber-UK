@@ -15,6 +15,7 @@ import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
+import { BRAND_NAME, legalName } from "@/lib/brand";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
@@ -22,8 +23,8 @@ const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || 'y1fa7e
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
-  
+  const companyName = BRAND_NAME;
+
   // Ensure years_of_experience includes "Years" if not already present
   const yearsExperience = profile?.years_of_experience 
     ? (profile.years_of_experience.toLowerCase().includes('years') 
@@ -208,7 +209,8 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": ["LocalBusiness", "Plumber"],
     "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`,
-    "name": adminProfile?.company_name || "FixMyLeak",
+    "name": BRAND_NAME,
+    "legalName": legalName(adminProfile?.company_name),
     "description": `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time.`,
     "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
     "telephone": adminProfile?.phone || "+44 7541777225",
