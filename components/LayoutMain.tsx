@@ -40,7 +40,7 @@ export default function LayoutMain({
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900" suppressHydrationWarning>
       {/* Sticky header: banner + nav together to avoid any gap */}
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-[60]">
         <DayOffBanner />
         <NavigationNavbar />
       </div>
