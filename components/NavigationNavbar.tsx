@@ -350,7 +350,7 @@ export default function NavigationNavbar() {
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               {/* Logo */}
               <Link
                 className="text-2xl font-bold transition-all duration-300 hover:scale-105 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
@@ -360,7 +360,7 @@ export default function NavigationNavbar() {
               </Link>
 
               {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center space-x-1">
+              <div className="hidden lg:flex items-center justify-center space-x-1">
                 {navigation.map((item) => (
                   <div key={item.name} className="relative group">
                     {item.dropdown ? (
@@ -436,18 +436,18 @@ export default function NavigationNavbar() {
               </div>
 
               {/* Right group: call CTA + theme toggle + hamburger */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-end gap-2 sm:gap-3">
               {/* Always-visible tap-to-call — primary conversion action */}
               <a
                 href={`tel:${businessPhone}`}
                 onClick={() => trackPhoneCall("navbar")}
                 aria-label={`Call now ${displayPhone}`}
-                className="flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-lg shadow-red-600/25 transition-colors duration-200 whitespace-nowrap"
+                className="call-pulse flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-red-600 font-bold px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-lg shadow-red-600/25 transition-colors duration-200 whitespace-nowrap"
               >
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                 </svg>
-                <span className="text-sm sm:text-base tracking-tight">
+                <span className="text-white text-sm sm:text-base tracking-tight">
                   <span className="hidden sm:inline">{displayPhone}</span>
                   <span className="sm:hidden">Call</span>
                 </span>
@@ -455,9 +455,9 @@ export default function NavigationNavbar() {
 
               <ButtonWhatsApp
                 variant="solid"
-                label="WhatsApp"
+                label=""
                 source="navbar_whatsapp"
-                className="hidden lg:inline-flex px-4 py-2.5 rounded-full text-sm"
+                className="hidden lg:inline-flex w-11 h-11"
               />
 
               {/* Desktop theme toggle */}

@@ -50,7 +50,10 @@ export function ButtonWhatsApp({
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => trackPhoneCall(source)}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition-colors ${styles} ${className}`}
+      aria-label={label || "Message us on WhatsApp"}
+      className={`inline-flex items-center justify-center font-semibold transition-colors ${
+        label ? "gap-2 rounded-xl px-5 py-3" : "rounded-full"
+      } ${styles} ${className}`}
     >
       <WhatsAppIcon className="w-5 h-5 flex-shrink-0" />
       {label}

@@ -9,7 +9,7 @@ import { useActiveDayOffPeriods } from "@/hooks/useDayOffPeriods";
 import { CookieConsent } from "./CookieConsent";
 
 import NavigationNavbar from "./NavigationNavbar";
-import { FloatingWhatsApp } from "./FloatingWhatsApp";
+import { FloatingActions } from "./FloatingActions";
 import FooterMain from './FooterMain';
 
 export default function LayoutMain({
@@ -50,7 +50,7 @@ export default function LayoutMain({
         {children}
       </main>
 
-      <FloatingWhatsApp />
+      <FloatingActions />
       <FooterMain />
       
       {/* Cookie Consent Banner */}
