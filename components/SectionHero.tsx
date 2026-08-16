@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAreas } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
@@ -9,6 +9,7 @@ import { AdminProfileData } from "@/components/AdminProfileData";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 import type { Availability } from "@/lib/availability";
 
 const MOBILE_AREAS_LIMIT = 6;
@@ -29,6 +30,7 @@ export function SectionHero({
   const responseTimeShort = `${responseTimeMinutes(adminProfile?.response_time)}-minute`;
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -43,6 +45,14 @@ export function SectionHero({
     return () => mq.removeEventListener("change", handler);
   }, [mounted]);
 
+  // Autoplay does not reliably fire on its own once the element has been
+  // mounted after hydration, so ask explicitly. A rejected promise just means
+  // the browser declined, and the poster stays — nothing to handle.
+  useEffect(() => {
+    if (!mounted) return;
+    videoRef.current?.play().catch(() => {});
+  }, [mounted]);
+
   // Check if credentials are available (from public settings / profile)
   const hasGasSafe = adminSettings?.gasSafeRegistered === true;
   const hasInsurance =
@@ -55,19 +65,30 @@ export function SectionHero({
       className="relative min-h-screen flex items-start justify-center overflow-hidden py-8 bg-black"
       id="home"
     >
-      {/* Background - the video is 6.8MB, so mobile (usually on cellular, and the
-          bulk of emergency traffic) gets the poster still instead. Desktop keeps
-          the video but only after mount, so it never blocks first paint. */}
+      {/* Background video. The poster is the first frame so the hero is never
+          blank while the file loads, and preload="none" keeps it off the
+          critical path — it starts fetching once autoplay kicks in rather than
+          competing with the markup. Mobile gets a slightly wider crop so the
+          subject is not cut off on a narrow viewport.
+
+          It fills the hero on every size. The source is 16:9 against a portrait
+          mobile viewport, so covering crops most of the frame width — that is
+          the intended look here.
+
+          Note this is a 6.8MB download on every device. Compressing the source
+          (720p, shorter loop) would cut roughly 85% of that with no visible
+          difference behind the scrim. */}
       <div className="absolute inset-0 overflow-hidden z-0">
-        {mounted && !isMobile ? (
+        {mounted ? (
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
             poster="/video-poster.jpg"
-            preload="none"
-            className="absolute w-full h-full top-0 left-0 object-cover brightness-[0.45] saturate-[0.8]"
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           >
             <source src="/video.mp4" type="video/mp4" />
           </video>
@@ -76,7 +97,7 @@ export function SectionHero({
             src="/video-poster.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%] min-w-full min-h-full object-cover brightness-[0.45] saturate-[0.8]"
+            className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           />
         )}
       </div>
@@ -282,11 +303,11 @@ export function SectionHero({
 
         {/* CTA Buttons */}
         <div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-2xl mx-auto animate-fade-in-up"
+          className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center items-stretch sm:items-center w-full max-w-4xl mx-auto animate-fade-in-up"
           style={{ animationDelay: "0.6s" }}
         >
           <a
-            className="group bg-red-600 hover:bg-red-500 text-white px-6 py-4 rounded-lg text-lg font-bold transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
+            className="group bg-red-600 hover:bg-red-500 text-white px-7 py-4 rounded-lg text-lg font-bold whitespace-nowrap transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
             href={`tel:${businessPhone}`}
             onClick={() => trackPhoneCall("hero_primary")}
             aria-label={`Call now ${displayPhone}`}
@@ -298,10 +319,10 @@ export function SectionHero({
             >
               <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
             </svg>
-            Call {displayPhone}
+            {displayPhone}
           </a>
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#contact"
             onClick={(e) => {
               e.preventDefault();
@@ -315,8 +336,14 @@ export function SectionHero({
             </svg>
             Book Online
           </a>
+          <ButtonWhatsApp
+            variant="solid"
+            label="WhatsApp"
+            source="hero_whatsapp"
+            className="w-full sm:w-auto px-5 py-4 rounded-lg text-base font-semibold whitespace-nowrap"
+          />
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#services"
             onClick={(e) => {
               e.preventDefault();

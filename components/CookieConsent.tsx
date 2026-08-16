@@ -54,7 +54,7 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
+    <div data-cookie-banner className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl">
         {/* Kept to a single compact row: on mobile this banner sits on top of the
             hero CTAs, so every extra line of copy is a lost call. */}

@@ -8,6 +8,7 @@ import { useWorkingHours } from "@/hooks/useWorkingHours";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
+import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 
 type ServiceArea = {
   id: number;
@@ -423,6 +424,12 @@ export default function SectionContact() {
                   </svg>
                   In a hurry? Call instead
                 </a>
+                <ButtonWhatsApp
+                  variant="solid"
+                  label="WhatsApp"
+                  source="booking_form_whatsapp"
+                  className="shrink-0 py-2.5 text-sm"
+                />
               </div>
             </div>
             <div className="py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-8">

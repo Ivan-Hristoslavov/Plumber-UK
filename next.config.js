@@ -53,6 +53,22 @@ const nextConfig = {
         ],
       },
       {
+        // Files under /public are not content-hashed, so the catch-all above
+        // marked them no-store and they were re-downloaded on every page view —
+        // video.mp4 alone is 6.8MB. This rule comes after it deliberately: Next
+        // applies each matching rule in turn and the last wins. A short max-age
+        // with revalidation keeps them correct when replaced in place while
+        // stopping the repeat downloads; once stale the browser asks and
+        // normally gets a 304 with no body.
+        source: '/(.*)\\.(mp4|webm|jpg|jpeg|png|webp|avif|gif|svg|woff|woff2|ttf|otf)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate',
+          },
+        ],
+      },
+      {
         // Cache Next.js static assets aggressively (they are content-hashed)
         source: '/_next/static/:path*',
         headers: [

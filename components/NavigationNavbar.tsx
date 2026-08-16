@@ -8,6 +8,7 @@ import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
+import { ButtonWhatsApp } from "./ButtonWhatsApp";
 
 const navigation = [
   { name: "Home", href: "#home" },
@@ -235,13 +236,20 @@ export default function NavigationNavbar() {
         <div
           ref={mobileMenuRef}
           id="mobile-nav-menu"
-          className={`absolute top-0 right-0 h-full w-[min(85vw,360px)] bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-250 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          className={`absolute top-0 right-0 h-full w-[min(85vw,360px)] flex flex-col bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-250 ease-[cubic-bezier(0.32,0.72,0,1)] ${
             isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {/* Panel header */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-800">
-            <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Menu</span>
+          <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="min-w-0">
+              <span className="block text-lg font-bold text-blue-600 dark:text-blue-400 tracking-tight">
+                FIX MY LEAK
+              </span>
+              <span className="block text-xs text-gray-500 dark:text-gray-400">
+                Emergency plumber · South West London
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => { setIsMobileMenuOpen(false); setOpenMobileGroup(null); }}
@@ -252,6 +260,36 @@ export default function NavigationNavbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+          </div>
+
+          {/* Primary actions first */}
+          <div className="flex-shrink-0 px-5 pt-4 pb-4 space-y-2 border-b border-gray-100 dark:border-gray-800">
+            <a
+              href={`tel:${businessPhone}`}
+              onClick={() => { trackPhoneCall("mobile_menu"); setIsMobileMenuOpen(false); }}
+              className="call-pulse flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-red-600 font-bold shadow-lg shadow-red-600/25 transition-colors"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+              <span className="text-white">{displayPhone}</span>
+            </a>
+
+            <div className="grid grid-cols-2 gap-2">
+              <ButtonWhatsApp
+                variant="solid"
+                label="WhatsApp"
+                source="mobile_menu_whatsapp"
+                className="w-full py-3 text-sm"
+              />
+              <Link
+                href="#contact"
+                onClick={(e) => handleClick(e, "#contact")}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-semibold transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Book online
+              </Link>
+            </div>
           </div>
 
           {/* Nav items */}
@@ -320,19 +358,27 @@ export default function NavigationNavbar() {
             })}
           </nav>
 
-          {/* Bottom: theme toggle + CTA */}
-          <div className="absolute bottom-0 left-0 right-0 px-5 pb-6 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 space-y-4">
-            <Link
-              href="#contact"
-              onClick={(e) => handleClick(e, "#contact")}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors shadow-md"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
-              Book a Service
-            </Link>
-            <div className="flex justify-center">
+          {/* Bottom: secondary links and appearance */}
+          <div className="mt-auto px-5 pb-6 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-sm">
+              <Link
+                href="/services"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                All services
+              </Link>
+              <Link
+                href="/areas"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                Areas we cover
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Appearance</span>
               <ThemeToggle size="md" />
             </div>
           </div>
@@ -349,7 +395,7 @@ export default function NavigationNavbar() {
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               {/* Logo */}
               <Link
                 className="text-2xl font-bold transition-all duration-300 hover:scale-105 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
@@ -359,7 +405,7 @@ export default function NavigationNavbar() {
               </Link>
 
               {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center space-x-1">
+              <div className="hidden lg:flex items-center justify-center space-x-1">
                 {navigation.map((item) => (
                   <div key={item.name} className="relative group">
                     {item.dropdown ? (
@@ -435,22 +481,29 @@ export default function NavigationNavbar() {
               </div>
 
               {/* Right group: call CTA + theme toggle + hamburger */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-end gap-2 sm:gap-3">
               {/* Always-visible tap-to-call — primary conversion action */}
               <a
                 href={`tel:${businessPhone}`}
                 onClick={() => trackPhoneCall("navbar")}
                 aria-label={`Call now ${displayPhone}`}
-                className="flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-lg shadow-red-600/25 transition-colors duration-200 whitespace-nowrap"
+                className="call-pulse flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-red-600 font-bold px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-lg shadow-red-600/25 transition-colors duration-200 whitespace-nowrap"
               >
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                 </svg>
-                <span className="text-sm sm:text-base tracking-tight">
+                <span className="text-white text-sm sm:text-base tracking-tight">
                   <span className="hidden sm:inline">{displayPhone}</span>
                   <span className="sm:hidden">Call</span>
                 </span>
               </a>
+
+              <ButtonWhatsApp
+                variant="solid"
+                label=""
+                source="navbar_whatsapp"
+                className="w-10 h-10 lg:w-11 lg:h-11 flex-shrink-0"
+              />
 
               {/* Desktop theme toggle */}
               <div className="hidden lg:block">

@@ -9,6 +9,7 @@ import { useActiveDayOffPeriods } from "@/hooks/useDayOffPeriods";
 import { CookieConsent } from "./CookieConsent";
 
 import NavigationNavbar from "./NavigationNavbar";
+import { FloatingActions } from "./FloatingActions";
 import FooterMain from './FooterMain';
 
 export default function LayoutMain({
@@ -39,7 +40,7 @@ export default function LayoutMain({
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900" suppressHydrationWarning>
       {/* Sticky header: banner + nav together to avoid any gap */}
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-[60]">
         <DayOffBanner />
         <NavigationNavbar />
       </div>
@@ -48,6 +49,8 @@ export default function LayoutMain({
       <main className={`flex-grow transition-all duration-300 ${hasDayOffBanner ? 'pt-0' : 'pt-0'}`}>
         {children}
       </main>
+
+      <FloatingActions />
       <FooterMain />
       
       {/* Cookie Consent Banner */}
