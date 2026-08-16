@@ -118,7 +118,7 @@ export default function FooterMain() {
               className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-300"
               href="/"
             >
-              {BRAND_NAME.toUpperCase()}
+              {BRAND_NAME}
               {businessData.companyStatus && (
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
                   {businessData.companyStatus}

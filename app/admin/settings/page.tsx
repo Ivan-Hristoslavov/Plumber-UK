@@ -10,6 +10,7 @@ import { AdminPricingManager } from "@/components/AdminPricingManager";
 import { AdminGalleryManager } from "@/components/AdminGalleryManager";
 import { ServiceAreasManager } from "@/components/ServiceAreasManager";
 import { AdminFAQManager } from "@/components/AdminFAQManager";
+import { AdminServicesManager } from "@/components/AdminServicesManager";
 import { AdminLegalManager } from "@/components/AdminLegalManager";
 import { GoogleCalendarIntegration } from "@/components/GoogleCalendarIntegration";
 import { useToast, ToastMessages } from "@/components/Toast";
@@ -122,6 +123,7 @@ export default function AdminSettingsPage() {
     | "vat"
     | "gallery"
     | "areas"
+    | "services"
     | "faq"
     | "legal"
     | "connections"
@@ -388,6 +390,27 @@ export default function AdminSettingsPage() {
         </svg>
       ),
       description: "Coverage locations",
+      category: "content",
+    },
+    {
+      id: "services",
+      name: "Services",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+          />
+        </svg>
+      ),
+      description: "What you offer and its pages",
       category: "content",
     },
     {
@@ -1484,6 +1507,7 @@ export default function AdminSettingsPage() {
           {activeTab === "areas" && (
             <ServiceAreasManager triggerModal={triggerModal === "areas"} />
           )}
+          {activeTab === "services" && <AdminServicesManager />}
           {activeTab === "faq" && (
             <AdminFAQManager triggerModal={triggerModal === "faq"} />
           )}
