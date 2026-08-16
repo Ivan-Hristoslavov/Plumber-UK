@@ -117,7 +117,7 @@ export function SectionHero({
                 <span className="text-sm font-semibold text-white">
                   {rating.average.toFixed(1)}
                 </span>
-                <span className="text-sm text-white/70">
+                <span className="text-sm font-medium text-white">
                   ({rating.count} reviews)
                 </span>
               </div>
