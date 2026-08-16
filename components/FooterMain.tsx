@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+import { slugify } from "@/lib/slug";
+import { BRAND_NAME } from "@/lib/brand";
 
 // Social links: set to true to show in footer
 const SHOW_FACEBOOK = false;
@@ -32,6 +34,7 @@ type ServiceArea = {
 
 export default function FooterMain() {
   const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
+  const [services, setServices] = useState<{ name: string; slug: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -54,6 +57,17 @@ export default function FooterMain() {
         if (areasResponse.ok) {
           const areas = await areasResponse.json();
           setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
+        }
+
+        // Fetch services for the footer link column
+        const servicesResponse = await fetch('/api/services');
+        if (servicesResponse.ok) {
+          const data = await servicesResponse.json();
+          setServices(
+            (Array.isArray(data) ? data : [])
+              .filter((s: { is_active: boolean }) => s.is_active)
+              .map((s: { name: string }) => ({ name: s.name, slug: slugify(s.name) }))
+          );
         }
       } catch {
         // Silently handle fetch errors — footer shows defaults
@@ -96,14 +110,14 @@ export default function FooterMain() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500">
       <div className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:grid md:grid-cols-4 gap-8" suppressHydrationWarning>
+        <div className="flex flex-col md:grid md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10" suppressHydrationWarning>
           {/* Company Info - First on mobile */}
-          <div className="order-1 md:col-span-2">
+          <div className="order-1 md:col-span-3 lg:col-span-2">
             <Link
               className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-300"
               href="/"
             >
-              {businessData.businessName.toUpperCase()}
+              {BRAND_NAME.toUpperCase()}
               {businessData.companyStatus && (
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
                   {businessData.companyStatus}
@@ -122,15 +136,20 @@ export default function FooterMain() {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                    📞 Emergency 24/7:{" "}
+                  <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    <svg className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
                     <a href={`tel:${businessData.businessPhone.replace(/\s/g, "")}`} className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                       {businessData.businessPhone}
                     </a>
+                    <span className="text-gray-400 dark:text-gray-500">· 24/7</span>
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
-                    📧 Email:{" "}
-                    <a href={`mailto:${businessData.businessEmail}`} className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                  <p className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    <svg className="w-4 h-4 flex-shrink-0 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
+                    <a href={`mailto:${businessData.businessEmail}`} className="font-semibold text-blue-600 dark:text-blue-400 hover:underline break-all">
                       {businessData.businessEmail}
                     </a>
                   </p>
@@ -190,22 +209,46 @@ export default function FooterMain() {
             </nav>
           </div>
 
-          {/* Service Areas - from DB, display only (no links); always render wrapper for consistent hydration */}
+          {/* Service Areas - linked to their landing pages. The footer is on every
+              page, so this is the site's main internal-linking surface. */}
           <div className="order-3">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
               Service Areas
             </h3>
-            <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 sm:mt-4 flex flex-col gap-2">
               {isLoading ? (
                 <span className="text-sm text-gray-400 dark:text-gray-500">Loading…</span>
               ) : serviceAreas.length > 0 ? (
                 serviceAreas.map((area) => (
-                  <span
+                  <Link
                     key={area.id}
-                    className="text-sm text-gray-600 dark:text-gray-400"
+                    href={`/areas/${area.slug}`}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
                   >
                     {area.postcode ? `${area.name} (${area.postcode})` : area.name}
-                  </span>
+                  </Link>
+                ))
+              ) : (
+                <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
+              )}
+            </div>
+          </div>
+
+          {/* Services - linked to their landing pages */}
+          <div className="order-4">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider transition-colors duration-300">
+              Services
+            </h3>
+            <div className="mt-3 sm:mt-4 flex flex-col gap-2">
+              {services.length > 0 ? (
+                services.map((service) => (
+                  <Link
+                    key={service.slug}
+                    href={`/services/${service.slug}`}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
+                  >
+                    {service.name}
+                  </Link>
                 ))
               ) : (
                 <span className="text-sm text-gray-400 dark:text-gray-500">—</span>

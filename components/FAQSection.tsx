@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { useFAQ } from "@/hooks/useFAQ";
+import type { FAQItem } from "@/types";
 
 const VISIBLE_COUNT = 4;
 
-export function FAQSection() {
-  const { faqItems, isLoading, error } = useFAQ();
+export function FAQSection({ initialItems = [] }: { initialItems?: FAQItem[] }) {
+  const { faqItems: fetchedItems, isLoading, error } = useFAQ();
+
+  // Seeded from the server so the questions and answers are present in the HTML
+  // rather than arriving after hydration; the hook takes over once it resolves.
+  const faqItems = fetchedItems.length > 0 ? fetchedItems : initialItems;
   const [openItems, setOpenItems] = useState<number[]>([]);
   const [showAll, setShowAll] = useState(false);
 
@@ -16,7 +21,7 @@ export function FAQSection() {
     );
   };
 
-  if (isLoading) {
+  if (isLoading && faqItems.length === 0) {
     return (
       <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500" id="faq">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

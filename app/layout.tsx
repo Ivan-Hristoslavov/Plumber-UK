@@ -15,6 +15,7 @@ import { fontSans } from "@/config/fonts";
 import LayoutMain from "@/components/LayoutMain";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
+import { BRAND_NAME, legalName } from "@/lib/brand";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
@@ -22,8 +23,8 @@ const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || 'y1fa7e
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
-  const companyName = profile?.company_name || "FixMyLeak";
-  
+  const companyName = BRAND_NAME;
+
   // Ensure years_of_experience includes "Years" if not already present
   const yearsExperience = profile?.years_of_experience 
     ? (profile.years_of_experience.toLowerCase().includes('years') 
@@ -163,12 +164,31 @@ export default async function RootLayout({
 }) {
   const supabase = createClient();
 
-  const [adminProfile, { data: areas }, { data: pricingCards }, { data: adminSettings }] = await Promise.all([
+  const [adminProfile, { data: areas }, { data: pricingCards }, { data: adminSettings }, { data: approvedReviews }] = await Promise.all([
     getAdminProfile(),
     supabase.from('admin_areas_cover').select('*').eq('is_active', true).order('order', { ascending: true }),
     supabase.from('pricing_cards').select('*').eq('is_enabled', true).order('order', { ascending: true }),
     supabase.from('admin_settings').select('*'),
+    supabase.from('reviews').select('rating').eq('is_approved', true),
   ]);
+
+  // Rating markup must describe the reviews actually shown on the page —
+  // inventing a count is a structured-data policy violation, so this is omitted
+  // entirely when there is nothing approved to summarise.
+  const ratings = (approvedReviews || [])
+    .map((r: { rating: number | null }) => Number(r.rating))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const aggregateRating =
+    ratings.length > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: Number((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)),
+          reviewCount: ratings.length,
+          itemReviewed: {
+            "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`,
+          },
+        }
+      : undefined;
     
   // Convert admin settings to object
   const settingsMap: { [key: string]: any } = {};
@@ -189,10 +209,11 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": ["LocalBusiness", "Plumber"],
     "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`,
-    "name": adminProfile?.company_name || "FixMyLeak",
+    "name": BRAND_NAME,
+    "legalName": legalName(adminProfile?.company_name),
     "description": `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time.`,
     "url": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
-    "telephone": adminProfile?.phone || "07476 746635",
+    "telephone": adminProfile?.phone || "+44 7541777225",
     "email": adminProfile?.business_email || "pzplumbingservices@gmail.com",
     "founder": {
       "@type": "Person",
@@ -259,23 +280,10 @@ export default async function RootLayout({
         }
       })) || []
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": 4.8,
-      "reviewCount": 150,
-      "itemReviewed": {
-        "@id": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk'}#business`
-      }
-    },
+    ...(aggregateRating ? { aggregateRating } : {}),
     "sameAs": [
       "https://www.linkedin.com/company/fixmyleak"
     ],
-    "bankDetails": {
-      "@type": "BankAccount",
-      "bankName": adminProfile?.bank_name || "",
-      "accountNumber": adminProfile?.account_number || "",
-      "sortCode": adminProfile?.sort_code || ""
-    },
     "about": adminProfile?.about || ""
   };
 

@@ -17,9 +17,6 @@ export default function robots(): MetadataRoute.Robots {
           '/uploads/temp*',
           '/search?*',
           '/filter?*',
-          '/*?utm_*',
-          '/*?fbclid=*',
-          '/*?gclid=*',
           '/404',
           '/500',
         ],
@@ -33,11 +30,7 @@ export default function robots(): MetadataRoute.Robots {
           '/api/auth*',
           '/api/admin*',
           '/search?*',
-          '/*?utm_*',
-          '/*?fbclid=*',
-          '/*?gclid=*',
         ],
-        crawlDelay: 1,
       },
       // 🔍 GOOGLEBOT-IMAGE - Enhanced Image SEO
       {
@@ -66,10 +59,29 @@ export default function robots(): MetadataRoute.Robots {
           '/admin*',
           '/api/auth*',
           '/api/admin*',
-          '/*?utm_*',
-          '/*?fbclid=*',
         ],
-        crawlDelay: 2,
+      },
+      // 🤖 AI ANSWER ENGINES - "emergency plumber near me" is increasingly asked
+      // to ChatGPT / Claude / Perplexity / Google AI Overviews. Allow them to
+      // read public pages so the business can be cited in those answers.
+      {
+        userAgent: [
+          'GPTBot',
+          'ChatGPT-User',
+          'OAI-SearchBot',
+          'ClaudeBot',
+          'Claude-User',
+          'anthropic-ai',
+          'PerplexityBot',
+          'Google-Extended',
+          'Applebot-Extended',
+        ],
+        allow: '/',
+        disallow: [
+          '/admin*',
+          '/api*',
+          '/private*',
+        ],
       },
       // 🦆 DUCKDUCKBOT - Privacy-Focused Search
       {
@@ -133,13 +145,6 @@ export default function robots(): MetadataRoute.Robots {
           'PetalBot',
           'MegaIndex',
           'SeznamBot',
-          'BingPreview',
-          'CCBot',
-          'ChatGPT-User',
-          'GPTBot',
-          'Google-Extended',
-          'anthropic-ai',
-          'Claude-Web',
         ],
         disallow: '/',
       },

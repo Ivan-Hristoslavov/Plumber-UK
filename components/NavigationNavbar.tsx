@@ -6,10 +6,20 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { ThemeToggle } from "./ThemeToggle";
+import { useAdminProfile } from "./AdminProfileContext";
+import { trackPhoneCall } from "./GoogleAnalytics";
 
 const navigation = [
   { name: "Home", href: "#home" },
-  { name: "Services", href: "#services" },
+  {
+    name: "Services",
+    href: "#services",
+    dropdown: [
+      { name: "Prices", href: "#services" },
+      { name: "All services", href: "/services" },
+      { name: "Areas we cover", href: "/areas" },
+    ],
+  },
   { 
     name: "About", 
     href: "#about",
@@ -30,6 +40,9 @@ const navigation = [
 ];
 
 export default function NavigationNavbar() {
+  const adminProfile = useAdminProfile();
+  const businessPhone = adminProfile?.phone || "+44 7541777225";
+  const displayPhone = businessPhone.replace(/^\+44\s?/, "0");
   const { scrollDirection, isScrolled } = useScrollDirection();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -161,10 +174,20 @@ export default function NavigationNavbar() {
       e.preventDefault();
       const targetId = href.substring(1);
       const element = document.getElementById(targetId);
-      if (element) {
-        setIsMobileMenuOpen(false);
-        setOpenDropdown(null);
-        setOpenMobileGroup(null);
+
+      setIsMobileMenuOpen(false);
+      setOpenDropdown(null);
+      setOpenMobileGroup(null);
+
+      // The section only exists on the homepage. On the area and service pages
+      // these links previously did nothing at all, because the handler bailed
+      // out when the element was missing.
+      if (!element) {
+        router.push(`/#${targetId}`);
+        return;
+      }
+
+      {
         setActiveSection(targetId);
 
         if (pathname === "/") {
@@ -411,6 +434,24 @@ export default function NavigationNavbar() {
                 ))}
               </div>
 
+              {/* Right group: call CTA + theme toggle + hamburger */}
+              <div className="flex items-center gap-2 sm:gap-3">
+              {/* Always-visible tap-to-call — primary conversion action */}
+              <a
+                href={`tel:${businessPhone}`}
+                onClick={() => trackPhoneCall("navbar")}
+                aria-label={`Call now ${displayPhone}`}
+                className="flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-lg shadow-red-600/25 transition-colors duration-200 whitespace-nowrap"
+              >
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+                <span className="text-sm sm:text-base tracking-tight">
+                  <span className="hidden sm:inline">{displayPhone}</span>
+                  <span className="sm:hidden">Call</span>
+                </span>
+              </a>
+
               {/* Desktop theme toggle */}
               <div className="hidden lg:block">
                 <ThemeToggle size="md" />
@@ -430,6 +471,7 @@ export default function NavigationNavbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
                 </svg>
               </button>
+              </div>
             </div>
           </div>
         </div>

@@ -56,45 +56,32 @@ export function CookieConsent() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 mt-1">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    We Value Your Privacy
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. 
-                    By clicking "Accept All", you consent to our use of cookies.{" "}
-                    <Link 
-                      href="/cookies" 
-                      className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                    >
-                      Learn more
-                    </Link>
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        {/* Kept to a single compact row: on mobile this banner sits on top of the
+            hero CTAs, so every extra line of copy is a lost call. */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+          <div className="flex flex-row items-center justify-between gap-3">
+            <p className="flex-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-snug">
+              We use cookies to analyse traffic.{" "}
+              <Link
+                href="/cookies"
+                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                Learn more
+              </Link>
+            </p>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={handleReject}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
-                Reject All
+                Reject
               </button>
               <button
                 onClick={handleAccept}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
               >
-                Accept All
+                Accept
               </button>
             </div>
           </div>

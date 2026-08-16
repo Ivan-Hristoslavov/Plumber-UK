@@ -1,22 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import FormBooking from "./FormBooking";
-import { ButtonCallNow } from "./ButtonCallNow";
-import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
+import { responseTimeMinutes } from "@/lib/response-time";
 
 interface AreaPageProps {
   areaName: string;
   postcode: string;
   description: string;
   localKeywords: string[];
-  nearbyAreas: string[];
+  nearbyAreas: { name: string; slug: string }[];
 }
 
 export function AreaPage({ areaName, postcode, description, localKeywords, nearbyAreas }: AreaPageProps) {
-  const { profile } = useAdminProfile();
-  
+  const profile = useAdminProfile();
+
   // Get phone from database, fallback to default
   const businessPhone = profile?.phone || "+44 7541777225";
   
@@ -26,7 +27,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
   return (
     <div className="space-y-20">
       {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800">
+      <section className="relative py-16 sm:py-24 md:py-32 overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full" />
@@ -39,6 +40,14 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Content */}
             <div className="text-white">
+              <nav aria-label="Breadcrumb" className="mb-5 text-sm text-blue-100">
+                <Link href="/" className="hover:text-white transition-colors">Home</Link>
+                <span className="mx-2 text-blue-300">/</span>
+                <Link href="/areas" className="hover:text-white transition-colors">Areas</Link>
+                <span className="mx-2 text-blue-300">/</span>
+                <span className="text-white font-medium">{areaName}</span>
+              </nav>
+
               <div className="flex items-center gap-3 mb-6">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -49,7 +58,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                 </span>
               </div>
 
-              <h1 className="text-5xl font-bold mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
                 Emergency Plumber in <span className="text-yellow-300">{areaName}</span>
               </h1>
 
@@ -74,7 +83,17 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <ButtonCallNow />
+                <a
+                  href={`tel:${businessPhone}`}
+                  onClick={() => trackPhoneCall("area_page_hero")}
+                  aria-label={`Call now ${displayPhone}`}
+                  className="bg-red-600 hover:bg-red-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-red-900/30 transition-all duration-300 inline-flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Call {displayPhone}
+                </a>
                 <button 
                   onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 inline-flex items-center justify-center"
@@ -101,7 +120,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
               </div>
               
               {/* Floating Stats */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-6 max-w-xs">
+              <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 max-w-xs">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,8 +128,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </svg>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">45min</div>
-                    <div className="text-sm text-gray-600">Response Time in {areaName}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{responseTimeMinutes(profile?.response_time)}min</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Response Time in {areaName}</div>
                   </div>
                 </div>
               </div>
@@ -123,10 +142,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Plumbing Services in {areaName}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Professional plumbing solutions for {areaName} residents and businesses
             </p>
           </div>
@@ -188,14 +207,14 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                 description: "Professional pipe repair and replacement services throughout {areaName}."
               },
             ].map((service, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600">
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100 dark:border-gray-700">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 rounded-2xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
                   {service.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                   {service.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   {service.description}
                 </p>
               </div>
@@ -205,13 +224,13 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       </section>
 
       {/* Why Choose Us for Area */}
-      <section className="py-20 bg-blue-50">
+      <section className="py-20 bg-blue-50 dark:bg-blue-900/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Why Choose FixMyLeak in {areaName}?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Local expertise you can trust
             </p>
           </div>
@@ -243,10 +262,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                       {benefit.title}
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                       {benefit.description}
                     </p>
                   </div>
@@ -255,24 +274,25 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
             </div>
 
             <div className="relative">
-              <div className="bg-white rounded-3xl shadow-2xl p-8">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     Serving {areaName} & Nearby Areas
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     We also cover the surrounding areas
                   </p>
                 </div>
                 
                 <div className="flex flex-wrap gap-3 justify-center">
                   {nearbyAreas.map((area) => (
-                    <span 
-                      key={area}
-                      className="bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium"
+                    <Link
+                      key={area.slug}
+                      href={`/areas/${area.slug}`}
+                      className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-800 dark:hover:text-blue-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
                     >
-                      {area}
-                    </span>
+                      {area.name}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -285,23 +305,25 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
       <section className="py-20" id="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Need a Plumber in {areaName}?
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Get in touch for fast, professional service
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Contact Info */}
-            <div className="space-y-8">
-              <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+          {/* Contact details run across the top rather than beside the form:
+              FormBooking has its own two-column layout inside, so giving it half
+              the width squeezed every field and left a tall empty gutter. */}
+          <div className="space-y-8">
+            <div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Emergency Callout {areaName}
                 </h3>
-                
-                <div className="space-y-6">
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,10 +331,10 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Call now – speak to an engineer</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Call now – speak to an engineer</div>
                       <a 
                         href={`tel:${businessPhone}`}
-                        className="text-green-600 font-bold text-xl hover:text-green-700 transition-colors"
+                        className="text-green-600 dark:text-green-400 font-bold text-xl hover:text-green-700 dark:hover:text-green-300 transition-colors"
                         onClick={() => trackPhoneCall("area_page")}
                       >
                         {displayPhone}
@@ -327,8 +349,8 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Response Time</div>
-                      <div className="text-blue-600 font-bold">Under 45 minutes</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Response Time</div>
+                      <div className="text-blue-600 dark:text-blue-400 font-bold">Under {responseTimeMinutes(profile?.response_time)} minutes</div>
                     </div>
                   </div>
 
@@ -340,20 +362,41 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Service Area</div>
-                      <div className="text-purple-600 font-bold">{areaName} & {postcode}</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">Service Area</div>
+                      <div className="text-purple-600 dark:text-purple-400 font-bold">{areaName} & {postcode}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Book Your Service
-              </h3>
-              <FormBooking />
+            {/* Contact Form - full width so its internal two-column layout fits */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 sm:px-8 py-5 sm:py-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                      Book a Plumber in {areaName}
+                    </h3>
+                    <p className="text-blue-100 text-sm sm:text-base">
+                      Takes about a minute • No payment upfront • We call to confirm your slot
+                    </p>
+                  </div>
+                  <a
+                    href={`tel:${businessPhone}`}
+                    onClick={() => trackPhoneCall("area_page_form_header")}
+                    className="inline-flex items-center justify-center gap-2 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 px-4 py-2.5 text-white font-semibold text-sm backdrop-blur-sm transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
+                    In a hurry? Call instead
+                  </a>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8">
+                <FormBooking />
+              </div>
             </div>
           </div>
         </div>

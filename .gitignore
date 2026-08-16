@@ -54,4 +54,7 @@ tmp/
 temp/
 
 # Vercel
-.vercel 
+.vercel
+
+# Editor/scratch backups
+*.backup

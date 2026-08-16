@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
+import type { PricingCard } from "@/types";
 
 function PricingCardSkeleton() {
   return (
@@ -97,26 +98,57 @@ function SectionPricingLoading() {
   );
 }
 
-export function SectionPricing() {
+// Cards are admin-managed and unbounded in number, so accents cycle rather than
+// being keyed to a specific card.
+const CARD_ACCENTS = [
+  {
+    bar: "from-blue-500 to-indigo-600",
+    iconBg: "bg-blue-100 dark:bg-blue-900/40",
+    iconFg: "text-blue-600 dark:text-blue-400",
+    rateBg: "bg-blue-50 dark:bg-blue-900/20",
+    price: "text-blue-600 dark:text-blue-400",
+    checkBg: "bg-blue-100 dark:bg-blue-900/40",
+    checkFg: "text-blue-600 dark:text-blue-400",
+    // Wrench — hourly repair work
+    iconPath:
+      "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z",
+  },
+  {
+    bar: "from-orange-500 to-red-600",
+    iconBg: "bg-orange-100 dark:bg-orange-900/40",
+    iconFg: "text-orange-600 dark:text-orange-400",
+    rateBg: "bg-orange-50 dark:bg-orange-900/20",
+    price: "text-orange-600 dark:text-orange-400",
+    checkBg: "bg-orange-100 dark:bg-orange-900/40",
+    checkFg: "text-orange-600 dark:text-orange-400",
+    // Calendar — full-day bookings
+    iconPath:
+      "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  },
+];
+
+export function SectionPricing({ initialCards = [] }: { initialCards?: PricingCard[] }) {
   const [mounted, setMounted] = useState(false);
-  const { pricingCards, loading, error } = usePricingCards();
+  const { pricingCards: fetchedCards, loading, error } = usePricingCards();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Prevent hydration mismatch: server and initial client render must match.
-  // usePricingCards uses a global cache that exists only on client, so loading
-  // can differ between server (no cache) and client (has cache).
-  if (!mounted) {
+  // Server-supplied cards let this section render its real content in the HTML
+  // instead of a skeleton. The hook still runs and takes over once it resolves,
+  // so admin edits appear without a redeploy.
+  const pricingCards = fetchedCards.length > 0 ? fetchedCards : initialCards;
+  const hasContent = pricingCards.length > 0;
+
+  // Without seed data, server and first client render must both be the skeleton:
+  // usePricingCards reads a global cache that only exists on the client, so
+  // `loading` differs between the two and would otherwise mismatch on hydration.
+  if (!hasContent && (!mounted || loading)) {
     return <SectionPricingLoading />;
   }
 
-  if (loading) {
-    return <SectionPricingLoading />;
-  }
-
-  if (error) {
+  if (error && !hasContent) {
     return (
       <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -159,215 +191,137 @@ export function SectionPricing() {
 
         {/* Dynamic Pricing Cards - Fixed Height Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center max-w-6xl mx-auto mb-16">
-          {pricingCards.map((card, index) => (
-            <div key={card.id} className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-600 p-8 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden flex flex-col h-full">
-              {/* Background Pattern */}
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${index % 2 === 0 ? 'from-blue-100 to-purple-100' : 'from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30'} rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500`} />
-              <div className={`absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr ${index % 2 === 0 ? 'from-yellow-100 to-orange-100' : 'from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30'} rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-500`} />
+          {pricingCards.map((card, index) => {
+            const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
 
-              <div className="relative z-10 flex flex-col h-full">
-                {/* Header with Icon */}
-                <div className="flex items-center mb-6 flex-shrink-0">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${index % 2 === 0 ? 'from-blue-500 to-purple-600' : 'from-orange-500 to-red-600 dark:from-orange-400 dark:to-red-500'} rounded-2xl flex items-center justify-center mr-4 group-hover:rotate-12 transition-transform duration-300`}>
-                    <svg
-                      className="w-7 h-7 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                      />
+            return (
+            <div key={card.id} className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden flex flex-col h-full">
+              {/* A single accent bar carries the card's colour. The old design put
+                  four blurred blobs behind the content, which fought the text. */}
+              <div className={`h-1.5 w-full bg-gradient-to-r ${accent.bar}`} />
+
+              <div className="flex flex-col h-full p-6 sm:p-8">
+                {/* Header */}
+                <div className="flex items-start gap-4 mb-6 flex-shrink-0">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${accent.iconBg}`}>
+                    <svg className={`w-6 h-6 ${accent.iconFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d={accent.iconPath} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-snug">
                       {card.title}
                     </h3>
                     {card.subtitle && (
-                      <p className={`${index % 2 === 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'} font-medium text-sm truncate`}>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
                         {card.subtitle}
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Dynamic Table - Flexible Height with Proper Alignment */}
-                {card.table_rows && card.table_rows.length > 0 && (
-                  <div className={`bg-gradient-to-br ${index % 2 === 0 ? 'from-gray-50 to-blue-50 dark:from-gray-700 dark:to-gray-600' : 'from-gray-50 to-orange-50 dark:from-gray-800 dark:to-orange-900/20'} rounded-2xl p-4 mb-6 flex-1`}>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-200 dark:border-gray-500">
-                            {card.table_headers && card.table_headers.map((header, headerIndex) => (
-                              <th key={header} className={`py-2 pr-3 font-bold text-gray-900 dark:text-white text-xs sm:text-sm ${
-                                headerIndex === 0 ? 'text-left' : 'text-center'
-                              }`}>
-                                {header}
-                              </th>
+                {/* Rates. The price is the reason people are on this section, so
+                    each row leads with the figure at display size rather than
+                    hiding it in a table cell. */}
+                {card.table_rows && card.table_rows.length > 0 && card.table_headers && (
+                  <div className="space-y-2 mb-6 flex-shrink-0">
+                    {card.table_rows.map((row, rowIndex) => {
+                      const labelKey = card.table_headers![0];
+                      const valueKeys = card.table_headers!.slice(1);
+
+                      return (
+                        <div
+                          key={rowIndex}
+                          className={`rounded-2xl px-4 py-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ${accent.rateBg}`}
+                        >
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                              {labelKey}
+                            </div>
+                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-snug">
+                              {row[labelKey] || ""}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            {valueKeys.map((key) => (
+                              <div key={key}>
+                                <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                  {key}
+                                </div>
+                                <div className={`text-2xl sm:text-3xl font-bold tracking-tight ${accent.price}`}>
+                                  {row[key] || ""}
+                                </div>
+                              </div>
                             ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-                          {card.table_rows.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors">
-                              {card.table_headers && card.table_headers.map((header, cellIndex) => (
-                                <td key={header} className={`py-3 pr-3 font-medium transition-colors duration-300 text-xs sm:text-sm ${
-                                  cellIndex === 0 
-                                    ? 'text-gray-800 dark:text-gray-200 text-left' 
-                                    : cellIndex === 1 
-                                      ? (row[header]?.includes('£80') ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400') + ' font-bold text-center'
-                                      : 'text-blue-600 dark:text-blue-400 font-bold text-center'
-                                }`}>
-                                  <div className="break-words leading-tight">
-                                    {row[header] || ""}
-                                  </div>
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
-                {/* Dynamic Notes - Fixed at Bottom */}
+                {/* What's covered */}
                 {card.notes && card.notes.length > 0 && (
-                  <div className="space-y-2 mb-6 flex-shrink-0">
-                    {card.notes.map((note, noteIndex) => (
-                      <div key={noteIndex} className="flex items-start text-xs sm:text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                        <span className="w-4 h-4 mr-2 text-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          {note.icon || '✓'}
-                        </span>
-                        <span className="font-medium leading-tight">
-                          {note.text}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="border-t border-gray-100 dark:border-gray-700 pt-5 flex-1">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
+                      What&apos;s covered
+                    </div>
+                    <ul className="space-y-2.5">
+                      {card.notes.map((note, noteIndex) => (
+                        <li key={noteIndex} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                          <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${accent.checkBg}`}>
+                            <svg className={`w-2.5 h-2.5 ${accent.checkFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
+                            </svg>
+                          </span>
+                          <span className="leading-snug">{note.text}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Enhanced Explanatory Text */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 max-w-4xl mx-auto transition-all duration-300">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 dark:from-yellow-400 dark:to-orange-400 rounded-xl flex items-center justify-center mr-4 transition-all duration-300">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                />
+        {/* Good-to-know notes. Four repeated tick icons in four colours read as
+            decoration; these are terms, so they are set as a plain definition
+            list with the operative phrase carrying the emphasis. */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 sm:p-8 max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
               </svg>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-300">
-              Important Information
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+              Good to know
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 dark:text-gray-300 transition-colors duration-300">
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-blue-500 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <p className="leading-relaxed">
-                  All rates above are <strong>labour only</strong>. Materials
-                  are not included and can be supplied by the customer.
-                </p>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+            {[
+              { term: "Labour only", detail: "Rates above exclude materials, which you are welcome to supply yourself." },
+              { term: "Materials via us", detail: "Supplied at cost plus 20% if you would rather we handled it." },
+              { term: "Call-out fee", detail: "Covers travel and the initial assessment of the problem." },
+              { term: "Full-day rate", detail: "Works out cheaper per hour, subject to availability." },
+            ].map((item) => (
+              <div key={item.term}>
+                <dt className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                  {item.term}
+                </dt>
+                <dd className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {item.detail}
+                </dd>
               </div>
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-green-500 dark:text-green-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <p className="leading-relaxed">
-                  Materials can be provided by us at <strong>cost + 20%</strong>{" "}
-                  for your convenience.
-                </p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-purple-500 dark:text-purple-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <p className="leading-relaxed">
-                  Call-out fee includes{" "}
-                  <strong>travel and initial assessment</strong> of the problem.
-                </p>
-              </div>
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-orange-500 dark:text-orange-400 mr-3 mt-0.5 flex-shrink-0 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <p className="leading-relaxed">
-                  Full-day bookings offer <strong>reduced hourly rates</strong>{" "}
-                  and are subject to availability.
-                </p>
-              </div>
-            </div>
-          </div>
+            ))}
+          </dl>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-100 dark:border-blue-800 transition-all duration-300">
-            <p className="text-center text-gray-700 dark:text-gray-300 font-medium transition-colors duration-300">
-              All prices are set based on average rates in{" "}
-              <strong>South West London</strong> and remain competitive and
-              fair.
-            </p>
-          </div>
+          <p className="mt-7 pt-5 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 text-center">
+            Prices are benchmarked against average South West London rates.
+          </p>
         </div>
       </div>
     </section>
