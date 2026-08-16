@@ -261,30 +261,19 @@ export default async function HomePage() {
               stacked version pushed the actual text most of a screen down. */}
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
             <div className="mx-auto lg:mx-0 w-full max-w-sm">
-              <div className="relative">
-                <div className="relative rounded-3xl overflow-hidden shadow-xl ring-1 ring-gray-900/5 dark:ring-white/10 aspect-[4/5]">
-                  <Image
-                    src="/plamen.jpeg"
-                    alt={`${profile?.name || "Plamen Zhelev"}, founder and lead plumbing engineer`}
-                    width={800}
-                    height={1000}
-                    className="w-full h-full object-cover"
-                    priority
-                  />
-                </div>
-
-                <div className="absolute -bottom-5 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 px-4 py-3">
-                  <div className="font-bold text-gray-900 dark:text-white leading-tight">
-                    {profile?.name || "Plamen Zhelev"}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Founder &amp; lead engineer
-                  </div>
-                </div>
+              <div className="relative rounded-3xl overflow-hidden shadow-xl ring-1 ring-gray-900/5 dark:ring-white/10 aspect-[4/5]">
+                <Image
+                  src="/plamen.jpeg"
+                  alt={`${profile?.name || "Plamen Zhelev"}, founder and lead plumbing engineer`}
+                  width={800}
+                  height={1000}
+                  className="w-full h-full object-cover"
+                  priority
+                />
               </div>
             </div>
 
-            <div className="pt-8 lg:pt-0">
+            <div>
               <div className="inline-flex items-center px-3 py-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs font-semibold tracking-wide uppercase mb-4">
                 About Us
               </div>

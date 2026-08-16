@@ -9,6 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
 import { ButtonWhatsApp } from "./ButtonWhatsApp";
+import { SHOW_NAVBAR_ACTIONS } from "@/lib/feature-flags";
 
 const navigation = [
   { name: "Home", href: "#home" },
@@ -482,7 +483,9 @@ export default function NavigationNavbar() {
 
               {/* Right group: call CTA + theme toggle + hamburger */}
               <div className="flex items-center justify-end gap-2 sm:gap-3">
-              {/* Always-visible tap-to-call — primary conversion action */}
+              {/* Always-visible tap-to-call — primary conversion action.
+                  Hidden by SHOW_NAVBAR_ACTIONS; see lib/feature-flags.ts */}
+              {SHOW_NAVBAR_ACTIONS && (
               <a
                 href={`tel:${businessPhone}`}
                 onClick={() => trackPhoneCall("navbar")}
@@ -497,13 +500,16 @@ export default function NavigationNavbar() {
                   <span className="sm:hidden">Call</span>
                 </span>
               </a>
+              )}
 
-              <ButtonWhatsApp
-                variant="solid"
-                label=""
-                source="navbar_whatsapp"
-                className="w-10 h-10 lg:w-11 lg:h-11 flex-shrink-0"
-              />
+              {SHOW_NAVBAR_ACTIONS && (
+                <ButtonWhatsApp
+                  variant="solid"
+                  label=""
+                  source="navbar_whatsapp"
+                  className="w-10 h-10 lg:w-11 lg:h-11 flex-shrink-0"
+                />
+              )}
 
               {/* Desktop theme toggle */}
               <div className="hidden lg:block">

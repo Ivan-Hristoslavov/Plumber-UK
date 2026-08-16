@@ -7,7 +7,6 @@ import { useToast, ToastMessages } from "@/components/Toast";
 import { usePricingCardsForBooking, type BookingService } from "@/hooks/usePricingCardsForBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
-import { useAdminProfile } from "@/components/AdminProfileContext";
 import CustomDatePicker from "./CustomDatePicker";
 
 type DayOffSettings = {
@@ -22,7 +21,6 @@ export default function FormBooking() {
   const { services, isLoading: isLoadingServices } = usePricingCardsForBooking();
   const { timeSlots, isLoading: isLoadingTimeSlots } = useWorkingHours();
   const { settings: adminSettings, isLoading: isLoadingSettings } = useAdminSettings();
-  const adminProfile = useAdminProfile();
   const [selectedService, setSelectedService] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formKey] = useState(() => Math.random().toString(36));
@@ -42,9 +40,6 @@ export default function FormBooking() {
     end_date: string;
     title: string;
   }>>([]);
-
-  // Get business phone from admin profile
-  const businessPhone = adminProfile?.phone || "+44 7541777225";
 
   // Helper function to get local date string
   const getLocalDateString = (date: Date) => {
@@ -737,34 +732,6 @@ export default function FormBooking() {
           {isSubmitting ? "Sending..." : "Send Request"}
         </Button>
 
-        {/* Reassurance sits directly under the button, where the hesitation is. */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
-            </svg>
-            No payment now
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
-            </svg>
-            We call to confirm
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
-            </svg>
-            No obligation
-          </span>
-        </div>
-
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          Rather not wait?{" "}
-          <a href={`tel:${businessPhone}`} className="font-bold text-red-600 dark:text-red-400 hover:underline">
-            Call {businessPhone.replace(/^\+44\s?/, "0")}
-          </a>
-        </p>
       </div>
     </form>
   );

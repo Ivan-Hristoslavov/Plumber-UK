@@ -6,6 +6,7 @@ import { useAdminProfile } from "@/components/AdminProfileContext";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { whatsappLink, WHATSAPP_DEFAULT_MESSAGE } from "@/lib/whatsapp";
+import { SHOW_FLOATING_ACTIONS } from "@/lib/feature-flags";
 
 /**
  * The persistent call and WhatsApp buttons, bottom-right.
@@ -50,6 +51,8 @@ export function FloatingActions() {
       window.removeEventListener("resize", measure);
     };
   }, []);
+
+  if (!SHOW_FLOATING_ACTIONS) return null;
 
   const businessPhone = profile?.phone || "+44 7541777225";
   const displayPhone = businessPhone.replace(/^\+44\s?/, "0");
