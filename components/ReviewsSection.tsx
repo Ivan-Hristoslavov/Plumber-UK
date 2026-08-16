@@ -112,18 +112,34 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
   const startIndex = (safePage - 1) * reviewsPerPage;
   const currentReviews = reviews.slice(startIndex, startIndex + reviewsPerPage);
 
-  const isInitialMount = useRef(true);
+  const pageStripRef = useRef<HTMLDivElement>(null);
+  const lastCentredPage = useRef<number | null>(null);
 
+  // Centres the active page button inside its own horizontal strip.
+  //
+  // This used to call scrollIntoView, which walks up to the nearest scrollable
+  // ancestor — the document — and scrolled the whole page down to the reviews
+  // on load. The guard against that was a first-render flag, but the effect
+  // also depended on totalPages, and totalPages changes right after mount when
+  // useReviewsPerPage resolves the breakpoint; by then the flag was spent.
+  //
+  // Setting scrollLeft on the strip cannot move the page at all, so the guard
+  // is only about avoiding a pointless animation.
   useEffect(() => {
     if (totalPages <= 1) return;
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    const id = setTimeout(() => {
-      document.getElementById(`review-page-${safePage}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }, 0);
-    return () => clearTimeout(id);
+    if (lastCentredPage.current === safePage) return;
+
+    const isFirstRun = lastCentredPage.current === null;
+    lastCentredPage.current = safePage;
+
+    const strip = pageStripRef.current;
+    const button = document.getElementById(`review-page-${safePage}`);
+    if (!strip || !button) return;
+
+    strip.scrollTo({
+      left: button.offsetLeft - strip.clientWidth / 2 + button.clientWidth / 2,
+      behavior: isFirstRun ? 'auto' : 'smooth',
+    });
   }, [safePage, totalPages]);
 
   if (isLoading && reviews.length === 0) return <div className="py-8 text-center">Loading reviews...</div>;
@@ -243,7 +259,7 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
                   </svg>
                 </button>
 
-                <div className="overflow-x-auto overflow-y-hidden w-[180px] sm:w-[220px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div ref={pageStripRef} className="overflow-x-auto overflow-y-hidden w-[180px] sm:w-[220px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   <div className="flex gap-2 min-w-max py-1 px-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                       <button
