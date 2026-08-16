@@ -71,6 +71,10 @@ export function SectionHero({
           competing with the markup. Mobile gets a slightly wider crop so the
           subject is not cut off on a narrow viewport.
 
+          It fills the hero on every size. The source is 16:9 against a portrait
+          mobile viewport, so covering crops most of the frame width — that is
+          the intended look here.
+
           Note this is a 6.8MB download on every device. Compressing the source
           (720p, shorter loop) would cut roughly 85% of that with no visible
           difference behind the scrim. */}
@@ -84,7 +88,7 @@ export function SectionHero({
             playsInline
             poster="/video-poster.jpg"
             preload="metadata"
-            className="absolute top-0 left-0 w-full h-[55%] md:h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
+            className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           >
             <source src="/video.mp4" type="video/mp4" />
           </video>
@@ -93,14 +97,10 @@ export function SectionHero({
             src="/video-poster.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute top-0 left-0 w-full h-[55%] md:h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
+            className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           />
         )}
       </div>
-
-      {/* Fades the bottom edge of the media into the section background so the
-          shortened mobile video has no visible cut-off line. */}
-      <div className="absolute inset-x-0 top-[35%] h-[25%] md:hidden bg-gradient-to-b from-transparent to-black z-[5]" />
 
       {/* Two-part scrim. The video has bright frames that swallowed light text, so
           the media itself is dimmed above; this adds an even vertical wash plus a
