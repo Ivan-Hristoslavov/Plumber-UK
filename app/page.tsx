@@ -15,6 +15,7 @@ import { AboutExpandable } from "@/components/AboutExpandable";
 import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
 import { SectionCoverage } from "@/components/SectionCoverage";
 import { getActiveServices } from "@/lib/services";
+import { getAvailability } from "@/lib/availability";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
   loading: () => (
@@ -139,33 +140,54 @@ async function getAreas(): Promise<Area[]> {
 async function getFaqAndReviews() {
   try {
     const supabase = createClient();
-    const [{ data: faqItems }, { data: reviews }] = await Promise.all([
+    const [{ data: faqItems }, { data: reviews }, { data: allRatings }] = await Promise.all([
       supabase
         .from('faq')
         .select('question, answer')
         .eq('is_active', true)
         .order('order', { ascending: true }),
+      // Review markup only needs a representative sample of the text.
       supabase
         .from('reviews')
         .select('customer_name, rating, comment, created_at')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(20),
+      // The rating summary must cover every approved review, or the count shown
+      // beside the headline contradicts the aggregateRating in the markup.
+      supabase
+        .from('reviews')
+        .select('rating')
+        .eq('is_approved', true),
     ]);
 
-    return { faqItems: faqItems || [], reviews: reviews || [] };
+    return { faqItems: faqItems || [], reviews: reviews || [], allRatings: allRatings || [] };
   } catch {
-    return { faqItems: [], reviews: [] };
+    return { faqItems: [], reviews: [], allRatings: [] };
   }
 }
 
 export default async function HomePage() {
-  const [areas, profile, { faqItems, reviews }, services] = await Promise.all([
+  const [areas, profile, { faqItems, reviews, allRatings }, services, availability] = await Promise.all([
     getAreas(),
     getAdminProfile(),
     getFaqAndReviews(),
     getActiveServices(),
+    getAvailability(),
   ]);
+
+  // Same figures the aggregateRating markup uses, surfaced next to the headline
+  // where they can actually influence the decision to call.
+  const ratingValues = allRatings
+    .map((r: { rating: number }) => Number(r.rating))
+    .filter((n: number) => Number.isFinite(n) && n > 0);
+  const rating =
+    ratingValues.length > 0
+      ? {
+          average: ratingValues.reduce((a: number, b: number) => a + b, 0) / ratingValues.length,
+          count: ratingValues.length,
+        }
+      : null;
   const aboutHtml = profile?.about ? renderMarkdownToHtml(profile.about) : "";
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
   const businessName = BRAND_NAME;
@@ -212,7 +234,7 @@ export default async function HomePage() {
         />
       )}
       {/* Hero Section */}
-      <SectionHero />
+      <SectionHero availability={availability} rating={rating} />
 
       {/* Services Section */}
       <section id="services">

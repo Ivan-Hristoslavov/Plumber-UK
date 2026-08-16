@@ -8,11 +8,19 @@ import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { AdminProfileData } from "@/components/AdminProfileData";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
+import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import type { Availability } from "@/lib/availability";
 
 const MOBILE_AREAS_LIMIT = 6;
 const SKELETON_COUNT = 6;
 
-export function SectionHero() {
+export function SectionHero({
+  availability,
+  rating,
+}: {
+  availability: Availability;
+  rating: { average: number; count: number } | null;
+}) {
   const { areas, loading: areasLoading } = useAreas();
   const adminProfile = useAdminProfile();
   const { settings: adminSettings } = useAdminSettings();
@@ -88,20 +96,32 @@ export function SectionHero() {
       <div className="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
         {/* Top Row with Emergency Badge and Trust Badges */}
         <div className="flex flex-col items-center mb-6 w-full">
-          {/* Emergency Badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-black/40 backdrop-blur-md rounded-full text-white text-sm font-medium border border-white/20 mb-4">
-            <svg
-              className="w-4 h-4 mr-2 text-green-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            24/7 Emergency Service
+          {/* Live availability + social proof, both server-rendered */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4">
+            <AvailabilityBadge availability={availability} />
+
+            {rating && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-black/40 border border-white/20 px-3.5 py-1.5 backdrop-blur-md">
+                <span className="flex items-center gap-0.5" aria-hidden="true">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <svg
+                      key={i}
+                      className={`w-3.5 h-3.5 ${i < Math.round(rating.average) ? "text-yellow-400" : "text-white/30"}`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </span>
+                <span className="text-sm font-semibold text-white">
+                  {rating.average.toFixed(1)}
+                </span>
+                <span className="text-sm text-white/70">
+                  ({rating.count} reviews)
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Trust Badges - content-width pills that stay grouped in the centre
