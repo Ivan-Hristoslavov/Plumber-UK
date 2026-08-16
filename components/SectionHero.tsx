@@ -9,6 +9,7 @@ import { AdminProfileData } from "@/components/AdminProfileData";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 import type { Availability } from "@/lib/availability";
 
 const MOBILE_AREAS_LIMIT = 6;
@@ -315,6 +316,12 @@ export function SectionHero({
             </svg>
             Book Online
           </a>
+          <ButtonWhatsApp
+            variant="ghost"
+            label="WhatsApp"
+            source="hero_whatsapp"
+            className="w-full sm:w-auto px-6 py-4 rounded-lg text-base font-medium"
+          />
           <a
             className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#services"

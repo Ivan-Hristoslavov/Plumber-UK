@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { slugify } from "@/lib/slug";
 import { BRAND_NAME } from "@/lib/brand";
+import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 
 // Social links: set to true to show in footer
 const SHOW_FACEBOOK = false;
@@ -153,6 +154,12 @@ export default function FooterMain() {
                       {businessData.businessEmail}
                     </a>
                   </p>
+                  <ButtonWhatsApp
+                    variant="outline"
+                    label="Message on WhatsApp"
+                    source="footer_whatsapp"
+                    className="mt-1 px-4 py-2 text-sm rounded-lg"
+                  />
                 </>
               )}
             </div>

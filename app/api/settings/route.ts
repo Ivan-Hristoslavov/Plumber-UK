@@ -21,6 +21,8 @@ const PUBLIC_SETTINGS_KEYS = new Set([
   "workingDays",
   "dayOffEnabled",
   "dayOffMessage",
+  "whatsappEnabled",
+  "whatsappNumber",
 ]);
 
 export async function GET() {
