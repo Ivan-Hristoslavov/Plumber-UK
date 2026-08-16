@@ -9,6 +9,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
 import { ButtonWhatsApp } from "./ButtonWhatsApp";
+import { BRAND_NAME } from "@/lib/brand";
 import { SHOW_NAVBAR_ACTIONS } from "@/lib/feature-flags";
 
 const navigation = [
@@ -245,7 +246,7 @@ export default function NavigationNavbar() {
           <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-800">
             <div className="min-w-0">
               <span className="block text-lg font-bold text-blue-600 dark:text-blue-400 tracking-tight">
-                FIX MY LEAK
+                {BRAND_NAME}
               </span>
               <span className="block text-xs text-gray-500 dark:text-gray-400">
                 Emergency plumber · South West London
@@ -402,7 +403,7 @@ export default function NavigationNavbar() {
                 className="text-2xl font-bold transition-all duration-300 hover:scale-105 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                 href="/"
               >
-                FIX MY LEAK
+                {BRAND_NAME}
               </Link>
 
               {/* Desktop Navigation */}
