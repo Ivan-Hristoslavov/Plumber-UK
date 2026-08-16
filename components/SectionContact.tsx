@@ -425,7 +425,7 @@ export default function SectionContact() {
                   In a hurry? Call instead
                 </a>
                 <ButtonWhatsApp
-                  variant="ghost"
+                  variant="solid"
                   label="WhatsApp"
                   source="booking_form_whatsapp"
                   className="shrink-0 py-2.5 text-sm"

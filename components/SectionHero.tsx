@@ -283,11 +283,11 @@ export function SectionHero({
 
         {/* CTA Buttons */}
         <div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-2xl mx-auto animate-fade-in-up"
+          className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center items-stretch sm:items-center w-full max-w-4xl mx-auto animate-fade-in-up"
           style={{ animationDelay: "0.6s" }}
         >
           <a
-            className="group bg-red-600 hover:bg-red-500 text-white px-6 py-4 rounded-lg text-lg font-bold transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
+            className="group bg-red-600 hover:bg-red-500 text-white px-7 py-4 rounded-lg text-lg font-bold whitespace-nowrap transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
             href={`tel:${businessPhone}`}
             onClick={() => trackPhoneCall("hero_primary")}
             aria-label={`Call now ${displayPhone}`}
@@ -299,10 +299,10 @@ export function SectionHero({
             >
               <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
             </svg>
-            Call {displayPhone}
+            {displayPhone}
           </a>
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#contact"
             onClick={(e) => {
               e.preventDefault();
@@ -317,13 +317,13 @@ export function SectionHero({
             Book Online
           </a>
           <ButtonWhatsApp
-            variant="ghost"
+            variant="solid"
             label="WhatsApp"
             source="hero_whatsapp"
-            className="w-full sm:w-auto px-6 py-4 rounded-lg text-base font-medium"
+            className="w-full sm:w-auto px-5 py-4 rounded-lg text-base font-semibold whitespace-nowrap"
           />
           <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-6 py-4 rounded-lg text-base font-medium transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
             href="#services"
             onClick={(e) => {
               e.preventDefault();

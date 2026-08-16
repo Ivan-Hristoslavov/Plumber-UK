@@ -9,6 +9,7 @@ import { useActiveDayOffPeriods } from "@/hooks/useDayOffPeriods";
 import { CookieConsent } from "./CookieConsent";
 
 import NavigationNavbar from "./NavigationNavbar";
+import { FloatingWhatsApp } from "./FloatingWhatsApp";
 import FooterMain from './FooterMain';
 
 export default function LayoutMain({
@@ -48,6 +49,8 @@ export default function LayoutMain({
       <main className={`flex-grow transition-all duration-300 ${hasDayOffBanner ? 'pt-0' : 'pt-0'}`}>
         {children}
       </main>
+
+      <FloatingWhatsApp />
       <FooterMain />
       
       {/* Cookie Consent Banner */}

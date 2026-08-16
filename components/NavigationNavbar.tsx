@@ -8,6 +8,7 @@ import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
+import { ButtonWhatsApp } from "./ButtonWhatsApp";
 
 const navigation = [
   { name: "Home", href: "#home" },
@@ -451,6 +452,13 @@ export default function NavigationNavbar() {
                   <span className="sm:hidden">Call</span>
                 </span>
               </a>
+
+              <ButtonWhatsApp
+                variant="solid"
+                label="WhatsApp"
+                source="navbar_whatsapp"
+                className="hidden lg:inline-flex px-4 py-2.5 rounded-full text-sm"
+              />
 
               {/* Desktop theme toggle */}
               <div className="hidden lg:block">

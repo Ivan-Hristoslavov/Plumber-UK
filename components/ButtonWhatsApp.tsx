@@ -12,9 +12,9 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 /**
- * Renders nothing until an admin turns WhatsApp on in Settings → Connections,
- * so the channel is never advertised before someone is watching it.
- * The number falls back to the business phone unless overridden there.
+ * Shown unless an admin switches it off in Settings → Connections, since it
+ * needs no setup — the number is the business phone. The optional override
+ * there covers WhatsApp living on a different line.
  */
 export function ButtonWhatsApp({
   variant = "solid",
@@ -30,9 +30,9 @@ export function ButtonWhatsApp({
   const profile = useAdminProfile();
   const { settings } = useAdminSettings();
 
-  if (settings?.whatsappEnabled !== true) return null;
+  if (settings?.whatsappEnabled === false) return null;
 
-  const number = (settings?.whatsappNumber as string) || profile?.phone || "";
+  const number = (settings?.whatsappNumber as string) || profile?.phone || "+44 7541777225";
   if (!number.trim()) return null;
 
   const styles = {

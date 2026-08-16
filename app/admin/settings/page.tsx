@@ -81,7 +81,7 @@ const defaultSettings: SettingsState = {
   companyStatus: "",
   gasSafeRegistered: false,
   gasSafeNumber: "",
-  whatsappEnabled: false,
+  whatsappEnabled: true,
   whatsappNumber: "",
   mcsCertified: false,
   mcsNumber: "",
