@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
+import type { PricingCard } from "@/types";
 
 function PricingCardSkeleton() {
   return (
@@ -126,26 +127,28 @@ const CARD_ACCENTS = [
   },
 ];
 
-export function SectionPricing() {
+export function SectionPricing({ initialCards = [] }: { initialCards?: PricingCard[] }) {
   const [mounted, setMounted] = useState(false);
-  const { pricingCards, loading, error } = usePricingCards();
+  const { pricingCards: fetchedCards, loading, error } = usePricingCards();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Prevent hydration mismatch: server and initial client render must match.
-  // usePricingCards uses a global cache that exists only on client, so loading
-  // can differ between server (no cache) and client (has cache).
-  if (!mounted) {
+  // Server-supplied cards let this section render its real content in the HTML
+  // instead of a skeleton. The hook still runs and takes over once it resolves,
+  // so admin edits appear without a redeploy.
+  const pricingCards = fetchedCards.length > 0 ? fetchedCards : initialCards;
+  const hasContent = pricingCards.length > 0;
+
+  // Without seed data, server and first client render must both be the skeleton:
+  // usePricingCards reads a global cache that only exists on the client, so
+  // `loading` differs between the two and would otherwise mismatch on hydration.
+  if (!hasContent && (!mounted || loading)) {
     return <SectionPricingLoading />;
   }
 
-  if (loading) {
-    return <SectionPricingLoading />;
-  }
-
-  if (error) {
+  if (error && !hasContent) {
     return (
       <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

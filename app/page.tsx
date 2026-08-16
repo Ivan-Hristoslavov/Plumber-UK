@@ -140,16 +140,16 @@ async function getAreas(): Promise<Area[]> {
 async function getFaqAndReviews() {
   try {
     const supabase = createClient();
-    const [{ data: faqItems }, { data: reviews }, { data: allRatings }] = await Promise.all([
+    const [{ data: faqItems }, { data: reviews }, { data: allRatings }, { data: pricingCards }] = await Promise.all([
       supabase
         .from('faq')
-        .select('question, answer')
+        .select('*')
         .eq('is_active', true)
         .order('order', { ascending: true }),
       // Review markup only needs a representative sample of the text.
       supabase
         .from('reviews')
-        .select('customer_name, rating, comment, created_at')
+        .select('id, customer_name, rating, comment, created_at')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(20),
@@ -159,16 +159,26 @@ async function getFaqAndReviews() {
         .from('reviews')
         .select('rating')
         .eq('is_approved', true),
+      supabase
+        .from('pricing_cards')
+        .select('*')
+        .eq('is_enabled', true)
+        .order('order', { ascending: true }),
     ]);
 
-    return { faqItems: faqItems || [], reviews: reviews || [], allRatings: allRatings || [] };
+    return {
+      faqItems: faqItems || [],
+      reviews: reviews || [],
+      allRatings: allRatings || [],
+      pricingCards: pricingCards || [],
+    };
   } catch {
-    return { faqItems: [], reviews: [], allRatings: [] };
+    return { faqItems: [], reviews: [], allRatings: [], pricingCards: [] };
   }
 }
 
 export default async function HomePage() {
-  const [areas, profile, { faqItems, reviews, allRatings }, services, availability] = await Promise.all([
+  const [areas, profile, { faqItems, reviews, allRatings, pricingCards }, services, availability] = await Promise.all([
     getAreas(),
     getAdminProfile(),
     getFaqAndReviews(),
@@ -238,7 +248,7 @@ export default async function HomePage() {
 
       {/* Services Section */}
       <section id="services">
-        <SectionPricing />
+        <SectionPricing initialCards={pricingCards} />
       </section>
       {/* Our Story / About Section — id="about" anchor so nav #about scrolls here */}
       <section
@@ -364,10 +374,10 @@ export default async function HomePage() {
       <GallerySection />
 
       {/* FAQ Section */}
-      <FAQSection />
+      <FAQSection initialItems={faqItems} />
 
       {/* Reviews Section */}
-      <ReviewsSection />
+      <ReviewsSection initialReviews={reviews} />
 
       {/* Contact Section */}
       <SectionContact />

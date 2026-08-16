@@ -97,8 +97,12 @@ function ReviewModal({ review, onClose }: { review: Review; onClose: () => void 
   );
 }
 
-export function ReviewsSection() {
-  const { reviews, isLoading, error } = useReviews();
+export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Review[] }) {
+  const { reviews: fetchedReviews, isLoading, error } = useReviews();
+
+  // Seeded from the server for the same reason as the FAQ: the review text is
+  // page content, and it was reaching crawlers only after JavaScript ran.
+  const reviews = fetchedReviews.length > 0 ? fetchedReviews : initialReviews;
   const reviewsPerPage = useReviewsPerPage();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -122,7 +126,7 @@ export function ReviewsSection() {
     return () => clearTimeout(id);
   }, [safePage, totalPages]);
 
-  if (isLoading) return <div className="py-8 text-center">Loading reviews...</div>;
+  if (isLoading && reviews.length === 0) return <div className="py-8 text-center">Loading reviews...</div>;
   if (error) return <div className="py-8 text-center text-red-600">{error}</div>;
 
   return (
