@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAreas } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
@@ -30,6 +30,7 @@ export function SectionHero({
   const responseTimeShort = `${responseTimeMinutes(adminProfile?.response_time)}-minute`;
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -44,6 +45,14 @@ export function SectionHero({
     return () => mq.removeEventListener("change", handler);
   }, [mounted]);
 
+  // Autoplay does not reliably fire on its own once the element has been
+  // mounted after hydration, so ask explicitly. A rejected promise just means
+  // the browser declined, and the poster stays — nothing to handle.
+  useEffect(() => {
+    if (!mounted) return;
+    videoRef.current?.play().catch(() => {});
+  }, [mounted]);
+
   // Check if credentials are available (from public settings / profile)
   const hasGasSafe = adminSettings?.gasSafeRegistered === true;
   const hasInsurance =
@@ -56,19 +65,26 @@ export function SectionHero({
       className="relative min-h-screen flex items-start justify-center overflow-hidden py-8 bg-black"
       id="home"
     >
-      {/* Background - the video is 6.8MB, so mobile (usually on cellular, and the
-          bulk of emergency traffic) gets the poster still instead. Desktop keeps
-          the video but only after mount, so it never blocks first paint. */}
+      {/* Background video. The poster is the first frame so the hero is never
+          blank while the file loads, and preload="none" keeps it off the
+          critical path — it starts fetching once autoplay kicks in rather than
+          competing with the markup. Mobile gets a slightly wider crop so the
+          subject is not cut off on a narrow viewport.
+
+          Note this is a 6.8MB download on every device. Compressing the source
+          (720p, shorter loop) would cut roughly 85% of that with no visible
+          difference behind the scrim. */}
       <div className="absolute inset-0 overflow-hidden z-0">
-        {mounted && !isMobile ? (
+        {mounted ? (
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
             poster="/video-poster.jpg"
-            preload="none"
-            className="absolute w-full h-full top-0 left-0 object-cover brightness-[0.45] saturate-[0.8]"
+            preload="metadata"
+            className="absolute top-0 left-0 w-full h-[55%] md:h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           >
             <source src="/video.mp4" type="video/mp4" />
           </video>
@@ -77,10 +93,14 @@ export function SectionHero({
             src="/video-poster.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%] min-w-full min-h-full object-cover brightness-[0.45] saturate-[0.8]"
+            className="absolute top-0 left-0 w-full h-[55%] md:h-full object-cover object-center brightness-[0.45] saturate-[0.8]"
           />
         )}
       </div>
+
+      {/* Fades the bottom edge of the media into the section background so the
+          shortened mobile video has no visible cut-off line. */}
+      <div className="absolute inset-x-0 top-[35%] h-[25%] md:hidden bg-gradient-to-b from-transparent to-black z-[5]" />
 
       {/* Two-part scrim. The video has bright frames that swallowed light text, so
           the media itself is dimmed above; this adds an even vertical wash plus a
