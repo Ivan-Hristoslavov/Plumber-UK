@@ -3,6 +3,7 @@ import { Metadata, Viewport } from "next";
 import Script from "next/script";
 import clsx from "clsx";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import { GoogleTagManager } from "@next/third-parties/google";
 
 import { Providers } from "./providers";
@@ -369,6 +370,7 @@ export default async function RootLayout({
         {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
         <GoogleAnalytics />
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

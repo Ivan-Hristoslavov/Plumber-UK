@@ -342,31 +342,6 @@ export function SectionHero({
             source="hero_whatsapp"
             className="w-full sm:w-auto px-5 py-4 rounded-lg text-base font-semibold whitespace-nowrap"
           />
-          <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
-            href="#services"
-            onClick={(e) => {
-              e.preventDefault();
-              document
-                .getElementById("services")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            View Pricing
-          </a>
         </div>
       </div>
     </section>
