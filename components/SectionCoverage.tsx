@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SHOW_COVERAGE_SECTION } from "@/lib/feature-flags";
+
 type Area = { name: string; slug: string; postcode: string };
 type Service = { name: string; slug: string; price: number | null };
 
@@ -16,6 +18,7 @@ export function SectionCoverage({
   areas: Area[];
   services: Service[];
 }) {
+  if (!SHOW_COVERAGE_SECTION) return null;
   if (areas.length === 0 && services.length === 0) return null;
 
   return (
