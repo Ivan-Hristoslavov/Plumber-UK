@@ -57,10 +57,10 @@ export async function generateMetadata({
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
   const responseTime = responseTimeMinutes(area.response_time || profile?.response_time);
 
-  // Root layout applies a `%s | <company> - Emergency Plumber London` template,
-  // so keep this half short enough that the combined title survives truncation.
+  // Root layout applies a `%s | <company>` template; the combined title stays
+  // under ~60 characters so it is not truncated in search results.
   const title = `Emergency Plumber ${area.name} ${area.postcode}`;
-  const description = `Emergency plumber in ${area.name} (${area.postcode}). Leak detection, burst pipes, blocked drains and boiler repairs — ${responseTime}-minute response, same-day service. Fully insured, 10+ years experience. Call now.`;
+  const description = `Emergency plumber in ${area.name} (${area.postcode}). Burst pipes, leaks, blocked drains and boilers fixed — ${responseTime}-minute response, same day. Fully insured. Call now.`;
 
   return {
     title,

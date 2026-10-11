@@ -48,7 +48,12 @@ export async function generateMetadata({
   const priceSuffix = service.price !== null ? ` From £${service.price}.` : "";
 
   const title = `${service.name} South West London`;
-  const description = `${service.description || service.name} across Clapham, Balham, Chelsea, Battersea, Wandsworth and Streatham.${priceSuffix} ${responseTime}-minute emergency response, fully insured. Call now.`;
+  const rawDescription = `${service.description || service.name} across Clapham, Balham, Chelsea, Battersea, Wandsworth and Streatham.${priceSuffix} ${responseTime}-minute emergency response, fully insured. Call now.`;
+  // Search results cut off around 160 characters; end on a whole word instead.
+  const description =
+    rawDescription.length <= 160
+      ? rawDescription
+      : `${rawDescription.slice(0, 157).replace(/\s+\S*$/, "")}...`;
 
   return {
     title,
