@@ -11,7 +11,22 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=your_webhook_secret
 
-# SendGrid
+# Where new-booking alerts are sent (wins over the admin profile email, which is the login).
+BOOKING_NOTIFY_EMAIL=owner@example.com
+
+# Email (used for booking alerts, payment links and invoices).
+# Option 1 - Gmail / Google Workspace SMTP (takes priority when set).
+# Needs 2-Step Verification on the account, then an App Password from
+# https://myaccount.google.com/apppasswords
+GMAIL_USER=your_address@gmail.com
+GMAIL_APP_PASSWORD=your_16_character_app_password
+# GMAIL_FROM_NAME=FixMyLeak
+# Option 1b - OAuth2 instead of an app password (set these three, not GMAIL_APP_PASSWORD):
+# GMAIL_CLIENT_ID=
+# GMAIL_CLIENT_SECRET=
+# GMAIL_REFRESH_TOKEN=
+
+# Option 2 - SendGrid (used only when Gmail is not configured)
 SENDGRID_API_KEY=your_sendgrid_api_key
 NEXT_PUBLIC_BUSINESS_EMAIL=info@fixmyleak.co.uk
 

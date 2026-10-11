@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { sendEmail } from "../../../../lib/sendgrid";
+import { buildPaymentLinkEmail } from "@/lib/email-builders";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,46 +29,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Create email content
-    const emailSubject = `Payment Request from ${adminProfile.company_name || adminProfile.name}`;
-    const emailContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Payment Request</h2>
-        
-        <p>Dear ${customer_name},</p>
-        
-        <p>We hope this email finds you well. We have prepared a secure payment link for your convenience.</p>
-        
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #333; margin-top: 0;">Payment Details</h3>
-          <p><strong>Amount:</strong> £${amount.toFixed(2)}</p>
-          <p><strong>Payment Method:</strong> Secure online payment via Stripe</p>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${payment_link_url}" 
-             style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-            Pay Now
-          </a>
-        </div>
-        
-        <p style="color: #666; font-size: 14px;">
-          This payment link is secure and processed by Stripe. You can pay using your credit/debit card or other supported payment methods.
-        </p>
-        
-        <p style="color: #666; font-size: 14px;">
-          If you have any questions about this payment, please don't hesitate to contact us.
-        </p>
-        
-        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-        
-        <p style="color: #666; font-size: 12px;">
-          Best regards,<br>
-          ${adminProfile.name}<br>
-          ${adminProfile.company_name || ''}<br>
-          ${adminProfile.email}
-        </p>
-      </div>
-    `;
+    const company = adminProfile.company_name || adminProfile.name;
+    const {
+      subject: emailSubject,
+      html: emailContent,
+      text: emailText,
+    } = buildPaymentLinkEmail({
+      company,
+      adminName: adminProfile.name,
+      adminEmail: adminProfile.email,
+      hasCompanyName: !!adminProfile.company_name,
+      customerName: customer_name,
+      amount,
+      paymentLinkUrl: payment_link_url,
+    });
 
     // Send email using SendGrid
     try {
@@ -78,7 +53,7 @@ export async function POST(request: NextRequest) {
       await sendEmail({
         to: customer_email,
         subject: emailSubject,
-        text: `Payment Request from ${adminProfile.company_name || adminProfile.name}\n\nDear ${customer_name},\n\nWe have prepared a secure payment link for your convenience.\n\nAmount: £${amount.toFixed(2)}\n\nPayment Link: ${payment_link_url}\n\nBest regards,\n${adminProfile.name}`,
+        text: emailText,
         html: emailContent,
       });
       

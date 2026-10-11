@@ -6,6 +6,7 @@ import { sendEmail, EmailAttachment } from "@/lib/sendgrid-smtp";
 import { generateInvoicePDF } from "@/lib/invoice-pdf-generator";
 import { format } from "date-fns";
 import { join } from "path";
+import { generateInvoiceEmailHtml } from "@/lib/email-builders";
 
 // POST - Send invoice email
 export async function POST(
@@ -195,7 +196,7 @@ export async function POST(
     // Prepare email content
     const emailSubject = `Invoice ${invoice.invoice_number} from ${invoice.company_name}`;
     const emailBody = generateEmailBody(invoice, paymentLink, imageAttachments.length > 0, currency);
-    const emailHtml = generateEmailHtml(invoice, paymentLink, imageAttachments.length > 0, currency);
+    const emailHtml = generateInvoiceEmailHtml(invoice, paymentLink, imageAttachments.length > 0, currency);
 
     // Send email via SendGrid
     try {
@@ -357,106 +358,3 @@ Best regards,
 ${invoice.company_name} Team
   `.trim();
 }
-
-function generateEmailHtml(invoice: any, paymentLink: string | null, hasAttachments: boolean, currency: string): string {
-  const customerName = invoice.customer?.name || "Valued Customer";
-  const invoiceDate = new Date(invoice.invoice_date).toLocaleDateString("en-GB");
-  const dueDate = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString("en-GB") : "Upon receipt";
-  
-  // Currency symbol mapping
-  const currencySymbols: Record<string, string> = {
-    gbp: "£",
-    usd: "$",
-    eur: "€",
-    cad: "C$",
-    aud: "A$",
-  };
-  
-  const currencySymbol = currencySymbols[currency.toLowerCase()] || currency.toUpperCase();
-
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice ${invoice.invoice_number}</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background-color: #f9fafb; padding: 20px; border-radius: 0 0 8px 8px; }
-        .invoice-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #3b82f6; }
-        .amount { font-size: 24px; font-weight: bold; color: #3b82f6; }
-        .payment-link { background-color: #10b981; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0; }
-        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; }
-        .contact-info { background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 15px 0; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>${invoice.company_name}</h1>
-        <p>Professional Plumbing Services</p>
-    </div>
-    
-    <div class="content">
-        <h2>Dear ${customerName},</h2>
-        
-        <p>Thank you for choosing ${invoice.company_name} for your plumbing needs.</p>
-        
-        <p>Please find your invoice PDF attached and details below:</p>
-        
-        <div class="invoice-details">
-            <h3>Invoice Details:</h3>
-            <p><strong>Invoice Number:</strong> ${invoice.invoice_number}</p>
-            <p><strong>Invoice Date:</strong> ${invoiceDate}</p>
-            <p><strong>Due Date:</strong> ${dueDate}</p>
-            <p><strong>Service:</strong> ${invoice.booking?.service || invoice.manual_service || 'Plumbing Service'}</p>
-            <p><strong>Total Amount:</strong> <span class="amount">${currencySymbol}${invoice.total_amount.toFixed(2)}</span></p>
-        </div>
-        
-        ${invoice.notes ? `<div class="invoice-details">
-            <h3>Additional Notes:</h3>
-            <p>${invoice.notes.replace(/\n/g, '<br>')}</p>
-        </div>` : ''}
-        
-        ${hasAttachments ? '<p><strong>Note:</strong> Please see the attached images related to the work completed.</p>' : ''}
-        
-        <div class="invoice-details">
-            <h3>Payment Information:</h3>
-            ${paymentLink ? 
-              `            <p>You can pay this invoice online using the secure payment link below:</p>
-               <a href="${paymentLink}" class="payment-link">Pay Invoice Online (${currency.toUpperCase()})</a>
-               <p><small>This link accepts payments in ${currency.toUpperCase()} and is valid for 24 hours. Your email address will be pre-filled for your convenience.</small></p>` : 
-              '<p>Please arrange payment within 30 days of the invoice date.</p>'
-            }
-            
-            <h4>Alternative payment methods:</h4>
-            <ul>
-                <li>Bank transfer (details available on request)</li>
-                <li>Cheque payable to: ${invoice.company_name}</li>
-            </ul>
-        </div>
-        
-        <div class="contact-info">
-            <h3>Contact Information:</h3>
-            <p><strong>${invoice.company_name}</strong></p>
-            <p>${invoice.company_address.replace(/\n/g, '<br>')}</p>
-            <p><strong>Phone:</strong> ${invoice.company_phone}</p>
-            <p><strong>Email:</strong> ${invoice.company_email}</p>
-        </div>
-        
-        <p>If you have any questions about this invoice or our services, please don't hesitate to contact us.</p>
-        
-        <p>Thank you for your business!</p>
-        
-        <p>Best regards,<br>
-        <strong>${invoice.company_name} Team</strong></p>
-    </div>
-    
-    <div class="footer">
-        <p>This email was sent from ${invoice.company_name}. Please do not reply to this email.</p>
-    </div>
-</body>
-</html>
-  `.trim();
-} 

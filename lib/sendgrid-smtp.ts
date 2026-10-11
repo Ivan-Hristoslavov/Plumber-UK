@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { createClient } from "@/lib/supabase/server";
+import { getGmailSender, isGmailConfigured, sendViaGmail } from "@/lib/gmail";
 
 // SMTP Configuration for SendGrid
 const smtpConfig = {
@@ -37,6 +38,8 @@ export interface EmailOptions {
  * - Fall back to ADMIN_EMAIL from environment if needed
  */
 async function getSenderEmail(): Promise<string> {
+  if (isGmailConfigured()) return getGmailSender()!;
+
   try {
     const supabase = createClient();
 
@@ -62,6 +65,10 @@ async function getSenderEmail(): Promise<string> {
  * Send email using SendGrid SMTP
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  if (isGmailConfigured()) {
+    return sendViaGmail(options);
+  }
+
   const smtpPassword = process.env.SENDGRID_SMTP_PASSWORD;
 
   if (!smtpPassword) {
@@ -118,6 +125,8 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
  * Test SendGrid SMTP configuration
  */
 export async function testSendGridConnection(): Promise<boolean> {
+  if (isGmailConfigured()) return true;
+
   const smtpPassword = process.env.SENDGRID_SMTP_PASSWORD;
 
   if (!smtpPassword) {
