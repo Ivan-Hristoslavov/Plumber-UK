@@ -139,10 +139,10 @@ function PricingCardModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
         {/* Modal Header */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 shrink-0">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {editingCard ? "Edit Pricing Card" : "Add New Pricing Card"}
           </h3>
@@ -168,7 +168,7 @@ function PricingCardModal({
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, title: e.target.value }))}
-                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                 placeholder="e.g., Call-out & Hourly Labour Rates"
               />
             </div>
@@ -180,7 +180,7 @@ function PricingCardModal({
                 type="text"
                 value={formData.subtitle}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, subtitle: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                 placeholder="e.g., Flexible hourly bookings"
               />
             </div>
@@ -218,7 +218,7 @@ function PricingCardModal({
                     value={header}
                     onChange={(e) => updateTableHeader(index, e.target.value)}
                     placeholder={`Column ${index + 1}`}
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                   />
                   {formData.table_headers.length > 1 && (
                     <button
@@ -254,7 +254,7 @@ function PricingCardModal({
                       value={row[header] || ""}
                       onChange={(e) => updateTableRow(index, header, e.target.value)}
                       placeholder={header}
-                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                     />
                   ))}
                   <button
@@ -289,14 +289,14 @@ function PricingCardModal({
                     value={note.icon || ""}
                     onChange={(e) => updateNote(index, "icon", e.target.value)}
                     placeholder="Icon (e.g., ✓)"
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                   />
                   <input
                     type="text"
                     value={note.text}
                     onChange={(e) => updateNote(index, "text", e.target.value)}
                     placeholder="Note text"
-                    className="sm:col-span-2 px-3 py-2 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="sm:col-span-2 px-3 py-2 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                   />
                   <button
                     onClick={() => removeNote(index)}
@@ -311,7 +311,7 @@ function PricingCardModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="sticky bottom-0 bg-white dark:bg-gray-800 flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="sticky bottom-0 bg-white dark:bg-gray-900 flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-800">
           <button
             onClick={onClose}
             className="px-5 py-3 sm:px-6 min-h-[44px] bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium touch-manipulation"
@@ -320,7 +320,7 @@ function PricingCardModal({
           </button>
           <button
             onClick={onSubmit}
-            className="px-5 py-3 sm:px-6 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-manipulation"
+            className="px-5 py-3 sm:px-6 min-h-[44px] bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors font-medium touch-manipulation"
           >
             {editingCard ? "Update Card" : "Add Card"}
           </button>
@@ -437,9 +437,9 @@ export function AdminPricingManager({ triggerModal }: { triggerModal?: boolean }
       {/* Pricing Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {pricingCards.map((card) => (
-          <div key={card.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+          <div key={card.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-all duration-300">
             {/* Card Header */}
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -522,7 +522,7 @@ export function AdminPricingManager({ triggerModal }: { triggerModal?: boolean }
             </div>
 
             {/* Card Actions */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => handleToggleEnabled(card)}
@@ -570,7 +570,7 @@ export function AdminPricingManager({ triggerModal }: { triggerModal?: boolean }
           </p>
           <button
             onClick={handleAddNew}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="px-6 py-3 bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors font-medium"
           >
             Create First Card
           </button>

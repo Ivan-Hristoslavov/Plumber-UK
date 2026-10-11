@@ -180,7 +180,7 @@ export function AdminLegalManager() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 text-sm"
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white shadow-sm font-medium rounded-xl transition-colors duration-300 flex items-center justify-center space-x-2 text-sm"
         >
           {saving ? (
             <>
@@ -208,7 +208,7 @@ export function AdminLegalManager() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200 dark:border-gray-800">
         <nav className="-mb-px flex gap-1 overflow-x-auto pb-px">
           {tabs.map((tab) => (
             <button
@@ -230,8 +230,8 @@ export function AdminLegalManager() {
       {/* Editor + Preview side-by-side */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 min-h-[480px]">
         {/* Editor panel */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-700/30">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Edit · {tabs.find((t) => t.id === activeTab)?.name}
             </h3>
@@ -249,8 +249,8 @@ export function AdminLegalManager() {
         </div>
 
         {/* Preview panel */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex items-center justify-between gap-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-700/30 flex items-center justify-between gap-4">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Preview
             </h3>

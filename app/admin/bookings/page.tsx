@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminTips } from "@/components/AdminTips";
 import { format, parseISO } from "date-fns";
 
 import { supabase } from "../../../lib/supabase";
@@ -313,7 +314,7 @@ export default function BookingsPage() {
       case "pending":
         return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
       default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-800";
     }
   };
 
@@ -372,7 +373,7 @@ export default function BookingsPage() {
       case "refunded":
         return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800";
       default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-800";
     }
   };
 
@@ -397,7 +398,7 @@ export default function BookingsPage() {
 
   const BookingCard = ({ booking }: { booking: Booking }) => (
     <div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-all duration-200 cursor-pointer"
       onClick={() => setSelectedBooking(booking)}
     >
       <div className="flex items-start justify-between mb-4">
@@ -481,7 +482,7 @@ export default function BookingsPage() {
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors duration-300">
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800 transition-colors duration-300">
         <span
           className={`px-2 py-1 text-xs font-medium rounded-full border ${getPaymentStatusColor(booking.payment_status)} transition-colors duration-300`}
         >
@@ -553,7 +554,7 @@ export default function BookingsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Bookings</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Bookings</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Manage and track all your customer bookings
           </p>
@@ -563,7 +564,7 @@ export default function BookingsPage() {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -574,7 +575,7 @@ export default function BookingsPage() {
             <button
               className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-300 ${
                 viewMode === "cards"
-                  ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                  ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               }`}
               onClick={() => handleViewModeChange("cards")}
@@ -597,7 +598,7 @@ export default function BookingsPage() {
             <button
               className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-300 ${
                 viewMode === "table"
-                  ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                  ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               }`}
               onClick={() => handleViewModeChange("table")}
@@ -619,7 +620,7 @@ export default function BookingsPage() {
             </button>
           </div>
           <button
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+            className="flex items-center px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-700 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
             onClick={() => setShowNewBookingModal(true)}
           >
             <svg
@@ -641,20 +642,18 @@ export default function BookingsPage() {
       </div>
 
       {/* Quick Tips */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
-          💡 Booking Management Tips
-        </h4>
-        <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-          <li>• Always confirm bookings within 24 hours</li>
-          <li>• Use the notes field for important customer requests</li>
-          <li>• Update booking status immediately after completion</li>
-          <li>• Check for conflicts before accepting new bookings</li>
-        </ul>
-      </div>
+      <AdminTips
+        title="Booking management tips"
+        tips={[
+          "Always confirm bookings within 24 hours",
+          "Use the notes field for important customer requests",
+          "Update booking status immediately after completion",
+          "Check for conflicts before accepting new bookings",
+        ]}
+      />
 
       {/* Compact Stats Cards */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4 transition-colors duration-300">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg mb-2 transition-colors duration-300">
@@ -749,14 +748,14 @@ export default function BookingsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4 sm:p-6 transition-colors duration-300">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Status
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -774,7 +773,7 @@ export default function BookingsPage() {
               Payment Status
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
               value={filters.paymentStatus}
               onChange={(e) =>
                 setFilters({ ...filters, paymentStatus: e.target.value })
@@ -786,12 +785,12 @@ export default function BookingsPage() {
               <option value="refunded">Refunded</option>
             </select>
           </div>
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Date Range
             </label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
               value={filters.dateRange}
               onChange={(e) =>
                 setFilters({ ...filters, dateRange: e.target.value })
@@ -803,13 +802,13 @@ export default function BookingsPage() {
               <option value="month">This Month</option>
             </select>
           </div>
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
               Search
             </label>
             <div className="relative">
               <input
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                 placeholder="Search bookings..."
                 type="text"
                 value={filters.search}
@@ -851,42 +850,42 @@ export default function BookingsPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-colors duration-300">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-300">
                   <thead className="bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Customer
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Service
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Date & Time
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Payment
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Amount
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                      <th className="px-4 xl:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-300">
                     {filteredBookings.map((booking) => (
                       <tr
                         key={booking.id}
                         className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-300"
                         onClick={() => setSelectedBooking(booking)}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
                               {booking.customer_name}
@@ -919,7 +918,7 @@ export default function BookingsPage() {
                             {booking.service}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-white transition-colors duration-300">
                             {format(parseISO(booking.date), "MMM d, yyyy")}
                           </div>
@@ -927,7 +926,7 @@ export default function BookingsPage() {
                             {booking.time}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                           <span
                             className={`flex items-center px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(booking.status)} transition-colors duration-300`}
                           >
@@ -935,17 +934,17 @@ export default function BookingsPage() {
                             {getStatusText(booking.status)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full border ${getPaymentStatusColor(booking.payment_status)} transition-colors duration-300`}
                           >
                             {booking.payment_status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
                           £{booking.amount}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-2">
                             {booking.customer_phone && (
                               <Tooltip content="Call Customer">
@@ -1037,7 +1036,7 @@ export default function BookingsPage() {
               </p>
               {bookings.length === 0 && (
                 <button
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
                   onClick={() => setShowNewBookingModal(true)}
                 >
                   Create First Booking
@@ -1067,8 +1066,8 @@ export default function BookingsPage() {
               onClick={() => setSelectedBooking(null)}
             />
 
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
                     Booking Details
@@ -1186,7 +1185,7 @@ export default function BookingsPage() {
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 {selectedBooking.status !== "completed" && (
                   <button
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-700 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-700 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="button"
                     onClick={() => handleCompleteBooking(selectedBooking.id)}
                   >
@@ -1194,14 +1193,14 @@ export default function BookingsPage() {
                   </button>
                 )}
                 <button
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-700 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-700 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                   onClick={() => handleEditBooking(selectedBooking)}
                 >
                   Edit Booking
                 </button>
                 <button
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                   onClick={() => setSelectedBooking(null)}
                 >
@@ -1218,13 +1217,13 @@ export default function BookingsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
               onClick={() => setShowNewBookingModal(false)}
             />
 
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <form onSubmit={handleCreateBooking}>
-                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <div className="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
                       Create New Booking
@@ -1257,7 +1256,7 @@ export default function BookingsPage() {
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="text"
                         value={newBooking.customerName}
                         onChange={(e) =>
@@ -1275,7 +1274,7 @@ export default function BookingsPage() {
                           Email
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="email"
                           value={newBooking.customerEmail}
                           onChange={(e) =>
@@ -1291,7 +1290,7 @@ export default function BookingsPage() {
                           Phone
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="tel"
                           value={newBooking.customerPhone}
                           onChange={(e) =>
@@ -1310,7 +1309,7 @@ export default function BookingsPage() {
                       </label>
                       <select
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         value={newBooking.service}
                         onChange={(e) =>
                           setNewBooking((prev) => ({
@@ -1336,7 +1335,7 @@ export default function BookingsPage() {
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="date"
                           value={newBooking.date}
                           onChange={(e) =>
@@ -1353,7 +1352,7 @@ export default function BookingsPage() {
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="time"
                           value={newBooking.time}
                           onChange={(e) =>
@@ -1372,7 +1371,7 @@ export default function BookingsPage() {
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -1391,7 +1390,7 @@ export default function BookingsPage() {
                         Address
                       </label>
                       <input
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="text"
                         value={newBooking.address}
                         onChange={(e) =>
@@ -1408,7 +1407,7 @@ export default function BookingsPage() {
                         Notes
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         rows={3}
                         value={newBooking.notes}
                         onChange={(e) =>
@@ -1424,13 +1423,13 @@ export default function BookingsPage() {
 
                 <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                   <button
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="submit"
                   >
                     Create Booking
                   </button>
                   <button
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    className="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="button"
                     onClick={() => setShowNewBookingModal(false)}
                   >
@@ -1448,13 +1447,13 @@ export default function BookingsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
               onClick={() => setShowEditBookingModal(false)}
             />
 
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <form onSubmit={handleUpdateBooking}>
-                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+                <div className="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
                       Edit Booking
@@ -1487,7 +1486,7 @@ export default function BookingsPage() {
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="text"
                         value={editBooking.customerName}
                         onChange={(e) =>
@@ -1505,7 +1504,7 @@ export default function BookingsPage() {
                           Email
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="email"
                           value={editBooking.customerEmail}
                           onChange={(e) =>
@@ -1521,7 +1520,7 @@ export default function BookingsPage() {
                           Phone
                         </label>
                         <input
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="tel"
                           value={editBooking.customerPhone}
                           onChange={(e) =>
@@ -1540,7 +1539,7 @@ export default function BookingsPage() {
                       </label>
                       <select
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         value={editBooking.service}
                         onChange={(e) =>
                           setEditBooking((prev) => ({
@@ -1566,7 +1565,7 @@ export default function BookingsPage() {
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="date"
                           value={editBooking.date}
                           onChange={(e) =>
@@ -1583,7 +1582,7 @@ export default function BookingsPage() {
                         </label>
                         <input
                           required
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                           type="time"
                           value={editBooking.time}
                           onChange={(e) =>
@@ -1602,7 +1601,7 @@ export default function BookingsPage() {
                       </label>
                       <input
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -1621,7 +1620,7 @@ export default function BookingsPage() {
                         Address
                       </label>
                       <input
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         type="text"
                         value={editBooking.address}
                         onChange={(e) =>
@@ -1638,7 +1637,7 @@ export default function BookingsPage() {
                         Notes
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
                         rows={3}
                         value={editBooking.notes}
                         onChange={(e) =>
@@ -1654,13 +1653,13 @@ export default function BookingsPage() {
 
                 <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                   <button
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-blue-600 dark:bg-blue-500 text-base font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="submit"
                   >
                     Update Booking
                   </button>
                   <button
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                    className="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                     type="button"
                     onClick={() => setShowEditBookingModal(false)}
                   >
@@ -1678,12 +1677,12 @@ export default function BookingsPage() {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
               onClick={() => setShowCompleteModal(false)}
             />
 
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-300">
                     Confirm Completion
@@ -1730,7 +1729,7 @@ export default function BookingsPage() {
 
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-500 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 dark:bg-green-500 text-base font-medium text-white hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                   onClick={confirmCompleteBooking}
                 >
@@ -1740,7 +1739,7 @@ export default function BookingsPage() {
                   Complete Booking
                 </button>
                 <button
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   type="button"
                   onClick={() => setShowCompleteModal(false)}
                 >

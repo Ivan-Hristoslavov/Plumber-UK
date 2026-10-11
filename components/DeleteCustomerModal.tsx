@@ -154,8 +154,8 @@ export function DeleteCustomerModal({
   if (!isOpen || !customer) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors duration-300">
+    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors duration-300">
         <div className="p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -303,7 +303,7 @@ export function DeleteCustomerModal({
               type="text"
               value={confirmationText}
               onChange={handleConfirmationChange}
-              className={`block w-full border rounded-lg p-3 transition-colors duration-300 ${
+              className={`block w-full border rounded-xl p-3 transition-colors duration-300 ${
                 error
                   ? "border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100"
                   : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500"
@@ -323,14 +323,14 @@ export function DeleteCustomerModal({
             <button
               onClick={onClose}
               disabled={isDeleting}
-              className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting || confirmationText !== "DELETE" || countdown > 0}
-              className="px-6 py-3 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="px-6 py-3 text-sm font-medium text-white shadow-sm bg-red-600 hover:bg-red-700 rounded-xl transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
               {isDeleting ? (
                 <>

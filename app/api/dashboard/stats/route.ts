@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { supabase } from "../../../../lib/supabase";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,9 @@ function getActivityStatus(activityType: string): string {
 
 // GET - Fetch dashboard statistics
 export async function GET(request: Request) {
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const getAllActivity = searchParams.get('allActivity') === 'true';

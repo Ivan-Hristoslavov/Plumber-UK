@@ -176,7 +176,7 @@ export function MarkdownEditor({
       {/* Textarea */}
       <textarea
         ref={textareaRef}
-        className="flex-1 min-h-[200px] w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-mono text-sm resize-y"
+        className="flex-1 min-h-[200px] w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors font-mono text-sm resize-y"
         rows={rows}
         placeholder={placeholder}
         value={value}

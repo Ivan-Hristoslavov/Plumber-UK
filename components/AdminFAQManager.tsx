@@ -26,11 +26,11 @@ function FAQModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto flex flex-col animate-slide-up sm:animate-none">
+    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto flex flex-col animate-slide-up sm:animate-none">
         {/* Modal Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
+          <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {editingItem ? "Edit FAQ Item" : "Add New FAQ Item"}
           </h3>
           <button
@@ -53,7 +53,7 @@ function FAQModal({
               type="text"
               value={formData.question}
               onChange={(e) => setFormData((prev: any) => ({ ...prev, question: e.target.value }))}
-              className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
               placeholder="Enter the FAQ question"
             />
           </div>
@@ -66,7 +66,7 @@ function FAQModal({
               value={formData.answer}
               onChange={(e) => setFormData((prev: any) => ({ ...prev, answer: e.target.value }))}
               rows={5}
-              className="w-full px-4 py-3 min-h-[120px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+              className="w-full px-4 py-3 min-h-[120px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors resize-none"
               placeholder="Enter the FAQ answer"
             />
           </div>
@@ -80,7 +80,7 @@ function FAQModal({
                 type="number"
                 value={formData.order}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
                 placeholder="0"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -95,7 +95,7 @@ function FAQModal({
               <select
                 value={formData.is_active ? "active" : "inactive"}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, is_active: e.target.value === "active" }))}
-                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"
               >
                 <option value="active">Active (Visible to customers)</option>
                 <option value="inactive">Inactive (Hidden from customers)</option>
@@ -105,7 +105,7 @@ function FAQModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="sticky bottom-0 flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+        <div className="sticky bottom-0 flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
           <button
             onClick={onClose}
             className="px-5 py-3 sm:px-6 min-h-[44px] bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors font-medium touch-manipulation"
@@ -114,7 +114,7 @@ function FAQModal({
           </button>
           <button
             onClick={onSubmit}
-            className="px-5 py-3 sm:px-6 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium touch-manipulation"
+            className="px-5 py-3 sm:px-6 min-h-[44px] bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors font-medium touch-manipulation"
           >
             {editingItem ? "Update FAQ" : "Add FAQ"}
           </button>
@@ -233,9 +233,9 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
       {/* FAQ Items Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {faqItems.map((item) => (
-          <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+          <div key={item.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-all duration-300">
             {/* Card Header */}
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
@@ -293,7 +293,7 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
             </div>
 
             {/* Card Actions */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => handleToggleActive(item)}
@@ -341,7 +341,7 @@ export function AdminFAQManager({ triggerModal }: { triggerModal?: boolean }) {
           </p>
           <button
             onClick={handleAddNew}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="px-6 py-3 bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors font-medium"
           >
             Create First FAQ
           </button>

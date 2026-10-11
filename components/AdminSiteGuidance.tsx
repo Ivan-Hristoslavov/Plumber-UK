@@ -77,7 +77,7 @@ export function AdminSiteGuidance() {
     <div className="space-y-4 sm:space-y-6">
       {/* Compact Header */}
       <div>
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
           Site Guidance & Help Center
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
@@ -87,22 +87,22 @@ export function AdminSiteGuidance() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
           <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{guidanceItems.length}</div>
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Total Guides</div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
           <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{categories.length - 1}</div>
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Categories</div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
           <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Support Available</div>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search Input */}
           <div className="flex-1">
@@ -117,7 +117,7 @@ export function AdminSiteGuidance() {
                 placeholder="Search guides..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ export function AdminSiteGuidance() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
             >
               {categories.map(category => (
                 <option key={category} value={category}>
@@ -142,8 +142,8 @@ export function AdminSiteGuidance() {
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Enhanced Navigation Sidebar */}
         <div className="lg:col-span-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 Guide Topics
               </h3>
@@ -224,8 +224,8 @@ export function AdminSiteGuidance() {
         {/* Enhanced Content Area */}
         <div className="lg:col-span-8 mt-6 lg:mt-0">
           {activeItemData ? (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
@@ -260,7 +260,7 @@ export function AdminSiteGuidance() {
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 text-center">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-8 text-center">
               <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>

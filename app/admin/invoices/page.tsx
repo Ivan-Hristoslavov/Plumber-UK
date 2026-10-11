@@ -41,7 +41,10 @@ export default function InvoicesPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"table" | "cards">(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("invoices-view-mode") as "table" | "cards") || "table";
+      return (
+        (localStorage.getItem("invoices-view-mode") as "table" | "cards") ||
+        (window.innerWidth < 768 ? "cards" : "table")
+      );
     }
     return "table";
   });
@@ -351,19 +354,19 @@ export default function InvoicesPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             Invoices
           </h1>
           <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
             Manage and generate UK-compliant invoices
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
           {/* Refresh Button */}
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -371,9 +374,9 @@ export default function InvoicesPage() {
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
           {/* View Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
+          <div className="flex col-span-2 order-last sm:order-none sm:col-span-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 transition-colors duration-300">
             <button
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 viewMode === "table"
                   ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -386,7 +389,7 @@ export default function InvoicesPage() {
               Table
             </button>
             <button
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 viewMode === "cards"
                   ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -401,7 +404,7 @@ export default function InvoicesPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+            className="flex items-center justify-center px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -414,35 +417,35 @@ export default function InvoicesPage() {
 
       {/* Invoices Table */}
       {viewMode === "table" && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Invoice
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Service
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-4 xl:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
                 {invoices.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center">
@@ -458,7 +461,7 @@ export default function InvoicesPage() {
                 ) : (
                   invoices.map((invoice) => (
                     <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {invoice.invoice_number}
@@ -468,7 +471,7 @@ export default function InvoicesPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {invoice.customer?.name || "N/A"}
@@ -488,7 +491,7 @@ export default function InvoicesPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           £{invoice.total_amount.toFixed(2)}
                         </div>
@@ -498,16 +501,16 @@ export default function InvoicesPage() {
                         </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
                           <span className="mr-1">{getStatusIcon(invoice.status)}</span>
                           {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {invoice.due_date ? format(new Date(invoice.due_date), "dd/MM/yyyy") : "N/A"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
                           {/* Download PDF Button */}
                           <Tooltip content="Download PDF">
@@ -628,7 +631,7 @@ export default function InvoicesPage() {
             invoices.map((invoice) => (
               <div
                 key={invoice.id}
-                className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300"
+                className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -671,7 +674,7 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-800">
                   <Tooltip content="Download PDF">
                   <button
                       className="p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"

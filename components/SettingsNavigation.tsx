@@ -84,7 +84,7 @@ export function SettingsNavigation({ activeTab, onTabChange, tabs }: SettingsNav
 
         {/* Dropdown menu */}
         {isMobileMenuOpen && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 py-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden animate-slide-down-in z-50 max-h-[calc(100vh-8rem)] overflow-y-auto ring-1 ring-gray-200/80 dark:ring-gray-600/50">
+          <div className="absolute left-0 right-0 top-full mt-1.5 py-2 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-slide-down-in z-50 max-h-[calc(100vh-8rem)] overflow-y-auto ring-1 ring-gray-200/80 dark:ring-gray-600/50">
             {Object.entries(groupedTabs).map(([category, categoryTabs]) => (
               <div key={category} className="px-3 py-1.5">
                 <div className="flex items-center gap-2 px-2 mb-1.5">
@@ -124,9 +124,9 @@ export function SettingsNavigation({ activeTab, onTabChange, tabs }: SettingsNav
       </div>
 
       {/* Desktop Sidebar - Only shown on desktop */}
-      <div className="hidden lg:block w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-screen overflow-y-auto">
+      <div className="hidden lg:block w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen overflow-y-auto">
         {/* Desktop Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-800">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             Settings
           </h2>

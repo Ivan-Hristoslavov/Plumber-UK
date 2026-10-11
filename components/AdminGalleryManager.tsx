@@ -619,7 +619,7 @@ export function AdminGalleryManager({
         {activeTab === "items" && (
           <button
             onClick={handleAdd}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm font-medium"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -638,7 +638,7 @@ export function AdminGalleryManager({
             {paginatedItems.map((item) => (
               <div
                 key={item.id}
-                className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 flex flex-col group overflow-hidden"
+                className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6 flex flex-col group overflow-hidden"
                 style={{ minHeight: 280 }}
               >
                 {/* Floating Action Buttons */}
@@ -682,7 +682,7 @@ export function AdminGalleryManager({
                 {/* Before/After Images (modern cards) */}
                 <div className="flex gap-4 mb-4">
                   {/* Before Card */}
-                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                     <div className="absolute top-3 left-3 flex items-center gap-1 bg-red-500/90 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                       Before
@@ -701,7 +701,7 @@ export function AdminGalleryManager({
                     )}
                   </div>
                   {/* After Card */}
-                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-green-50 dark:from-gray-800 dark:via-gray-900 dark:to-green-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                  <div className="flex-1 group relative bg-gradient-to-br from-gray-100 via-white to-green-50 dark:from-gray-800 dark:via-gray-900 dark:to-green-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                     <div className="absolute top-3 left-3 flex items-center gap-1 bg-green-500/90 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       After
@@ -758,9 +758,9 @@ export function AdminGalleryManager({
 
           {/* Add/Edit Item Modal */}
           {showAddForm && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
-              <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+              <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingItem ? "Edit Gallery Item" : "Add New Gallery Item"}
               </h4>
@@ -791,7 +791,7 @@ export function AdminGalleryManager({
                           title: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                       placeholder="e.g., Bathroom Renovation in Clapham"
                     />
                   </div>
@@ -808,7 +808,7 @@ export function AdminGalleryManager({
                           section_id: e.target.value || undefined,
                         }))
                       }
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">No specific section</option>
                       {gallerySections.map((section) => (
@@ -832,7 +832,7 @@ export function AdminGalleryManager({
                           project_type: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                       placeholder="e.g., Bathroom, Kitchen, Leak Repair"
                     />
                   </div>
@@ -884,7 +884,7 @@ export function AdminGalleryManager({
                             location: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                         disabled={areasLoading}
                       >
                         <option value="">Select an area...</option>
@@ -904,7 +904,7 @@ export function AdminGalleryManager({
                             location: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                         placeholder="e.g., Custom location name"
                       />
                     )}
@@ -923,7 +923,7 @@ export function AdminGalleryManager({
                           completion_date: e.target.value,
                         }))
                       }
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
@@ -1277,7 +1277,7 @@ export function AdminGalleryManager({
                     }))
                   }
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                   placeholder="Describe the project, challenges, and results..."
                 />
               </div>
@@ -1286,7 +1286,7 @@ export function AdminGalleryManager({
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleSave}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors"
                 >
                   {editingItem ? "Update Item" : "Add Item"}
                 </button>
@@ -1351,7 +1351,7 @@ export function AdminGalleryManager({
             {gallerySections.map((section) => (
               <div
                 key={section.id}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-4"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -1399,9 +1399,9 @@ export function AdminGalleryManager({
 
           {/* Add/Edit Section Modal */}
           {showAddSectionForm && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
-              <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slide-up">
+              <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingSection
                   ? "Edit Gallery Section"
@@ -1432,7 +1432,7 @@ export function AdminGalleryManager({
                         title: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Bathroom Projects"
                   />
                 </div>
@@ -1450,7 +1450,7 @@ export function AdminGalleryManager({
                         color: e.target.value,
                       }))
                     }
-                    className="w-full h-12 min-h-[44px] border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    className="w-full h-12 min-h-[44px] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
                   />
                 </div>
 
@@ -1467,7 +1467,7 @@ export function AdminGalleryManager({
                         order: parseInt(e.target.value) || 0,
                       }))
                     }
-                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500"
                     min="0"
                   />
                 </div>
@@ -1502,7 +1502,7 @@ export function AdminGalleryManager({
                     }))
                   }
                   rows={3}
-                  className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 resize-none"
                   placeholder="Describe this gallery section..."
                 />
               </div>
@@ -1512,7 +1512,7 @@ export function AdminGalleryManager({
                 <button
                   type="button"
                   onClick={handleSaveSection}
-                  className="px-5 py-3 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors touch-manipulation"
+                  className="px-5 py-3 min-h-[44px] bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 transition-colors touch-manipulation"
                 >
                   {editingSection ? "Update Section" : "Add Section"}
                 </button>

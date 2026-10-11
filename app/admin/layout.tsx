@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
+import { BRAND_NAME } from "@/lib/brand";
 
 const navigation = [
   {
@@ -40,7 +41,7 @@ const navigation = [
     href: "/admin/customers",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+        <path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
       </svg>
     ),
   },
@@ -119,6 +120,44 @@ const navigation = [
   },
 ];
 
+const bottomTabs = [
+  { label: "Home", href: "/admin/dashboard", match: "Dashboard" },
+  { label: "Calendar", href: "/admin/calendar", match: "Calendar" },
+  { label: "Bookings", href: "/admin/bookings", match: "Bookings" },
+  { label: "Customers", href: "/admin/customers", match: "Customers" },
+];
+
+const quickActions = [
+  {
+    label: "New Booking",
+    hint: "Create a new booking",
+    href: "/admin/bookings",
+    icon: "M12 6v6m0 0v6m0-6h6m-6 0H6",
+    tone: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300",
+  },
+  {
+    label: "Create Invoice",
+    hint: "Generate new invoice",
+    href: "/admin/invoices",
+    icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    tone: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
+  },
+  {
+    label: "Add Customer",
+    hint: "Register new customer",
+    href: "/admin/customers",
+    icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+    tone: "bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300",
+  },
+  {
+    label: "View Reports",
+    hint: "Analytics & insights",
+    href: "/admin/dashboard",
+    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+    tone: "bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300",
+  },
+];
+
 export default function AdminLayout({
   children,
 }: {
@@ -152,43 +191,48 @@ export default function AdminLayout({
     const timer = setTimeout(() => {
       setIsAuthenticated(true);
       setIsLoading(false);
-    }, 300); // Reduced from default to make it faster
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [pathname]);
 
   // If we're on the login page, just render the children
   if (pathname === "/admin/login") {
-    return <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">{children}</div>;
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">{children}</div>;
   }
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-500">
-        <div className="text-center">
-          {/* Modern loading animation */}
-          <div className="relative mb-6">
-            <div className="w-20 h-20 mx-auto">
-              {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-800"></div>
-              {/* Animated ring */}
-              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 dark:border-t-blue-400 animate-spin"></div>
-              {/* Inner dot */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full animate-pulse"></div>
+      <div
+        role="status"
+        aria-live="polite"
+        className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-950 transition-colors duration-500"
+      >
+        {/* Soft brand glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl"
+        />
+        <div className="relative flex flex-col items-center">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-2xl bg-blue-500/30 motion-safe:animate-ping"
+            />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-600/30">
+              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3.5c-3.2 4-5.5 6.9-5.5 9.8a5.5 5.5 0 0011 0c0-2.9-2.3-5.8-5.5-9.8z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
             </div>
           </div>
-          
-          {/* Loading text with animation */}
-          <div className="space-y-2">
-            <p className="text-gray-600 dark:text-gray-300 font-medium transition-colors duration-300">
-              Loading Admin Panel
-            </p>
-            <div className="flex justify-center space-x-1">
-              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            </div>
+
+          <p className="mt-6 text-sm font-medium text-gray-900 dark:text-white">{BRAND_NAME}</p>
+          <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Loading admin panel</p>
+
+          {/* Indeterminate progress bar */}
+          <div className="mt-5 h-1 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+            <div className="h-full w-1/2 rounded-full bg-blue-600 dark:bg-blue-500 motion-safe:animate-admin-loading" />
           </div>
         </div>
       </div>
@@ -201,7 +245,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -214,75 +258,67 @@ export default function AdminLayout({
 
       {/* Fixed Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-all duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed inset-y-0 right-0 lg:right-auto lg:left-0 z-50 w-72 max-w-[85vw] lg:w-64 bg-white dark:bg-gray-900 border-l lg:border-l-0 lg:border-r border-gray-200/80 dark:border-gray-800 shadow-xl lg:shadow-none transform transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Sidebar Header - compact on mobile */}
-        <div className="flex items-center justify-between h-14 lg:h-16 px-4 lg:px-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
-          <Link className="flex items-center gap-2 min-w-0" href="/admin/dashboard" onClick={() => setSidebarOpen(false)}>
-            <div className="w-7 h-7 lg:w-8 lg:h-8 bg-white/95 rounded-lg flex items-center justify-center shrink-0">
-              <svg
-                className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between h-16 px-4 lg:px-5 border-b border-gray-200/80 dark:border-gray-800">
+          <Link className="flex items-center gap-2.5 min-w-0" href="/admin/dashboard" onClick={() => setSidebarOpen(false)}>
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-blue-600/30">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3.5c-3.2 4-5.5 6.9-5.5 9.8a5.5 5.5 0 0011 0c0-2.9-2.3-5.8-5.5-9.8z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
               </svg>
             </div>
-            <span className="text-white font-semibold text-base lg:text-lg truncate">Admin</span>
+            <div className="min-w-0 leading-tight">
+              <span className="block text-gray-900 dark:text-white font-semibold text-base truncate">{BRAND_NAME}</span>
+              <span className="block text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">Admin</span>
+            </div>
           </Link>
           <button
-            className="lg:hidden p-2 -mr-2 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
+            className="lg:hidden p-2 -mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors shrink-0"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close menu"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M6 18L18 6M6 6l12 12"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
             </svg>
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="px-4 py-6 h-full overflow-y-auto pb-24">
-          <div className="space-y-2">
+        <nav className="px-3 py-4 h-full overflow-y-auto pb-24">
+          <div className="space-y-0.5">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/admin/dashboard" && !!pathname?.startsWith(`${item.href}/`));
 
               return (
                 <Link
                   key={item.name}
-                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group ${
                     isActive
-                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 shadow-sm"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+                      ? "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/70 hover:text-gray-900 dark:hover:text-white"
                   }`}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                 >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-blue-600 dark:bg-blue-400" />
+                  )}
                   <span
                     className={`mr-3 transition-colors ${
                       isActive
-                        ? "text-blue-700 dark:text-blue-300"
+                        ? "text-blue-600 dark:text-blue-400"
                         : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"
                     }`}
                   >
                     {item.icon}
                   </span>
                   {item.name}
-                  {isActive && (
-                    <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full" />
-                  )}
                 </Link>
               );
             })}
@@ -290,10 +326,10 @@ export default function AdminLayout({
         </nav>
 
         {/* User section - Fixed at bottom, refined for mobile */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 lg:p-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
+        <div className="absolute bottom-0 left-0 right-0 p-3 lg:p-4 border-t border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900">
           
           <button
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-900/50"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors border border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-900/50"
             onClick={async () => {
               try {
                 await fetch("/api/admin/auth", { method: "DELETE" });
@@ -325,181 +361,127 @@ export default function AdminLayout({
       {/* Main content area with proper margin for fixed sidebar */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-colors duration-300">
+        <header className="bg-white/85 dark:bg-gray-900/85 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-gray-200/80 dark:border-gray-800 sticky top-0 z-30 transition-colors duration-300">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             <div className="flex items-center">
-              <button
-                className="lg:hidden p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M4 6h16M4 12h16M4 18h16"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </button>
-
-              <div className="ml-4 lg:ml-0">
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {navigation.find((item) => item.href === pathname)?.name ||
-                    "Admin Panel"}
-                </h1>
+              <div className="leading-tight">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white lg:hidden">{BRAND_NAME}</p>
+                <p className="hidden text-sm text-gray-500 dark:text-gray-400 lg:block">
+                  {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Welcome back,</p>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:block text-right leading-tight">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Welcome back</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {profile?.name || "Plamen Zhelev"}
                 </p>
               </div>
+              <div
+                aria-hidden
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white text-xs font-semibold flex items-center justify-center shadow-sm"
+              >
+                {adminInitials}
+              </div>
 
               {/* Theme Toggle in Header */}
               <ThemeToggle size="md" />
+
+              {/* Menu on the right, where the thumb is */}
+              <button
+                type="button"
+                aria-label="Open menu"
+                className="lg:hidden -mr-1 rounded-xl p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+              </button>
             </div>
           </div>
         </header>
 
-        {/* Quick Actions - Top Navigation (hidden on mobile when in Settings to reduce clutter) */}
+        {/* Quick Actions (hidden in Settings to reduce clutter) */}
         {!(pathname?.startsWith("/admin/settings") ?? false) && (
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 sm:p-4 lg:p-5 sticky top-16 z-20 transition-colors duration-300">
-          <div className="flex sm:grid sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-            <Link
-              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors group min-w-0"
-              href="/admin/bookings"
-            >
-              <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/70 transition-colors">
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          <div className="px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 lg:pt-6">
+            <div className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {quickActions.map((action) => (
+                <Link
+                  key={action.label}
+                  className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-1.5 pr-4 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 hover:shadow transition-all"
+                  href={action.href}
+                  title={action.hint}
                 >
-                  <path
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </div>
-              <div className="hidden sm:block ml-3">
-                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">New Booking</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Create a new booking</p>
-              </div>
-            </Link>
-
-            <Link
-              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors group min-w-0"
-              href="/admin/invoices"
-            >
-              <div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-800/50 rounded-lg group-hover:bg-green-200 dark:group-hover:bg-green-800/70 transition-colors relative">
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-                <svg
-                  className="w-2 h-2 sm:w-3 sm:h-3 text-green-600 dark:text-green-400 absolute -top-1 -right-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </div>
-              <div className="hidden sm:block ml-3">
-                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
-                  Create Invoice
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Generate new invoice</p>
-              </div>
-            </Link>
-
-            <Link
-              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-colors group min-w-0"
-              href="/admin/customers"
-            >
-              <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg group-hover:bg-purple-200 dark:group-hover:bg-purple-800/70 transition-colors">
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </div>
-              <div className="hidden sm:block ml-3">
-                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
-                  Add Customer
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Register new customer</p>
-              </div>
-            </Link>
-
-            <Link
-              className="flex flex-1 sm:flex-none items-center justify-center sm:justify-start p-2 sm:p-4 text-left bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-lg transition-colors group min-w-0"
-              href="/admin/dashboard"
-            >
-              <div className="p-1.5 sm:p-2 bg-yellow-100 dark:bg-yellow-800/50 rounded-lg group-hover:bg-yellow-200 dark:group-hover:bg-yellow-800/70 transition-colors">
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 dark:text-yellow-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </div>
-              <div className="hidden sm:block ml-3">
-                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
-                  View Reports
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Analytics & insights</p>
-              </div>
-            </Link>
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-full ${action.tone}`}>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d={action.icon} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
+                  </span>
+                  {action.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
         )}
 
         {/* Page content */}
-        <main className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24 lg:pb-0 transition-colors duration-300">
           <div className={`p-3 sm:p-4 lg:p-6 xl:p-8 ${pathname?.startsWith("/admin/settings") ? "pt-0 lg:pt-6" : ""}`}>{children}</div>
         </main>
       </div>
+
+      {/* Phone tab bar: the four screens used all day, plus the full menu */}
+      <nav
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-900/90 dark:supports-[backdrop-filter]:bg-gray-900/80 lg:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <ul className="mx-auto grid max-w-lg grid-cols-5">
+          {bottomTabs.map((tab) => {
+            const active = pathname === tab.href || !!pathname?.startsWith(`${tab.href}/`);
+            const icon = navigation.find((item) => item.name === tab.match)?.icon;
+            return (
+              <li key={tab.href}>
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  className={`flex flex-col items-center gap-0.5 px-1 pb-2 pt-2.5 text-[11px] font-medium transition-colors ${
+                    active
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+                  }`}
+                  href={tab.href}
+                >
+                  <span
+                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                      active ? "bg-blue-50 dark:bg-blue-500/15" : ""
+                    }`}
+                  >
+                    {icon}
+                  </span>
+                  {tab.label}
+                </Link>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              type="button"
+              className="flex w-full flex-col items-center gap-0.5 px-1 pb-2 pt-2.5 text-[11px] font-medium text-gray-500 transition-colors hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <span className="flex h-7 w-12 items-center justify-center">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+              </span>
+              More
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

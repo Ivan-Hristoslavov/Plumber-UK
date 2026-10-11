@@ -177,7 +177,7 @@ export function GoogleCalendarIntegration() {
   return (
     <div className="space-y-6">
       {/* Google Calendar Connection Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
@@ -230,7 +230,7 @@ export function GoogleCalendarIntegration() {
               <button
                 onClick={syncBookings}
                 disabled={syncing}
-                className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
               >
                 {syncing ? (
                   <>
@@ -248,7 +248,7 @@ export function GoogleCalendarIntegration() {
               </button>
               <button
                 onClick={disconnectFromGoogle}
-                className="flex-1 flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300"
+                className="flex-1 flex items-center justify-center px-4 py-2 bg-red-600 text-white shadow-sm rounded-xl hover:bg-red-700 transition-colors duration-300"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
@@ -276,7 +276,7 @@ export function GoogleCalendarIntegration() {
             <button
               onClick={connectToGoogle}
               disabled={connecting}
-              className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+              className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white shadow-sm rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
             >
               {connecting ? (
                 <>
@@ -300,7 +300,7 @@ export function GoogleCalendarIntegration() {
       </div>
 
       {/* Auto-sync Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Sync Settings
         </h3>

@@ -588,13 +588,13 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Desktop Horizontal Navigation */}
-      <div className="hidden lg:block bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="hidden lg:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div className="px-8 py-4">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
                 Settings
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
@@ -673,7 +673,7 @@ export default function AdminSettingsPage() {
               {/* Save Button - Show for all tabs */}
               {needsSaveButton && (
                 <button
-                  className="flex items-center px-6 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   disabled={saving}
                   onClick={handleSave}
                 >
@@ -706,7 +706,7 @@ export default function AdminSettingsPage() {
               {/* Action Button - Show only for specific tabs */}
               {actionButton && activeTab !== "gallery" && (
                 <button
-                  className="flex items-center px-6 py-3 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={actionButton.onClick}
                 >
                   <span className="mr-2">{actionButton.icon}</span>
@@ -743,7 +743,7 @@ export default function AdminSettingsPage() {
           {activeTab === "business" && (
             <div className="space-y-8">
               {/* Business Information */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Business Information
                 </h2>
@@ -753,7 +753,7 @@ export default function AdminSettingsPage() {
                       Business City
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.businessCity}
                       onChange={(e) =>
@@ -766,7 +766,7 @@ export default function AdminSettingsPage() {
                       Business Postcode
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.businessPostcode}
                       onChange={(e) =>
@@ -780,7 +780,7 @@ export default function AdminSettingsPage() {
                       Registration Number
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.registrationNumber}
                       onChange={(e) =>
@@ -804,7 +804,7 @@ export default function AdminSettingsPage() {
                       Company Status
                     </label>
                     <select
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={settings.companyStatus}
                       onChange={(e) =>
                         handleInputChange("companyStatus", e.target.value)
@@ -849,7 +849,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Professional Credentials */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-5 transition-colors duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                     Professional Credentials
@@ -866,7 +866,7 @@ export default function AdminSettingsPage() {
                     <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.mcsCertified 
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800'
                     }`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -911,7 +911,7 @@ export default function AdminSettingsPage() {
                       {settings.mcsCertified && (
                         <div className="mt-3">
                           <input
-                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
                             placeholder="Enter MCS registration number (optional)"
                             type="text"
                             value={settings.mcsNumber}
@@ -930,7 +930,7 @@ export default function AdminSettingsPage() {
                     <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.gasSafeRegistered 
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800'
                     }`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -975,7 +975,7 @@ export default function AdminSettingsPage() {
                       {settings.gasSafeRegistered && (
                         <div className="mt-3">
                           <input
-                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
                             placeholder="Enter Gas Safe registration number (optional)"
                             type="text"
                             value={settings.gasSafeNumber}
@@ -994,7 +994,7 @@ export default function AdminSettingsPage() {
                     <div className={`p-4 pr-5 rounded-xl border-2 transition-all duration-300 overflow-hidden ${
                       settings.fullyInsured 
                         ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' 
-                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800'
                     }`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -1039,7 +1039,7 @@ export default function AdminSettingsPage() {
                       {settings.fullyInsured && (
                         <div className="mt-3">
                           <input
-                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                             placeholder="Enter insurance provider"
                             type="text"
                             value={settings.insuranceProvider}
@@ -1052,7 +1052,7 @@ export default function AdminSettingsPage() {
                 </div>
                 
                 {/* Status Summary */}
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>Credentials Status:</span>
                     <div className="flex items-center space-x-2">
@@ -1069,7 +1069,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Pricing */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   Service Rates
                 </h2>
@@ -1083,7 +1083,7 @@ export default function AdminSettingsPage() {
                         £
                       </span>
                       <input
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         value={settings.emergencyRate}
                         onChange={(e) =>
@@ -1101,7 +1101,7 @@ export default function AdminSettingsPage() {
                         £
                       </span>
                       <input
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         value={settings.standardRate}
                         onChange={(e) =>
@@ -1118,7 +1118,7 @@ export default function AdminSettingsPage() {
           {activeTab === "working-hours" && (
             <div className="space-y-8">
               {/* Working Hours */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
@@ -1279,7 +1279,7 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Day Off Settings */}
-              {/*<div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              {/*<div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
               Day Off Settings
             </h2>
@@ -1308,7 +1308,7 @@ export default function AdminSettingsPage() {
                       Day Off Message
                     </label>
                     <textarea
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300 resize-none"
                       rows={3}
                       value={settings.dayOffMessage}
                       onChange={(e) => handleInputChange("dayOffMessage", e.target.value)}
@@ -1320,7 +1320,7 @@ export default function AdminSettingsPage() {
                         Start Date
                       </label>
                       <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="date"
                         value={settings.dayOffStartDate}
                         onChange={(e) => handleInputChange("dayOffStartDate", e.target.value)}
@@ -1331,7 +1331,7 @@ export default function AdminSettingsPage() {
                         End Date
                       </label>
                       <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="date"
                         value={settings.dayOffEndDate}
                         onChange={(e) => handleInputChange("dayOffEndDate", e.target.value)}
@@ -1344,7 +1344,7 @@ export default function AdminSettingsPage() {
           </div>*/}
 
               {/* Website Settings */}
-              {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              {/* <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
               Website Settings
             </h2>
@@ -1383,7 +1383,7 @@ export default function AdminSettingsPage() {
           {activeTab === "vat" && (
             <div className="space-y-8">
               {/* VAT Configuration */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-colors duration-300 ring-1 ring-gray-100/80 dark:ring-gray-600/40">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
                   VAT Configuration
                 </h2>
@@ -1418,7 +1418,7 @@ export default function AdminSettingsPage() {
                           VAT Rate (%)
                         </label>
                         <input
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           max="100"
                           min="0"
                           step="0.01"
@@ -1437,7 +1437,7 @@ export default function AdminSettingsPage() {
                           VAT Registration Number
                         </label>
                         <input
-                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           placeholder="GB123456789"
                           type="text"
                           value={vatSettings?.vat_number || ""}
@@ -1453,7 +1453,7 @@ export default function AdminSettingsPage() {
                         </label>
                         <input
                           disabled
-                          className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                          className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           placeholder="Your Company Name Ltd"
                           type="text"
                           value={dbProfile?.company_name || ""}
@@ -1521,7 +1521,7 @@ export default function AdminSettingsPage() {
               <GoogleCalendarIntegration />
 
               {/* WhatsApp */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6">
                 <div className="flex items-start gap-4 mb-5">
                   <div className="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
                     <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">

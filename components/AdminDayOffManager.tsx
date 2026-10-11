@@ -105,7 +105,7 @@ export function AdminDayOffManager() {
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shrink-0"
           aria-label="Add Day Off"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -116,7 +116,7 @@ export function AdminDayOffManager() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200/80 dark:border-gray-600/50 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800/50 overflow-hidden">
         {loading && (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-blue-500 dark:border-gray-600"></div>
@@ -194,7 +194,7 @@ export function AdminDayOffManager() {
                 <th className="px-4 py-2.5 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {periods.length === 0 && !loading && (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center">
@@ -276,10 +276,10 @@ export function AdminDayOffManager() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-fade-in p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
-          <div className="w-full sm:max-w-3xl xl:max-w-4xl bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl shadow-2xl transform transition-all animate-fade-in-up overflow-hidden max-h-[95vh] sm:max-h-[90vh] lg:max-h-none lg:overflow-visible flex flex-col sm:mt-0">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-fade-in p-0 sm:p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className="w-full sm:max-w-3xl xl:max-w-4xl bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl transform transition-all animate-fade-in-up overflow-hidden max-h-[95vh] sm:max-h-[90vh] lg:max-h-none lg:overflow-visible flex flex-col sm:mt-0">
             {/* Header - compact on mobile */}
-            <div className="bg-white dark:bg-gray-800 px-4 sm:px-6 py-2.5 sm:py-3 text-gray-900 dark:text-white sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 shrink-0">
+            <div className="bg-white dark:bg-gray-900 px-4 sm:px-6 py-2.5 sm:py-3 text-gray-900 dark:text-white sticky top-0 z-10 border-b border-gray-200 dark:border-gray-800 shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-blue-600/10 flex items-center justify-center shrink-0">
@@ -320,7 +320,7 @@ export function AdminDayOffManager() {
                     <input
                       id="dayoff-title"
                       type="text"
-                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="e.g., Christmas Holiday"
                       value={form.title}
                       onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -333,7 +333,7 @@ export function AdminDayOffManager() {
                     <input
                       id="dayoff-description"
                       type="text"
-                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                      className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-sm"
                       placeholder="Optional"
                       value={form.description}
                       onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -348,7 +348,7 @@ export function AdminDayOffManager() {
                     </label>
                     <input
                       type="date"
-                      className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
+                      className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
                       value={form.start_date}
                       min={new Date().toISOString().split('T')[0]}
                       onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
@@ -360,7 +360,7 @@ export function AdminDayOffManager() {
                     </label>
                     <input
                       type="date"
-                      className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
+                      className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
                       value={form.end_date}
                       min={form.start_date || new Date().toISOString().split('T')[0]}
                       onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
@@ -495,7 +495,7 @@ export function AdminDayOffManager() {
               )}
 
               {/* Action Buttons - sticky on mobile */}
-              <div className="lg:col-span-2 flex justify-end gap-2 sm:gap-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-700 shrink-0">
+              <div className="lg:col-span-2 flex justify-end gap-2 sm:gap-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-800 shrink-0">
                 <button
                   className="px-5 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg font-medium transition-all duration-200 text-sm"
                   onClick={() => setShowModal(false)}
@@ -533,8 +533,8 @@ export function AdminDayOffManager() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl transform transition-all animate-fade-in-up">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl transform transition-all animate-fade-in-up">
             <div className="p-8">
               <div className="flex items-center mb-6">
                 <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mr-4">

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AdminTips } from "@/components/AdminTips";
+import { DashboardInsights } from "@/components/admin/dashboard/dashboard-insights";
 import { AdminProfileData } from "@/components/AdminProfileData";
 
 type DashboardStats = {
@@ -120,7 +122,7 @@ export default function DashboardPage() {
   const loadAllBookings = async () => {
     try {
       setModalLoading(true);
-      const response = await fetch("/api/bookings");
+      const response = await fetch("/api/bookings?limit=200");
       
       if (response.ok) {
         const data = await response.json();
@@ -148,25 +150,28 @@ export default function DashboardPage() {
     icon: React.ReactNode;
     color: string;
   }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow duration-300">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1">
-          <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300 truncate">{title}</p>
-          <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mt-1 sm:mt-2 transition-colors duration-300">{value}</p>
-          {change && (
-            <p
-              className={`text-xs sm:text-sm mt-1 sm:mt-2 ${
-                change.startsWith("+") 
-                  ? "text-green-600 dark:text-green-400" 
-                  : "text-red-600 dark:text-red-400"
-              } transition-colors duration-300`}
-            >
-              {change} from last week
-            </p>
-          )}
-        </div>
-        <div className={`p-2 sm:p-3 rounded-full ${color} transition-colors duration-300 mt-2 sm:mt-0 self-end sm:self-auto`}>{icon}</div>
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <div className={`shrink-0 rounded-xl p-2 ${color} transition-colors duration-300`}>{icon}</div>
+        {change && (
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+              change.startsWith("+")
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300"
+            }`}
+          >
+            {change}
+          </span>
+        )}
       </div>
+      <p className="mt-4 text-2xl font-bold tabular-nums tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+        {value}
+      </p>
+      <p className="mt-0.5 text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+      {change && (
+        <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">vs last week</p>
+      )}
     </div>
   );
 
@@ -407,34 +412,28 @@ export default function DashboardPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Welcome back, <AdminProfileData type="name" fallback="Plamen" />! Here's what's happening today.
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-2xl">Dashboard</h1>
+        <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+          Welcome back, <AdminProfileData type="name" fallback="Plamen" />. Here&apos;s what&apos;s happening today.
         </p>
       </div>
 
       {/* Quick Tips */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200 dark:border-blue-800">
-        <h4 className="text-xs sm:text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1.5 sm:mb-2 flex items-center">
-          💡 Dashboard Tips
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
-          <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-            <li>• Check your daily bookings and update their status regularly</li>
-            <li>• Monitor pending payments and send reminders if needed</li>
-          </ul>
-          <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
-            <li>• Review recent activity to stay updated on business progress</li>
-            <li>• Use quick action buttons for common tasks</li>
-          </ul>
-        </div>
-      </div>
+      <AdminTips
+        title="Dashboard tips"
+        tips={[
+          "Check your daily bookings and update their status regularly",
+          "Monitor pending payments and send reminders if needed",
+          "Review recent activity to stay updated on business progress",
+          "Use quick action buttons for common tasks",
+        ]}
+      />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
         <StatCard
           change={calculateChange(stats.totalBookings, stats.previousWeekBookings)}
-          color="bg-blue-100 text-blue-600"
+          color="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"
           icon={
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -455,7 +454,7 @@ export default function DashboardPage() {
         />
         <StatCard
           change={calculateChange(stats.pendingBookings, stats.previousWeekPendingBookings)}
-          color="bg-yellow-100 text-yellow-600"
+          color="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"
           icon={
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -476,7 +475,7 @@ export default function DashboardPage() {
         />
         <StatCard
           change={calculateChange(stats.totalRevenue, stats.previousWeekRevenue)}
-          color="bg-green-100 text-green-600"
+          color="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"
           icon={
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -497,7 +496,7 @@ export default function DashboardPage() {
         />
         <StatCard
           change={calculateChange(stats.totalCustomers, stats.previousWeekCustomers)}
-          color="bg-purple-100 text-purple-600"
+          color="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"
           icon={
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -506,7 +505,7 @@ export default function DashboardPage() {
               viewBox="0 0 24 24"
             >
               <path
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
@@ -518,12 +517,15 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Analytics: next booking, trend chart, timeline, breakdown */}
+      <DashboardInsights />
+
       {/* Main Content Grid - Mobile Stack, Desktop Side by Side */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
         {/* Recent Activity */}
         <div className="flex flex-col">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex-1 flex flex-col transition-colors duration-300">
-            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 flex-1 flex flex-col transition-colors duration-300">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 Recent Activity
               </h2>
@@ -611,8 +613,8 @@ export default function DashboardPage() {
 
         {/* Upcoming Bookings */}
         <div className="flex flex-col">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex-1 flex flex-col transition-colors duration-300">
-            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 flex-1 flex flex-col transition-colors duration-300">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                 Upcoming Bookings
               </h2>
@@ -722,9 +724,9 @@ export default function DashboardPage() {
 
       {/* All Activity Modal */}
       {showActivityModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Activity</h2>
               <button
                 onClick={() => setShowActivityModal(false)}
@@ -739,7 +741,7 @@ export default function DashboardPage() {
               {modalLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="animate-pulse flex items-start space-x-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div key={i} className="animate-pulse flex items-start space-x-4 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
                       <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                       <div className="flex-1 space-y-2">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
@@ -795,9 +797,9 @@ export default function DashboardPage() {
 
       {/* All Bookings Modal */}
       {showBookingsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Bookings</h2>
               <button
                 onClick={() => setShowBookingsModal(false)}
@@ -812,7 +814,7 @@ export default function DashboardPage() {
               {modalLoading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="animate-pulse flex items-start space-x-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div key={i} className="animate-pulse flex items-start space-x-4 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
                       <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                       <div className="flex-1 space-y-2">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />

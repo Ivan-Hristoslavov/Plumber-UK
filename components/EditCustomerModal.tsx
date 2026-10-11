@@ -134,10 +134,10 @@ export function EditCustomerModal({
   if (!isOpen || !customer) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none">
+    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Edit Customer
           </h3>
@@ -199,7 +199,7 @@ export function EditCustomerModal({
                   setFormData({ ...formData, name: e.target.value });
                   setErrors(prev => ({ ...prev, name: '' }));
                 }}
-                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                   errors.name 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -223,7 +223,7 @@ export function EditCustomerModal({
                   setFormData({ ...formData, email: e.target.value });
                   setErrors(prev => ({ ...prev, email: '' }));
                 }}
-                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                   errors.email 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -247,7 +247,7 @@ export function EditCustomerModal({
                   setFormData({ ...formData, phone: e.target.value });
                   setErrors(prev => ({ ...prev, phone: '' }));
                 }}
-                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                   errors.phone 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -271,7 +271,7 @@ export function EditCustomerModal({
                   setErrors(prev => ({ ...prev, address: '' }));
                 }}
                 rows={3}
-                className={`w-full px-4 py-3 min-h-[100px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
+                className={`w-full px-4 py-3 min-h-[100px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 resize-none ${
                   errors.address 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -301,7 +301,7 @@ export function EditCustomerModal({
                       type="text"
                       value={formData.vat_number}
                       onChange={(e) => setFormData({ ...formData, vat_number: e.target.value })}
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       disabled={isLoading}
                       placeholder="e.g., GB123456789"
                     />
@@ -322,7 +322,7 @@ export function EditCustomerModal({
                       type="text"
                       value={formData.contact_person}
                       onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       disabled={isLoading}
                       placeholder="e.g., John Smith"
                     />
@@ -336,7 +336,7 @@ export function EditCustomerModal({
                       type="email"
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       disabled={isLoading}
                       placeholder="e.g., john@company.com"
                     />
@@ -350,7 +350,7 @@ export function EditCustomerModal({
                       type="tel"
                       value={formData.contact_phone}
                       onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       disabled={isLoading}
                       placeholder="e.g., +44 7700 123456"
                     />
@@ -369,7 +369,7 @@ export function EditCustomerModal({
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+              className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
               disabled={isLoading}
               placeholder="Any additional notes about this customer"
             />
@@ -377,7 +377,7 @@ export function EditCustomerModal({
 
           </div>
           {/* Footer */}
-          <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+          <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
             <button
               type="button"
               onClick={onClose}
@@ -389,7 +389,7 @@ export function EditCustomerModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-3 min-h-[44px] text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center touch-manipulation"
+              className="px-5 py-3 min-h-[44px] text-sm font-medium text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center touch-manipulation"
             >
               {isLoading ? (
                 <>

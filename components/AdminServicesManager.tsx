@@ -151,14 +151,14 @@ export function AdminServicesManager() {
             setEditingId(null);
             setShowForm((v) => !v);
           }}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-sm font-semibold transition-colors"
         >
           {showForm ? "Cancel" : "Add service"}
         </button>
       </div>
 
       {showForm && (
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-5 space-y-4">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 p-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
@@ -268,7 +268,7 @@ export function AdminServicesManager() {
               type="button"
               onClick={save}
               disabled={savingId !== null}
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white shadow-sm text-sm font-semibold transition-colors"
             >
               {savingId ? "Saving…" : editingId ? "Save changes" : "Add service"}
             </button>
@@ -286,8 +286,8 @@ export function AdminServicesManager() {
             key={service.id}
             className={`flex flex-wrap items-center gap-3 rounded-2xl border p-4 transition-colors ${
               service.is_active
-                ? "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                : "border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40"
+                ? "border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900"
+                : "border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40"
             }`}
           >
             <div className="min-w-0 flex-1">
@@ -322,10 +322,10 @@ export function AdminServicesManager() {
                 type="button"
                 onClick={() => toggleActive(service)}
                 disabled={savingId === service.id}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-60 ${
+                className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-60 ${
                   service.is_active
                     ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    : "bg-green-600 hover:bg-green-700 text-white"
+                    : "bg-green-600 hover:bg-green-700 text-white shadow-sm"
                 }`}
               >
                 {service.is_active ? "Hide" : "Show"}

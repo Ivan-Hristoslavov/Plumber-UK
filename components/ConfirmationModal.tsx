@@ -78,11 +78,11 @@ export function ConfirmationModal({
       tabIndex={-1}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity duration-300" />
       
       {/* Modal */}
       <div 
-        className={`relative bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-md w-full mx-0 sm:mx-4 max-h-[95vh] sm:max-h-none overflow-y-auto transform transition-all duration-300 animate-slide-up sm:animate-none ${
+        className={`relative bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-md w-full mx-0 sm:mx-4 max-h-[95vh] sm:max-h-none overflow-y-auto transform transition-all duration-300 animate-slide-up sm:animate-none ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
       >
@@ -138,14 +138,14 @@ export function ConfirmationModal({
           <button
             onClick={handleClose}
             disabled={isLoading}
-            className="px-5 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            className="px-5 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
           >
             {cancelText}
           </button>
           <button
             onClick={handleConfirm}
             disabled={isLoading}
-            className={`px-5 py-3 min-h-[44px] text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 touch-manipulation ${
+            className={`px-5 py-3 min-h-[44px] text-sm font-medium text-white shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 touch-manipulation ${
               isDestructive
                 ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
                 : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'

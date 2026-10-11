@@ -57,7 +57,10 @@ export default function PaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"table" | "cards">(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("payments-view-mode") as "table" | "cards") || "table";
+      return (
+        (localStorage.getItem("payments-view-mode") as "table" | "cards") ||
+        (window.innerWidth < 768 ? "cards" : "table")
+      );
     }
     return "table";
   });
@@ -723,18 +726,18 @@ export default function PaymentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Payments
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               Manage and track payment transactions
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center sm:justify-end gap-2 sm:gap-3">
             {/* View Toggle */}
-            <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
+            <div className="flex col-span-3 sm:col-span-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 transition-colors duration-300">
               <button
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   viewMode === "table"
                     ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -747,7 +750,7 @@ export default function PaymentsPage() {
                 Table
               </button>
               <button
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   viewMode === "cards"
                     ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                     : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -762,7 +765,7 @@ export default function PaymentsPage() {
             </div>
             {/* Create Payment Link Button */}
             <button
-              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium text-white shadow-sm bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
               onClick={() => setShowPaymentLinkModal(true)}
             >
               <svg
@@ -784,7 +787,7 @@ export default function PaymentsPage() {
 
             {/* Create Email Link Button */}
             <button
-              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-300"
+              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium text-white shadow-sm bg-orange-600 dark:bg-orange-500 rounded-xl hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-300"
               onClick={() => setShowEmailLinkModal(true)}
             >
               <svg
@@ -806,7 +809,7 @@ export default function PaymentsPage() {
 
             {/* Create Payment Button */}
             <button
-              className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
               onClick={() => setShowCreateModal(true)}
             >
               <svg
@@ -829,7 +832,7 @@ export default function PaymentsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
             <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <div>
@@ -837,7 +840,7 @@ export default function PaymentsPage() {
                   Status
                 </label>
                 <select
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                   value={filters.status}
                   onChange={(e) =>
                     setFilters({ ...filters, status: e.target.value })
@@ -855,7 +858,7 @@ export default function PaymentsPage() {
                   Payment Method
                 </label>
                 <select
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                   value={filters.paymentMethod}
                   onChange={(e) =>
                     setFilters({ ...filters, paymentMethod: e.target.value })
@@ -875,7 +878,7 @@ export default function PaymentsPage() {
               </label>
               <div className="relative">
                 <input
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                   placeholder="Search by reference or customer..."
                   type="text"
                   value={filters.search}
@@ -903,9 +906,9 @@ export default function PaymentsPage() {
 
         {/* Financial Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 xl:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                   Total Revenue
                 </p>
@@ -913,7 +916,7 @@ export default function PaymentsPage() {
                   £{financialSummary.totalRevenue.toFixed(2)}
                 </p>
               </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full transition-colors duration-300">
+              <div className="p-2.5 shrink-0 bg-green-100 dark:bg-green-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-green-600 dark:text-green-400 transition-colors duration-300"
                   fill="none"
@@ -931,9 +934,9 @@ export default function PaymentsPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 xl:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                   Pending Payments
                 </p>
@@ -941,7 +944,7 @@ export default function PaymentsPage() {
                   £{financialSummary.pendingPayments.toFixed(2)}
                 </p>
               </div>
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full transition-colors duration-300">
+              <div className="p-2.5 shrink-0 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors duration-300"
                   fill="none"
@@ -959,9 +962,9 @@ export default function PaymentsPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 xl:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                   Total Payments
                 </p>
@@ -969,7 +972,7 @@ export default function PaymentsPage() {
                   {financialSummary.totalPayments}
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full transition-colors duration-300">
+              <div className="p-2.5 shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors duration-300"
                   fill="none"
@@ -987,9 +990,9 @@ export default function PaymentsPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-300">
-            <div className="flex items-center justify-between">
-              <div>
+          <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 xl:p-6 transition-colors duration-300">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300">
                   Average Transaction
                 </p>
@@ -997,7 +1000,7 @@ export default function PaymentsPage() {
                   £{financialSummary.averageTransaction.toFixed(2)}
                 </p>
               </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full transition-colors duration-300">
+              <div className="p-2.5 shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-purple-600 dark:text-purple-400 transition-colors duration-300"
                   fill="none"
@@ -1018,7 +1021,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Payments Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-colors duration-300">
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400" />
@@ -1049,7 +1052,7 @@ export default function PaymentsPage() {
             </p>
             <div className="mt-6">
               <button
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
                 onClick={() => setShowCreateModal(true)}
               >
                 <svg
@@ -1074,39 +1077,39 @@ export default function PaymentsPage() {
             {/* Table View */}
             {viewMode === "table" && (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-300">
                 <thead className="bg-gray-50 dark:bg-gray-700/50 transition-colors duration-300">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Reference
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Customer
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Amount
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Method
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Date
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-300">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-300">
                   {filteredPayments.map((payment) => (
                     <tr
                       key={payment.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
                         {payment.reference ? (
                           <span className="cursor-help" title={payment.reference}>
                             {truncateReference(payment.reference)}
@@ -1115,13 +1118,13 @@ export default function PaymentsPage() {
                           "-"
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         {payment.customers?.email || "Unknown"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white transition-colors duration-300">
                         £{payment.amount.toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         <div className="flex items-center">
                           <span className="mr-2">
                             {getPaymentMethodIcon(payment.payment_method)}
@@ -1131,7 +1134,7 @@ export default function PaymentsPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                             payment.payment_status
@@ -1142,10 +1145,10 @@ export default function PaymentsPage() {
                           </span>
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
                         {format(new Date(payment.payment_date), "dd MMM yyyy")}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-center text-sm">
                         <div className="flex items-center justify-center space-x-1">
                           {/* View Details Button */}
                           <button
@@ -1281,7 +1284,7 @@ export default function PaymentsPage() {
             {viewMode === "cards" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPayments.map((payment) => (
-                  <div key={payment.id} className="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 p-6">
+                  <div key={payment.id} className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl border border-gray-200/80 dark:border-gray-800 transition-all duration-300 p-6">
                     {/* Header with Amount and Status */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -1353,7 +1356,7 @@ export default function PaymentsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-gray-800">
                       <button
                         className="inline-flex items-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors duration-200"
                         onClick={() => setSelectedPayment(payment)}
@@ -1438,8 +1441,8 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowCreateModal(false)}
             />
-            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-900 rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-900 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                   Record New Payment
                 </h3>
@@ -1449,7 +1452,7 @@ export default function PaymentsPage() {
                       Customer
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.customer_id}
                       onChange={(e) =>
                         setNewPayment({
@@ -1472,7 +1475,7 @@ export default function PaymentsPage() {
                       Booking (Optional)
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.booking_id}
                       onChange={(e) =>
                         setNewPayment({
@@ -1505,7 +1508,7 @@ export default function PaymentsPage() {
                         </span>
                       </div>
                       <input
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -1524,7 +1527,7 @@ export default function PaymentsPage() {
                       Payment Method
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.payment_method}
                       onChange={(e) =>
                         setNewPayment({
@@ -1544,7 +1547,7 @@ export default function PaymentsPage() {
                       Payment Date
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="date"
                       value={newPayment.payment_date}
                       onChange={(e) =>
@@ -1560,7 +1563,7 @@ export default function PaymentsPage() {
                       Reference (Optional)
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={newPayment.reference}
                       onChange={(e) =>
@@ -1576,7 +1579,7 @@ export default function PaymentsPage() {
                       Notes (Optional)
                     </label>
                     <textarea
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       rows={3}
                       value={newPayment.notes}
                       onChange={(e) =>
@@ -1596,13 +1599,13 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-xl shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={handleCreatePayment}
                 >
                   Create Payment
                 </button>
                 <button
-                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowCreateModal(false)}
                 >
                   Cancel
@@ -1621,8 +1624,8 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowPaymentLinkModal(false)}
             />
-            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-900 rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-900 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                   Create Payment Link
                 </h3>
@@ -1632,7 +1635,7 @@ export default function PaymentsPage() {
                       Customer
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={paymentLink.customer_id}
                       onChange={(e) =>
                         setPaymentLink({
@@ -1655,7 +1658,7 @@ export default function PaymentsPage() {
                       Booking (Optional)
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={paymentLink.booking_id}
                       onChange={(e) =>
                         setPaymentLink({
@@ -1688,7 +1691,7 @@ export default function PaymentsPage() {
                         </span>
                       </div>
                       <input
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -1707,7 +1710,7 @@ export default function PaymentsPage() {
                       Description
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={paymentLink.description}
                       onChange={(e) =>
@@ -1728,7 +1731,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 border border-transparent rounded-lg shadow-sm hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 border border-transparent rounded-xl shadow-sm hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={handleCreatePaymentLink}
                   disabled={processingPayment === "creating"}
                 >
@@ -1760,7 +1763,7 @@ export default function PaymentsPage() {
                   )}
                 </button>
                 <button
-                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowPaymentLinkModal(false)}
                 >
                   Cancel
@@ -1779,8 +1782,8 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowPaymentLinkResult(false)}
             />
-            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-900 rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-900 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                     Payment Link Created
@@ -1839,7 +1842,7 @@ export default function PaymentsPage() {
                         type="text"
                         readOnly
                         value={paymentLinkResult.payment_link_url}
-                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-l-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-l-lg shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       />
                       <button
                         className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
@@ -1907,7 +1910,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-xl shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowPaymentLinkResult(false)}
                 >
                   Close
@@ -1926,8 +1929,8 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowEmailLinkModal(false)}
             />
-            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-900 rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-900 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                   Create Payment Link & Send Email
                 </h3>
@@ -1941,7 +1944,7 @@ export default function PaymentsPage() {
                       Customer
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={emailLink.customer_id}
                       onChange={(e) =>
                         setEmailLink({
@@ -1964,7 +1967,7 @@ export default function PaymentsPage() {
                       Booking (Optional)
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={emailLink.booking_id}
                       onChange={(e) =>
                         setEmailLink({
@@ -1997,7 +2000,7 @@ export default function PaymentsPage() {
                         </span>
                       </div>
                       <input
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -2016,7 +2019,7 @@ export default function PaymentsPage() {
                       Description
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={emailLink.description}
                       onChange={(e) =>
@@ -2037,7 +2040,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 border border-transparent rounded-lg shadow-sm hover:bg-orange-700 dark:hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 border border-transparent rounded-xl shadow-sm hover:bg-orange-700 dark:hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={handleCreateAndSendEmailLink}
                   disabled={processingPayment === "creating_email"}
                 >
@@ -2069,7 +2072,7 @@ export default function PaymentsPage() {
                   )}
                 </button>
                 <button
-                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowEmailLinkModal(false)}
                 >
                   Cancel
@@ -2082,7 +2085,7 @@ export default function PaymentsPage() {
 
       {/* Payment Details Modal */}
       {selectedPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-lg w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -2190,8 +2193,8 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowEditModal(false)}
             />
-            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-800 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
-              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-800 sm:p-6 sm:pb-4 transition-colors duration-300">
+            <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-gray-900 rounded-2xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full transition-colors duration-300">
+              <div className="px-4 pt-5 pb-4 bg-white dark:bg-gray-900 sm:p-6 sm:pb-4 transition-colors duration-300">
                 <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                   Edit Payment
                 </h3>
@@ -2201,7 +2204,7 @@ export default function PaymentsPage() {
                       Customer
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.customer_id}
                       onChange={(e) =>
                         setEditPayment({
@@ -2224,7 +2227,7 @@ export default function PaymentsPage() {
                       Booking (Optional)
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.booking_id}
                       onChange={(e) =>
                         setEditPayment({
@@ -2262,7 +2265,7 @@ export default function PaymentsPage() {
                         </span>
                       </div>
                       <input
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
                         min="0"
@@ -2281,7 +2284,7 @@ export default function PaymentsPage() {
                       Payment Method
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.payment_method}
                       onChange={(e) =>
                         setEditPayment({
@@ -2301,7 +2304,7 @@ export default function PaymentsPage() {
                       Payment Status
                     </label>
                     <select
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.payment_status}
                       onChange={(e) =>
                         setEditPayment({
@@ -2321,7 +2324,7 @@ export default function PaymentsPage() {
                       Payment Date
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="date"
                       value={editPayment.payment_date}
                       onChange={(e) =>
@@ -2337,7 +2340,7 @@ export default function PaymentsPage() {
                       Reference (Optional)
                     </label>
                     <input
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={editPayment.reference}
                       onChange={(e) =>
@@ -2353,7 +2356,7 @@ export default function PaymentsPage() {
                       Notes (Optional)
                     </label>
                     <textarea
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       rows={3}
                       value={editPayment.notes}
                       onChange={(e) =>
@@ -2373,7 +2376,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-xl shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={handleUpdatePayment}
                   disabled={processingPayment === "updating"}
                 >
@@ -2405,7 +2408,7 @@ export default function PaymentsPage() {
                   )}
                 </button>
                 <button
-                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
+                  className="mt-3 inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-300"
                   onClick={() => setShowEditModal(false)}
                 >
                   Cancel
@@ -2424,7 +2427,7 @@ export default function PaymentsPage() {
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => !deletingPayment && setShowDeleteModal(false)}
             />
-            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div className="sm:flex sm:items-start">
                 <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
                   <svg
@@ -2486,7 +2489,7 @@ export default function PaymentsPage() {
               <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={confirmDeletePayment}
                   disabled={deletingPayment}
                 >
@@ -2519,7 +2522,7 @@ export default function PaymentsPage() {
                 </button>
                 <button
                   type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/30 sm:mt-0 sm:w-auto sm:text-sm"
                   onClick={() => setShowDeleteModal(false)}
                   disabled={deletingPayment}
                 >

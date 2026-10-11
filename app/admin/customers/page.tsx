@@ -52,7 +52,10 @@ export default function CustomersPage() {
   );
   const [viewMode, setViewMode] = useState<"table" | "cards">(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("customers-view-mode") as "table" | "cards") || "table";
+      return (
+        (localStorage.getItem("customers-view-mode") as "table" | "cards") ||
+        (window.innerWidth < 768 ? "cards" : "table")
+      );
     }
     return "table";
   });
@@ -283,15 +286,15 @@ export default function CustomersPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Customers</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Customers</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Manage your customer database</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
           {/* Refresh Button */}
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -299,9 +302,9 @@ export default function CustomersPage() {
             {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
           {/* View Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 transition-colors duration-300">
+          <div className="flex col-span-2 order-last sm:order-none sm:col-span-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 transition-colors duration-300">
             <button
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 viewMode === "table"
                   ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -314,7 +317,7 @@ export default function CustomersPage() {
               Table
             </button>
             <button
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex flex-1 sm:flex-none items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 viewMode === "cards"
                   ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -337,11 +340,11 @@ export default function CustomersPage() {
       </div>
       {/* Loading and Empty States */}
       {loading ? (
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 text-center transition-colors duration-300">
+        <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-8 text-center transition-colors duration-300">
           <div className="text-gray-500 dark:text-gray-400">Loading customers...</div>
         </div>
       ) : customers.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 text-center transition-colors duration-300">
+        <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-8 text-center transition-colors duration-300">
           <div className="text-gray-500 dark:text-gray-400">
             No customers found. Add your first customer using the button above.
           </div>
@@ -350,34 +353,34 @@ export default function CustomersPage() {
         <>
           {/* Table View */}
           {viewMode === "table" && (
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto transition-colors duration-300">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <div className="bg-white dark:bg-gray-900 shadow rounded-lg overflow-x-auto transition-colors duration-300">
+              <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
                 <thead className="bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="hidden xl:table-cell px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Email
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Phone
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="hidden xl:table-cell px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Address
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
+                    <th className="px-4 xl:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors duration-300">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-300">
                   {customers.map((customer) => (
                     <tr key={customer.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors duration-300">
                         {customer.name}
                         {customer.customer_type === "company" &&
                           customer.contact_person && (
@@ -386,7 +389,7 @@ export default function CustomersPage() {
                             </div>
                           )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                      <td className="hidden xl:table-cell px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300 ${
                             customer.customer_type === "individual"
@@ -399,16 +402,16 @@ export default function CustomersPage() {
                             : "Company"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                         {customer.email}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                         {customer.phone}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
+                      <td className="hidden xl:table-cell px-4 xl:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
                         {customer.address}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-4 xl:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
                           <button
                             className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
@@ -456,7 +459,7 @@ export default function CustomersPage() {
               {customers.map((customer) => (
                 <div
                   key={customer.id}
-                  className="group bg-white dark:bg-gray-800 shadow-md sm:shadow-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg sm:hover:shadow-2xl sm:hover:scale-[1.02] transition-all duration-300 overflow-hidden relative"
+                  className="group bg-white dark:bg-gray-900 shadow-sm sm:shadow-lg rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200/80 dark:border-gray-800 sm: transition-all duration-300 overflow-hidden relative"
                 >
                   {/* Background gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -525,7 +528,7 @@ export default function CustomersPage() {
                     </div>
 
                     {/* Action Buttons - touch-friendly on mobile */}
-                    <div className="flex justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-800">
                       <button
                         className="flex-1 sm:flex-none min-h-[44px] min-w-[44px] sm:min-w-0 p-2.5 sm:p-2 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 touch-manipulation"
                         onClick={() => setSelectedCustomer(customer)}
@@ -581,10 +584,10 @@ export default function CustomersPage() {
 
       {/* Add Customer Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none transition-colors duration-300">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none transition-colors duration-300">
             {/* Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
               <h2 className="text-lg sm:text-xl font-bold text-primary dark:text-primary-light transition-colors duration-300">
                 Add Customer
               </h2>
@@ -631,7 +634,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.name}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -647,7 +650,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       type="email"
                       value={newCustomer.email}
                       onChange={(e) =>
@@ -664,7 +667,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.phone}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -680,7 +683,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
+                      className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.address}
                       onChange={(e) =>
                         setNewCustomer((nc) => ({
@@ -703,7 +706,7 @@ export default function CustomersPage() {
                       </label>
                       <input
                         required
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyName}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -719,7 +722,7 @@ export default function CustomersPage() {
                       </label>
                       <input
                         required
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
                         value={newCustomer.companyEmail}
                         onChange={(e) =>
@@ -736,7 +739,7 @@ export default function CustomersPage() {
                       </label>
                       <input
                         required
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyPhone}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -752,7 +755,7 @@ export default function CustomersPage() {
                       </label>
                       <input
                         required
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyAddress}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -767,7 +770,7 @@ export default function CustomersPage() {
                         VAT Number
                       </label>
                       <input
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.vat}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -787,7 +790,7 @@ export default function CustomersPage() {
                         Contact Person
                       </label>
                       <input
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPerson}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -802,7 +805,7 @@ export default function CustomersPage() {
                         Contact Email
                       </label>
                       <input
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
                         value={newCustomer.contactEmail}
                         onChange={(e) =>
@@ -818,7 +821,7 @@ export default function CustomersPage() {
                         Contact Phone
                       </label>
                       <input
-                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition"
+                        className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPhone}
                         onChange={(e) =>
                           setNewCustomer((nc) => ({
@@ -832,7 +835,7 @@ export default function CustomersPage() {
                 </>
               )}
               </div>
-              <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+              <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
                 <button
                   className="px-5 py-3 min-h-[44px] text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors touch-manipulation"
                   type="button"
@@ -854,8 +857,8 @@ export default function CustomersPage() {
 
       {/* Customer Details Modal */}
       {selectedCustomer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full transition-colors duration-300">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-lg w-full transition-colors duration-300">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customer Details</h2>
@@ -931,7 +934,7 @@ export default function CustomersPage() {
               </div>
               <div className="mt-6 flex justify-end">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
                   onClick={() => setSelectedCustomer(null)}
                 >
                   Close

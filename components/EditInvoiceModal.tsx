@@ -299,10 +299,10 @@ export function EditInvoiceModal({
   const { subtotal, vatAmount, totalAmount } = calculateTotals();
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none">
+    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up sm:animate-none">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
           <div className="flex items-center justify-between min-w-0 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Edit Invoice {invoice.invoice_number}
@@ -356,7 +356,7 @@ export function EditInvoiceModal({
                 setFormData({ ...formData, customer_id: e.target.value, booking_id: "" });
                 setErrors(prev => ({ ...prev, customer_id: '', booking_id: '' }));
               }}
-              className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                 errors.customer_id 
                   ? 'border-red-300 dark:border-red-600' 
                   : 'border-gray-300 dark:border-gray-600'
@@ -415,7 +415,7 @@ export function EditInvoiceModal({
                     setFormData({ ...formData, booking_id: e.target.value });
                     setErrors(prev => ({ ...prev, booking_id: '' }));
                   }}
-                  className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                     errors.booking_id 
                       ? 'border-red-300 dark:border-red-600' 
                       : 'border-gray-300 dark:border-gray-600'
@@ -449,7 +449,7 @@ export function EditInvoiceModal({
                     value={formData.manual_service}
                     onChange={(e) => setFormData({ ...formData, manual_service: e.target.value })}
                     placeholder="e.g., Emergency pipe repair"
-                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                       errors.manual_service 
                         ? 'border-red-300 dark:border-red-600' 
                         : 'border-gray-300 dark:border-gray-600'
@@ -471,7 +471,7 @@ export function EditInvoiceModal({
                     value={formData.manual_amount}
                     onChange={(e) => setFormData({ ...formData, manual_amount: e.target.value })}
                     placeholder="0.00"
-                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                       errors.manual_amount 
                         ? 'border-red-300 dark:border-red-600' 
                         : 'border-gray-300 dark:border-gray-600'
@@ -491,7 +491,7 @@ export function EditInvoiceModal({
                     onChange={(e) => setFormData({ ...formData, manual_description: e.target.value })}
                     placeholder="Optional additional details about the service"
                     rows={2}
-                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     disabled={isLoading}
                   />
                 </div>
@@ -662,7 +662,7 @@ export function EditInvoiceModal({
                 type="date"
                 value={formData.invoice_date}
                 onChange={(e) => setFormData({ ...formData, invoice_date: e.target.value })}
-                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 box-border ${
+                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 box-border ${
                   errors.invoice_date 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -681,7 +681,7 @@ export function EditInvoiceModal({
                 type="date"
                 value={formData.due_date}
                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 box-border ${
+                className={`w-full min-w-0 max-w-full px-3 py-2 min-h-[38px] text-sm font-normal border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 box-border ${
                   errors.due_date 
                     ? 'border-red-300 dark:border-red-600' 
                     : 'border-gray-300 dark:border-gray-600'
@@ -736,14 +736,14 @@ export function EditInvoiceModal({
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Optional notes for the invoice"
               rows={3}
-              className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+              className="w-full px-4 py-3 min-h-[100px] text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
               disabled={isLoading}
             />
           </div>
 
           </div>
           {/* Footer */}
-          <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+          <div className="sticky bottom-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
             <button
               type="button"
               onClick={onClose}
@@ -755,7 +755,7 @@ export function EditInvoiceModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-3 min-h-[44px] text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center touch-manipulation"
+              className="px-5 py-3 min-h-[44px] text-sm font-medium text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center touch-manipulation"
             >
               {isLoading ? (
                 <>

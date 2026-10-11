@@ -247,7 +247,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-8 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4 sm:p-8 transition-colors duration-300">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
           <div className="relative shrink-0">
             <div className="w-14 h-14 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
@@ -281,14 +281,14 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-colors duration-300">
         <div className="flex bg-gray-50 dark:bg-gray-700/50 p-0.5 sm:p-1 gap-0.5 sm:gap-1 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 ${
                 activeTab === tab.id
-                  ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                  ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
               onClick={() => setActiveTab(tab.id as any)}
@@ -321,7 +321,7 @@ export default function ProfilePage() {
                       First Name
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.firstName}
                       onChange={(e) =>
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                       Last Name
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.lastName}
                       onChange={(e) =>
@@ -368,7 +368,7 @@ export default function ProfilePage() {
                       Business Email
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="email"
                       value={profileData.businessEmail}
                       onChange={(e) =>
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                       Phone Number
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="tel"
                       value={profileData.phone}
                       onChange={(e) =>
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                       Years of Experience
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., 10+ Years"
                       value={profileData.yearsOfExperience}
@@ -456,7 +456,7 @@ export default function ProfilePage() {
                       Insurance Provider
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., Zurich Insurance"
                       value={profileData.insuranceProvider}
@@ -501,7 +501,7 @@ export default function ProfilePage() {
                       Response Time
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., 45 minutes"
                       value={profileData.responseTime}
@@ -537,7 +537,7 @@ export default function ProfilePage() {
                       Company Name
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., Fix My Leak"
                       value={profileData.companyName}
@@ -554,7 +554,7 @@ export default function ProfilePage() {
                       Company Address
                     </label>
                     <textarea
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300 resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300 resize-none"
                       rows={3}
                       placeholder="e.g., 123 Main Street, London, SW1A 1AA"
                       value={profileData.companyAddress}
@@ -595,7 +595,7 @@ export default function ProfilePage() {
                     Account Security
                   </h3>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-600">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-5 border border-gray-200/80 dark:border-gray-800">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 dark:text-white transition-colors duration-300">
@@ -621,7 +621,7 @@ export default function ProfilePage() {
                         Current Password
                       </label>
                       <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.currentPassword}
                         onChange={(e) =>
@@ -637,7 +637,7 @@ export default function ProfilePage() {
                         New Password
                       </label>
                       <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.newPassword}
                         onChange={(e) =>
@@ -653,7 +653,7 @@ export default function ProfilePage() {
                         Confirm Password
                       </label>
                       <input
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.confirmPassword}
                         onChange={(e) =>
@@ -666,7 +666,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="md:col-span-3">
                       <button
-                        className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                        className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white shadow-sm rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                         disabled={isSaving}
                         onClick={handleChangePassword}
                       >
