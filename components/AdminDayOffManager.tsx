@@ -149,7 +149,7 @@ export function AdminDayOffManager() {
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5 text-xs flex-wrap">
-                  <span className="text-blue-600 dark:text-blue-400 font-medium">{p.start_date}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{p.start_date}</span>
                   <span className="text-gray-400 dark:text-gray-500">→</span>
                   <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
                   {p.banner_message && (
@@ -213,7 +213,7 @@ export function AdminDayOffManager() {
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1.5 text-sm">
-                      <span className="text-blue-600 dark:text-blue-400 font-medium">{p.start_date}</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{p.start_date}</span>
                       <span className="text-gray-400 dark:text-gray-500">→</span>
                       <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
                     </div>

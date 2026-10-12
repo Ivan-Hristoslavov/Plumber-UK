@@ -695,7 +695,7 @@ export default function InvoicesPage() {
                   </Tooltip>
                   <Tooltip content="Send via Email">
                   <button
-                      className="p-2 bg-green-600 dark:bg-green-500 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+                      className="p-2 transition-colors duration-300 inline-flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300"
                       onClick={() => {
                         setSelectedInvoice(invoice);
                         setShowSendModal(true);
@@ -718,7 +718,7 @@ export default function InvoicesPage() {
                   <Tooltip content="View Details">
                     <button
                       onClick={() => handleViewDetails(invoice)}
-                      className="p-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                      className="p-2 transition-colors duration-300 inline-flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -728,7 +728,7 @@ export default function InvoicesPage() {
                   </Tooltip>
                   <Tooltip content="Edit Invoice">
                     <button
-                      className="p-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+                      className="p-2 transition-colors duration-300 inline-flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
                     onClick={() => {
                       setSelectedInvoice(invoice);
                       setShowEditModal(true);
@@ -742,7 +742,7 @@ export default function InvoicesPage() {
                   </Tooltip>
                   <Tooltip content="Delete Invoice">
                     <button
-                      className="p-2 bg-red-600 dark:bg-red-500 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300"
+                      className="p-2 transition-colors duration-300 inline-flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300"
                       onClick={() => handleDeleteInvoice(invoice.id)}
                       disabled={deletingId === invoice.id}
                     >

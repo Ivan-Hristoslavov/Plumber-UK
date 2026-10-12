@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
 import { format } from "date-fns";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
@@ -765,7 +766,7 @@ export default function PaymentsPage() {
             </div>
             {/* Create Payment Link Button */}
             <button
-              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium text-white shadow-sm bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300"
+              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium shadow-sm rounded-xl transition-colors duration-300 bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/20"
               onClick={() => setShowPaymentLinkModal(true)}
             >
               <svg
@@ -787,7 +788,7 @@ export default function PaymentsPage() {
 
             {/* Create Email Link Button */}
             <button
-              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium text-white shadow-sm bg-orange-600 dark:bg-orange-500 rounded-xl hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors duration-300"
+              className="flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium shadow-sm rounded-xl transition-colors duration-300 bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30 dark:hover:bg-amber-500/20"
               onClick={() => setShowEmailLinkModal(true)}
             >
               <svg
@@ -832,77 +833,35 @@ export default function PaymentsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                  Status
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
-                  value={filters.status}
-                  onChange={(e) =>
-                    setFilters({ ...filters, status: e.target.value })
-                  }
-                >
-                  <option value="all">All</option>
-                  <option value="paid">Paid</option>
-                  <option value="pending">Pending</option>
-                  <option value="refunded">Refunded</option>
-                  <option value="failed">Failed</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                  Payment Method
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
-                  value={filters.paymentMethod}
-                  onChange={(e) =>
-                    setFilters({ ...filters, paymentMethod: e.target.value })
-                  }
-                >
-                  <option value="all">All</option>
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cheque">Cheque</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex-1 md:max-w-sm">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                Search
-              </label>
-              <div className="relative">
-                <input
-                  className="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
-                  placeholder="Search by reference or customer..."
-                  type="text"
-                  value={filters.search}
-                  onChange={(e) =>
-                    setFilters({ ...filters, search: e.target.value })
-                  }
-                />
-                <svg
-                  className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FilterBar>
+          <FilterSearch
+            placeholder="Search by reference or customer..."
+            value={filters.search}
+            onChange={(search) => setFilters({ ...filters, search })}
+          />
+          <FilterSelect
+            label="Status"
+            value={filters.status}
+            onChange={(status) => setFilters({ ...filters, status })}
+          >
+            <option value="all">All statuses</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="refunded">Refunded</option>
+            <option value="failed">Failed</option>
+          </FilterSelect>
+          <FilterSelect
+            label="Payment method"
+            value={filters.paymentMethod}
+            onChange={(paymentMethod) => setFilters({ ...filters, paymentMethod })}
+          >
+            <option value="all">All methods</option>
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="cheque">Cheque</option>
+          </FilterSelect>
+        </FilterBar>
 
         {/* Financial Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1731,7 +1690,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 border border-transparent rounded-xl shadow-sm hover:bg-green-700 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/20"
                   onClick={handleCreatePaymentLink}
                   disabled={processingPayment === "creating"}
                 >
@@ -2040,7 +1999,7 @@ export default function PaymentsPage() {
               </div>
               <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 sm:px-6 sm:flex sm:flex-row-reverse transition-colors duration-300">
                 <button
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-600 dark:bg-orange-500 border border-transparent rounded-xl shadow-sm hover:bg-orange-700 dark:hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30 dark:hover:bg-amber-500/20"
                   onClick={handleCreateAndSendEmailLink}
                   disabled={processingPayment === "creating_email"}
                 >

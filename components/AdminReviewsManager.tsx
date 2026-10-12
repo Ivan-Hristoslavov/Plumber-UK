@@ -41,6 +41,9 @@ export function AdminReviewsManager() {
   const totalReviews = reviews.length;
   const approvedReviews = reviews.filter(r => r.is_approved).length;
   const pendingReviews = reviews.filter(r => !r.is_approved).length;
+  const averageRating = reviews.length
+    ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviews.length
+    : 0;
   const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
   const startIndex = (currentPage - 1) * reviewsPerPage;
   const endIndex = startIndex + reviewsPerPage;
@@ -160,55 +163,77 @@ export function AdminReviewsManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Responsive Stats */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex-1">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Customer Reviews</h2>
-          
-          {/* Responsive Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
-            <div className="flex items-center gap-2 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                {totalReviews} total
-              </span>
-            </div>
-            <div className="flex items-center gap-2 p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                {approvedReviews} approved
-              </span>
-            </div>
-            <div className="flex items-center gap-2 p-2 sm:p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">
-                {pendingReviews} pending
-              </span>
-            </div>
-          </div>
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+            Customer Reviews
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            What customers say, and which reviews show on the website
+          </p>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => handleStatusFilterChange(e.target.value as "all" | "approved" | "not_approved")}
-            className="min-h-[44px] px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/30 touch-manipulation"
-          >
-            <option value="all">All ({totalReviews})</option>
-            <option value="approved">Approved ({approvedReviews})</option>
-            <option value="not_approved">Not approved ({pendingReviews})</option>
-          </select>
-          <button 
+
+        <div className="flex items-center gap-2">
+          <div role="tablist" aria-label="Filter reviews" className="inline-flex rounded-full bg-gray-100 p-0.5 dark:bg-gray-800">
+            {([
+              { id: "all", label: "All", count: totalReviews },
+              { id: "approved", label: "Approved", count: approvedReviews },
+              { id: "not_approved", label: "Pending", count: pendingReviews },
+            ] as const).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={statusFilter === tab.id}
+                onClick={() => handleStatusFilterChange(tab.id)}
+                className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+                  statusFilter === tab.id
+                    ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                    : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+                }`}
+              >
+                {tab.label}
+                <span className="ml-1.5 tabular-nums text-gray-400 dark:text-gray-500">{tab.count}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center min-h-[44px] px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            title="Refresh"
+            aria-label="Refresh"
+            className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
           >
-            <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {refreshing ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
+      </div>
+
+      {/* Summary */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {[
+          { label: "Average rating", value: averageRating ? `${averageRating.toFixed(1)} / 5` : "—", dot: "bg-amber-400" },
+          { label: "Total reviews", value: String(totalReviews), dot: "bg-blue-500" },
+          { label: "On the website", value: String(approvedReviews), dot: "bg-emerald-500" },
+          { label: "Waiting for approval", value: String(pendingReviews), dot: "bg-amber-500" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+          >
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${stat.dot}`} />
+              {stat.label}
+            </p>
+            <p className="mt-2 text-2xl font-bold tabular-nums tracking-tight text-gray-900 dark:text-white">
+              {stat.value}
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* Reviews Grid */}
@@ -238,7 +263,7 @@ export function AdminReviewsManager() {
                 <div className="flex items-start justify-between gap-2 mb-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                         <span className="text-white font-semibold text-xs sm:text-sm">
                           {review.customer_name.charAt(0).toUpperCase()}
                         </span>
@@ -439,7 +464,7 @@ export function AdminReviewsManager() {
               <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                       <span className="text-white font-bold text-lg">
                         {selectedReview.customer_name.charAt(0).toUpperCase()}
                       </span>
