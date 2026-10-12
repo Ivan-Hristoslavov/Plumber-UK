@@ -6,6 +6,16 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
+  // Bold, italic and links, shared by paragraphs and list items.
+  const inline = (value: string) =>
+    value
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>',
+      );
+
   const renderMarkdown = (text: string) => {
     if (!text) return "";
 
@@ -32,10 +42,10 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
 
       // Lists
       if (line.startsWith('- ')) {
-        return `<li class="ml-4 mb-1">${line.substring(2)}</li>`;
+        return `<li class="ml-4 mb-1">${inline(line.substring(2))}</li>`;
       }
       if (line.match(/^\d+\.\s/)) {
-        return `<li class="ml-4 mb-1">${line.replace(/^\d+\.\s/, '')}</li>`;
+        return `<li class="ml-4 mb-1">${inline(line.replace(/^\d+\.\s/, ''))}</li>`;
       }
 
       // Regular paragraph

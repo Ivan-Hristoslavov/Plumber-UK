@@ -404,8 +404,8 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {/* Quick Actions (hidden in Settings to reduce clutter) */}
-        {!(pathname?.startsWith("/admin/settings") ?? false) && (
+        {/* Quick Actions */}
+        {(
           <div className="px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 lg:pt-6">
             <div className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {quickActions.map((action) => (
@@ -429,7 +429,7 @@ export default function AdminLayout({
 
         {/* Page content */}
         <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24 lg:pb-0 transition-colors duration-300">
-          <div className={`p-3 sm:p-4 lg:p-6 xl:p-8 ${pathname?.startsWith("/admin/settings") ? "pt-0 lg:pt-6" : ""}`}>{children}</div>
+          <div className="p-3 sm:p-4 lg:p-6 xl:p-8">{children}</div>
         </main>
       </div>
 

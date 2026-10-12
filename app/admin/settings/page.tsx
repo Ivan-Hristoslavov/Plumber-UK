@@ -15,7 +15,7 @@ import { AdminLegalManager } from "@/components/AdminLegalManager";
 import { GoogleCalendarIntegration } from "@/components/GoogleCalendarIntegration";
 import { useToast, ToastMessages } from "@/components/Toast";
 import {
-  SettingsNavigation,
+  SettingsHub,
   SettingsTab,
 } from "@/components/SettingsNavigation";
 import { AdminProfileData } from "@/components/AdminProfileData";
@@ -117,6 +117,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<
+    | null
     | "business"
     | "working-hours"
     | "pricing"
@@ -127,23 +128,47 @@ export default function AdminSettingsPage() {
     | "faq"
     | "legal"
     | "connections"
-  >("business");
+  >(null);
 
   // State to control modal opening in child components
   const [triggerModal, setTriggerModal] = useState<string | null>(null);
   const [galleryTab, setGalleryTab] = useState<"items" | "sections">("items");
 
-  // Function to handle tab changes with scroll to top
-  const handleTabChange = (tabId: string) => {
+  const SECTION_IDS = [
+    "business",
+    "working-hours",
+    "pricing",
+    "vat",
+    "gallery",
+    "areas",
+    "services",
+    "faq",
+    "legal",
+    "connections",
+  ];
+
+  // The open section lives in the URL (?section=...), so a refresh keeps it
+  // and the browser back button returns to the overview.
+  useEffect(() => {
+    const read = () => {
+      const section = new URLSearchParams(window.location.search).get("section");
+      setActiveTab(section && SECTION_IDS.includes(section) ? (section as any) : null);
+    };
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleTabChange = (tabId: string | null) => {
     setActiveTab(tabId as any);
-    // Scroll to top when tab changes
+    window.history.pushState(
+      null,
+      "",
+      tabId ? `/admin/settings?section=${tabId}` : "/admin/settings",
+    );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  // Effect to scroll to top when activeTab changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [activeTab]);
 
   // Function to trigger modal in child components
   const triggerChildModal = (modalType: string, galleryTabType?: "items" | "sections") => {
@@ -482,8 +507,8 @@ export default function AdminSettingsPage() {
   const tabsWithSaveButtons = ["business", "working-hours", "vat"];
   const tabsWithActionButtons = ["faq", "gallery", "pricing", "areas", "legal"];
 
-  const needsSaveButton = tabsWithSaveButtons.includes(activeTab);
-  const needsActionButtons = tabsWithActionButtons.includes(activeTab);
+  const needsSaveButton = tabsWithSaveButtons.includes(activeTab ?? "");
+  const needsActionButtons = tabsWithActionButtons.includes(activeTab ?? "");
 
   // Get action button for current tab
   const getActionButton = () => {
@@ -587,71 +612,44 @@ export default function AdminSettingsPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Desktop Horizontal Navigation */}
-      <div className="hidden lg:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <div className="px-8 py-4">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Settings
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Manage your business configuration
-              </p>
-            </div>
-          </div>
-
-          {/* Horizontal Tabs */}
-          <div className="flex space-x-1 overflow-x-auto pb-2">
-            {Object.entries(groupedTabs).map(([category, categoryTabs]) => (
-              <div key={category} className="flex items-center space-x-4">
-                {categoryTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/50"
-                    }`}
-                    onClick={() => handleTabChange(tab.id)}
-                  >
-                    <span className="text-lg">{tab.icon}</span>
-                    <span>{tab.name}</span>
-                  </button>
-                ))}
-                {category !==
-                  Object.keys(groupedTabs)[
-                    Object.keys(groupedTabs).length - 1
-                  ] && (
-                  <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2" />
-                )}
-              </div>
-            ))}
-          </div>
+  if (activeTab === null) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+            Settings
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            Manage your business configuration
+          </p>
         </div>
+        <SettingsHub tabs={tabs} onSelect={handleTabChange} />
       </div>
+    );
+  }
 
-      {/* Mobile Navigation */}
-      <div className="lg:hidden">
-        <SettingsNavigation
-          activeTab={activeTab}
-          tabs={tabs}
-          onTabChange={handleTabChange}
-        />
-      </div>
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <button
+        type="button"
+        onClick={() => handleTabChange(null)}
+        className="-ml-1 inline-flex items-center gap-1 rounded-lg px-1 py-1 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+      >
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+        </svg>
+        Settings
+      </button>
 
-      {/* Main Content - Full width */}
-      <div className="w-full">
-        <div className="p-3 sm:p-4 lg:p-8 pb-8 w-full max-w-full pt-14 lg:pt-4">
+      <div>
+        <div className="min-w-0">
           {/* Success/Error Message - Show on both mobile and desktop */}
           {message && (
             <div
-              className={`p-4 rounded-lg mb-6 ${
+              className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
                 message.includes("Error")
-                  ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
-                  : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                  ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
               } transition-colors duration-300`}
             >
               {message}
@@ -659,13 +657,13 @@ export default function AdminSettingsPage() {
           )}
 
           {/* Page Header with Action Buttons */}
-          <div className="mb-3 sm:mb-6 lg:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <div className="mb-5 sm:mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
-                <h1 className="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                   {tabs.find((tab) => tab.id === activeTab)?.name}
-                </h1>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">
+                </h2>
+                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                   {tabs.find((tab) => tab.id === activeTab)?.description}
                 </p>
               </div>
@@ -673,7 +671,7 @@ export default function AdminSettingsPage() {
               {/* Save Button - Show for all tabs */}
               {needsSaveButton && (
                 <button
-                  className="flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="flex items-center justify-center px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   disabled={saving}
                   onClick={handleSave}
                 >
@@ -706,7 +704,7 @@ export default function AdminSettingsPage() {
               {/* Action Button - Show only for specific tabs */}
               {actionButton && activeTab !== "gallery" && (
                 <button
-                  className="flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-green-600 dark:bg-green-500 rounded-xl hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                  className="flex items-center justify-center px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   onClick={actionButton.onClick}
                 >
                   <span className="mr-2">{actionButton.icon}</span>
@@ -732,19 +730,13 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* Mobile Save Button - Always visible on mobile */}
-          <div className="lg:hidden mb-6">
-            <div className="flex flex-col gap-4">
-              {/* Mobile action buttons can be added here if needed */}
-            </div>
-          </div>
 
           {/* Tab Content */}
           {activeTab === "business" && (
-            <div className="space-y-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* Business Information */}
               <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
                   Business Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1070,7 +1062,7 @@ export default function AdminSettingsPage() {
 
               {/* Pricing */}
               <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
                   Service Rates
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1116,7 +1108,7 @@ export default function AdminSettingsPage() {
           )}
 
           {activeTab === "working-hours" && (
-            <div className="space-y-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* Working Hours */}
               <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
                 <div className="flex items-center justify-between mb-6">
@@ -1136,18 +1128,18 @@ export default function AdminSettingsPage() {
 
                 <div className="space-y-6">
                   {/* Time Range */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-5 border border-blue-200 dark:border-blue-800">
+                  <div className="rounded-2xl p-5 border border-gray-200/80 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30">
                     <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Operating Hours
                         </h3>
-                        <p className="text-xs text-blue-600 dark:text-blue-300">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           Set your daily working hours
                         </p>
                       </div>
@@ -1155,7 +1147,7 @@ export default function AdminSettingsPage() {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           Start Time
                         </label>
                         <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
@@ -1175,7 +1167,7 @@ export default function AdminSettingsPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-300">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           End Time
                         </label>
                         <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
@@ -1198,18 +1190,18 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* Working Days */}
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-5 border border-green-200 dark:border-green-800">
+                  <div className="rounded-2xl p-5 border border-gray-200/80 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30">
                     <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Working Days
                         </h3>
-                        <p className="text-xs text-green-600 dark:text-green-300">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           Select your available days
                         </p>
                       </div>
@@ -1280,7 +1272,7 @@ export default function AdminSettingsPage() {
 
               {/* Day Off Settings */}
               {/*<div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
               Day Off Settings
             </h2>
             <div className="space-y-6">
@@ -1345,7 +1337,7 @@ export default function AdminSettingsPage() {
 
               {/* Website Settings */}
               {/* <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-6 transition-colors duration-300">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
               Website Settings
             </h2>
             <div className="space-y-4">
@@ -1381,10 +1373,10 @@ export default function AdminSettingsPage() {
           )}
 
           {activeTab === "vat" && (
-            <div className="space-y-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* VAT Configuration */}
               <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 transition-colors duration-300">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
                   VAT Configuration
                 </h2>
 
@@ -1516,7 +1508,7 @@ export default function AdminSettingsPage() {
           )}
 
           {activeTab === "connections" && (
-            <div className="space-y-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* Google Calendar Integration */}
               <GoogleCalendarIntegration />
 

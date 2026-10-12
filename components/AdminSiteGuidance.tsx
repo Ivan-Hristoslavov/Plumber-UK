@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -14,315 +15,409 @@ type SiteGuidanceItem = {
   updated_at: string;
 };
 
+/** Short pointers to what changed in the panel, each one opens the screen. */
+const WHATS_NEW = [
+  {
+    title: "Dashboard insights",
+    text: "Your next booking, a trend chart and a timeline around now.",
+    href: "/admin/dashboard",
+    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+  },
+  {
+    title: "Calendar",
+    text: "Month, week and day views, status filters and a daily agenda.",
+    href: "/admin/calendar",
+    icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  },
+  {
+    title: "Booking emails",
+    text: "Alerts now go out through Gmail. Send yourself a test of any email.",
+    href: "/admin/test-email",
+    icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+  },
+  {
+    title: "Services",
+    text: "Show or hide the pages for each service on the website.",
+    href: "/admin/settings?section=services",
+    icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
+  },
+  {
+    title: "WhatsApp button",
+    text: "Turn the website's WhatsApp button on or off, or use another number.",
+    href: "/admin/settings?section=connections",
+    icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
+  },
+  {
+    title: "Settings overview",
+    text: "Every setting is a card: open one, edit it, go back.",
+    href: "/admin/settings",
+    icon: "M4 6h16M4 12h16M4 18h7",
+  },
+];
+
+/** Guides that ship with the panel. Negative ids keep them apart from the database ones. */
+const BUILT_IN_GUIDES: SiteGuidanceItem[] = [
+  {
+    id: -1,
+    title: "Booking emails: how they work",
+    category: "new",
+    sort_order: 1,
+    created_at: "",
+    updated_at: "",
+    content: `## What happens when someone books
+Every new booking sends an email alert to the owner with the customer's name, phone, address, date, time and notes.
+
+## Check that it works
+- Open **Test Email** in the menu
+- Choose an **email type**: a simple test, a booking alert, a payment request or an invoice
+- Press **Send test email**. Samples are marked [TEST] and use made-up customer details
+
+## If nothing arrives
+- Look in the **Spam** folder first
+- Open Test Email and read the box at the top: it shows which address receives the alerts and who they are sent from
+- If the test fails, the message under the button is the real reason. Send it to your developer`,
+  },
+  {
+    id: -2,
+    title: "Reading the dashboard",
+    category: "new",
+    sort_order: 2,
+    created_at: "",
+    updated_at: "",
+    content: `## Next booking
+The soonest booking that is pending or scheduled, with how long is left. **Call** rings the customer, **Directions** opens the route in Google Maps.
+
+## Chart
+Bookings or booked value for the last **14 days** or **12 weeks**. The percentage compares with the period before. Hover or tap a bar for the exact figures. Cancelled bookings are not counted.
+
+## Timeline
+Recent bookings above the **Now** marker, upcoming ones below it. The dot colour is the booking status.
+
+## Overview
+- **Avg. booking**: average value of bookings that were not cancelled
+- **Completion**: completed jobs against cancelled ones
+- **Unpaid**: bookings whose payment is still pending
+- **Busiest day**: the weekday with the most bookings`,
+  },
+  {
+    id: -3,
+    title: "Using the calendar",
+    category: "new",
+    sort_order: 3,
+    created_at: "",
+    updated_at: "",
+    content: `## Views
+Switch between **Month**, **Week** and **Day**. Week and day scroll to the first booking and show a red line for the current time.
+
+## Find a booking
+- Tap a day in the month view to see its **agenda** underneath
+- Use the status chips at the top to show only pending, scheduled, completed or cancelled
+- Tap a booking to see the customer, change its status, call or open the address in Maps
+
+## Edit a booking
+Open it and press **Edit** to change the customer, service, date, time, price, address or notes.`,
+  },
+  {
+    id: -4,
+    title: "Show or hide services and WhatsApp",
+    category: "new",
+    sort_order: 4,
+    created_at: "",
+    updated_at: "",
+    content: `## Services
+Go to **Settings, Services**. Each service has its own page on the website. **Hide** removes it from the website, the footer and the sitemap without deleting it. You can show it again at any time.
+
+## WhatsApp
+Go to **Settings, Integrations**. Switch the WhatsApp button on or off. Leave the number empty to use the business phone number, or enter a different one.`,
+  },
+  {
+    id: -5,
+    title: "Using the admin on your phone",
+    category: "new",
+    sort_order: 5,
+    created_at: "",
+    updated_at: "",
+    content: `## Getting around
+The bar at the bottom has **Home, Calendar, Bookings** and **Customers**. **More** opens the full menu from the right side, where your thumb is.
+
+## Put it on your home screen
+- iPhone (Safari): press **Share**, then **Add to Home Screen**
+- Android (Chrome): open the menu and press **Add to Home screen**
+
+It then opens like an app.`,
+  },
+  {
+    id: -6,
+    title: "Booking and payment statuses",
+    category: "getting started",
+    sort_order: 6,
+    created_at: "",
+    updated_at: "",
+    content: `## Booking status
+- **Pending**: a request that still needs your confirmation
+- **Scheduled**: confirmed and in the diary
+- **Completed**: the job is done
+- **Cancelled**: it will not happen. It stays in the list but is not counted in the totals
+
+## Payment status
+- **Pending**: not paid yet
+- **Paid**: payment received
+- **Refunded**: the money was returned`,
+  },
+];
+
+const label = (category: string) =>
+  category === "new" ? "New" : category.charAt(0).toUpperCase() + category.slice(1);
+
 export function AdminSiteGuidance() {
-  const [guidanceItems, setGuidanceItems] = useState<SiteGuidanceItem[]>([]);
+  const [dbItems, setDbItems] = useState<SiteGuidanceItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState<number | null>(null);
+  const [activeItem, setActiveItem] = useState<number | null>(BUILT_IN_GUIDES[0].id);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const articleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadGuidanceItems();
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_guidance")
+          .select("*")
+          .order("sort_order", { ascending: true });
+        if (error) console.error("Error loading site guidance:", error);
+        else setDbItems(data || []);
+      } catch (error) {
+        console.error("Error loading site guidance:", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const loadGuidanceItems = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from("site_guidance")
-        .select("*")
-        .order("sort_order", { ascending: true });
+  const allItems = useMemo(() => [...BUILT_IN_GUIDES, ...dbItems], [dbItems]);
+  const categories = useMemo(
+    () => ["all", ...Array.from(new Set(allItems.map((item) => item.category)))],
+    [allItems],
+  );
 
-      if (error) {
-        console.error("Error loading site guidance:", error);
-        return;
-      }
-
-      setGuidanceItems(data || []);
-      
-      // Set the first item as active by default
-      if (data && data.length > 0) {
-        setActiveItem(data[0].id);
-      }
-    } catch (error) {
-      console.error("Error loading site guidance:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const activeItemData = guidanceItems.find(item => item.id === activeItem);
-
-  // Get unique categories
-  const categories = ["all", ...Array.from(new Set(guidanceItems.map(item => item.category)))];
-
-  // Filter items based on search and category
-  const filteredItems = guidanceItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.content.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredItems = allItems.filter((item) => {
+    const q = searchTerm.toLowerCase();
+    const matchesSearch =
+      !q || item.title.toLowerCase().includes(q) || item.content.toLowerCase().includes(q);
     const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
+  // Group the list by category, keeping "new" first
+  const grouped = useMemo(() => {
+    const map = new Map<string, SiteGuidanceItem[]>();
+    filteredItems.forEach((item) => map.set(item.category, [...(map.get(item.category) || []), item]));
+    return Array.from(map.entries()).sort(([a], [b]) => (a === "new" ? -1 : b === "new" ? 1 : 0));
+  }, [filteredItems]);
+
+  const active = allItems.find((item) => item.id === activeItem);
+
+  const open = (id: number) => {
+    setActiveItem(id);
+    // On phones the article sits below the list.
+    if (window.innerWidth < 1024) {
+      setTimeout(() => articleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      <div className="space-y-4 animate-pulse" aria-busy="true">
+        <div className="h-9 w-56 rounded-xl bg-gray-200 dark:bg-gray-800" />
+        <div className="h-28 rounded-2xl bg-gray-200/70 dark:bg-gray-800/70" />
+        <div className="h-72 rounded-2xl bg-gray-200/70 dark:bg-gray-800/70" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Compact Header */}
-      <div>
-        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-          Site Guidance & Help Center
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Guides and tips for using the admin panel
-        </p>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
-          <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{guidanceItems.length}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Total Guides</div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
+            Help Center
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            Guides for using the admin panel, and what is new
+          </p>
         </div>
-        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
-          <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{categories.length - 1}</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Categories</div>
-        </div>
-        <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200/80 dark:border-gray-800">
-          <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Support Available</div>
-        </div>
-      </div>
-
-      {/* Search and Filter Bar */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search Input */}
-          <div className="flex-1">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search guides..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
-              />
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="md:w-48">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === "all" ? "All Categories" : category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="relative w-full sm:max-w-xs">
+          <svg
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Search guides..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="block w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          />
         </div>
       </div>
 
-      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-        {/* Enhanced Navigation Sidebar */}
-        <div className="lg:col-span-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-                Guide Topics
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {filteredItems.length} guides available
-              </p>
-            </div>
-            
-            <nav className="p-4 space-y-2 max-h-96 overflow-y-auto">
-              {filteredItems.length === 0 ? (
-                <div className="text-center py-8">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 6.334A7.97 7.97 0 0012 5c-2.34 0-4.29 1.009-5.824 2.562" />
+      {/* What's new */}
+      {!searchTerm && (
+        <section aria-labelledby="whats-new">
+          <h2 id="whats-new" className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">
+            What&apos;s new
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {WHATS_NEW.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="group flex items-start gap-3.5 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-500/50"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                   </svg>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No guides found</p>
-                </div>
-              ) : (
-                filteredItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveItem(item.id)}
-                    className={`w-full text-left p-4 rounded-lg transition-all duration-300 hover:shadow-md ${
-                      activeItem === item.id
-                        ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-sm"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 mt-1">
-                        <div className={`w-2 h-2 rounded-full ${
-                          activeItem === item.id 
-                            ? "bg-blue-500" 
-                            : "bg-gray-300 dark:bg-gray-600"
-                        }`}></div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">{item.title}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 capitalize">
-                          {item.category}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))
-              )}
-            </nav>
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-semibold text-gray-900 dark:text-white">{item.title}</span>
+                  <span className="mt-0.5 block text-sm text-gray-500 dark:text-gray-400">{item.text}</span>
+                </span>
+              </Link>
+            ))}
           </div>
+        </section>
+      )}
 
-          {/* Quick Tips Card */}
-          <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800">
-            <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Quick Tips
-            </h4>
-            <ul className="space-y-2 text-sm text-green-800 dark:text-green-200">
-              <li className="flex items-start">
-                <span className="text-green-600 dark:text-green-400 mr-2">•</span>
-                This admin panel is designed to be mobile-friendly
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 dark:text-green-400 mr-2">•</span>
-                Use the sidebar navigation to access different sections
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 dark:text-green-400 mr-2">•</span>
-                Check the dashboard daily for business overview
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 dark:text-green-400 mr-2">•</span>
-                Keep your profile and settings up to date
-              </li>
-            </ul>
+      {/* Guides */}
+      <section aria-labelledby="guides">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="guides" className="text-sm font-semibold text-gray-900 dark:text-white">
+            Guides
+          </h2>
+          <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setSelectedCategory(category)}
+                className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${
+                  selectedCategory === category
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-gray-200 bg-white text-gray-600 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:text-white"
+                }`}
+              >
+                {category === "all" ? "All" : label(category)}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Enhanced Content Area */}
-        <div className="lg:col-span-8 mt-6 lg:mt-0">
-          {activeItemData ? (
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-                      {activeItemData.title}
-                    </h3>
-                    <div className="mt-2 flex items-center space-x-3">
-                      <span className="capitalize bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-medium">
-                        {activeItemData.category}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Guide #{activeItemData.sort_order}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
+        <div className="lg:grid lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-6">
+          <nav
+            aria-label="Guides"
+            className="max-h-80 overflow-y-auto rounded-2xl border border-gray-200/80 bg-white p-2 shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:max-h-[34rem]"
+          >
+            {grouped.length === 0 ? (
+              <p className="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No guides found</p>
+            ) : (
+              grouped.map(([category, items]) => (
+                <div key={category} className="mb-1 last:mb-0">
+                  <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 first:pt-2 dark:text-gray-500">
+                    {label(category)}
+                  </p>
+                  {items.map((item) => (
                     <button
-                      onClick={() => window.print()}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
-                      title="Print this guide"
+                      key={item.id}
+                      type="button"
+                      onClick={() => open(item.id)}
+                      className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors ${
+                        activeItem === item.id
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+                          : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/70"
+                      }`}
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                      </svg>
+                      <span className="min-w-0 flex-1 truncate">{item.title}</span>
+                      {item.id < 0 && category === "new" && (
+                        <span className="shrink-0 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30">
+                          New
+                        </span>
+                      )}
                     </button>
-                  </div>
+                  ))}
                 </div>
-              </div>
-              <div className="p-6">
-                <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-ul:text-gray-700 dark:prose-ul:text-gray-300">
-                  <MarkdownRenderer content={activeItemData.content} />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-8 text-center">
-              <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Select a Guide</h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Choose a guide topic from the sidebar to get started with helpful information.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+              ))
+            )}
+          </nav>
 
-      {/* Enhanced Help Section */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-        <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="flex-1">
-            <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
-              Need More Help?
-            </h4>
-            <p className="text-sm text-purple-800 dark:text-purple-200 mb-4">
-              If you can't find what you're looking for in these guides, here are additional resources:
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ul className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Check the FAQ section for common questions
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Review your business settings for configuration issues
-                </li>
-              </ul>
-              <ul className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Test features in a safe environment first
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Keep your admin credentials secure
-                </li>
-              </ul>
-            </div>
+          <div ref={articleRef} className="mt-4 scroll-mt-20 lg:mt-0">
+            {active ? (
+              <article className="rounded-2xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <header className="flex items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-gray-800 sm:p-6">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                      {label(active.category)}
+                    </span>
+                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                      {active.title}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                    title="Print this guide"
+                    aria-label="Print this guide"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                  </button>
+                </header>
+                <div className="p-5 sm:p-6">
+                  <MarkdownRenderer content={active.content} />
+                </div>
+              </article>
+            ) : (
+              <div className="rounded-2xl border border-gray-200/80 bg-white p-10 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <p className="font-medium text-gray-900 dark:text-white">Select a guide</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Pick a topic from the list to read it here.
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Still stuck */}
+      <section className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white">Still stuck?</h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Most problems are quick to check from here.
+        </p>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[
+            { href: "/admin/test-email", title: "Emails not arriving", text: "Run the email check" },
+            { href: "/admin/settings", title: "Something looks wrong on the site", text: "Review your settings" },
+            { href: "/admin/profile", title: "Change your details", text: "Open your profile" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-xl border border-gray-200 px-4 py-3 transition-colors hover:border-blue-300 hover:bg-blue-50/40 dark:border-gray-800 dark:hover:border-blue-500/50 dark:hover:bg-blue-500/5"
+            >
+              <span className="block text-sm font-semibold text-gray-900 dark:text-white">{link.title}</span>
+              <span className="block text-sm text-gray-500 dark:text-gray-400">{link.text}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
-} 
+}
