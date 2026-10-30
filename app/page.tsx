@@ -16,6 +16,10 @@ import { ProfileListWithShowMore } from "@/components/ProfileListWithShowMore";
 import { SectionCoverage } from "@/components/SectionCoverage";
 import { getActiveServices } from "@/lib/services";
 import { getAvailability } from "@/lib/availability";
+import { credentialsSentence, getPublicCredentials } from "@/lib/credentials";
+import { FAQSection } from "@/components/FAQSection";
+import { ReviewsSection } from "@/components/ReviewsSection";
+import { ReviewForm } from "@/components/ReviewForm";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
   loading: () => (
@@ -25,33 +29,6 @@ const GallerySection = dynamic(() => import("@/components/GallerySection").then(
           <div className="h-6 sm:h-8 bg-gray-300 dark:bg-gray-700 rounded w-48 sm:w-64 mx-auto mb-4" />
           <div className="h-64 sm:h-80 md:h-96 bg-gray-300 dark:bg-gray-700 rounded-xl" />
         </div>
-      </div>
-    </section>
-  ),
-});
-const FAQSection = dynamic(() => import("@/components/FAQSection").then(m => m.FAQSection), {
-  loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="text-gray-600 dark:text-gray-300">Loading FAQ...</div>
-      </div>
-    </section>
-  ),
-});
-const ReviewsSection = dynamic(() => import("@/components/ReviewsSection").then(m => m.ReviewsSection), {
-  loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="text-gray-600 dark:text-gray-300">Loading reviews...</div>
-      </div>
-    </section>
-  ),
-});
-const ReviewForm = dynamic(() => import("@/components/ReviewForm").then(m => m.ReviewForm), {
-  loading: () => (
-    <section className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="text-gray-600 dark:text-gray-300">Loading review form...</div>
       </div>
     </section>
   ),
@@ -72,6 +49,7 @@ interface Area {
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
+  const credentials = credentialsSentence(await getPublicCredentials());
   const companyName = BRAND_NAME;
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk';
   
@@ -85,13 +63,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation. Gas Safe registered, fully insured.`,
+    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation.${credentials}`,
     alternates: {
       canonical: base,
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation. Gas Safe registered, fully insured.`,
+      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation.${credentials}`,
       url: base,
       type: "website",
       locale: "en_GB",
@@ -242,7 +220,7 @@ export default async function HomePage() {
         />
       )}
       {/* Hero Section */}
-      <SectionHero availability={availability} rating={rating} />
+      <SectionHero availability={availability} rating={rating} areas={areas} />
 
       {/* Services Section */}
       <section id="services">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useAreas } from "@/hooks/useAreas";
+import { useAreas, type Area } from "@/hooks/useAreas";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { AdminProfileData } from "@/components/AdminProfileData";
@@ -10,6 +10,8 @@ import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
+import { BRAND_NAME } from "@/lib/brand";
+import { FOUNDING_HREF } from "@/lib/founding";
 import type { Availability } from "@/lib/availability";
 
 const MOBILE_AREAS_LIMIT = 6;
@@ -18,11 +20,13 @@ const SKELETON_COUNT = 6;
 export function SectionHero({
   availability,
   rating,
+  areas: initialAreas,
 }: {
   availability: Availability;
   rating: { average: number; count: number } | null;
+  areas?: Area[];
 }) {
-  const { areas, loading: areasLoading } = useAreas();
+  const { areas, loading: areasLoading } = useAreas(initialAreas);
   const adminProfile = useAdminProfile();
   const { settings: adminSettings } = useAdminSettings();
   const businessPhone = adminProfile?.phone || "+44 7541777225";
@@ -205,19 +209,107 @@ export function SectionHero({
 
         {/* Main Content */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in-up [text-shadow:0_2px_20px_rgba(0,0,0,0.85)]">
-            <span className="text-white">Emergency Plumber in</span>
-            <span className="block text-blue-300 mt-1">South West London</span>
+          {/* One h1 carrying both lines: the headline is the Founding 100
+              invitation, and the keyword line above it keeps the page's
+              "emergency plumber, South West London" signal for search. */}
+          <h1 className="mb-4 animate-fade-in-up [text-shadow:0_2px_20px_rgba(0,0,0,0.85)]">
+            <span className="block text-blue-300 text-xs sm:text-sm md:text-base font-semibold tracking-[0.18em] uppercase mb-3">
+              Emergency Plumber in South West London
+            </span>
+            <span className="block text-white text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight max-w-4xl mx-auto">
+              We&apos;re looking for our first{" "}
+              <span className="text-blue-300">100 founding members</span>
+            </span>
           </h1>
 
           <p
-            className="text-sm sm:text-base md:text-lg lg:text-xl text-white font-medium mb-4 animate-fade-in-up max-w-3xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
+            className="text-base sm:text-lg md:text-xl text-white font-medium mb-5 animate-fade-in-up max-w-2xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
             style={{ animationDelay: "0.2s" }}
           >
-            Leaks, burst pipes &amp; blockages fixed today — {responseTimeShort} response across Clapham, Balham, Chelsea, Battersea &amp; Wandsworth
+            Be one of 100 local homeowners building a trusted, long-term relationship with {BRAND_NAME}.
           </p>
+
+          <ul
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-7 animate-fade-in-up"
+            style={{ animationDelay: "0.3s" }}
+          >
+            {["Exclusive member rates", "Priority booking", "Cancel anytime"].map((benefit) => (
+              <li
+                key={benefit}
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md px-3.5 py-1.5 text-sm font-medium text-white"
+              >
+                <svg className="w-4 h-4 text-blue-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} />
+                </svg>
+                {benefit}
+              </li>
+            ))}
+          </ul>
+
+          <div className="animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+            <Link
+              href={FOUNDING_HREF}
+              className="group inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white px-8 sm:px-12 py-4 sm:py-5 text-lg sm:text-xl font-extrabold tracking-wide uppercase shadow-xl shadow-blue-600/40 ring-1 ring-white/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
+            >
+              Be one of the 100
+              <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 7l5 5m0 0l-5 5m5-5H6" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} />
+              </svg>
+            </Link>
+          </div>
         </div>
 
+        {/* Standard plumbing stays one tap away for anyone who just needs a
+            repair — the programme invitation must not cost those enquiries. */}
+        <p
+          className="text-center text-sm sm:text-base text-white/90 font-medium mb-3 max-w-3xl mx-auto animate-fade-in-up [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
+          style={{ animationDelay: "0.5s" }}
+        >
+          Just need a plumber? Leaks, burst pipes &amp; blockages fixed today — {responseTimeShort} response across Clapham, Balham, Chelsea, Battersea &amp; Wandsworth
+        </p>
+
+        {/* CTA Buttons */}
+        <div
+          className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center items-stretch sm:items-center w-full max-w-4xl mx-auto mb-8 animate-fade-in-up"
+          style={{ animationDelay: "0.6s" }}
+        >
+          <a
+            className="group bg-red-600 hover:bg-red-500 text-white px-7 py-4 rounded-lg text-lg font-bold whitespace-nowrap transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
+            href={`tel:${businessPhone}`}
+            onClick={() => trackPhoneCall("hero_primary")}
+            aria-label={`Call now ${displayPhone}`}
+          >
+            <svg
+              className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+            </svg>
+            {displayPhone}
+          </a>
+          <a
+            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .getElementById("contact")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+            </svg>
+            Book Online
+          </a>
+          <ButtonWhatsApp
+            variant="solid"
+            label="WhatsApp"
+            source="hero_whatsapp"
+            className="w-full sm:w-auto px-5 py-4 rounded-lg text-base font-semibold whitespace-nowrap"
+          />
+        </div>
         {/* Areas We Cover */}
         <div
           className="w-full mb-8 flex flex-col items-center justify-center animate-fade-in-up"
@@ -248,7 +340,7 @@ export function SectionHero({
           {/* Grid rather than wrap: with a wrapping flex row the last area was
               left stranded alone on its own line. */}
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 max-w-3xl mx-auto w-full">
-            {!mounted || areasLoading
+            {areasLoading
               ? Array.from({ length: SKELETON_COUNT }).map((_, index) => (
                   <div
                     key={index}
@@ -301,48 +393,6 @@ export function SectionHero({
           </div>
         </div>
 
-        {/* CTA Buttons */}
-        <div
-          className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center items-stretch sm:items-center w-full max-w-4xl mx-auto animate-fade-in-up"
-          style={{ animationDelay: "0.6s" }}
-        >
-          <a
-            className="group bg-red-600 hover:bg-red-500 text-white px-7 py-4 rounded-lg text-lg font-bold whitespace-nowrap transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-xl inline-flex items-center justify-center w-full sm:w-auto"
-            href={`tel:${businessPhone}`}
-            onClick={() => trackPhoneCall("hero_primary")}
-            aria-label={`Call now ${displayPhone}`}
-          >
-            <svg
-              className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-            </svg>
-            {displayPhone}
-          </a>
-          <a
-            className="bg-white/10 backdrop-blur-md hover:bg-white/15 text-white px-5 py-4 rounded-lg text-base font-medium whitespace-nowrap transition-all duration-300 border border-white/20 inline-flex items-center justify-center w-full sm:w-auto"
-            href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-            </svg>
-            Book Online
-          </a>
-          <ButtonWhatsApp
-            variant="solid"
-            label="WhatsApp"
-            source="hero_whatsapp"
-            className="w-full sm:w-auto px-5 py-4 rounded-lg text-base font-semibold whitespace-nowrap"
-          />
-        </div>
       </div>
     </section>
   );

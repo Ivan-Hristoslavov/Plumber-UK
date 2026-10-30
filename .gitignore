@@ -58,3 +58,6 @@ temp/
 
 # Editor/scratch backups
 *.backup
+
+# Live database snapshots hold customer data — keep them out of git
+/backups/full_backup_*.json

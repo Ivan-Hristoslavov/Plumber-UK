@@ -10,10 +10,12 @@ import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
 import { ButtonWhatsApp } from "./ButtonWhatsApp";
 import { BRAND_NAME } from "@/lib/brand";
+import { FOUNDING_HREF } from "@/lib/founding";
 import { SHOW_NAVBAR_ACTIONS } from "@/lib/feature-flags";
 
 const navigation = [
   { name: "Home", href: "#home" },
+  { name: "Founding 100", href: FOUNDING_HREF },
   {
     name: "Services",
     href: "#services",
@@ -216,7 +218,13 @@ export default function NavigationNavbar() {
     return item.dropdown.some((sub: any) => activeSection === sub.href.substring(1));
   };
 
-  const isLinkActive = (href: string) => activeSection === href.substring(1);
+  // Page links (/founding-100) are active on their own page; section links
+  // (#services) only mean something on the homepage, so Home no longer lights
+  // up while you are reading another page.
+  const isLinkActive = (href: string) =>
+    href.startsWith("/")
+      ? pathname === href || pathname.startsWith(`${href}/`)
+      : pathname === "/" && activeSection === href.substring(1);
 
   if (shouldHideNavigation) return null;
 

@@ -2,9 +2,26 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "plumbe-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "next",
+        "dev",
+        "--turbopack",
+        "-p",
+        "3112"
+      ],
+      "port": 3112
+    },
+    {
       "name": "plumbe-prod",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "start", "-p", "3111"],
+      "runtimeArgs": [
+        "next",
+        "start",
+        "-p",
+        "3111"
+      ],
       "port": 3111
     }
   ]

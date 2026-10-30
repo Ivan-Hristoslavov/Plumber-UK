@@ -33,6 +33,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     servicePages = []
   }
 
+  // 🤝 FOUNDING 100 - the membership programme page
+  const membershipPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/founding-100`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+  ]
+
   // 🗂️ HUB PAGES - index pages that gather the area and service children
   const hubPages: MetadataRoute.Sitemap = [
     {
@@ -109,6 +119,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...corePages,           // Priority 1.0 - Homepage with all SPA content
     ...hubPages,            // Priority 0.8 - /services and /areas index pages
+    ...membershipPages,     // Priority 0.8 - /founding-100
     ...serviceAreaPages,    // Priority 0.9 - One landing page per covered area
     ...servicePages,        // Priority 0.9 - One landing page per service
     ...legalPages,          // Priority 0.3 - Privacy & Terms pages only

@@ -193,3 +193,124 @@ export function generateInvoiceEmailHtml(invoice: any, paymentLink: string | nul
     footerNote: `Questions about this invoice? Get in touch:\n${invoice.company_name}${invoice.company_phone ? `\n${invoice.company_phone}` : ""}${invoice.company_email ? `\n${invoice.company_email}` : ""}${invoice.company_address ? `\n${invoice.company_address}` : ""}`,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Founding 100 membership
+// ---------------------------------------------------------------------------
+
+export interface MembershipEmailInput {
+  id: string;
+  plan: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  postcode: string;
+  monthly_price: number | string;
+  labour_rate: number | string;
+  marketing_opt_in?: boolean;
+  created_at?: string;
+}
+
+const planLabel = (plan: string) => plan.charAt(0).toUpperCase() + plan.slice(1);
+
+// The "new application" alert the plumber receives.
+export function buildMembershipAlertEmail(m: MembershipEmailInput) {
+  const price = `£${Number(m.monthly_price).toFixed(2)} / month`;
+  const base = siteUrl();
+
+  const content = {
+    preheader: `${planLabel(m.plan)} · ${m.postcode} · ${m.phone}`,
+    eyebrow: "Founding 100",
+    title: `${m.full_name} wants to join`,
+    intro:
+      "Someone has applied for a Founding 100 place through the website. Nothing has been charged. Check the details and accept or decline the application in the admin panel.",
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: price },
+      },
+      {
+        type: "rows" as const,
+        title: "Applicant",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Phone", value: m.phone, href: `tel:${m.phone}` },
+          { label: "Email", value: m.email, href: `mailto:${m.email}` },
+          {
+            label: "Address",
+            value: `${m.address}, ${m.postcode}`,
+            href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${m.address}, ${m.postcode}`)}`,
+          },
+          { label: "Marketing emails", value: m.marketing_opt_in ? "Yes, opted in" : "No" },
+        ],
+      },
+      {
+        type: "rows" as const,
+        rows: [
+          { label: "Application ref", value: String(m.id) },
+          { label: "Received", value: formatLondonDateTime(m.created_at || new Date()) },
+        ],
+      },
+    ],
+    buttons: [
+      { label: `Call ${m.full_name.split(" ")[0]}`, url: `tel:${m.phone}`, tone: "success" as const },
+      { label: "Open in admin", url: `${base}/admin/memberships`, tone: "brand" as const },
+    ],
+    footerNote: "This is an automatic alert from the FixMyLeak membership system.",
+  };
+
+  return {
+    subject: `New Founding 100 application: ${m.full_name} · ${planLabel(m.plan)}`,
+    ...renderEmail(content),
+  };
+}
+
+// The acknowledgement the applicant receives. It must not read as acceptance:
+// the terms say a place is only confirmed in writing after review.
+export function buildMembershipReceivedEmail(m: MembershipEmailInput, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `We have your ${planLabel(m.plan)} application and will confirm your place in writing`,
+    eyebrow: "Founding 100",
+    title: "We have your application",
+    intro: `Hi ${first},\n\nThank you for applying to be one of our first 100 founding members. We will review your application and confirm your place in writing, with your start date and how payment works.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Your details",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Address", value: `${m.address}, ${m.postcode}` },
+          { label: "Phone", value: m.phone },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "What happens next",
+        text: "Nothing has been charged. Your membership starts only once we have accepted your application and your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [{ label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "brand" as const }],
+    footerNote: `You are receiving this because you applied for a ${company} Founding 100 membership.`,
+  };
+
+  return {
+    subject: `We have your ${company} Founding 100 application`,
+    ...renderEmail(content),
+  };
+}
+
