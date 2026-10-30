@@ -2,14 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { BRAND_NAME } from "@/lib/brand";
 import { buildMembershipAlertEmail, buildMembershipReceivedEmail } from "@/lib/email-builders";
-import {
-  FOUNDING_LIMIT,
-  FOUNDING_TERMS_VERSION,
-  getFoundingPlan,
-} from "@/lib/founding";
+import { FOUNDING_TERMS_VERSION, findFoundingPlan } from "@/lib/founding";
 import {
   PLACE_TAKING_STATUSES,
   createMembershipsClient,
+  getFoundingConfig,
 } from "@/lib/founding-server";
 import { rateLimit } from "@/lib/rate-limit";
 import { getAdminRecipient, sendEmail } from "@/lib/sendgrid";
@@ -48,7 +45,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  const plan = getFoundingPlan(text(body.plan, 20));
+  // Plans, prices and the limit come from the saved configuration on the
+  // server, never from what the browser says.
+  const config = await getFoundingConfig();
+  if (!config.applicationsOpen) {
+    return NextResponse.json(
+      { error: "We are not taking new applications right now. Please check back soon or call us.", closed: true },
+      { status: 409 },
+    );
+  }
+
+  const plan = findFoundingPlan(config.plans, text(body.plan, 20));
   if (!plan) {
     return NextResponse.json({ error: "Please choose a plan." }, { status: 400 });
   }
@@ -105,9 +112,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (count >= FOUNDING_LIMIT) {
+  if (count >= config.limit) {
     return NextResponse.json(
-      { error: `All ${FOUNDING_LIMIT} founding places have been taken.`, full: true },
+      { error: `All ${config.limit} founding places have been taken.`, full: true },
       { status: 409 },
     );
   }

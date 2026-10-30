@@ -1,6 +1,7 @@
 import {
   formatClock,
   formatLondonDateTime,
+  formatLongDate,
   formatShortDate,
   renderEmail,
   renderEmailHtml,
@@ -310,6 +311,84 @@ export function buildMembershipReceivedEmail(m: MembershipEmailInput, company: s
 
   return {
     subject: `We have your ${company} Founding 100 application`,
+    ...renderEmail(content),
+  };
+}
+
+// Sent when the plumber accepts an application. This is the written acceptance
+// the terms promise: plan, monthly price, property and start date. It does not
+// say benefits have started — the terms start them at the first payment.
+export function buildMembershipAcceptedEmail(
+  m: MembershipEmailInput & { started_at?: string | null },
+  company: string,
+) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `Your ${planLabel(m.plan)} membership is accepted`,
+    eyebrow: "Founding membership",
+    title: "Your place is confirmed",
+    intro: `Hi ${first},\n\nGood news: we have accepted your Founding membership application. Here is what we agreed, so you have it in writing.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Your membership",
+        rows: [
+          { label: "Property", value: `${m.address}, ${m.postcode}` },
+          ...(m.started_at ? [{ label: "Start date", value: formatLongDate(m.started_at) }] : []),
+          { label: "Name", value: m.full_name },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "Payment and when benefits start",
+        text: "We will be in touch to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [{ label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "brand" as const }],
+    footerNote: `You are receiving this because your ${company} Founding membership application was accepted.`,
+  };
+
+  return {
+    subject: `Your ${company} membership is confirmed`,
+    ...renderEmail(content),
+  };
+}
+
+// Sent when an application is declined. Kept short and kind, and it points to
+// the one thing that is still open to them: booking a job as normal.
+export function buildMembershipDeclinedEmail(m: MembershipEmailInput, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+
+  const content = {
+    brandName: company,
+    preheader: "An update on your membership application",
+    eyebrow: "Founding membership",
+    title: "About your application",
+    intro: `Hi ${first},\n\nThank you for applying to be a ${company} founding member. We are sorry, but we are not able to offer you a place at the moment. Places are limited and depend on capacity and our service area.`,
+    blocks: [
+      {
+        type: "note" as const,
+        title: "You can still book us",
+        text: "Membership is optional. You are welcome to book a plumbing job with us at our standard rates at any time.",
+      },
+    ],
+    buttons: [{ label: `Visit ${company}`, url: base, tone: "brand" as const }],
+    footerNote: `You are receiving this because you applied for a ${company} Founding membership.`,
+  };
+
+  return {
+    subject: `Your ${company} membership application`,
     ...renderEmail(content),
   };
 }

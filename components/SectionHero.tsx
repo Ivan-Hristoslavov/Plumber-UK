@@ -11,7 +11,7 @@ import { responseTimeMinutes } from "@/lib/response-time";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 import { BRAND_NAME } from "@/lib/brand";
-import { FOUNDING_HREF } from "@/lib/founding";
+import { FOUNDING_HREF, FOUNDING_LIMIT } from "@/lib/founding";
 import type { Availability } from "@/lib/availability";
 
 const MOBILE_AREAS_LIMIT = 6;
@@ -21,10 +21,13 @@ export function SectionHero({
   availability,
   rating,
   areas: initialAreas,
+  foundingLimit = FOUNDING_LIMIT,
 }: {
   availability: Availability;
   rating: { average: number; count: number } | null;
   areas?: Area[];
+  /** Number of founding places, from the admin's Founding 100 settings. */
+  foundingLimit?: number;
 }) {
   const { areas, loading: areasLoading } = useAreas(initialAreas);
   const adminProfile = useAdminProfile();
@@ -218,7 +221,7 @@ export function SectionHero({
             </span>
             <span className="block text-white text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight max-w-4xl mx-auto">
               We&apos;re looking for our first{" "}
-              <span className="text-blue-300">100 founding members</span>
+              <span className="text-blue-300">{foundingLimit} founding members</span>
             </span>
           </h1>
 
@@ -226,7 +229,7 @@ export function SectionHero({
             className="text-base sm:text-lg md:text-xl text-white font-medium mb-5 animate-fade-in-up max-w-2xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
             style={{ animationDelay: "0.2s" }}
           >
-            Be one of 100 local homeowners building a trusted, long-term relationship with {BRAND_NAME}.
+            Be one of {foundingLimit} local homeowners building a trusted, long-term relationship with {BRAND_NAME}.
           </p>
 
           <ul
@@ -251,7 +254,7 @@ export function SectionHero({
               href={FOUNDING_HREF}
               className="group inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white px-8 sm:px-12 py-4 sm:py-5 text-lg sm:text-xl font-extrabold tracking-wide uppercase shadow-xl shadow-blue-600/40 ring-1 ring-white/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl"
             >
-              Be one of the 100
+              Be one of the {foundingLimit}
               <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M13 7l5 5m0 0l-5 5m5-5H6" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} />
               </svg>

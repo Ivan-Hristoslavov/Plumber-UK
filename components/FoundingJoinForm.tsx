@@ -6,12 +6,13 @@ import { useState } from "react";
 import { BRAND_NAME } from "@/lib/brand";
 import {
   FOUNDING_HREF,
-  FOUNDING_PLANS,
   FOUNDING_SHARED_BENEFITS,
   FOUNDING_TERMS_VERSION,
-  formatPlanPrice,
-  getFoundingPlan,
+  type FoundingPlan,
   type FoundingPlanId,
+  findFoundingPlan,
+  formatPlanPrice,
+  formatRate,
 } from "@/lib/founding";
 
 const FIELD =
@@ -20,13 +21,13 @@ const LABEL = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5
 
 type Status = "idle" | "submitting" | "done";
 
-export default function FoundingJoinForm({ initialPlan }: { initialPlan: FoundingPlanId }) {
+export default function FoundingJoinForm({ plans, initialPlan }: { plans: FoundingPlan[]; initialPlan: FoundingPlanId }) {
   const [plan, setPlan] = useState<FoundingPlanId>(initialPlan);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState("");
 
-  const selected = getFoundingPlan(plan)!;
+  const selected = findFoundingPlan(plans, plan)!;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,7 +107,7 @@ export default function FoundingJoinForm({ initialPlan }: { initialPlan: Foundin
             <span className="text-lg font-semibold text-gray-900 dark:text-white">Your plan</span>
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {FOUNDING_PLANS.map((option) => (
+            {plans.map((option) => (
               <label
                 key={option.id}
                 className={`relative rounded-2xl border-2 p-4 transition ${
@@ -129,7 +130,7 @@ export default function FoundingJoinForm({ initialPlan }: { initialPlan: Foundin
                 <span className="block text-base font-bold text-gray-900 dark:text-white">{option.name}</span>
                 <span className="block text-sm text-gray-600 dark:text-gray-300">{formatPlanPrice(option.price)} / month</span>
                 <span className="mt-1 block text-xs font-semibold text-blue-600 dark:text-blue-400">
-                  £{option.labourRate}/hour{option.rateApplies ? ` ${option.rateApplies}` : ""}
+                  {formatRate(option.labourRate)}/hour{option.rateApplies ? ` ${option.rateApplies}` : ""}
                 </span>
                 {option.comingSoon && (
                   <span className="mt-2 inline-block rounded-full bg-amber-100 dark:bg-amber-900/50 px-2 py-0.5 text-[11px] font-bold uppercase text-amber-800 dark:text-amber-200">
@@ -247,7 +248,7 @@ export default function FoundingJoinForm({ initialPlan }: { initialPlan: Foundin
           {formatPlanPrice(selected.price)} <span className="text-base font-medium text-gray-500 dark:text-gray-400">/ month</span>
         </p>
         <p className="mt-1 mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400">
-          £{selected.labourRate} per hour {selected.rateApplies ?? "member labour rate"}
+          {formatRate(selected.labourRate)} per hour {selected.rateApplies ?? "member labour rate"}
         </p>
         <ul className="space-y-2.5 text-sm text-gray-700 dark:text-gray-300">
           {[...selected.features, ...FOUNDING_SHARED_BENEFITS].map((line) => (

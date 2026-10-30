@@ -4,13 +4,13 @@ import Link from "next/link";
 import { BRAND_NAME } from "@/lib/brand";
 import {
   FOUNDING_HREF,
-  FOUNDING_LIMIT,
-  FOUNDING_PLANS,
   FOUNDING_SHARED_BENEFITS,
+  type FoundingPlan,
   formatPlanPrice,
+  formatRate,
   joinHref,
 } from "@/lib/founding";
-import { getFoundingPlaces } from "@/lib/founding-server";
+import { getFoundingConfig, getFoundingPlaces } from "@/lib/founding-server";
 
 // The places counter is read from the database, so refresh it every minute
 // rather than baking in whatever it was at build time.
@@ -19,8 +19,10 @@ export const revalidate = 60;
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const config = await getFoundingConfig();
+  const lowest = Math.min(...config.plans.filter((p) => !p.comingSoon).map((p) => p.price), ...config.plans.map((p) => p.price));
   const title = "Founding 100 Membership";
-  const description = `Join the first ${FOUNDING_LIMIT} local homeowners with ${BRAND_NAME}: member labour rates, priority booking and plumbing advice from £6.99 a month. Cancel anytime.`;
+  const description = `Join the first ${config.limit} local homeowners with ${BRAND_NAME}: member labour rates, priority booking and plumbing advice from ${formatPlanPrice(lowest)} a month. Cancel anytime.`;
 
   return {
     title,
@@ -38,10 +40,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const BENEFITS = [
+/** "£65 on Essential, £50 on Priority and £50 on Premium" from the live rates. */
+function describeRates(plans: FoundingPlan[]): string {
+  const parts = plans.map((plan) => `${formatRate(plan.labourRate)} on ${plan.name}`);
+  return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}` : parts.join("");
+}
+
+const buildBenefits = (plans: FoundingPlan[]) => [
   {
     title: "Member labour rates",
-    body: "A lower hourly rate on every job: £65 on Essential, £50 on Priority and Premium.",
+    body: `A lower hourly rate on every job: ${describeRates(plans)}.`,
     icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
   },
   {
@@ -83,7 +91,7 @@ const FINE_PRINT = [
   "Premium's included repairs start after 90 days of paid membership and are limited, with exclusions such as hidden leaks, drainage blockages, gas and electrical work.",
 ];
 
-const FAQ = [
+const buildFaq = (limit: number) => [
   {
     q: "Can I cancel?",
     a: "Yes, at any time and with no cancellation fee. There is no minimum term. Your benefits normally continue until the end of the period you have already paid for.",
@@ -98,7 +106,7 @@ const FAQ = [
   },
   {
     q: "Is my place guaranteed?",
-    a: `Places are offered to the first ${FOUNDING_LIMIT} accepted applicants. We confirm acceptance in writing, and may decline an application only for fair reasons such as capacity or location.`,
+    a: `Places are offered to the first ${limit} accepted applicants. We confirm acceptance in writing, and may decline an application only for fair reasons such as capacity or location.`,
   },
   {
     q: "I only need a plumber once. Can I still book?",
@@ -121,8 +129,13 @@ function Check({ className = "" }: { className?: string }) {
 }
 
 export default async function FoundingPage() {
-  const places = await getFoundingPlaces();
+  const config = await getFoundingConfig();
+  const places = await getFoundingPlaces(config.limit);
   const full = places !== null && places.remaining === 0;
+  const closed = !config.applicationsOpen;
+  const { limit, plans } = config;
+  const benefits = buildBenefits(plans);
+  const faq = buildFaq(limit);
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -150,14 +163,14 @@ export default async function FoundingPage() {
           </nav>
 
           <p className="inline-flex items-center rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-[0.15em] uppercase text-blue-100 mb-5">
-            {BRAND_NAME} Founding {FOUNDING_LIMIT}
+            {BRAND_NAME} Founding {limit}
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.08] tracking-tight mb-5">
             Be one of our first{" "}
-            <span className="text-blue-300">{FOUNDING_LIMIT} founding members</span>
+            <span className="text-blue-300">{limit} founding members</span>
           </h1>
           <p className="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-            We are inviting {FOUNDING_LIMIT} local homeowners to build a trusted, long-term
+            We are inviting {limit} local homeowners to build a trusted, long-term
             relationship with {BRAND_NAME}, with member rates and first pick of our diary.
           </p>
 
@@ -186,12 +199,12 @@ export default async function FoundingPage() {
       {/* Why */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Why a Founding {FOUNDING_LIMIT}?
+          Why a Founding {limit}?
         </h2>
         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
           {BRAND_NAME} is a local plumbing business. We would rather look after a small
           group of homeowners well than only ever meet people on their worst day. So we are
-          opening {FOUNDING_LIMIT} founding places for households who want a plumber they
+          opening {limit} founding places for households who want a plumber they
           know and trust. In return you get better rates and first call on our diary.
         </p>
       </section>
@@ -200,7 +213,7 @@ export default async function FoundingPage() {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
         <h2 className="sr-only">What members get</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {BENEFITS.map((benefit) => (
+          {benefits.map((benefit) => (
             <div
               key={benefit.title}
               className="rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6"
@@ -230,7 +243,7 @@ export default async function FoundingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-            {FOUNDING_PLANS.map((plan) => (
+            {plans.map((plan) => (
               <div
                 key={plan.id}
                 className={`relative flex flex-col rounded-3xl bg-white dark:bg-gray-800 p-7 sm:p-8 ${
@@ -255,7 +268,7 @@ export default async function FoundingPage() {
                   <span className="text-base font-medium text-gray-500 dark:text-gray-400">/ month</span>
                 </div>
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-6">
-                  £{plan.labourRate} per hour {plan.rateApplies ?? "member labour rate"}
+                  {formatRate(plan.labourRate)} per hour {plan.rateApplies ?? "member labour rate"}
                 </p>
 
                 <ul className="space-y-3 mb-7 flex-1">
@@ -273,12 +286,12 @@ export default async function FoundingPage() {
                   ))}
                 </ul>
 
-                {full ? (
+                {full || closed ? (
                   <span
                     aria-disabled="true"
                     className="block w-full text-center rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-6 py-3.5 text-sm font-extrabold uppercase tracking-wide cursor-not-allowed"
                   >
-                    All places taken
+                    {closed ? "Applications closed" : "All places taken"}
                   </span>
                 ) : plan.comingSoon ? (
                   <span
@@ -348,7 +361,7 @@ export default async function FoundingPage() {
           Questions
         </h2>
         <div className="space-y-3">
-          {FAQ.map((item) => (
+          {faq.map((item) => (
             <details
               key={item.q}
               className="group rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 open:shadow-sm"
@@ -369,7 +382,7 @@ export default async function FoundingPage() {
       <section className="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-950 py-12 sm:py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            Ready to be one of the {FOUNDING_LIMIT}?
+            Ready to be one of the {limit}?
           </h2>
           <p className="text-blue-100 mb-7">
             Pick a plan, read the terms and tell us about your home. It takes a couple of minutes.

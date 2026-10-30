@@ -6,12 +6,12 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { BRAND_NAME } from "@/lib/brand";
 import {
   FOUNDING_HREF,
-  FOUNDING_LIMIT,
-  FOUNDING_PLANS,
-  FOUNDING_TERMS_DETAILS,
+  findFoundingPlan,
   formatPlanPrice,
+  formatRate,
   unresolvedTermsDetails,
 } from "@/lib/founding";
+import { getFoundingConfig } from "@/lib/founding-server";
 import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 300;
@@ -19,13 +19,14 @@ export const revalidate = 300;
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const config = await getFoundingConfig();
   const title = "Founding 100 Membership Terms & Conditions";
   return {
     title,
     description: `The terms of the ${BRAND_NAME} Founding 100 membership: fees, member labour rates, priority booking, cancellation and your statutory rights.`,
     alternates: { canonical: `${BASE}${FOUNDING_HREF}/terms` },
     // Stay out of search results until every detail has been filled in.
-    robots: { index: unresolvedTermsDetails().length === 0, follow: true },
+    robots: { index: unresolvedTermsDetails(config).length === 0, follow: true },
   };
 }
 
@@ -86,9 +87,15 @@ function Clause({ n, title, children }: { n: number; title: string; children: Re
 }
 
 export default async function FoundingTermsPage() {
-  const d = await getTermsDetails();
-  const unresolved = unresolvedTermsDetails();
-  const { rateHours, supportHours } = FOUNDING_TERMS_DETAILS;
+  const [d, config] = await Promise.all([getTermsDetails(), getFoundingConfig()]);
+  const unresolved = unresolvedTermsDetails(config);
+  const { rateHours, supportHours, limit, plans } = config;
+  // The clauses quote the live prices and rates, so editing them in the admin
+  // can never leave the terms saying something different from the plans page.
+  const essential = findFoundingPlan(plans, "essential")!;
+  const priority = findFoundingPlan(plans, "priority")!;
+  const premium = findFoundingPlan(plans, "premium")!;
+  const feeList = plans.map((plan) => formatPlanPrice(plan.price));
 
   const contact = [
     d.email && `email ${d.email}`,
@@ -108,7 +115,7 @@ export default async function FoundingTermsPage() {
             <span className="text-white font-medium">Terms</span>
           </nav>
           <p className="text-xs sm:text-sm font-semibold tracking-[0.15em] uppercase text-blue-200 mb-2">
-            {BRAND_NAME} Founding {FOUNDING_LIMIT}
+            {BRAND_NAME} Founding {limit}
           </p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Membership Terms &amp; Conditions</h1>
           <p className="text-blue-200 text-sm">Version dated 29 October 2026</p>
@@ -126,7 +133,7 @@ export default async function FoundingTermsPage() {
         <section className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">At a glance</h2>
           <p className="text-[15px] leading-relaxed text-gray-700 dark:text-gray-300 mb-4">
-            Join the first {FOUNDING_LIMIT} local {BRAND_NAME} members for preferential plumbing labour rates,
+            Join the first {limit} local {BRAND_NAME} members for preferential plumbing labour rates,
             access to telephone/WhatsApp advice and priority booking subject to availability. Membership is
             optional and can be cancelled at any time without a cancellation fee. Materials and parking are
             charged separately. The Premium repair benefit is conditional and limited, as explained below.
@@ -142,11 +149,11 @@ export default async function FoundingTermsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
-                {FOUNDING_PLANS.map((plan) => (
+                {plans.map((plan) => (
                   <tr key={plan.id} className="odd:bg-white even:bg-blue-50/60 dark:odd:bg-gray-800 dark:even:bg-gray-700/40">
                     <td className="px-3 py-2.5 font-semibold text-gray-900 dark:text-white">{plan.name}</td>
                     <td className="px-3 py-2.5">{formatPlanPrice(plan.price)}</td>
-                    <td className="px-3 py-2.5">£{plan.labourRate}/hour{plan.rateApplies ? ` ${plan.rateApplies}` : ""}</td>
+                    <td className="px-3 py-2.5">{formatRate(plan.labourRate)}/hour{plan.rateApplies ? ` ${plan.rateApplies}` : ""}</td>
                     <td className="px-3 py-2.5">
                       {plan.id === "premium"
                         ? "Up to 2 eligible minor repairs, max 30 min labour each, subject to a 90-day wait and conditions"
@@ -176,8 +183,8 @@ export default async function FoundingTermsPage() {
 
         <Clause n={2} title="Enrolment, eligibility and availability">
           <p>
-            Membership is offered to the first {FOUNDING_LIMIT} accepted applicants, subject to capacity and
-            service-area eligibility. The &ldquo;Founding {FOUNDING_LIMIT}&rdquo; limit describes available membership
+            Membership is offered to the first {limit} accepted applicants, subject to capacity and
+            service-area eligibility. The &ldquo;Founding {limit}&rdquo; limit describes available membership
             places, not a promise of permanent exclusivity or guaranteed appointment slots. We confirm
             acceptance, plan, property, monthly price, start date and payment method in writing. No benefit
             starts until acceptance and the first successful payment, except where the law requires otherwise.
@@ -188,7 +195,7 @@ export default async function FoundingTermsPage() {
 
         <Clause n={3} title="Monthly fees and payment">
           <p>
-            Membership fees are £6.99, £10.00 or £18.00 per month, as selected, inclusive of VAT where applicable
+            Membership fees are {feeList.slice(0, -1).join(", ")} or {feeList[feeList.length - 1]} per month, as selected, inclusive of VAT where applicable
             {d.vatRegistered ? "." : <>. {d.legalName} is not currently VAT registered, so no VAT is added.</>}
             {" "}Payment is collected monthly by the agreed method, expected to be GoCardless Direct Debit. We
             will explain the payment schedule and provide applicable Direct Debit Guarantee information. If
@@ -200,8 +207,9 @@ export default async function FoundingTermsPage() {
 
         <Clause n={4} title="Member labour rates and billing">
           <p>
-            Essential members pay £65 per hour of eligible labour; Priority members pay £50 per hour; Premium
-            members pay £50 per hour for work not included in their limited minor-repair benefit. These rates
+            Essential members pay {formatRate(essential.labourRate)} per hour of eligible labour; Priority members
+            pay {formatRate(priority.labourRate)} per hour; Premium members pay {formatRate(premium.labourRate)} per
+            hour for work not included in their limited minor-repair benefit. These rates
             apply during standard working hours{" "}
             {rateHours ? `(${rateHours})` : <Tbc>rate hours</Tbc>} within the agreed service area, subject to
             availability. Until any minimum charge, time rounding, travel or call-out time charge, or out-of-hours
@@ -255,7 +263,7 @@ export default async function FoundingTermsPage() {
             appliance repairs; gas work; major pipework replacement; electrical work; damage caused by misuse or
             neglect; and any work requiring specialist access, extra labour or multiple trades. Exclusions do not
             remove your statutory rights. If a job exceeds 30 minutes, the first eligible 30 minutes are
-            included and further approved labour is charged at £50/hour, subject to the disclosed billing rules.
+            included and further approved labour is charged at {formatRate(premium.labourRate)}/hour, subject to the disclosed billing rules.
             We may refuse unsafe work and explain why.
           </p>
         </Clause>
@@ -312,7 +320,7 @@ export default async function FoundingTermsPage() {
             period. For future periods, we will provide at least 30 days&rsquo; clear advance notice of any proposed
             price or material benefit change, explain the reason and give you an easy, penalty-free way to cancel
             before the change takes effect. Changes cannot override statutory rights. Any special Founding{" "}
-            {FOUNDING_LIMIT} price guarantee must be stated explicitly in the enrolment confirmation; none is
+            {limit} price guarantee must be stated explicitly in the enrolment confirmation; none is
             promised by these terms.
           </p>
         </Clause>
