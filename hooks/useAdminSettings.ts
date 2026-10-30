@@ -33,8 +33,8 @@ export function useAdminSettings() {
     workingHoursEnd: "18:00",
     workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
     responseTime: "45 minutes",
-    emergencyRate: "150",
-    standardRate: "75",
+    emergencyRate: "110",
+    standardRate: "80",
     mcsCertified: false,
     mcsNumber: ""
   });
@@ -81,8 +81,8 @@ export function useAdminSettings() {
           workingHoursEnd: "18:00",
           workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
           responseTime: "45 minutes",
-          emergencyRate: "150",
-          standardRate: "75",
+          emergencyRate: "110",
+          standardRate: "80",
           mcsCertified: false,
           mcsNumber: ""
         };

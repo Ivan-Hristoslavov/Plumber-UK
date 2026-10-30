@@ -224,7 +224,7 @@ export default function FooterMain() {
             </h3>
             <div className="mt-3 sm:mt-4 flex flex-col gap-2">
               {isLoading ? (
-                <span className="text-sm text-gray-400 dark:text-gray-500">Loading…</span>
+                <span className="block h-4 w-28 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" aria-hidden="true" />
               ) : serviceAreas.length > 0 ? (
                 serviceAreas.map((area) => (
                   <Link

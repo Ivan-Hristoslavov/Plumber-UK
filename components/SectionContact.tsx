@@ -38,15 +38,15 @@ export default function SectionContact() {
   // Get business data from admin profile and settings
   const businessData = {
     businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.business_email || "info@fixmyleak.com",
+    businessEmail: adminProfile?.business_email || "info@FixMyLeak.co.uk",
     businessPhone: adminProfile?.phone || "+44 7541777225",
     businessAddress: adminProfile?.company_address || "London, UK",
     responseTime:
       adminSettings?.responseTime ||
       adminProfile?.response_time ||
       "45 minutes",
-    emergencyRate: adminSettings?.emergencyRate || "150",
-    standardRate: adminSettings?.standardRate || "75",
+    emergencyRate: adminSettings?.emergencyRate || "",
+    standardRate: adminSettings?.standardRate || "",
   };
 
 
@@ -212,7 +212,9 @@ export default function SectionContact() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-bold text-sm text-gray-900 dark:text-white">Emergency 24/7</span>
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.emergencyRate}</span>
+                  {!isLoadingSettings && businessData.emergencyRate && (
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.emergencyRate}</span>
+                  )}
                 </div>
                 <span className="text-red-600 dark:text-red-400 font-semibold text-sm">{businessData.businessPhone}</span>
               </div>
@@ -231,7 +233,9 @@ export default function SectionContact() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-bold text-sm text-gray-900 dark:text-white">Regular Service</span>
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.standardRate}/hr</span>
+                  {!isLoadingSettings && businessData.standardRate && (
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.standardRate}/hr</span>
+                  )}
                 </div>
                 <span className="text-green-600 dark:text-green-400 font-semibold text-sm">{businessData.businessPhone}</span>
               </div>
@@ -302,7 +306,7 @@ export default function SectionContact() {
                     <a href={`tel:${businessData.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
                       {businessData.businessPhone}
                     </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.emergencyRate}</div>
+                    {businessData.emergencyRate && <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.emergencyRate}</div>}
                   </>
                 )}
               </div>
@@ -318,7 +322,7 @@ export default function SectionContact() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Regular Service</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{isLoadingSettings ? "Loading..." : formatWorkingHours()}</p>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{isLoadingSettings ? <span className="inline-block h-4 w-44 rounded bg-gray-200 dark:bg-gray-700 animate-pulse align-middle" aria-hidden="true" /> : formatWorkingHours()}</p>
                 {isLoadingSettings ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
@@ -329,7 +333,7 @@ export default function SectionContact() {
                     <a href={`tel:${businessData.businessPhone}`} className="text-green-600 dark:text-green-400 font-bold text-lg hover:text-green-700 dark:hover:text-green-300 transition-colors">
                       {businessData.businessPhone}
                     </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.standardRate}/hour</div>
+                    {businessData.standardRate && <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.standardRate}/hour</div>}
                   </>
                 )}
               </div>
@@ -374,7 +378,7 @@ export default function SectionContact() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Coverage Areas</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                  {isLoadingAreas ? "Loading..." : serviceAreas.length > 0 ? `${serviceAreas.length} areas` : "South West London"}
+                  {isLoadingAreas ? <span className="inline-block h-4 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse align-middle" aria-hidden="true" /> : serviceAreas.length > 0 ? `${serviceAreas.length} areas` : "South West London"}
                 </p>
                 {isLoadingAreas ? (
                   <div className="animate-pulse space-y-2">

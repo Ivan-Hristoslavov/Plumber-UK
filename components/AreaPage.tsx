@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import FormBooking from "./FormBooking";
 import { useAdminProfile } from "@/components/AdminProfileContext";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
 
@@ -17,6 +18,10 @@ interface AreaPageProps {
 
 export function AreaPage({ areaName, postcode, description, localKeywords, nearbyAreas }: AreaPageProps) {
   const profile = useAdminProfile();
+  // "Gas Safe registered" is only claimed when the admin settings say so; until
+  // they have loaded (and if they say no) the page claims nothing.
+  const { settings } = useAdminSettings();
+  const gasSafe = settings.gasSafeRegistered === true;
 
   // Get phone from database, fallback to default
   const businessPhone = profile?.phone || "+44 7541777225";
@@ -168,7 +173,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                   </svg>
                 ),
                 title: `Emergency Plumber ${areaName}`,
-                description: "24/7 emergency plumbing services with rapid response times throughout {areaName}."
+                description: `24/7 emergency plumbing services with rapid response times throughout ${areaName}.`
               },
               {
                 icon: (
@@ -177,7 +182,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                   </svg>
                 ),
                 title: `Bathroom Installations ${areaName}`,
-                description: "Complete bathroom renovations and installations for properties in {areaName}."
+                description: `Complete bathroom renovations and installations for properties in ${areaName}.`
               },
               {
                 icon: (
@@ -186,7 +191,9 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                   </svg>
                 ),
                 title: `Boiler Repair ${areaName}`,
-                description: "Gas Safe registered boiler repairs and servicing for {areaName} homes."
+                description: gasSafe
+                  ? `Gas Safe registered boiler repairs and servicing for ${areaName} homes.`
+                  : `Heating and hot water system repairs for ${areaName} homes.`
               },
               {
                 icon: (
@@ -204,7 +211,7 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                   </svg>
                 ),
                 title: `Pipe Repairs ${areaName}`,
-                description: "Professional pipe repair and replacement services throughout {areaName}."
+                description: `Professional pipe repair and replacement services throughout ${areaName}.`
               },
             ].map((service, index) => (
               <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100 dark:border-gray-700">
@@ -244,11 +251,13 @@ export function AreaPage({ areaName, postcode, description, localKeywords, nearb
                 },
                 {
                   title: "45-Minute Response",
-                  description: `Emergency callouts in ${areaName} with guaranteed response times under 45 minutes.`
+                  description: `Emergency callouts in ${areaName} with a typical response time of around 45 minutes.`
                 },
                 {
                   title: "Fully Qualified",
-                  description: "Gas Safe registered with 10+ years experience and professional qualifications."
+                  description: gasSafe
+                    ? "Gas Safe registered with 10+ years experience and professional qualifications."
+                    : "10+ years experience and professional qualifications."
                 },
                 {
                   title: "Fair Pricing",
