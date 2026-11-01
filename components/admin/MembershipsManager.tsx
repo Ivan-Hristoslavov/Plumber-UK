@@ -408,11 +408,14 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
   return (
     <label className="flex cursor-pointer items-start gap-3">
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
+      {/* State-driven, not peer-checked:, so dark mode cannot override the "on" colour. */}
       <span
-        className="mt-0.5 flex h-6 w-11 shrink-0 items-center rounded-full bg-gray-300 p-0.5 transition-colors peer-checked:bg-emerald-600 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 dark:bg-gray-600 dark:peer-focus-visible:ring-offset-gray-900 peer-checked:[&>span]:translate-x-5"
+        className={`mt-0.5 flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-gray-900 ${
+          checked ? "bg-emerald-600" : "bg-gray-300 dark:bg-gray-600"
+        }`}
         aria-hidden="true"
       >
-        <span className="h-5 w-5 rounded-full bg-white shadow transition-transform" />
+        <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : "translate-x-0"}`} />
       </span>
       <span className="min-w-0">
         <span className="block text-sm font-semibold text-gray-900 dark:text-white">{label}</span>

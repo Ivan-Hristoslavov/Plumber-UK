@@ -617,8 +617,16 @@ export default function BookingWizard() {
             }`}
           >
             <input type="checkbox" checked={isEmergency} onChange={(e) => setIsEmergency(e.target.checked)} className="peer sr-only" />
-            <span className="mt-1 flex h-6 w-11 shrink-0 items-center rounded-full bg-gray-300 dark:bg-gray-600 p-0.5 transition-colors peer-checked:bg-red-600 peer-checked:[&>span]:translate-x-5" aria-hidden="true">
-              <span className="h-5 w-5 rounded-full bg-white shadow transition-transform" />
+            {/* Colour and knob follow the state directly. They used to rely on
+                peer-checked: variants, which tie with dark: on specificity, so in
+                dark mode the track stayed grey and the knob never moved. */}
+            <span
+              className={`mt-1 flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+                isEmergency ? "bg-red-600" : "bg-gray-300 dark:bg-gray-600"
+              }`}
+              aria-hidden="true"
+            >
+              <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${isEmergency ? "translate-x-5" : "translate-x-0"}`} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
