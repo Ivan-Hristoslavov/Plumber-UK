@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../../lib/stripe";
 import { supabase } from "../../../../lib/supabase";
+import { planBillingUpdate } from "@/lib/membership-billing";
+import { applyBillingPlan } from "@/lib/membership-billing-server";
 
 // Handle OPTIONS requests (preflight)
 export async function OPTIONS(request: NextRequest) {
@@ -94,6 +96,27 @@ export async function POST(request: NextRequest) {
       created: event.created,
       livemode: event.livemode
     });
+
+    // Founding 100 membership payments are handled on their own. They are not
+    // invoice or booking payments, so they must not go through the payments
+    // handlers below. Anything that is not a membership event falls through.
+    const billing = planBillingUpdate(event);
+    if (billing) {
+      console.log('🤝 Processing membership billing event:', event.type);
+      const result = await applyBillingPlan(billing);
+      if (!result.found) {
+        // Stripe sends every event on the account; one for someone we do not know is not a failure.
+        console.warn('No membership found for billing event', event.id, billing.match);
+      } else if (billing.disablePaymentLinkId) {
+        // The link has been used; stop it starting a second subscription.
+        try {
+          await stripe.paymentLinks.update(billing.disablePaymentLinkId, { active: false });
+        } catch (disableError) {
+          console.error('Could not disable the membership payment link:', disableError);
+        }
+      }
+      return NextResponse.json({ received: true, processed: result.found, membership: result.found });
+    }
 
     switch (event.type) {
       case "checkout.session.completed":

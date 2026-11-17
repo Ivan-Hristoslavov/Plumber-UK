@@ -118,7 +118,7 @@ export default async function FoundingTermsPage() {
             {BRAND_NAME} Founding {limit}
           </p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Membership Terms &amp; Conditions</h1>
-          <p className="text-blue-200 text-sm">Version dated 29 October 2026</p>
+          <p className="text-blue-200 text-sm">Version dated 1 November 2026</p>
         </div>
       </section>
 
@@ -197,8 +197,9 @@ export default async function FoundingTermsPage() {
           <p>
             Membership fees are {feeList.slice(0, -1).join(", ")} or {feeList[feeList.length - 1]} per month, as selected, inclusive of VAT where applicable
             {d.vatRegistered ? "." : <>. {d.legalName} is not currently VAT registered, so no VAT is added.</>}
-            {" "}Payment is collected monthly by the agreed method, expected to be GoCardless Direct Debit. We
-            will explain the payment schedule and provide applicable Direct Debit Guarantee information. If
+            {" "}Payment is collected monthly through Stripe, by card or, where offered, Direct Debit. We will
+            explain the payment schedule and, where Direct Debit is used, provide the applicable Direct Debit
+            Guarantee information. If
             payment fails, we will notify you and give a reasonable opportunity to resolve it; benefits may be
             paused after notice while payment remains overdue. No undisclosed administration or collection fee
             applies.

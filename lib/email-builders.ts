@@ -321,9 +321,11 @@ export function buildMembershipReceivedEmail(m: MembershipEmailInput, company: s
 export function buildMembershipAcceptedEmail(
   m: MembershipEmailInput & { started_at?: string | null },
   company: string,
+  options: { paymentUrl?: string } = {},
 ) {
   const first = m.full_name.split(" ")[0];
   const base = siteUrl();
+  const portal = membershipPortalUrl();
 
   const content = {
     brandName: company,
@@ -351,10 +353,16 @@ export function buildMembershipAcceptedEmail(
       {
         type: "note" as const,
         title: "Payment and when benefits start",
-        text: "We will be in touch to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
+        text: options.paymentUrl
+          ? "Use the button below to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee."
+          : "We will be in touch to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
       },
     ],
-    buttons: [{ label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "brand" as const }],
+    buttons: [
+      ...(options.paymentUrl ? [{ label: "Set up your monthly payment", url: options.paymentUrl, tone: "success" as const }] : []),
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: options.paymentUrl ? ("light" as const) : ("brand" as const) },
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "light" as const }] : []),
+    ],
     footerNote: `You are receiving this because your ${company} Founding membership application was accepted.`,
   };
 
@@ -389,6 +397,52 @@ export function buildMembershipDeclinedEmail(m: MembershipEmailInput, company: s
 
   return {
     subject: `Your ${company} membership application`,
+    ...renderEmail(content),
+  };
+}
+
+/** Stripe's customer portal, where a member changes their card or cancels. Optional. */
+function membershipPortalUrl(): string | null {
+  const url = process.env.STRIPE_CUSTOMER_PORTAL_URL?.trim();
+  return url && /^https:\/\//i.test(url) ? url : null;
+}
+
+// Sent when the plumber (re)sends a member their payment link on its own.
+export function buildMembershipPaymentLinkEmail(m: MembershipEmailInput, company: string, paymentUrl: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+  const portal = membershipPortalUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `Set up your ${planLabel(m.plan)} membership payment`,
+    eyebrow: "Founding membership",
+    title: "Set up your monthly payment",
+    intro: `Hi ${first},\n\nYour ${company} membership is accepted. Use the button below to set up your monthly payment securely with Stripe.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "note" as const,
+        title: "When benefits start",
+        text: "Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [
+      { label: "Set up your monthly payment", url: paymentUrl, tone: "success" as const },
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "light" as const },
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "light" as const }] : []),
+    ],
+    footerNote: "The payment page is secure and processed by Stripe. If you have any questions, just reply to this email.",
+  };
+
+  return {
+    subject: `Set up your ${company} membership payment`,
     ...renderEmail(content),
   };
 }

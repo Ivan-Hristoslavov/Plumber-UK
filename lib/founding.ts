@@ -105,7 +105,7 @@ export function joinHref(plan: FoundingPlanId): string {
  * on /founding-100/terms changes in a way members must be told about. The price
  * and rate they agreed to are stored on the application itself.
  */
-export const FOUNDING_TERMS_VERSION = "2026-10-29-draft";
+export const FOUNDING_TERMS_VERSION = "2026-11-01-draft";
 
 // ---------------------------------------------------------------------------
 // Editable configuration

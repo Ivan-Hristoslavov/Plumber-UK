@@ -29,7 +29,20 @@ export function isMissingTableError(error: { code?: string; message?: string } |
   return (
     error.code === "PGRST205" ||
     error.code === "42P01" ||
-    /does not exist|schema cache|could not find the table/i.test(error.message ?? "")
+    /relation .* does not exist|could not find the table/i.test(error.message ?? "")
+  );
+}
+
+/**
+ * True when a query failed only because the billing migration has not been
+ * run yet (a column is missing), so callers can say so instead of erroring.
+ */
+export function isMissingColumnError(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  return (
+    error.code === "PGRST204" ||
+    error.code === "42703" ||
+    /column .* does not exist|could not find the .* column/i.test(error.message ?? "")
   );
 }
 

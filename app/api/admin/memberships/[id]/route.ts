@@ -16,6 +16,7 @@ import {
   londonToday,
   needsFreePlace,
 } from "@/lib/memberships";
+import { createAndStorePaymentLink, describePaymentLinkError } from "@/lib/membership-payment-link-server";
 import { sendEmail } from "@/lib/sendgrid";
 
 export const dynamic = "force-dynamic";
@@ -117,15 +118,32 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
+    // Accepting can also create the member's Stripe payment link. The change is
+    // already saved, so a link that cannot be made is reported, not an error.
+    let result = updated;
+    let paymentLinkUrl: string | null = null;
+    let paymentLinkError: string | null = null;
+    if (action === "approve" && body.includePaymentLink === true) {
+      try {
+        const link = await createAndStorePaymentLink(updated);
+        paymentLinkUrl = link.url;
+        const { data: fresh } = await supabase.from("memberships").select("*").eq("id", id).maybeSingle();
+        if (fresh) result = fresh;
+      } catch (error) {
+        console.error("Admin memberships: payment link failed", error);
+        paymentLinkError = describePaymentLinkError(error).message;
+      }
+    }
+
     // The change is saved; a failed email must not turn that into an error.
     let emailSent: boolean | null = null;
     if ((action === "approve" || action === "decline") && body.sendEmail === true) {
       try {
         const message =
           action === "approve"
-            ? buildMembershipAcceptedEmail(updated, BRAND_NAME)
-            : buildMembershipDeclinedEmail(updated, BRAND_NAME);
-        await sendEmail({ to: updated.email, subject: message.subject, text: message.text, html: message.html });
+            ? buildMembershipAcceptedEmail(result, BRAND_NAME, { paymentUrl: paymentLinkUrl ?? undefined })
+            : buildMembershipDeclinedEmail(result, BRAND_NAME);
+        await sendEmail({ to: result.email, subject: message.subject, text: message.text, html: message.html });
         emailSent = true;
       } catch (error) {
         console.error("Admin memberships: email to member failed", error);
@@ -133,7 +151,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    return NextResponse.json({ membership: updated, emailSent });
+    return NextResponse.json({ membership: result, emailSent, paymentLinkUrl, paymentLinkError });
   } catch (error) {
     console.error("Admin memberships: unexpected error", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

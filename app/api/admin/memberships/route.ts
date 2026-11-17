@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireAdminAuth } from "@/lib/api-auth";
 import { createMembershipsClient, getFoundingConfig, isMissingTableError } from "@/lib/founding-server";
+import { isStripeAvailable } from "@/lib/stripe";
 import { takesPlace } from "@/lib/memberships";
 
 export const dynamic = "force-dynamic";
@@ -21,17 +22,21 @@ export async function GET() {
     const supabase = createMembershipsClient();
     const config = await getFoundingConfig();
 
-    const [members, settings] = await Promise.all([
+    const [members, settings, billing] = await Promise.all([
       supabase.from("memberships").select("*").order("created_at", { ascending: false }).limit(1000),
       supabase.from("founding_settings").select("id").limit(1),
+      // Does the billing migration's column exist yet?
+      supabase.from("memberships").select("payment_status").limit(1),
     ]);
 
     const settingsReady = !settings.error;
+    const billingReady = !billing.error;
+    const stripeReady = isStripeAvailable();
 
     if (members.error) {
       if (isMissingTableError(members.error)) {
         return NextResponse.json(
-          { setupRequired: true, settingsReady, memberships: [], config, places: null },
+          { setupRequired: true, settingsReady, billingReady: false, stripeReady, memberships: [], config, places: null },
           { headers: NO_STORE },
         );
       }
@@ -46,6 +51,8 @@ export async function GET() {
       {
         setupRequired: false,
         settingsReady,
+        billingReady,
+        stripeReady,
         memberships: rows,
         config,
         places: { taken, limit: config.limit, remaining: Math.max(0, config.limit - taken) },

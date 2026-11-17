@@ -18,6 +18,7 @@ import {
   unresolvedTermsDetails,
   validateFoundingConfigInput,
 } from "@/lib/founding";
+import { PAYMENT_STATUS_LABEL, type PaymentStatus } from "@/lib/membership-billing";
 import {
   MEMBERSHIP_STATUSES,
   type MembershipAction,
@@ -45,6 +46,13 @@ type Membership = {
   started_at: string | null;
   cancelled_at: string | null;
   created_at: string;
+  // Billing columns: absent until the billing migration has been run.
+  payment_status?: PaymentStatus;
+  payment_link_url?: string | null;
+  payment_link_sent_at?: string | null;
+  first_paid_at?: string | null;
+  last_paid_at?: string | null;
+  current_period_end?: string | null;
 };
 
 type Places = { taken: number; limit: number; remaining: number };
@@ -52,6 +60,8 @@ type Places = { taken: number; limit: number; remaining: number };
 type Payload = {
   setupRequired: boolean;
   settingsReady: boolean;
+  billingReady?: boolean;
+  stripeReady?: boolean;
   memberships: Membership[];
   config: FoundingConfig;
   places: Places | null;
@@ -73,6 +83,15 @@ const PLAN_STYLE: Record<FoundingPlanId, string> = {
   essential: "bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-200",
   priority: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300",
   premium: "bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-300",
+};
+
+const PAYMENT_STYLE: Record<PaymentStatus, string> = {
+  not_started: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+  link_sent: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300",
+  processing: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
+  past_due: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
+  ended: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
 };
 
 const planName = (id: string) => FOUNDING_PLANS.find((plan) => plan.id === id)?.name ?? id;
@@ -117,6 +136,7 @@ function ActionDialog({
   places,
   busy,
   error,
+  canPaymentLink,
   onClose,
   onConfirm,
 }: {
@@ -125,11 +145,13 @@ function ActionDialog({
   busy: boolean;
   error: string | null;
   onClose: () => void;
-  onConfirm: (options: { startDate?: string; sendEmail: boolean }) => void;
+  canPaymentLink: boolean;
+  onConfirm: (options: { startDate?: string; sendEmail: boolean; includePaymentLink: boolean }) => void;
 }) {
   const { member, action } = state;
   const [startDate, setStartDate] = useState(londonToday());
   const [sendEmail, setSendEmail] = useState(true);
+  const [includeLink, setIncludeLink] = useState(canPaymentLink);
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -206,6 +228,21 @@ function ActionDialog({
           </label>
         )}
 
+        {action === "approve" && canPaymentLink && (
+          <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm text-gray-800 dark:text-gray-200">
+            <input
+              type="checkbox"
+              checked={includeLink}
+              onChange={(e) => setIncludeLink(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>
+              Create their monthly payment link (Stripe)
+              <span className="block text-xs text-gray-500 dark:text-gray-400">It goes in the email, if you send one. You can also copy it from their card.</span>
+            </span>
+          </label>
+        )}
+
         {noRoom && (
           <p role="alert" className="mt-4 rounded-xl bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
             All {places!.limit} places are taken. Raise the number of places in Settings, or pause or cancel a member first.
@@ -230,7 +267,13 @@ function ActionDialog({
             ref={confirmRef}
             type="button"
             disabled={busy || noRoom}
-            onClick={() => onConfirm({ startDate: action === "approve" ? startDate : undefined, sendEmail: emailable && sendEmail })}
+            onClick={() =>
+              onConfirm({
+                startDate: action === "approve" ? startDate : undefined,
+                sendEmail: emailable && sendEmail,
+                includePaymentLink: action === "approve" && canPaymentLink && includeLink,
+              })
+            }
             className={`h-10 rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${
               action === "decline" || action === "cancel" ? "bg-red-600 text-white hover:bg-red-500" : "bg-blue-600 text-white hover:bg-blue-500"
             }`}
@@ -244,22 +287,97 @@ function ActionDialog({
 }
 
 // ---------------------------------------------------------------------------
+// Payment link dialog
+// ---------------------------------------------------------------------------
+
+function PaymentLinkDialog({
+  member,
+  busy,
+  error,
+  onClose,
+  onConfirm,
+}: {
+  member: Membership;
+  busy: boolean;
+  error: string | null;
+  onClose: () => void;
+  onConfirm: (options: { sendEmail: boolean }) => void;
+}) {
+  const [sendEmail, setSendEmail] = useState(true);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    confirmRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && !busy && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [busy, onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center p-0 sm:p-4" role="presentation">
+      <div className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm" onClick={() => !busy && onClose()} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-labelledby="payment-link-title" className="relative w-full max-w-md rounded-t-3xl sm:rounded-3xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+        <h2 id="payment-link-title" className="text-lg font-semibold text-gray-900 dark:text-white">
+          Send {member.full_name} a payment link?
+        </h2>
+        <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-300">
+          They pay {formatPlanPrice(Number(member.monthly_price))} a month through Stripe, the fee they agreed when they applied. Their benefits start once the first payment is taken.
+        </p>
+        {member.payment_link_url && (
+          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
+            A link was already created. Making a new one switches the old one off.
+          </p>
+        )}
+        <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-sm text-gray-800 dark:text-gray-200">
+          <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+          <span>Email the link to <strong>{member.email}</strong></span>
+        </label>
+        {error && (
+          <p role="alert" className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+            {error}
+          </p>
+        )}
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button type="button" onClick={onClose} disabled={busy} className="h-10 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800">
+            Back
+          </button>
+          <button ref={confirmRef} type="button" disabled={busy} onClick={() => onConfirm({ sendEmail })} className="h-10 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
+            {busy ? "Creating…" : "Create link"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Member card
 // ---------------------------------------------------------------------------
 
 function MemberCard({
   member,
+  billingReady,
+  canPaymentLink,
   onAction,
   onSaveNotes,
+  onSendLink,
+  onCopyLink,
 }: {
   member: Membership;
+  billingReady: boolean;
+  canPaymentLink: boolean;
   onAction: (member: Membership, action: MembershipAction) => void;
   onSaveNotes: (member: Membership, notes: string) => Promise<void>;
+  onSendLink: (member: Membership) => void;
+  onCopyLink: (url: string) => void;
 }) {
   const [notes, setNotes] = useState(member.admin_notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
   const dirty = notes.trim() !== (member.admin_notes ?? "").trim();
   const actions = availableActions(member.status);
+  const payment: PaymentStatus = member.payment_status ?? "not_started";
+  const showPayment = billingReady && (member.status === "active" || member.status === "paused" || payment !== "not_started");
+  const canSendLink = canPaymentLink && member.status === "active" && payment !== "paid" && payment !== "processing";
 
   // Keep the box in step when the row is refreshed from the server.
   useEffect(() => setNotes(member.admin_notes ?? ""), [member.admin_notes]);
@@ -347,6 +465,36 @@ function MemberCard({
           </div>
         )}
       </div>
+
+      {showPayment && (
+        <div className="mt-4 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Payment</span>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${PAYMENT_STYLE[payment]}`}>{PAYMENT_STATUS_LABEL[payment]}</span>
+          </div>
+          {(member.first_paid_at || member.current_period_end) && (
+            <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+              {member.first_paid_at && <>First paid {formatDay(member.first_paid_at.slice(0, 10))}</>}
+              {member.first_paid_at && member.current_period_end && " · "}
+              {member.current_period_end && <>Paid until {formatDay(member.current_period_end.slice(0, 10))}</>}
+            </p>
+          )}
+          {(canSendLink || (member.payment_link_url && payment !== "paid")) && (
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {canSendLink && (
+                <button type="button" onClick={() => onSendLink(member)} className="h-8 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white hover:bg-blue-500">
+                  {member.payment_link_url ? "Send a new link" : "Send payment link"}
+                </button>
+              )}
+              {member.payment_link_url && (
+                <button type="button" onClick={() => onCopyLink(member.payment_link_url!)} className="h-8 rounded-lg border border-gray-300 px-3 text-xs font-semibold text-gray-700 hover:bg-white dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+                  Copy link
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {actions.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
@@ -652,6 +800,9 @@ export function MembershipsManager() {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [dialogBusy, setDialogBusy] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
+  const [linkMember, setLinkMember] = useState<Membership | null>(null);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoadError(null);
@@ -709,22 +860,29 @@ export function MembershipsManager() {
     return result as { membership: Membership; emailSent: boolean | null };
   };
 
-  const confirmAction = async (options: { startDate?: string; sendEmail: boolean }) => {
+  const confirmAction = async (options: { startDate?: string; sendEmail: boolean; includePaymentLink: boolean }) => {
     if (!dialog) return;
     setDialogBusy(true);
     setDialogError(null);
     try {
-      const result = await patch(dialog.member.id, { action: dialog.action, startDate: options.startDate, sendEmail: options.sendEmail });
+      const result = (await patch(dialog.member.id, {
+        action: dialog.action,
+        startDate: options.startDate,
+        sendEmail: options.sendEmail,
+        includePaymentLink: options.includePaymentLink,
+      })) as { membership: Membership; emailSent: boolean | null; paymentLinkUrl?: string | null; paymentLinkError?: string | null };
       applyRow(result.membership);
       const name = dialog.member.full_name;
-      showSuccess(
-        `${name}: ${STATUS_LABEL[result.membership.status].toLowerCase()}`,
+      const parts = [
         result.emailSent === true
           ? "Saved, and the email has been sent."
           : result.emailSent === false
             ? "Saved, but the email could not be sent. Please contact them yourself."
             : "Saved.",
-      );
+        result.paymentLinkUrl ? "The payment link is ready." : "",
+        result.paymentLinkError ? `No payment link: ${result.paymentLinkError}` : "",
+      ].filter(Boolean);
+      showSuccess(`${name}: ${STATUS_LABEL[result.membership.status].toLowerCase()}`, parts.join(" "));
       setDialog(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : "The change could not be saved.";
@@ -732,6 +890,44 @@ export function MembershipsManager() {
       if (/just changed|Refresh/i.test(message)) load();
     } finally {
       setDialogBusy(false);
+    }
+  };
+
+  const sendPaymentLink = async (options: { sendEmail: boolean }) => {
+    if (!linkMember) return;
+    setLinkBusy(true);
+    setLinkError(null);
+    try {
+      const response = await fetch(`/api/admin/memberships/${linkMember.id}/payment-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sendEmail: options.sendEmail }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "The payment link could not be created.");
+      applyRow(result.membership);
+      showSuccess(
+        "Payment link ready",
+        result.emailSent === true
+          ? `Emailed to ${linkMember.full_name}.`
+          : result.emailSent === false
+            ? "Created, but the email could not be sent. Copy the link from their card and send it yourself."
+            : "Created. Copy it from their card.",
+      );
+      setLinkMember(null);
+    } catch (error) {
+      setLinkError(error instanceof Error ? error.message : "The payment link could not be created.");
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
+  const copyLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showSuccess("Link copied", "Paste it into a message to the member.");
+    } catch {
+      showError("Could not copy", url);
     }
   };
 
@@ -747,6 +943,8 @@ export function MembershipsManager() {
   };
 
   const places = data?.places ?? null;
+  // Links need both the billing columns and Stripe keys on the server.
+  const canPaymentLink = data?.billingReady === true && data?.stripeReady === true;
   const percent = places ? Math.min(100, Math.round((places.taken / Math.max(1, places.limit)) * 100)) : 0;
 
   return (
@@ -787,6 +985,17 @@ export function MembershipsManager() {
           {data.setupRequired && (
             <p role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
               <strong>Memberships are not set up yet.</strong> The database table has not been created, so applications cannot be saved. Ask your developer to run the memberships migration.
+            </p>
+          )}
+
+          {!data.setupRequired && data.billingReady === false && (
+            <p role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+              <strong>Payments are not set up yet.</strong> Members can be accepted, but payment links need the billing migration. Ask your developer to run it.
+            </p>
+          )}
+          {!data.setupRequired && data.billingReady !== false && data.stripeReady === false && (
+            <p role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+              <strong>Stripe is not connected on this server,</strong> so payment links cannot be created. Members are still accepted as before.
             </p>
           )}
 
@@ -885,8 +1094,12 @@ export function MembershipsManager() {
                     <MemberCard
                       key={member.id}
                       member={member}
+                      billingReady={data.billingReady === true}
+                      canPaymentLink={canPaymentLink}
                       onAction={(row, action) => { setDialogError(null); setDialog({ member: row, action }); }}
                       onSaveNotes={saveNotes}
+                      onSendLink={(row) => { setLinkError(null); setLinkMember(row); }}
+                      onCopyLink={copyLink}
                     />
                   ))}
                 </div>
@@ -903,8 +1116,20 @@ export function MembershipsManager() {
           places={places}
           busy={dialogBusy}
           error={dialogError}
+          canPaymentLink={canPaymentLink}
           onClose={() => setDialog(null)}
           onConfirm={confirmAction}
+        />
+      )}
+
+      {linkMember && (
+        <PaymentLinkDialog
+          key={linkMember.id}
+          member={linkMember}
+          busy={linkBusy}
+          error={linkError}
+          onClose={() => setLinkMember(null)}
+          onConfirm={sendPaymentLink}
         />
       )}
     </div>
