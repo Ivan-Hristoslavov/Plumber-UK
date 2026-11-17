@@ -118,6 +118,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, processed: result.found, membership: result.found });
     }
 
+    // A monthly membership charge also sends payment_intent.* events. The
+    // handlers below were written for one-off invoice payment links and, when
+    // they find no matching record, match by the customer's email: they would
+    // mark that customer's unrelated pending invoice as paid, or invent a
+    // "paid" payments row. Subscription payments always belong to a Stripe
+    // invoice and one-off links never do, so skip anything paid via an invoice;
+    // the invoice.* events above already record it on the membership. If the
+    // lookup fails the error reaches the catch below, Stripe gets a 500 and
+    // retries, rather than the payment being applied to the wrong record.
+    if (event.type.startsWith("payment_intent.")) {
+      const paymentIntentId = (event.data.object as { id?: string }).id;
+      if (paymentIntentId && (await isInvoicePayment(paymentIntentId))) {
+        console.log('🔁 Skipping payment intent that belongs to a subscription invoice:', paymentIntentId);
+        return NextResponse.json({ received: true, processed: false, skipped: "subscription_payment" });
+      }
+    }
+
     switch (event.type) {
       case "checkout.session.completed":
         console.log('💳 Processing checkout session completed');
@@ -151,6 +168,16 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+/** True when Stripe collected this payment intent for an invoice (a subscription charge). */
+async function isInvoicePayment(paymentIntentId: string): Promise<boolean> {
+  if (!stripe) return false;
+  const payments = await stripe.invoicePayments.list({
+    payment: { type: "payment_intent", payment_intent: paymentIntentId },
+    limit: 1,
+  });
+  return payments.data.length > 0;
 }
 
 async function handleCheckoutSessionCompleted(session: any) {
