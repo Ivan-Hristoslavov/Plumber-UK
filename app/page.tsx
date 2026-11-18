@@ -20,7 +20,6 @@ import { credentialsSentence, getPublicCredentials } from "@/lib/credentials";
 import { getFoundingConfig } from "@/lib/founding-server";
 import { FAQSection } from "@/components/FAQSection";
 import { ReviewsSection } from "@/components/ReviewsSection";
-import { ReviewForm } from "@/components/ReviewForm";
 
 const GallerySection = dynamic(() => import("@/components/GallerySection").then(m => m.GallerySection), {
   loading: () => (
@@ -329,9 +328,6 @@ export default async function HomePage() {
 
       {/* Contact Section */}
       <SectionContact />
-
-      {/* Review Form Section */}
-      <ReviewForm />
     </main>
   );
 }

@@ -9,7 +9,7 @@ import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { type BookingService, usePricingCardsForBooking } from "@/hooks/usePricingCardsForBooking";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 
-import BookingCalendar from "./BookingCalendar";
+import BookingCalendar, { DayStrip } from "./BookingCalendar";
 import {
   type DayOffPeriod,
   type LondonNow,
@@ -88,55 +88,54 @@ const ICON = {
     "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z",
 };
 
+/**
+ * A thin segmented bar instead of numbered circles: it says the same thing
+ * (where you are, how much is left) in a quarter of the height. Finished steps
+ * stay clickable to go back.
+ */
 function StepIndicator({ current, onJump }: { current: number; onJump: (step: number) => void }) {
   return (
-    <div className="mb-6 sm:mb-8">
-      <ol className="flex items-center" aria-label="Booking progress">
+    <nav aria-label="Booking progress" className="mb-5">
+      <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+        Step {current + 1} of {STEPS.length}
+        <span className="sm:hidden">
+          {" · "}
+          <span className="text-gray-900 dark:text-white">{STEPS[current]}</span>
+        </span>
+      </p>
+      <ol className="grid grid-cols-4 gap-1.5">
         {STEPS.map((label, index) => {
           const done = index < current;
           const active = index === current;
           return (
-            <li key={label} className={`flex items-center ${index < STEPS.length - 1 ? "flex-1" : ""}`}>
+            <li key={label}>
               <button
                 type="button"
                 disabled={!done}
                 onClick={() => onJump(index)}
                 aria-current={active ? "step" : undefined}
-                className="group flex items-center gap-2 disabled:cursor-default"
+                aria-label={done ? `${label}, done. Go back to this step` : label}
+                className="group block w-full text-left disabled:cursor-default"
               >
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                    done
-                      ? "bg-green-500 text-white group-hover:bg-green-600"
-                      : active
-                        ? "bg-blue-600 text-white ring-4 ring-blue-600/20"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  className={`block h-1.5 rounded-full transition-colors ${
+                    done ? "bg-green-500 group-hover:bg-green-600" : active ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
                   }`}
-                >
-                  {done ? <Icon path={ICON.check} className="h-4 w-4" /> : index + 1}
-                </span>
+                />
                 <span
-                  className={`hidden sm:block text-sm font-semibold ${
-                    active ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"
+                  className={`mt-1.5 hidden items-center gap-1 text-xs font-semibold sm:flex ${
+                    active ? "text-gray-900 dark:text-white" : done ? "text-green-700 dark:text-green-400" : "text-gray-400 dark:text-gray-500"
                   }`}
                 >
+                  {done && <Icon path={ICON.check} className="h-3 w-3" />}
                   {label}
                 </span>
               </button>
-              {index < STEPS.length - 1 && (
-                <span
-                  className={`mx-2 sm:mx-3 h-0.5 flex-1 rounded ${done ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"}`}
-                  aria-hidden="true"
-                />
-              )}
             </li>
           );
         })}
       </ol>
-      <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:hidden">
-        Step {current + 1} of {STEPS.length} · <span className="text-gray-900 dark:text-white">{STEPS[current]}</span>
-      </p>
-    </div>
+    </nav>
   );
 }
 
@@ -203,6 +202,7 @@ export default function BookingWizard() {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [showCalendar, setShowCalendar] = useState(false);
   const [details, setDetails] = useState<Details>({ name: "", email: "", phone: "", address: "" });
   const [touched, setTouched] = useState<Partial<Record<keyof Details, boolean>>>({});
   const [showAllErrors, setShowAllErrors] = useState(false);
@@ -548,10 +548,10 @@ export default function BookingWizard() {
       {/* Step 1: the job */}
       {step === 0 && (
         <section aria-labelledby="step-title">
-          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white outline-none">
+          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white outline-none">
             What do you need?
           </h3>
-          <p className="mt-1 mb-5 text-sm text-gray-600 dark:text-gray-400">Choose the service and tell us what is happening.</p>
+          <p className="mt-0.5 mb-4 text-sm text-gray-600 dark:text-gray-400">Choose the service and tell us what is happening.</p>
 
           {servicesLoading ? (
             <div className="space-y-3">
@@ -579,14 +579,14 @@ export default function BookingWizard() {
                   return (
                     <label
                       key={item.id}
-                      className={`relative flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-4 transition focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 ${
+                      className={`relative flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 transition focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 ${
                         selected
                           ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                           : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800"
                       }`}
                     >
                       <input type="radio" name="service" value={item.id} checked={selected} onChange={() => setServiceId(item.id)} className="sr-only" />
-                      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${selected ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${selected ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"}`}>
                         <Icon path={ICON.wrench} />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -610,7 +610,7 @@ export default function BookingWizard() {
 
           {/* Emergency */}
           <label
-            className={`mt-4 flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-4 transition focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 ${
+            className={`mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-3 py-2.5 transition focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 ${
               isEmergency
                 ? "border-red-400 bg-red-50 dark:bg-red-900/20"
                 : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500"
@@ -621,7 +621,7 @@ export default function BookingWizard() {
                 peer-checked: variants, which tie with dark: on specificity, so in
                 dark mode the track stayed grey and the knob never moved. */}
             <span
-              className={`mt-1 flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+              className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
                 isEmergency ? "bg-red-600" : "bg-gray-300 dark:bg-gray-600"
               }`}
               aria-hidden="true"
@@ -633,8 +633,8 @@ export default function BookingWizard() {
                 <Icon path={ICON.alert} className="h-4 w-4 text-red-500" />
                 This is an emergency
               </span>
-              <span className="mt-0.5 block text-sm text-gray-600 dark:text-gray-300">
-                Burst pipe, flooding or no water? Tick this and we will prioritise your request.
+              <span className="block text-xs text-gray-600 dark:text-gray-300">
+                Burst pipe, flooding or no water? We will prioritise it.
               </span>
             </span>
           </label>
@@ -650,7 +650,7 @@ export default function BookingWizard() {
             </a>
           )}
 
-          <div className="mt-5">
+          <div className="mt-4">
             <label className={LABEL} htmlFor="booking-description">
               What is the problem? <span className="font-normal text-gray-500 dark:text-gray-400">(optional)</span>
             </label>
@@ -658,7 +658,7 @@ export default function BookingWizard() {
               id="booking-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              rows={2}
               maxLength={1000}
               placeholder="e.g. Water leaking under the kitchen sink since this morning"
               className={`${FIELD} ${FIELD_OK} resize-none`}
@@ -670,10 +670,10 @@ export default function BookingWizard() {
       {/* Step 2: date and time */}
       {step === 1 && (
         <section aria-labelledby="step-title">
-          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white outline-none">
+          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white outline-none">
             Pick a date and time
           </h3>
-          <p className="mt-1 mb-5 text-sm text-gray-600 dark:text-gray-400">Choose a day, then a time window that suits you.</p>
+          <p className="mt-0.5 mb-4 text-sm text-gray-600 dark:text-gray-400">Choose a day, then a time window that suits you.</p>
 
           {formError && (
             <p role="alert" className="mb-4 rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
@@ -682,17 +682,31 @@ export default function BookingWizard() {
           )}
 
           {!today || !periodsLoaded || hoursLoading ? (
-            <div className="grid gap-5 md:grid-cols-2">
-              <Skeleton className="h-80" />
-              <Skeleton className="h-80" />
+            <div className="space-y-4">
+              <Skeleton className="h-[4.5rem]" />
+              <Skeleton className="h-28" />
             </div>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 md:items-start">
-              <BookingCalendar value={date} onChange={onPickDate} today={today} maxDate={maxDate} periods={periods} workingDays={workingDays} />
+            <div className="space-y-4">
+              <DayStrip
+                value={date}
+                onChange={onPickDate}
+                today={today}
+                maxDate={maxDate}
+                periods={periods}
+                workingDays={workingDays}
+                calendarOpen={showCalendar}
+                onToggleCalendar={() => setShowCalendar((open) => !open)}
+              />
+              {showCalendar && (
+                <div className="sm:max-w-sm">
+                  <BookingCalendar value={date} onChange={onPickDate} today={today} maxDate={maxDate} periods={periods} workingDays={workingDays} />
+                </div>
+              )}
 
               <div ref={slotsRef} className="scroll-mt-24">
-                <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                  <Icon path={ICON.calendar} className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                  <Icon path={ICON.clock} className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   {date ? formatLongDate(date) : "Choose a day"}
                 </p>
 
@@ -709,9 +723,9 @@ export default function BookingWizard() {
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2" aria-busy="true">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" aria-busy="true">
                       {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <Skeleton key={i} className="h-12" />
+                        <Skeleton key={i} className="h-11" />
                       ))}
                     </div>
                   )
@@ -736,14 +750,15 @@ export default function BookingWizard() {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4" role="group" aria-label="Available times">
+                  <div className="space-y-3" role="group" aria-label="Available times">
                     {groups.map((part) => {
-                      const items = slotInfo.filter((item) => item.slot.part === part);
+                      // Times already gone today are left out: they cannot be picked and only push the rest down.
+                      const items = slotInfo.filter((item) => item.slot.part === part && item.status !== "past");
                       if (items.length === 0) return null;
                       return (
                         <div key={part}>
                           <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{part}</p>
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                             {items.map(({ slot, status }) => {
                               const selected = time === slot.value;
                               const free = status === "available";
@@ -754,7 +769,7 @@ export default function BookingWizard() {
                                   disabled={!free}
                                   aria-pressed={selected}
                                   onClick={() => setTime(slot.value)}
-                                  className={`rounded-xl border-2 px-3 py-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
+                                  className={`rounded-xl border-2 px-1 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-gray-900 ${
                                     selected
                                       ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-600/25"
                                       : free
@@ -762,7 +777,7 @@ export default function BookingWizard() {
                                         : "cursor-not-allowed border-transparent bg-gray-100 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500"
                                   }`}
                                 >
-                                  <span className={free ? "" : "line-through"}>{slot.label}</span>
+                                  <span className={`whitespace-nowrap text-[13px] sm:text-sm ${free ? "" : "line-through"}`}>{slot.label.replace(" – ", "–")}</span>
                                   {!free && <span className="block text-[11px] font-medium no-underline">{status === "past" ? "Passed" : "Booked"}</span>}
                                 </button>
                               );
@@ -778,7 +793,7 @@ export default function BookingWizard() {
           )}
 
           {periods.some((p) => p.end_date >= today) && today && (
-            <p className="mt-4 flex items-start gap-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 px-3 py-2.5 text-xs text-blue-900 dark:text-blue-100">
+            <p className="mt-3 flex items-start gap-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-xs text-blue-900 dark:text-blue-100">
               <Icon path={ICON.calendar} className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
                 We are closed:{" "}
@@ -795,10 +810,10 @@ export default function BookingWizard() {
       {/* Step 3: details */}
       {step === 2 && (
         <section aria-labelledby="step-title">
-          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white outline-none">
+          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white outline-none">
             Your details
           </h3>
-          <p className="mt-1 mb-5 text-sm text-gray-600 dark:text-gray-400">So we know who to call and where to go.</p>
+          <p className="mt-0.5 mb-4 text-sm text-gray-600 dark:text-gray-400">So we know who to call and where to go.</p>
 
           <div className="space-y-4">
             <div>
@@ -878,10 +893,10 @@ export default function BookingWizard() {
       {/* Step 4: review */}
       {step === 3 && service && selectedSlot && (
         <section aria-labelledby="step-title">
-          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white outline-none">
+          <h3 id="step-title" ref={headingRef} tabIndex={-1} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white outline-none">
             Check and send
           </h3>
-          <p className="mt-1 mb-5 text-sm text-gray-600 dark:text-gray-400">Make sure everything is right, then send your request.</p>
+          <p className="mt-0.5 mb-4 text-sm text-gray-600 dark:text-gray-400">Make sure everything is right, then send your request.</p>
 
           <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 divide-y divide-gray-100 dark:divide-gray-700">
             <SummaryRow icon={ICON.wrench} label="Job" onChange={() => goTo(0)}>
@@ -920,13 +935,13 @@ export default function BookingWizard() {
       )}
 
       {/* Navigation */}
-      <div className="mt-8 flex items-center gap-3 border-t border-gray-200 dark:border-gray-700 pt-5">
+      <div className="mt-5 flex items-center gap-3 border-t border-gray-200 dark:border-gray-700 pt-4">
         {step > 0 && (
           <button
             type="button"
             onClick={() => goTo(step - 1)}
             disabled={submitting}
-            className="rounded-xl border border-gray-300 dark:border-gray-600 px-5 py-3.5 text-sm font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="rounded-xl border border-gray-300 dark:border-gray-600 px-5 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
           >
             Back
           </button>
@@ -937,7 +952,7 @@ export default function BookingWizard() {
             type="button"
             onClick={next}
             disabled={(step === 0 && !jobValid) || (step === 1 && !whenValid)}
-            className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[12rem] rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed text-white px-6 py-3.5 text-base font-bold shadow-lg shadow-blue-600/20 disabled:shadow-none transition-all"
+            className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[12rem] rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 text-base font-bold shadow-lg shadow-blue-600/20 disabled:shadow-none transition-all"
           >
             Continue
           </button>
@@ -946,7 +961,7 @@ export default function BookingWizard() {
             type="button"
             onClick={submit}
             disabled={submitting}
-            className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[12rem] rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-3.5 text-base font-bold shadow-lg shadow-green-600/25 transition-all"
+            className="flex-1 sm:flex-none sm:ml-auto sm:min-w-[12rem] rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-3 text-base font-bold shadow-lg shadow-green-600/25 transition-all"
           >
             {submitting ? "Sending…" : "Send booking request"}
           </button>
