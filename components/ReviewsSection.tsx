@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useReviews } from '@/hooks/useReviews';
 import { ReviewForm } from '@/components/ReviewForm';
+import { GoogleG } from '@/components/GoogleG';
+import type { GoogleReviewsSummary } from '@/lib/google-reviews';
 
 /** Text longer than this is cut on the card, with "Read more" for the rest. */
 const TEXT_CLAMP_LENGTH = 180;
@@ -146,9 +148,11 @@ function ReviewModal({ review, onClose }: { review: Review; onClose: () => void 
                     </svg>
                   ))}
                 </div>
-                <span className="text-sm text-gray-400 dark:text-gray-500">
-                  {new Date(review.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </span>
+                {!Number.isNaN(Date.parse(review.created_at)) && (
+                  <span className="text-sm text-gray-400 dark:text-gray-500">
+                    {new Date(review.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -161,7 +165,29 @@ function ReviewModal({ review, onClose }: { review: Review; onClose: () => void 
   );
 }
 
-export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Review[] }) {
+/** One card in the carousel, from either source. */
+type Item = {
+  key: string;
+  source: 'site' | 'google';
+  name: string;
+  rating: number;
+  text: string;
+  /** For sorting; Google reviews without a date go last. */
+  time: number;
+  when: string;
+  authorUrl?: string | null;
+  photo?: string | null;
+  review: Review;
+};
+
+export function ReviewsSection({
+  initialReviews = [],
+  google = null,
+}: {
+  initialReviews?: Review[];
+  /** Rating and newest reviews from Google, when connected in the admin. */
+  google?: GoogleReviewsSummary | null;
+}) {
   const { reviews: fetchedReviews, isLoading, error } = useReviews();
 
   // Seeded from the server for the same reason as the FAQ: the review text is
@@ -175,6 +201,32 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
   const closeWriting = useCallback(() => setWriting(false), []);
 
   const average = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+
+  // Both sources in one row, newest first. Each card says where it is from.
+  const items: Item[] = [
+    ...reviews.map((r): Item => ({
+      key: `site-${r.id}`,
+      source: 'site',
+      name: r.customer_name,
+      rating: r.rating,
+      text: r.comment,
+      time: Date.parse(r.created_at) || 0,
+      when: new Date(r.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+      review: r,
+    })),
+    ...(google?.reviews ?? []).map((g): Item => ({
+      key: `google-${g.id}`,
+      source: 'google',
+      name: g.authorName,
+      rating: g.rating,
+      text: g.text,
+      time: (g.publishTime && Date.parse(g.publishTime)) || 0,
+      when: g.relativeTime,
+      authorUrl: g.authorUrl,
+      photo: g.authorPhoto,
+      review: { id: g.id, customer_name: g.authorName, rating: g.rating, comment: g.text, created_at: g.publishTime ?? '' },
+    })),
+  ].sort((a, b) => b.time - a.time);
 
   // Carousel position, for the arrow buttons' disabled state.
   const trackRef = useRef<HTMLDivElement>(null);
@@ -191,7 +243,7 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
     updateEdges();
     window.addEventListener('resize', updateEdges);
     return () => window.removeEventListener('resize', updateEdges);
-  }, [updateEdges, reviews.length]);
+  }, [updateEdges, items.length]);
 
   const scrollByPage = (direction: 1 | -1) => {
     const track = trackRef.current;
@@ -200,7 +252,7 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
   };
 
   if (isLoading && reviews.length === 0) return <div className="py-8 text-center">Loading reviews...</div>;
-  if (error && reviews.length === 0) return null;
+  if (error && items.length === 0) return null;
 
   const writeButton = (
     <button
@@ -224,17 +276,33 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4 sm:mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">What our customers say</h2>
-            {reviews.length > 0 && (
-              <div className="mt-1.5 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                <Stars rating={average} />
-                <span className="font-bold text-gray-900 dark:text-white">{average.toFixed(1)}</span>
-                <span>· {reviews.length} review{reviews.length === 1 ? '' : 's'}</span>
-              </div>
-            )}
+            {/* Each source's score separately, never blended into one figure. */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-600 dark:text-gray-300">
+              {reviews.length > 0 && (
+                <span className="flex items-center gap-2">
+                  <Stars rating={average} />
+                  <span className="font-bold text-gray-900 dark:text-white">{average.toFixed(1)}</span>
+                  <span>· {reviews.length} on this site</span>
+                </span>
+              )}
+              {google && google.rating !== null && google.count > 0 && (
+                <a
+                  href={google.mapsUrl ?? google.writeReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:underline"
+                >
+                  <GoogleG className="h-4 w-4" />
+                  <Stars rating={google.rating} />
+                  <span className="font-bold text-gray-900 dark:text-white">{google.rating.toFixed(1)}</span>
+                  <span>· {google.count} on Google</span>
+                </a>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {reviews.length > 1 && (
+            {items.length > 1 && (
               <div className="hidden gap-2 sm:flex">
                 {([-1, 1] as const).map((direction) => (
                   <button
@@ -253,10 +321,21 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
               </div>
             )}
             {writeButton}
+            {google && (
+              <a
+                href={google.writeReviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                <GoogleG className="h-4 w-4" />
+                <span className="hidden sm:inline">Review us on</span> Google
+              </a>
+            )}
           </div>
         </div>
 
-        {reviews.length === 0 ? (
+        {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center dark:border-gray-700 dark:bg-gray-800">
             <p className="font-semibold text-gray-900 dark:text-white">No reviews yet</p>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Had a job done by us? Be the first to say how it went.</p>
@@ -274,35 +353,52 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
               tabIndex={0}
               className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 sm:scroll-px-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl"
             >
-              {reviews.map((review) => {
-                const isLong = review.comment.length > TEXT_CLAMP_LENGTH;
-                const displayText = isLong ? review.comment.slice(0, TEXT_CLAMP_LENGTH).trimEnd() + '…' : review.comment;
+              {items.map((item) => {
+                const isLong = item.text.length > TEXT_CLAMP_LENGTH;
+                const displayText = isLong ? item.text.slice(0, TEXT_CLAMP_LENGTH).trimEnd() + '…' : item.text;
 
                 return (
                   <article
-                    key={review.id}
+                    key={item.key}
                     className="flex w-[85%] shrink-0 snap-start flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2rem)/3)]"
                   >
-                    <Stars rating={review.rating} />
+                    <div className="flex items-center justify-between gap-2">
+                      <Stars rating={item.rating} />
+                      {item.source === 'google' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                          <GoogleG className="h-3.5 w-3.5" /> Google
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-gray-700 dark:text-gray-300">&ldquo;{displayText}&rdquo;</p>
                     {isLong && (
                       <button
                         type="button"
-                        onClick={() => setSelectedReview(review)}
+                        onClick={() => setSelectedReview(item.review)}
                         className="mt-1 self-start text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
                       >
                         Read more
                       </button>
                     )}
                     <div className="mt-4 flex items-center gap-3 border-t border-gray-100 pt-3 dark:border-gray-700">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white" aria-hidden="true">
-                        {review.customer_name.charAt(0).toUpperCase()}
-                      </span>
+                      {item.photo ? (
+                        // Google's own avatar URL, shown as Google supplies it.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.photo} alt="" referrerPolicy="no-referrer" loading="lazy" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                      ) : (
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-bold text-white" aria-hidden="true">
+                          {item.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{review.customer_name}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(review.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
-                        </p>
+                        {item.authorUrl ? (
+                          <a href={item.authorUrl} target="_blank" rel="noopener noreferrer" className="block truncate text-sm font-semibold text-gray-900 hover:underline dark:text-white">
+                            {item.name}
+                          </a>
+                        ) : (
+                          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{item.name}</p>
+                        )}
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.when}</p>
                       </div>
                     </div>
                   </article>

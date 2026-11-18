@@ -18,6 +18,7 @@ import { getActiveServices } from "@/lib/services";
 import { getAvailability } from "@/lib/availability";
 import { credentialsSentence, getPublicCredentials } from "@/lib/credentials";
 import { getFoundingConfig } from "@/lib/founding-server";
+import { getGoogleReviewsSummary } from "@/lib/google-reviews-server";
 import { FAQSection } from "@/components/FAQSection";
 import { ReviewsSection } from "@/components/ReviewsSection";
 
@@ -156,13 +157,14 @@ async function getFaqAndReviews() {
 }
 
 export default async function HomePage() {
-  const [areas, profile, { faqItems, reviews, allRatings, pricingCards }, services, availability, foundingConfig] = await Promise.all([
+  const [areas, profile, { faqItems, reviews, allRatings, pricingCards }, services, availability, foundingConfig, googleReviews] = await Promise.all([
     getAreas(),
     getAdminProfile(),
     getFaqAndReviews(),
     getActiveServices(),
     getAvailability(),
     getFoundingConfig(),
+    getGoogleReviewsSummary(),
   ]);
 
   // Same figures the aggregateRating markup uses, surfaced next to the headline
@@ -332,7 +334,7 @@ export default async function HomePage() {
       <FAQSection initialItems={faqItems} />
 
       {/* Reviews Section */}
-      <ReviewsSection initialReviews={reviews} />
+      <ReviewsSection initialReviews={reviews} google={googleReviews} />
 
       {/* Contact Section */}
       <SectionContact />
