@@ -1,444 +1,65 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AdminProfileData } from "@/components/AdminProfileData";
 import dynamic from "next/dynamic";
-const FormBooking = dynamic(() => import("@/components/FormBooking"), { ssr: false });
-import { useWorkingHours } from "@/hooks/useWorkingHours";
-import { useAdminSettings } from "@/hooks/useAdminSettings";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { ButtonWhatsApp } from "@/components/ButtonWhatsApp";
 
-type ServiceArea = {
-  id: number;
-  name: string;
-  description: string;
-  is_active: boolean;
-};
+const FormBooking = dynamic(() => import("@/components/FormBooking"), { ssr: false });
 
-type BusinessSettings = {
-  businessName: string;
-  businessEmail: string;
-  businessPhone: string;
-  businessAddress: string;
-  emergencyRate: string;
-  standardRate: string;
-  responseTime: string;
-};
-
+/**
+ * The booking form, with a call and a WhatsApp button for anyone in a hurry.
+ * The contact cards and coverage list that used to sit above it were removed
+ * at the client's request to cut scrolling: phone and WhatsApp stay here, and
+ * the areas have their own section and pages.
+ */
 export default function SectionContact() {
   const adminProfile = useAdminProfile();
-  const { settings: adminSettings, isLoading: isLoadingSettings } =
-    useAdminSettings();
-  const [serviceAreas, setServiceAreas] = useState<ServiceArea[]>([]);
-  const [isLoadingAreas, setIsLoadingAreas] = useState(true);
-  const { workingHours } = useWorkingHours();
-
-  // Get business data from admin profile and settings
-  const businessData = {
-    businessName: adminProfile?.company_name || "Fix My Leak",
-    businessEmail: adminProfile?.business_email || "info@FixMyLeak.co.uk",
-    businessPhone: adminProfile?.phone || "+44 7541777225",
-    businessAddress: adminProfile?.company_address || "London, UK",
-    responseTime:
-      adminSettings?.responseTime ||
-      adminProfile?.response_time ||
-      "45 minutes",
-    emergencyRate: adminSettings?.emergencyRate || "",
-    standardRate: adminSettings?.standardRate || "",
-  };
-
-
-
-  useEffect(() => {
-    const fetchServiceAreas = async () => {
-      try {
-        const areasResponse = await fetch("/api/areas");
-        if (areasResponse.ok) {
-          const areas = await areasResponse.json();
-          setServiceAreas(areas.filter((area: ServiceArea) => area.is_active));
-        }
-      } catch {
-        // Silently handle fetch errors — contact section shows defaults
-      } finally {
-        setIsLoadingAreas(false);
-      }
-    };
-
-    fetchServiceAreas();
-  }, []);
-
-  const formatWorkingHours = () => {
-    const start = workingHours.workingHoursStart;
-    const end = workingHours.workingHoursEnd;
-    const days = workingHours.workingDays;
-
-    // Create a mapping of day names to their short forms
-    const dayMap: { [key: string]: string } = {
-      monday: "Mon",
-      tuesday: "Tue",
-      wednesday: "Wed",
-      thursday: "Thu",
-      friday: "Fri",
-      saturday: "Sat",
-      sunday: "Sun",
-    };
-
-    // Sort days in the correct order
-    const dayOrder = [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday",
-    ];
-    const sortedDays = days.sort(
-      (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
-    );
-
-    // Convert to short day names
-    const shortDays = sortedDays.map((day) => dayMap[day] || day);
-
-    // Function to find consecutive ranges
-    const findConsecutiveRanges = (days: string[]) => {
-      const ranges: string[][] = [];
-      let currentRange: string[] = [];
-
-      for (let i = 0; i < days.length; i++) {
-        const currentDay = days[i];
-        const currentIndex = dayOrder.indexOf(currentDay);
-        
-        if (currentRange.length === 0) {
-          currentRange.push(currentDay);
-        } else {
-          const lastDay = currentRange[currentRange.length - 1];
-          const lastIndex = dayOrder.indexOf(lastDay);
-          
-          if (currentIndex === lastIndex + 1) {
-            // Consecutive day
-            currentRange.push(currentDay);
-          } else {
-            // Non-consecutive, save current range and start new one
-            ranges.push([...currentRange]);
-            currentRange = [currentDay];
-          }
-        }
-      }
-      
-      // Add the last range
-      if (currentRange.length > 0) {
-        ranges.push(currentRange);
-      }
-      
-      return ranges;
-    };
-
-    // Format the display string
-    if (days.length === 0) {
-      return `${start} - ${end} (No working days set)`;
-    } else if (days.length === 7) {
-      return `${start} - ${end} (7 days/week)`;
-    } else if (days.length === 1) {
-      return `${start} - ${end} (${shortDays[0]})`;
-    } else {
-      // Find consecutive ranges
-      const ranges = findConsecutiveRanges(sortedDays);
-      
-      // Format each range
-      const formattedRanges = ranges.map(range => {
-        const rangeShortDays = range.map(day => dayMap[day] || day);
-        if (range.length === 1) {
-          return rangeShortDays[0];
-        } else {
-          return `${rangeShortDays[0]}-${rangeShortDays[rangeShortDays.length - 1]}`;
-        }
-      });
-      
-      return `${start} - ${end} (${formattedRanges.join(", ")})`;
-    }
-  };
+  const businessPhone = adminProfile?.phone || "+44 7541777225";
 
   return (
     <section
-      className="py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
+      className="py-10 sm:py-14 bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
       id="contact"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <div className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-full text-blue-700 dark:text-blue-300 text-xs sm:text-sm font-semibold mb-4 sm:mb-6 shadow-sm">
-            <svg
-              className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            Get Professional Help
-          </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-6 transition-colors duration-300">
-            Contact & Book Your Service
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed transition-colors duration-300 max-w-4xl mx-auto">
-            Get in touch for immediate assistance or book your service online.
-            Professional plumbing solutions available 24/7.
-          </p>
-        </div>
-
-        {/* Two Row Layout */}
-        <div className="space-y-8 sm:space-y-12">
-          {/* Row 1: Contact Information Cards — horizontal rows on mobile, grid on desktop */}
-          {/* Mobile layout */}
-          <div className="flex flex-col gap-3 sm:hidden">
-            {/* Emergency */}
-            <a
-              href={`tel:${businessData.businessPhone}`}
-              className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-md border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-transform"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                </svg>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+              <div className="min-w-0">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
+                  Book Your Service Online
+                </h2>
+                {/* Answers the three things people hesitate over before starting
+                    a booking form: how long it takes, whether they pay now, and
+                    what happens next. */}
+                <p className="text-blue-100 text-sm sm:text-base">
+                  Takes about a minute • No payment upfront • We call to confirm your slot
+                </p>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">Emergency 24/7</span>
-                  {!isLoadingSettings && businessData.emergencyRate && (
-                    <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.emergencyRate}</span>
-                  )}
-                </div>
-                <span className="text-red-600 dark:text-red-400 font-semibold text-sm">{businessData.businessPhone}</span>
-              </div>
-            </a>
 
-            {/* Regular */}
-            <a
-              href={`tel:${businessData.businessPhone}`}
-              className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-md border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-transform"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* An emergency caller should never be funnelled into a form —
+                  give them the phone as an equal option right here. */}
+              <a
+                href={`tel:${businessPhone}`}
+                onClick={() => trackPhoneCall("booking_form_header")}
+                className="inline-flex items-center justify-center gap-2 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 px-4 py-2.5 text-white font-semibold text-sm backdrop-blur-sm transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                 </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">Regular Service</span>
-                  {!isLoadingSettings && businessData.standardRate && (
-                    <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">From £{businessData.standardRate}/hr</span>
-                  )}
-                </div>
-                <span className="text-green-600 dark:text-green-400 font-semibold text-sm">{businessData.businessPhone}</span>
-              </div>
-            </a>
-
-            {/* Email */}
-            <a
-              href={`mailto:${businessData.businessEmail}`}
-              className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-md border border-gray-200 dark:border-gray-700 active:scale-[0.98] transition-transform"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">Email Us</span>
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400 shrink-0">{businessData.responseTime} response</span>
-                </div>
-                <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm truncate block">{businessData.businessEmail}</span>
-              </div>
-            </a>
-
-            {/* Coverage */}
-            {serviceAreas.length > 0 && (
-              <div className="flex items-start gap-3 bg-white dark:bg-gray-800 rounded-xl p-3 shadow-md border border-gray-200 dark:border-gray-700">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="font-bold text-sm text-gray-900 dark:text-white">Coverage Areas</span>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {serviceAreas.map((area) => (
-                      <span key={area.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                        {area.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Desktop layout (sm+) */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Emergency Contact */}
-            <div className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 dark:from-red-500/10 dark:to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Emergency 24/7</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Urgent plumbing repairs</p>
-                {isLoadingSettings ? (
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                  </div>
-                ) : (
-                  <>
-                    <a href={`tel:${businessData.businessPhone}`} className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors">
-                      {businessData.businessPhone}
-                    </a>
-                    {businessData.emergencyRate && <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.emergencyRate}</div>}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Regular Contact */}
-            <div className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Regular Service</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{isLoadingSettings ? <span className="inline-block h-4 w-44 rounded bg-gray-200 dark:bg-gray-700 animate-pulse align-middle" aria-hidden="true" /> : formatWorkingHours()}</p>
-                {isLoadingSettings ? (
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                  </div>
-                ) : (
-                  <>
-                    <a href={`tel:${businessData.businessPhone}`} className="text-green-600 dark:text-green-400 font-bold text-lg hover:text-green-700 dark:hover:text-green-300 transition-colors">
-                      {businessData.businessPhone}
-                    </a>
-                    {businessData.standardRate && <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">From £{businessData.standardRate}/hour</div>}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Email Contact */}
-            <div className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Email Us</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Quick quotes & inquiries</p>
-                {isLoadingSettings ? (
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
-                  </div>
-                ) : (
-                  <>
-                    <a href={`mailto:${businessData.businessEmail}`} className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-sm break-all">
-                      {businessData.businessEmail}
-                    </a>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">Response within {businessData.responseTime}</div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Service Areas */}
-            <div className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Coverage Areas</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                  {isLoadingAreas ? <span className="inline-block h-4 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse align-middle" aria-hidden="true" /> : serviceAreas.length > 0 ? `${serviceAreas.length} areas` : "South West London"}
-                </p>
-                {isLoadingAreas ? (
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                  </div>
-                ) : serviceAreas.length > 0 ? (
-                  <div className="flex flex-wrap gap-1">
-                    {serviceAreas.map((area) => (
-                      <span key={area.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                        {area.name}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-purple-600 dark:text-purple-400 font-semibold text-sm">Clapham, Balham, Chelsea</div>
-                )}
-              </div>
+                In a hurry? Call instead
+              </a>
+              <ButtonWhatsApp
+                variant="solid"
+                label="WhatsApp"
+                source="booking_form_whatsapp"
+                className="shrink-0 py-2.5 text-sm"
+              />
             </div>
           </div>
-
-          {/* Row 2: Booking Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                <div className="min-w-0">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
-                    Book Your Service Online
-                  </h3>
-                  {/* Answers the three things people hesitate over before starting
-                      a booking form: how long it takes, whether they pay now, and
-                      what happens next. */}
-                  <p className="text-blue-100 text-sm sm:text-base">
-                    Takes about a minute • No payment upfront • We call to confirm your slot
-                  </p>
-                </div>
-
-                {/* An emergency caller should never be funnelled into a form —
-                    give them the phone as an equal option right here. */}
-                <a
-                  href={`tel:${businessData.businessPhone}`}
-                  onClick={() => trackPhoneCall("booking_form_header")}
-                  className="inline-flex items-center justify-center gap-2 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 px-4 py-2.5 text-white font-semibold text-sm backdrop-blur-sm transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  </svg>
-                  In a hurry? Call instead
-                </a>
-                <ButtonWhatsApp
-                  variant="solid"
-                  label="WhatsApp"
-                  source="booking_form_whatsapp"
-                  className="shrink-0 py-2.5 text-sm"
-                />
-              </div>
-            </div>
-            <div className="py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-8">
-              <FormBooking />
-            </div>
+          <div className="py-6 sm:py-8 md:py-10 px-4 sm:px-6 md:px-8">
+            <FormBooking />
           </div>
         </div>
       </div>
