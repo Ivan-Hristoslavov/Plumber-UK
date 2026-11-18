@@ -59,9 +59,11 @@ payment links are switched off; accepting members still works.
 - A used payment link is switched off so it cannot start a second subscription.
 - When a subscription ends in Stripe (the member cancelled in the portal) the
   membership is marked cancelled automatically.
-- The existing `payment_intent.succeeded` handling still runs for these
-  payments: if the Stripe customer's email matches a row in `customers`, a
-  `payments` record is created, so monthly fees appear in Admin → Payments.
+- Monthly fees do **not** go through the old invoice payment handlers: a
+  `payment_intent.*` event that belongs to a Stripe invoice (every subscription
+  charge does; the one-off invoice links never do) is skipped there, so a
+  member's fee can never mark one of their unrelated invoices as paid. The fee
+  shows on the member's card in Admin → Memberships, not in Admin → Payments.
 
 ## Going live
 
