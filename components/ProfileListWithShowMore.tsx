@@ -11,82 +11,51 @@ function parseList(value: string | null | undefined, fallback: string): string[]
     .filter((item) => item.length > 0);
 }
 
-function ListItem({ item }: { item: string }) {
-  return (
-    <li className="flex items-start">
-      <span className="w-1.5 h-1.5 bg-blue-500 dark:bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0" />
-      <span className="text-gray-700 dark:text-gray-300 text-sm">{item}</span>
-    </li>
-  );
-}
-
 export interface ProfileListWithShowMoreProps {
   value: string | null | undefined;
   fallback: string;
   className?: string;
+  /** How many tags show before "+N more". */
+  maxVisible?: number;
 }
 
-export function ProfileListWithShowMore({ value, fallback, className = "" }: ProfileListWithShowMoreProps) {
+/**
+ * A profile list (certifications, specialisations) as compact tags: a short
+ * scan instead of a tall bulleted column, with the rest one tap away.
+ */
+export function ProfileListWithShowMore({ value, fallback, className = "", maxVisible = 4 }: ProfileListWithShowMoreProps) {
   const items = parseList(value, fallback);
   const [isOpen, setIsOpen] = useState(false);
 
   if (items.length === 0) {
-    return (
-      <span className={className}>
-        {fallback || "—"}
-      </span>
-    );
+    return <span className={className}>{fallback || "—"}</span>;
   }
 
-  const maxVisible = 4;
-  const visibleItems = items.slice(0, maxVisible);
-  const extraItems = items.slice(maxVisible);
-  const hasMore = extraItems.length > 0;
-
-  if (!hasMore) {
-    return (
-      <ul className={`${className} space-y-1`}>
-        {items.map((item, index) => (
-          <ListItem key={index} item={item} />
-        ))}
-      </ul>
-    );
-  }
+  const shown = isOpen ? items : items.slice(0, maxVisible);
+  const hidden = items.length - shown.length;
 
   return (
-    <div className={className}>
-      <ul className="space-y-1">
-        {visibleItems.map((item, index) => (
-          <ListItem key={index} item={item} />
-        ))}
-      </ul>
-      <div
-        className={`overflow-hidden transition-[max-height] duration-300 ease-in-out ${isOpen ? "max-h-[2000px]" : "max-h-0"}`}
-        aria-hidden={!isOpen}
-      >
-        <ul className="space-y-1 mt-2 pl-0">
-          {extraItems.map((item, index) => (
-            <ListItem key={maxVisible + index} item={item} />
-          ))}
-        </ul>
-      </div>
-      <button
-        type="button"
-        onClick={() => setIsOpen((o) => !o)}
-        className="list-expand-summary flex items-center gap-2 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:underline text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded px-1 py-1.5 mt-2 border-0 bg-transparent"
-        aria-expanded={isOpen}
-      >
-        <span>{isOpen ? "Hide" : `Show ${extraItems.length} more`}</span>
-        <svg
-          className={`w-4 h-4 transition-transform duration-300 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden
+    <ul className={`flex flex-wrap gap-1.5 ${className}`}>
+      {shown.map((item, index) => (
+        <li
+          key={index}
+          className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs sm:text-[13px] leading-snug text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-    </div>
+          {item}
+        </li>
+      ))}
+      {(hidden > 0 || isOpen) && items.length > maxVisible && (
+        <li>
+          <button
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            className="rounded-lg px-2.5 py-1 text-xs sm:text-[13px] font-semibold text-blue-600 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/30"
+          >
+            {isOpen ? "Show less" : `+${hidden} more`}
+          </button>
+        </li>
+      )}
+    </ul>
   );
 }

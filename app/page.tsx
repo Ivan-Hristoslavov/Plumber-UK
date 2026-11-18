@@ -229,84 +229,92 @@ export default async function HomePage() {
       </section>
       {/* Our Story / About Section — id="about" anchor so nav #about scrolls here */}
       <section
-        className="py-12 sm:py-16 md:py-20 bg-gray-100 dark:bg-gray-900 transition-colors duration-500 scroll-mt-24 relative"
+        className="py-10 sm:py-14 bg-gray-100 dark:bg-gray-900 transition-colors duration-500 scroll-mt-24 relative"
         id="our-story"
       >
         <span id="about" className="absolute top-0 left-0 w-px h-px opacity-0 pointer-events-none" aria-hidden="true" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Portrait beside the copy rather than a centred square above it — the
-              stacked version pushed the actual text most of a screen down. */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
-            <div className="mx-auto lg:mx-0 w-full max-w-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] gap-6 lg:gap-12 items-start">
+            {/* Large portrait on a computer only. On a phone it took most of a
+                screen before any text; there the face sits beside the name. */}
+            <div className="hidden lg:block">
               <div className="relative rounded-3xl overflow-hidden shadow-xl ring-1 ring-gray-900/5 dark:ring-white/10 aspect-[4/5]">
                 <Image
                   src="/plamen.jpeg"
                   alt={`${profile?.name || "Plamen Zhelev"}, founder and lead plumbing engineer`}
-                  width={800}
-                  height={1000}
+                  width={600}
+                  height={750}
                   className="w-full h-full object-cover"
-                  priority
                 />
               </div>
             </div>
 
-            <div>
-              <div className="inline-flex items-center px-3 py-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs font-semibold tracking-wide uppercase mb-4">
-                About Us
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-5 leading-tight">
-                Professional Plumbing Services You Can Trust
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300 mb-2">
+                About us
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+                Professional plumbing you can trust
               </h2>
 
-              <div className="mb-8">
+              {/* Who: face, name, role and the two numbers people look for. */}
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/plamen.jpeg"
+                    alt=""
+                    width={112}
+                    height={112}
+                    className="h-14 w-14 rounded-full object-cover object-top ring-2 ring-white shadow-md dark:ring-gray-800 lg:hidden"
+                  />
+                  <div>
+                    <p className="font-bold text-gray-900 dark:text-white">{profile?.name || "Plamen Zhelev"}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Founder &amp; plumbing engineer</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-gray-700">
+                    <svg className="h-3.5 w-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <AdminProfileData type="years_of_experience" fallback="10+ Years" />
+                    <span className="font-normal text-gray-500 dark:text-gray-400">experience</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs sm:text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-gray-700">
+                    <svg className="h-3.5 w-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                    </svg>
+                    {responseTimeNormalized} min
+                    <span className="font-normal text-gray-500 dark:text-gray-400">response</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4">
                 <AboutExpandable aboutHtml={aboutHtml} />
               </div>
 
-              {/* Credentials */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                    Experience
-                  </div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
-                    <AdminProfileData type="years_of_experience" fallback="10+ Years" />
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                    Response
-                  </div>
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
-                    {responseTimeNormalized} minutes
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 col-span-2 sm:col-span-1">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+              {/* Credentials as tags in one card, two columns on larger screens. */}
+              <div className="mt-5 grid gap-4 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:grid-cols-2 sm:p-5">
+                <div>
+                  <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Certifications
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <ProfileListWithShowMore
-                      value={profile?.certifications}
-                      fallback="Kitchen plumbing specialist. Registered professional with City & Guilds Level 3 in Plumbing & Heating. Holder of CSCS JIB Gold Card."
-                    />
-                  </div>
+                  </h3>
+                  <ProfileListWithShowMore
+                    value={profile?.certifications}
+                    fallback="Kitchen plumbing specialist. Registered professional with City & Guilds Level 3 in Plumbing & Heating. Holder of CSCS JIB Gold Card."
+                  />
                 </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 col-span-2 sm:col-span-1">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                    Areas of Expertise
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <ProfileListWithShowMore
-                      value={profile?.specializations}
-                      fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
-                    />
-                  </div>
+                <div>
+                  <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Areas of expertise
+                  </h3>
+                  <ProfileListWithShowMore
+                    value={profile?.specializations}
+                    fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
+                  />
                 </div>
               </div>
-
             </div>
           </div>
         </div>
