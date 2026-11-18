@@ -73,7 +73,7 @@ function PricingCardSkeleton() {
 
 function SectionPricingLoading() {
   return (
-    <section className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+    <section className="relative py-10 sm:py-14 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
@@ -83,7 +83,7 @@ function SectionPricingLoading() {
             Transparent Pricing
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            FixMyLeak - Professional Rates
+            Our rates
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Clear, competitive pricing with no hidden fees. Choose the service that best fits your needs.
@@ -157,172 +157,134 @@ export function SectionPricing({ initialCards = [] }: { initialCards?: PricingCa
       </section>
     );
   }
+  const single = pricingCards.length === 1;
+
   return (
-    <section
-      className="relative py-12 sm:py-16 md:py-24 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500"
-    >
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-800 dark:text-blue-300 text-sm font-medium mb-6">
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
-            Transparent Pricing
-          </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            FixMyLeak - Professional Rates
+    <section className="relative py-10 sm:py-14 overflow-hidden bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300 mb-2">
+            Transparent pricing
+          </p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            Our rates
           </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Clear, competitive pricing with no hidden fees. Choose the service
-            that best fits your needs.
+          <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Clear pricing, no hidden fees. Labour is charged by the hour.
           </p>
         </div>
 
-        {/* Dynamic Pricing Cards - Fixed Height Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-center max-w-6xl mx-auto mb-16">
+        {/* One card is laid out wide (price on the left, what is covered on the
+            right) instead of sitting in half of a two-column grid. */}
+        <div className={`grid gap-5 mx-auto ${single ? "max-w-4xl" : "lg:grid-cols-2 max-w-6xl"}`}>
           {pricingCards.map((card, index) => {
             const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
+            const labelKey = card.table_headers?.[0];
+            const valueKeys = card.table_headers?.slice(1) ?? [];
+            const rows = labelKey ? card.table_rows ?? [] : [];
 
             return (
-            <div key={card.id} className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden flex flex-col h-full">
-              {/* A single accent bar carries the card's colour. The old design put
-                  four blurred blobs behind the content, which fought the text. */}
-              <div className={`h-1.5 w-full bg-gradient-to-r ${accent.bar}`} />
+              <article
+                key={card.id}
+                className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              >
+                <div className={`h-1 w-full bg-gradient-to-r ${accent.bar}`} />
 
-              <div className="flex flex-col h-full p-6 sm:p-8">
-                {/* Header */}
-                <div className="flex items-start gap-4 mb-6 flex-shrink-0">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${accent.iconBg}`}>
-                    <svg className={`w-6 h-6 ${accent.iconFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d={accent.iconPath} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                    </svg>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-snug">
-                      {card.title}
-                    </h3>
-                    {card.subtitle && (
-                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
-                        {card.subtitle}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Rates. The price is the reason people are on this section, so
-                    each row leads with the figure at display size rather than
-                    hiding it in a table cell. */}
-                {card.table_rows && card.table_rows.length > 0 && card.table_headers && (
-                  <div className="space-y-2 mb-6 flex-shrink-0">
-                    {card.table_rows.map((row, rowIndex) => {
-                      const labelKey = card.table_headers![0];
-                      const valueKeys = card.table_headers!.slice(1);
-
-                      return (
-                        <div
-                          key={rowIndex}
-                          className={`rounded-2xl px-4 py-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ${accent.rateBg}`}
-                        >
-                          <div className="min-w-0">
-                            <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                              {labelKey}
-                            </div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-snug">
-                              {row[labelKey] || ""}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            {valueKeys.map((key) => (
-                              <div key={key}>
-                                <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                  {key}
-                                </div>
-                                <div className={`text-2xl sm:text-3xl font-bold tracking-tight ${accent.price}`}>
-                                  {row[key] || ""}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* What's covered */}
-                {card.notes && card.notes.length > 0 && (
-                  <div className="border-t border-gray-100 dark:border-gray-700 pt-5 flex-1">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
-                      What&apos;s covered
+                <div className={`grid gap-5 p-5 sm:p-6 ${single ? "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-8" : ""}`}>
+                  {/* Left: what it is, the price, and the way to book it */}
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${accent.iconBg}`}>
+                        <svg className={`h-5 w-5 ${accent.iconFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d={accent.iconPath} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-bold leading-snug text-gray-900 dark:text-white">{card.title}</h3>
+                        {card.subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{card.subtitle}</p>}
+                      </div>
                     </div>
-                    <ul className="space-y-2.5">
-                      {card.notes.map((note, noteIndex) => (
-                        <li key={noteIndex} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                          <span className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${accent.checkBg}`}>
-                            <svg className={`w-2.5 h-2.5 ${accent.checkFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    {rows.map((row, rowIndex) => (
+                      <div key={rowIndex} className={`mt-4 rounded-2xl px-4 py-3 ${accent.rateBg}`}>
+                        {valueKeys.map((key) => (
+                          <div key={key} className="flex items-baseline gap-1.5">
+                            <span className={`text-3xl font-extrabold tracking-tight ${accent.price}`}>{row[key] || ""}</span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{key}</span>
+                          </div>
+                        ))}
+                        {row[labelKey!] && (
+                          <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                            <svg className="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                            </svg>
+                            {row[labelKey!]}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+
+                    <a
+                      href="#contact"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-500 md:mt-auto"
+                    >
+                      Book this service
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M13 7l5 5m0 0l-5 5m5-5H6" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} />
+                      </svg>
+                    </a>
+                  </div>
+
+                  {/* Right: what is covered, as compact tags rather than a long
+                      one-per-line list. */}
+                  {card.notes && card.notes.length > 0 && (
+                    <div>
+                      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        What&apos;s covered
+                      </p>
+                      <ul className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {card.notes.map((note, noteIndex) => (
+                          <li
+                            key={noteIndex}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs sm:text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300"
+                          >
+                            <svg className={`h-3 w-3 shrink-0 ${accent.checkFg}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                               <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} />
                             </svg>
-                          </span>
-                          <span className="leading-snug">{note.text}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
+                            {note.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </article>
             );
           })}
         </div>
 
-        {/* Good-to-know notes. Four repeated tick icons in four colours read as
-            decoration; these are terms, so they are set as a plain definition
-            list with the operative phrase carrying the emphasis. */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 sm:p-8 max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
+        {/* Good to know: the four terms in one compact strip. */}
+        <dl className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-gray-200 bg-gray-200 dark:border-gray-700 dark:bg-gray-700 lg:grid-cols-4">
+          {[
+            { term: "Labour only", detail: "Materials are extra. You can supply your own." },
+            { term: "Materials via us", detail: "At cost plus 20% if we source them." },
+            { term: "Call-out fee", detail: "Covers travel and the first assessment." },
+            { term: "Full-day rate", detail: "Cheaper per hour, subject to availability." },
+          ].map((item) => (
+            <div key={item.term} className="bg-white p-3 sm:p-4 dark:bg-gray-800">
+              <dt className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{item.term}</dt>
+              <dd className="mt-0.5 text-xs sm:text-sm leading-snug text-gray-600 dark:text-gray-400">{item.detail}</dd>
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-              Good to know
-            </h3>
-          </div>
-
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
-            {[
-              { term: "Labour only", detail: "Rates above exclude materials, which you are welcome to supply yourself." },
-              { term: "Materials via us", detail: "Supplied at cost plus 20% if you would rather we handled it." },
-              { term: "Call-out fee", detail: "Covers travel and the initial assessment of the problem." },
-              { term: "Full-day rate", detail: "Works out cheaper per hour, subject to availability." },
-            ].map((item) => (
-              <div key={item.term}>
-                <dt className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-                  {item.term}
-                </dt>
-                <dd className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {item.detail}
-                </dd>
-              </div>
-            ))}
-          </dl>
-
-          <p className="mt-7 pt-5 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 text-center">
-            Prices are benchmarked against average South West London rates.
-          </p>
-        </div>
+          ))}
+        </dl>
+        <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
+          Prices are benchmarked against average South West London rates.
+        </p>
       </div>
     </section>
   );
