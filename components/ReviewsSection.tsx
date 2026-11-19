@@ -182,13 +182,30 @@ type Item = {
 
 export function ReviewsSection({
   initialReviews = [],
-  google = null,
+  google: googleFromPage = null,
 }: {
   initialReviews?: Review[];
   /** Rating and newest reviews from Google, when connected in the admin. */
   google?: GoogleReviewsSummary | null;
 }) {
   const { reviews: fetchedReviews, isLoading, error } = useReviews();
+
+  // The page is pre-rendered and refreshed at most hourly, so it can be older
+  // than the Google settings. Ask the live endpoint as well; it answers from a
+  // short cache and Google is asked at most hourly behind it.
+  const [googleLive, setGoogleLive] = useState<GoogleReviewsSummary | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/google-reviews', { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { google?: GoogleReviewsSummary | null; reason?: string | null } | null) => {
+        if (data?.google) setGoogleLive(data.google);
+        else if (data?.reason) console.info('Google reviews not shown:', data.reason);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+  const google = googleLive ?? googleFromPage;
 
   // Seeded from the server for the same reason as the FAQ: the review text is
   // page content, and it was reaching crawlers only after JavaScript ran.

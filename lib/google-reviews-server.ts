@@ -119,18 +119,61 @@ export async function fetchPlaceSummary(
 }
 
 /**
- * For the public pages. Never throws: Google being down, a wrong key or a
- * missing table just means the site shows its own reviews alone.
+ * Why there is no Google data, in words safe to show publicly (never the key).
+ * Lets the public endpoint say what is wrong on a deployment we cannot log in to.
  */
-export async function getGoogleReviewsSummary(): Promise<GoogleReviewsSummary | null> {
+export type GoogleReviewsReason =
+  | "no_server_key"
+  | "settings_table_missing"
+  | "settings_unreadable"
+  | "disabled"
+  | "no_place"
+  | "no_api_key"
+  | "google_error"
+  | "no_data";
+
+export type GoogleReviewsResult = {
+  summary: GoogleReviewsSummary | null;
+  reason: GoogleReviewsReason | null;
+  /** Google's HTTP status when reason is google_error. */
+  googleStatus?: number;
+};
+
+/** Never throws: Google down, a wrong key or a missing table just mean "no Google data". */
+export async function getGoogleReviewsResult(): Promise<GoogleReviewsResult> {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    return { summary: null, reason: "no_server_key" };
+  }
+
+  let config: GoogleReviewsConfig;
   try {
-    const { config } = await getStoredGoogleConfig();
-    if (config.enabled === false || !config.placeId) return null;
-    const { key } = effectiveApiKey(config);
-    if (!key) return null;
-    return await fetchPlaceSummary(key, config.placeId);
+    const stored = await getStoredGoogleConfig();
+    if (!stored.tableReady) return { summary: null, reason: "settings_table_missing" };
+    config = stored.config;
+  } catch (error) {
+    console.error("Google reviews: settings unreadable:", error instanceof Error ? error.message : error);
+    return { summary: null, reason: "settings_unreadable" };
+  }
+
+  if (config.enabled === false) return { summary: null, reason: "disabled" };
+  if (!config.placeId) return { summary: null, reason: "no_place" };
+  const { key } = effectiveApiKey(config);
+  if (!key) return { summary: null, reason: "no_api_key" };
+
+  try {
+    const summary = await fetchPlaceSummary(key, config.placeId);
+    return summary ? { summary, reason: null } : { summary: null, reason: "no_data" };
   } catch (error) {
     console.error("Google reviews unavailable:", error instanceof Error ? error.message : error);
-    return null;
+    return {
+      summary: null,
+      reason: "google_error",
+      googleStatus: error instanceof GoogleApiError ? error.status : undefined,
+    };
   }
+}
+
+/** For the public pages: the summary alone. */
+export async function getGoogleReviewsSummary(): Promise<GoogleReviewsSummary | null> {
+  return (await getGoogleReviewsResult()).summary;
 }
