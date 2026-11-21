@@ -17,6 +17,7 @@ import LayoutMain from "@/components/LayoutMain";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND_NAME, legalName } from "@/lib/brand";
+import { googleBusiness } from "@/config/site";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
@@ -230,9 +231,10 @@ export default async function RootLayout({
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 51.5074,
-      "longitude": -0.1278
+      "latitude": googleBusiness.latitude,
+      "longitude": googleBusiness.longitude
     },
+    "hasMap": googleBusiness.profileUrl,
     "areaServed": areas?.map(area => ({
       "@type": "City",
       "name": area.name,
@@ -283,6 +285,7 @@ export default async function RootLayout({
     },
     ...(aggregateRating ? { aggregateRating } : {}),
     "sameAs": [
+      googleBusiness.profileUrl,
       "https://www.linkedin.com/company/fixmyleak"
     ],
     "about": adminProfile?.about || ""

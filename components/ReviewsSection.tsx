@@ -2,6 +2,7 @@
 
 import { useReviews } from '@/hooks/useReviews';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { googleBusiness } from '@/config/site';
 
 const REVIEWS_DESKTOP = 6;
 const REVIEWS_MOBILE = 3;
@@ -159,6 +160,24 @@ export function ReviewsSection({ initialReviews = [] }: { initialReviews?: Revie
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Real feedback from real customers about our plumbing services
           </p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={googleBusiness.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-200"
+            >
+              Read all our Google reviews
+            </a>
+            <a
+              href={googleBusiness.writeReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 hover:shadow-md transition-all duration-200"
+            >
+              Leave us a review on Google
+            </a>
+          </div>
         </div>
 
         {reviews.length === 0 ? (
