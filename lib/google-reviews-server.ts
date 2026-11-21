@@ -20,11 +20,14 @@ const PLACES = "https://places.googleapis.com/v1";
 export const GOOGLE_REVIEWS_TAG = "google-reviews";
 
 /**
- * Re-asked from Google at most once an hour. That keeps a busy homepage within
- * the Places API free monthly allowance (about 720 calls a month) while the
- * rating and newest reviews stay current.
+ * Re-asked from Google at most every six hours (four times a day), however many
+ * people visit: visitors only ever see the saved answer. That is about 120
+ * calls a month per deployment (preview and live together about 240), well
+ * inside the Places API free allowance of about 1,000 a month, so showing
+ * Google reviews costs nothing. "Test connection" in the admin always asks
+ * Google fresh.
  */
-const REVALIDATE_SECONDS = 3600;
+const REVALIDATE_SECONDS = 6 * 60 * 60;
 
 export class GoogleApiError extends Error {
   constructor(
@@ -93,7 +96,10 @@ export async function searchPlaces(apiKey: string, textQuery: string): Promise<G
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount",
     },
-    body: JSON.stringify({ textQuery, regionCode: "GB", languageCode: "en" }),
+    // includePureServiceAreaBusinesses: businesses that serve an area without a
+    // public address (FixMyLeak is one) are left out of search unless asked
+    // for, which made the admin pick a different, nearby business by mistake.
+    body: JSON.stringify({ textQuery, regionCode: "GB", languageCode: "en", includePureServiceAreaBusinesses: true }),
     cache: "no-store",
   });
   if (!response.ok) throw await googleError(response);
