@@ -1,5 +1,6 @@
 "use client";
 
+import { GoogleReviewsIntegration } from "@/components/admin/GoogleReviewsIntegration";
 import { useState, useEffect } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -1511,6 +1512,9 @@ export default function AdminSettingsPage() {
             <div className="space-y-5 sm:space-y-6">
               {/* Google Calendar Integration */}
               <GoogleCalendarIntegration />
+
+              {/* Google rating and reviews on the website */}
+              <GoogleReviewsIntegration />
 
               {/* WhatsApp */}
               <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6">

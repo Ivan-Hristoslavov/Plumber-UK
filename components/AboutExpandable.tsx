@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 /**
- * About section: text content with Show more / Hide at the bottom and animation.
- * Same pattern as specializations – toggle always at bottom of text.
+ * The about text, cut to a few lines with a soft fade and "Read more". The
+ * full text stays in the page (for search engines); only its height changes.
  */
 export function AboutExpandable({ aboutHtml }: { aboutHtml: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,29 +18,31 @@ export function AboutExpandable({ aboutHtml }: { aboutHtml: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-        About Me
-      </p>
+    <div>
       <div
-        className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
-        style={{ maxHeight: isOpen ? "4000px" : "180px" }}
-        aria-hidden={!isOpen}
+        className="relative overflow-hidden transition-[max-height] duration-300 ease-in-out"
+        style={{ maxHeight: isOpen ? "4000px" : "7.5rem" }}
       >
         <div
-          className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed text-[14px] sm:text-[15px]"
+          className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed text-[14px] sm:text-[15px] prose-p:my-2 first:prose-p:mt-0"
           dangerouslySetInnerHTML={{ __html: aboutHtml }}
         />
+        {!isOpen && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-gray-100 dark:from-gray-900 to-transparent"
+            aria-hidden="true"
+          />
+        )}
       </div>
       <button
         type="button"
         onClick={() => setIsOpen((o) => !o)}
-        className="about-accordion-summary flex items-center gap-2 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:underline text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded px-1 py-1.5 border-0 bg-transparent w-full justify-center sm:justify-start"
+        className="mt-1 inline-flex items-center gap-1 rounded text-sm font-semibold text-blue-600 hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:text-blue-400"
         aria-expanded={isOpen}
       >
-        <span>{isOpen ? "Hide" : "Show more"}</span>
+        {isOpen ? "Show less" : "Read more"}
         <svg
-          className={`w-4 h-4 transition-transform duration-300 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

@@ -1,9 +1,9 @@
 import type { Availability } from "@/lib/availability";
 
 /**
- * Answers the one question someone with a burst pipe at 23:00 actually has:
- * will anyone pick up. Server-rendered, so it is in the HTML rather than
- * appearing after hydration.
+ * Tells visitors when the business is away (holiday, day off) and when it is
+ * back. Server-rendered, so it is in the HTML rather than appearing after
+ * hydration.
  */
 export function AvailabilityBadge({
   availability,
@@ -12,21 +12,10 @@ export function AvailabilityBadge({
   availability: Availability;
   className?: string;
 }) {
-  if (availability.available) {
-    return (
-      <div
-        className={`inline-flex items-center gap-2 rounded-full bg-green-500/15 border border-green-400/40 px-3.5 py-1.5 backdrop-blur-sm ${className}`}
-      >
-        <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-400" />
-        </span>
-        <span className="text-sm font-semibold text-green-300">
-          Available now — we answer 24/7
-        </span>
-      </div>
-    );
-  }
+  // While available, nothing is shown: the client asked for the green
+  // "Available now — we answer 24/7" line to go. The away notice stays, so
+  // nobody expects an answer while the business is closed.
+  if (availability.available) return null;
 
   // returnsOn is the last day away, so the first day back is the day after.
   const returns = availability.returnsOn

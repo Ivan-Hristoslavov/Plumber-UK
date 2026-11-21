@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-interface Area {
+export interface Area {
   id: string;
   name: string;
   slug: string;
@@ -17,9 +17,15 @@ interface Area {
 let areasCache: Area[] | null = null;
 let cachePromise: Promise<Area[]> | null = null;
 
-export function useAreas() {
-  const [areas, setAreas] = useState<Area[]>(areasCache || []);
-  const [loading, setLoading] = useState(!areasCache);
+/**
+ * `initialAreas` lets a server component hand over areas it has already read,
+ * so the first render (and the HTML a crawler sees) contains real links rather
+ * than a placeholder while the browser fetches them.
+ */
+export function useAreas(initialAreas?: Area[]) {
+  const seeded = areasCache || (initialAreas && initialAreas.length > 0 ? initialAreas : null);
+  const [areas, setAreas] = useState<Area[]>(seeded || []);
+  const [loading, setLoading] = useState(!seeded);
   const [error, setError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
 

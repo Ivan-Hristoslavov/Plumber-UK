@@ -6,6 +6,8 @@ import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { BRAND_NAME } from "@/lib/brand";
+import { getAreaContent } from "@/lib/area-content";
+import { getActiveServices } from "@/lib/services";
 
 // Areas change rarely — regenerate hourly so new admin entries appear without a redeploy.
 export const revalidate = 3600;
@@ -59,8 +61,11 @@ export async function generateMetadata({
 
   // Root layout applies a `%s | <company>` template; the combined title stays
   // under ~60 characters so it is not truncated in search results.
-  const title = `Emergency Plumber ${area.name} ${area.postcode}`;
-  const description = `Emergency plumber in ${area.name} (${area.postcode}). Burst pipes, leaks, blocked drains and boilers fixed — ${responseTime}-minute response, same day. Fully insured. Call now.`;
+  // Leak detection leads: it is what people in these areas search for most
+  // (Search Console), and boilers are left out because the site does not
+  // claim gas work.
+  const title = `Plumber & Leak Detection ${area.name} ${area.postcode}`;
+  const description = `Local plumber in ${area.name} (${area.postcode}): hidden leaks found and fixed, blocked drains, taps, toilets and showers. Typical ${responseTime}-minute response. Book online or call.`;
 
   return {
     title,
@@ -99,21 +104,49 @@ export default async function AreaSlugPage({
     .slice(0, 6)
     .map((a) => ({ name: a.name, slug: a.slug }));
 
-  const localKeywords = [
-    `emergency plumber ${area.name}`,
-    `plumber ${area.postcode}`,
-    `leak detection ${area.name}`,
-    `burst pipe repair ${area.name}`,
-    `blocked drain ${area.name}`,
-    `boiler repair ${area.name}`,
+  const content = getAreaContent(area.slug, area.name, area.postcode);
+  const responseMinutes = responseTimeMinutes(area.response_time || profile?.response_time);
+  const services = await getActiveServices().catch(() => []);
+  const fromPrice = (slug: string) => {
+    const price = services.find((s) => s.slug === slug)?.price;
+    return price !== null && price !== undefined ? `from £${price}` : null;
+  };
+  const prices = { leakDetection: fromPrice("leak-detection"), emergency: fromPrice("emergency-plumber") };
+
+  const places = content.neighbourhoods.length ? content.neighbourhoods.join(", ") : area.name;
+  const priceParts = [
+    prices.leakDetection && `leak detection starts ${prices.leakDetection}`,
+    prices.emergency && `emergency call-outs start ${prices.emergency}`,
+  ].filter(Boolean) as string[];
+  const priceSentence = priceParts.length
+    ? `${priceParts.join(" and ").replace(/^./, (c) => c.toUpperCase())}. `
+    : "";
+  const faqs = [
+    {
+      question: `Do you cover all of ${area.name}?`,
+      answer: `Yes. We work across ${area.name} (${content.postcodes.join(", ") || area.postcode}), including ${places}, and the neighbouring areas.`,
+    },
+    {
+      question: `How quickly can you get to me in ${area.name}?`,
+      answer: `Our typical response time in ${area.name} is around ${responseMinutes} minutes for emergencies. For non-urgent jobs you can book a time online that suits you.`,
+    },
+    {
+      question: "Can you find a hidden leak without ripping up floors?",
+      answer:
+        "We trace the leak to its source first, so only the spot that needs it is opened up. Damp patches, stains on the ceiling below, a meter that keeps moving or a higher water bill are the usual signs.",
+    },
+    {
+      question: `How much does a plumber in ${area.name} cost?`,
+      answer: `${priceSentence}You are told the price before any work starts, and there is nothing to pay upfront when you book.`,
+    },
   ];
 
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    serviceType: "Emergency Plumbing",
-    name: `Emergency Plumber in ${area.name}`,
-    description: area.description,
+    serviceType: "Plumbing and leak detection",
+    name: `Plumber & Leak Detection in ${area.name}`,
+    description: content.intro[0],
     areaServed: {
       "@type": "City",
       name: area.name,
@@ -142,10 +175,20 @@ export default async function AreaSlugPage({
       {
         "@type": "ListItem",
         position: 3,
-        name: `Emergency Plumber ${area.name}`,
+        name: `Plumber ${area.name}`,
         item: `${base}/areas/${area.slug}`,
       },
     ],
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
   };
 
   return (
@@ -158,11 +201,14 @@ export default async function AreaSlugPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <AreaPage
         areaName={area.name}
         postcode={area.postcode}
-        description={area.description}
-        localKeywords={localKeywords}
+        responseMinutes={responseMinutes}
+        content={content}
+        faqs={faqs}
+        prices={prices}
         nearbyAreas={nearbyAreas}
       />
     </main>

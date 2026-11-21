@@ -17,6 +17,7 @@ import LayoutMain from "@/components/LayoutMain";
 import { getAdminProfile } from "@/lib/admin-profile";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND_NAME, legalName } from "@/lib/brand";
+import { credentialsSentence, getPublicCredentials } from "@/lib/credentials";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || 'G-QPF9F5SRFG';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
@@ -24,6 +25,7 @@ const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || 'y1fa7e
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getAdminProfile();
+  const credentials = credentialsSentence(await getPublicCredentials());
   const companyName = BRAND_NAME;
 
   // Ensure years_of_experience includes "Years" if not already present
@@ -43,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: `${companyName} | Emergency Plumber London – Same Day Service`,
       template: `%s | ${companyName}`,
     },
-    description: `Emergency plumber covering South West London — Clapham, Chelsea, Battersea, Balham and more. ${responseTimeNormalized}-minute response, same-day service. Gas Safe registered, fully insured.`,
+    description: `Emergency plumber covering South West London — Clapham, Chelsea, Battersea, Balham and more. ${responseTimeNormalized}-minute response, same-day service.${credentials}`,
     keywords: [
       "emergency plumber London",
       "plumber Clapham",
@@ -91,7 +93,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation. Gas Safe registered, fully insured.`,
+      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation.${credentials}`,
       type: "website",
       locale: "en_GB",
       siteName: companyName,
@@ -146,7 +148,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "DC.identifier": process.env.NEXT_PUBLIC_SITE_URL || 'https://fixmyleak.co.uk',
       "DC.language": "en",
       "DC.coverage": "South West London",
-      "DC.rights": "Copyright © 2024 FixMyLeak. All rights reserved.",
+      "DC.rights": `Copyright © ${new Date().getFullYear()} ${companyName}. All rights reserved.`,
     },
   };
 }
