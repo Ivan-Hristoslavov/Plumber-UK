@@ -6,6 +6,7 @@ import {
   renderEmailHtml,
   siteUrl,
 } from "@/lib/email-templates";
+import { googleBusiness } from "@/config/site";
 
 /**
  * Builders for every email the site sends. They live here, not in the API
@@ -172,6 +173,10 @@ export function generateInvoiceEmailHtml(invoice: any, paymentLink: string | nul
         ? [{ type: "paragraph" as const, text: "Photos of the completed work are attached to this email." }]
         : []),
       {
+        type: "paragraph",
+        text: "Happy with the work? A quick Google review helps local people find us. It takes less than a minute (button below).",
+      },
+      {
         type: "rows",
         title: "How to pay",
         rows: paymentLink
@@ -187,9 +192,13 @@ export function generateInvoiceEmailHtml(invoice: any, paymentLink: string | nul
             ],
       },
     ],
-    buttons: paymentLink
-      ? [{ label: `Pay ${total} online`, url: paymentLink, tone: "success" }]
-      : [],
+    buttons: [
+      ...(paymentLink
+        ? [{ label: `Pay ${total} online`, url: paymentLink, tone: "success" as const }]
+        : []),
+      // Always the real FixMyLeak profile, so reviews never land on another listing.
+      { label: "Leave a Google review", url: googleBusiness.writeReviewUrl, tone: "light" as const },
+    ],
     footerNote: `Questions about this invoice? Get in touch:\n${invoice.company_name}${invoice.company_phone ? `\n${invoice.company_phone}` : ""}${invoice.company_email ? `\n${invoice.company_email}` : ""}${invoice.company_address ? `\n${invoice.company_address}` : ""}`,
   });
 }

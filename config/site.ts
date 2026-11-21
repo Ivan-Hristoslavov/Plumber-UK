@@ -1,5 +1,22 @@
 export type SiteConfig = typeof siteConfig;
 
+// The business's real Google Business Profile ("FixMyLeak", 07541 777225).
+// There is a second, unrelated listing ("PZ Plumber Limited", Mitcham, ~7
+// reviews) that is NOT this business, so never link to that one.
+const GOOGLE_PLACE_ID = "ChIJZ1bnK9629gcRDI3CBBY66SE";
+const GOOGLE_CID = "2443548139068755212";
+
+export const googleBusiness = {
+  placeId: GOOGLE_PLACE_ID,
+  // Opens the profile with all its reviews.
+  profileUrl: `https://www.google.com/maps?cid=${GOOGLE_CID}`,
+  // Opens the "write a review" box straight away.
+  writeReviewUrl: `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`,
+  // Pin of the profile, so the site and Google describe the same place.
+  latitude: 51.4485528,
+  longitude: -0.1605524,
+};
+
 export const siteConfig = {
   name: "FIX MY LEAK",
   description:
