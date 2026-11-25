@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 
 import { stripe, STRIPE_TO_DB_STATUS, isStripeAvailable } from "../../../../lib/stripe";
 import { supabase } from "../../../../lib/supabase";
 import { planBillingUpdate } from "@/lib/membership-billing";
 import { applyBillingPlan } from "@/lib/membership-billing-server";
+import { sendFirstPaymentEmails } from "@/lib/membership-payment-emails-server";
 
 // Handle OPTIONS requests (preflight)
 export async function OPTIONS(request: NextRequest) {
@@ -104,6 +105,11 @@ export async function POST(request: NextRequest) {
     if (billing) {
       console.log('🤝 Processing membership billing event:', event.type);
       const result = await applyBillingPlan(billing);
+      if (result.firstPayment && result.membershipId) {
+        // After the answer to Stripe, so a slow mail server cannot make it retry.
+        const membershipId = result.membershipId;
+        after(() => sendFirstPaymentEmails(membershipId));
+      }
       if (!result.found) {
         // Stripe sends every event on the account; one for someone we do not know is not a failure.
         console.warn('No membership found for billing event', event.id, billing.match);

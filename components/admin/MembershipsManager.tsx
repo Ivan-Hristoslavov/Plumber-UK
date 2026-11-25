@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
+import { MembershipBilling } from "@/components/admin/MembershipBilling";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { useToast } from "@/components/Toast";
 import {
@@ -183,7 +184,7 @@ function ActionDialog({
     },
     cancel: {
       title: `Cancel ${member.full_name}'s membership?`,
-      body: "This ends the membership and frees their place. It cannot be undone, but they can apply again.",
+      body: "This ends the membership, frees their place and stops their monthly payments in Stripe. Nothing is refunded automatically. It cannot be undone, but they can apply again.",
     },
   };
 
@@ -362,6 +363,7 @@ function MemberCard({
   onSaveNotes,
   onSendLink,
   onCopyLink,
+  onBillingChanged,
 }: {
   member: Membership;
   billingReady: boolean;
@@ -370,6 +372,7 @@ function MemberCard({
   onSaveNotes: (member: Membership, notes: string) => Promise<void>;
   onSendLink: (member: Membership) => void;
   onCopyLink: (url: string) => void;
+  onBillingChanged: () => void;
 }) {
   const [notes, setNotes] = useState(member.admin_notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
@@ -492,6 +495,14 @@ function MemberCard({
                 </button>
               )}
             </div>
+          )}
+          {canPaymentLink && (
+            <MembershipBilling
+              memberId={member.id}
+              name={member.full_name}
+              ended={member.status === "cancelled" || member.status === "declined"}
+              onChanged={onBillingChanged}
+            />
           )}
         </div>
       )}
@@ -870,7 +881,7 @@ export function MembershipsManager() {
         startDate: options.startDate,
         sendEmail: options.sendEmail,
         includePaymentLink: options.includePaymentLink,
-      })) as { membership: Membership; emailSent: boolean | null; paymentLinkUrl?: string | null; paymentLinkError?: string | null };
+      })) as { membership: Membership; emailSent: boolean | null; paymentLinkUrl?: string | null; paymentLinkError?: string | null; billingError?: string | null };
       applyRow(result.membership);
       const name = dialog.member.full_name;
       const parts = [
@@ -882,6 +893,7 @@ export function MembershipsManager() {
         result.paymentLinkUrl ? "The payment link is ready." : "",
         result.paymentLinkError ? `No payment link: ${result.paymentLinkError}` : "",
       ].filter(Boolean);
+      if (result.billingError) showError(`${name}: payments not stopped`, `${result.billingError} Open Billing history on their card, or Stripe, and cancel the subscription.`);
       showSuccess(`${name}: ${STATUS_LABEL[result.membership.status].toLowerCase()}`, parts.join(" "));
       setDialog(null);
     } catch (error) {
@@ -1100,6 +1112,7 @@ export function MembershipsManager() {
                       onSaveNotes={saveNotes}
                       onSendLink={(row) => { setLinkError(null); setLinkMember(row); }}
                       onCopyLink={copyLink}
+                      onBillingChanged={load}
                     />
                   ))}
                 </div>

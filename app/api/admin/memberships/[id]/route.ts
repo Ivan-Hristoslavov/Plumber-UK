@@ -16,6 +16,7 @@ import {
   londonToday,
   needsFreePlace,
 } from "@/lib/memberships";
+import { describeBillingError, stopSubscription } from "@/lib/membership-billing-admin-server";
 import { createAndStorePaymentLink, describePaymentLinkError } from "@/lib/membership-payment-link-server";
 import { sendEmail } from "@/lib/sendgrid";
 
@@ -135,6 +136,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
+    // A cancelled member must not keep being charged. The cancellation is already
+    // saved, so a subscription that could not be stopped is reported, not hidden.
+    let billingError: string | null = null;
+    if (action === "cancel") {
+      try {
+        await stopSubscription(updated);
+      } catch (error) {
+        console.error("Admin memberships: subscription not stopped", error);
+        billingError = describeBillingError(error).message;
+      }
+    }
+
     // The change is saved; a failed email must not turn that into an error.
     let emailSent: boolean | null = null;
     if ((action === "approve" || action === "decline") && body.sendEmail === true) {
@@ -151,7 +164,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    return NextResponse.json({ membership: result, emailSent, paymentLinkUrl, paymentLinkError });
+    return NextResponse.json({ membership: result, emailSent, paymentLinkUrl, paymentLinkError, billingError });
   } catch (error) {
     console.error("Admin memberships: unexpected error", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

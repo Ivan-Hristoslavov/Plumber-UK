@@ -407,6 +407,95 @@ function membershipPortalUrl(): string | null {
   return url && /^https:\/\//i.test(url) ? url : null;
 }
 
+// Sent once, when a member's first payment has been taken. The terms start the
+// benefits at that point, so this is the email that says so.
+export function buildMembershipPaidEmail(m: MembershipEmailInput & { first_paid_at?: string | null }, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+  const portal = membershipPortalUrl();
+  const fee = `£${Number(m.monthly_price).toFixed(2)}`;
+
+  const content = {
+    brandName: company,
+    preheader: `Your first payment has been taken and your ${planLabel(m.plan)} membership has started`,
+    eyebrow: "Founding membership",
+    title: "Payment received, welcome",
+    intro: `Hi ${first},\n\nThank you. Your first payment has been taken and your member benefits have now started.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: fee },
+      },
+      {
+        type: "rows" as const,
+        title: "Your membership",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Property", value: `${m.address}, ${m.postcode}` },
+          { label: "Paid on", value: formatLondonDateTime(m.first_paid_at || new Date()) },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "What happens next",
+        text: `Your membership renews every month at ${fee}. You can cancel at any time with no cancellation fee.`,
+      },
+    ],
+    buttons: [
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "brand" as const }] : []),
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: portal ? ("light" as const) : ("brand" as const) },
+    ],
+    footerNote: `You are receiving this because you are a ${company} Founding member.`,
+  };
+
+  return {
+    subject: `Payment received: your ${company} membership has started`,
+    ...renderEmail(content),
+  };
+}
+
+// The alert the plumber receives at the same moment.
+export function buildMembershipPaidAlertEmail(m: MembershipEmailInput & { first_paid_at?: string | null }) {
+  const base = siteUrl();
+
+  const content = {
+    preheader: `${planLabel(m.plan)} · ${m.postcode} · ${m.phone}`,
+    eyebrow: "Founding 100",
+    title: `${m.full_name} has paid`,
+    intro: "Their first monthly payment went through in Stripe and their member benefits have started.",
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Member",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Phone", value: m.phone, href: `tel:${m.phone}` },
+          { label: "Email", value: m.email, href: `mailto:${m.email}` },
+          { label: "Address", value: `${m.address}, ${m.postcode}` },
+          { label: "Paid on", value: formatLondonDateTime(m.first_paid_at || new Date()) },
+        ],
+      },
+    ],
+    buttons: [{ label: "Open in admin", url: `${base}/admin/memberships`, tone: "brand" as const }],
+    footerNote: "This is an automatic alert from the FixMyLeak membership system.",
+  };
+
+  return {
+    subject: `Founding 100 payment: ${m.full_name} · ${planLabel(m.plan)}`,
+    ...renderEmail(content),
+  };
+}
+
 // Sent when the plumber (re)sends a member their payment link on its own.
 export function buildMembershipPaymentLinkEmail(m: MembershipEmailInput, company: string, paymentUrl: string) {
   const first = m.full_name.split(" ")[0];

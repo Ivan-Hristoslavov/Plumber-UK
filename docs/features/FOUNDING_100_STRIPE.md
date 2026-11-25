@@ -48,6 +48,11 @@ payment links are switched off; accepting members still works.
 - `lib/membership-billing.ts` — pure rules: which Stripe event means "paid",
   "overdue" or "cancelled" for which member. Unit-tested.
 - `lib/membership-billing-server.ts` — applies those changes to the database.
+- `lib/membership-payment-emails-server.ts` — after the first payment, emails the
+  member (benefits have started) and the plumber. Sent once; renewals send nothing.
+- `lib/membership-billing-admin*.ts` and `app/api/admin/memberships/[id]/billing` —
+  billing history read live from Stripe, refunds, pause and cancel. Cancelling a
+  membership in the admin also cancels its subscription.
 - `app/api/webhooks/stripe/route.ts` — membership events are handled first and
   never reach the invoice/booking payment handlers.
 - `app/api/admin/memberships/[id]/payment-link` — "Send payment link".

@@ -24,7 +24,9 @@ export class BillingNotReadyError extends Error {
  * (Stripe sends every event on the account), but a failed database write is,
  * and it throws so the webhook answers with a failure and Stripe retries.
  */
-export async function applyBillingPlan(plan: BillingPlan): Promise<{ found: boolean; membershipId?: string }> {
+export async function applyBillingPlan(
+  plan: BillingPlan,
+): Promise<{ found: boolean; membershipId?: string; firstPayment?: boolean }> {
   const supabase = createMembershipsClient();
 
   let row: BillingRow | null = null;
@@ -57,11 +59,7 @@ export async function applyBillingPlan(plan: BillingPlan): Promise<{ found: bool
 
   if (!row) return { found: false };
 
-  const patch: Record<string, unknown> = { ...plan.set };
-  // The first payment is recorded once and never overwritten.
-  if (plan.firstPaidAt && !row.first_paid_at) patch.first_paid_at = plan.firstPaidAt;
-
-  const { error: updateError } = await supabase.from("memberships").update(patch).eq("id", row.id);
+  const { error: updateError } = await supabase.from("memberships").update(plan.set).eq("id", row.id);
   if (updateError) throw new Error(`Could not save the payment status: ${updateError.message}`);
 
   // The subscription is over, so the membership is too — unless it already was.
@@ -74,5 +72,21 @@ export async function applyBillingPlan(plan: BillingPlan): Promise<{ found: bool
     if (endError) throw new Error(`Could not end the membership: ${endError.message}`);
   }
 
-  return { found: true, membershipId: row.id };
+  // The first payment is recorded once and never overwritten. Stripe sends two
+  // events for it (checkout.session.completed and invoice.paid), often at the
+  // same moment, so the database decides which one was first: only that one
+  // reports firstPayment, and the payment emails go out once.
+  let firstPayment = false;
+  if (plan.firstPaidAt && !row.first_paid_at) {
+    const { data: claimed, error: claimError } = await supabase
+      .from("memberships")
+      .update({ first_paid_at: plan.firstPaidAt })
+      .eq("id", row.id)
+      .is("first_paid_at", null)
+      .select("id");
+    if (claimError) throw new Error(`Could not save the first payment: ${claimError.message}`);
+    firstPayment = (claimed ?? []).length > 0;
+  }
+
+  return { found: true, membershipId: row.id, firstPayment };
 }
