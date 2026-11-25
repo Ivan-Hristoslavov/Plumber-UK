@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 
-import { type BillingAction, type BillingDetails, buildSteps, isRunning, refundable } from "@/lib/membership-billing-admin";
+import { type BillingAction, type BillingDetails, type MembershipPayment, type MembershipPayments, buildSteps, isRunning, refundable } from "@/lib/membership-billing-admin";
 import { stripe } from "@/lib/stripe";
 
 export type BillingMember = {
@@ -186,4 +186,41 @@ export function describeBillingError(error: unknown): { status: number; message:
   }
   if (code === "charge_already_refunded") return { status: 409, message: "This payment has already been refunded." };
   return { status: 502, message: "Stripe could not be reached or refused the request. Please try again." };
+}
+
+/** How many of the account's latest charges are looked through. */
+const MAX_CHARGES = 1000;
+
+/** Charges of every member. The account's one-off payments are left out. */
+export async function listMembershipPayments(
+  members: { id: string; full_name: string; plan: string; stripe_customer_id: string | null }[],
+): Promise<MembershipPayments> {
+  const api = client();
+  const byCustomer = new Map(members.map((member) => [member.stripe_customer_id, member]));
+  if (byCustomer.size === 0) return { payments: [], members: 0, truncated: false };
+
+  const payments: MembershipPayment[] = [];
+  let seen = 0;
+  for await (const charge of api.charges.list({ limit: 100 })) {
+    if (seen >= MAX_CHARGES) break;
+    seen += 1;
+    const member = byCustomer.get(idOf(charge.customer));
+    if (!member) continue;
+    payments.push({
+      id: charge.id,
+      memberId: member.id,
+      name: member.full_name,
+      plan: member.plan,
+      amount: charge.amount,
+      refunded: charge.amount_refunded,
+      currency: charge.currency,
+      status: charge.status,
+      failure: charge.failure_message,
+      disputed: charge.disputed,
+      receiptUrl: charge.receipt_url,
+      live: charge.livemode,
+      created: charge.created,
+    });
+  }
+  return { payments, members: byCustomer.size, truncated: seen >= MAX_CHARGES };
 }

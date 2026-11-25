@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
+import { MembershipPayments } from "@/components/admin/MembershipPayments";
 import { format } from "date-fns";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
@@ -978,6 +979,8 @@ export default function PaymentsPage() {
           </div>
         </div>
       </div>
+
+      <MembershipPayments />
 
       {/* Payments Table */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-colors duration-300">

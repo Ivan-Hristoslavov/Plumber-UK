@@ -131,3 +131,31 @@ export function buildSteps(
 
   return steps.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 }
+
+/** One membership charge, for the Payments page. */
+export type MembershipPayment = {
+  id: string;
+  memberId: string;
+  name: string;
+  plan: string;
+  amount: number;
+  refunded: number;
+  currency: string;
+  status: BillingCharge["status"];
+  failure: string | null;
+  disputed: boolean;
+  receiptUrl: string | null;
+  live: boolean;
+  created: number;
+};
+
+export type MembershipPayments = { payments: MembershipPayment[]; members: number; truncated: boolean };
+
+export function paymentLabel(payment: Pick<BillingCharge, "status" | "amount" | "refunded" | "disputed">): string {
+  if (payment.status === "failed") return "Failed";
+  if (payment.status === "pending") return "Processing";
+  if (payment.disputed) return "Disputed";
+  if (payment.refunded >= payment.amount) return "Refunded";
+  if (payment.refunded > 0) return "Part refunded";
+  return "Paid";
+}
