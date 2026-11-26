@@ -53,7 +53,7 @@ export function SendInvoiceModal({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Send Invoice
             </h3>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               disabled={isLoading}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
@@ -125,10 +125,10 @@ export function SendInvoiceModal({
             {/* Currency Selection */}
             {includePaymentLink && (
               <div className="mt-4 ml-7">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="send-invoice-modal-selected-currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Payment Currency
                 </label>
-                <select
+                <select id="send-invoice-modal-selected-currency"
                   value={selectedCurrency}
                   onChange={(e) => setSelectedCurrency(e.target.value)}
                   disabled={isLoading}

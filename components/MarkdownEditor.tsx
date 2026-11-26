@@ -8,6 +8,8 @@ interface MarkdownEditorProps {
   placeholder?: string;
   rows?: number;
   className?: string;
+  /** Name for screen readers when there is no visible label tied to it. */
+  label?: string;
 }
 
 export function MarkdownEditor({ 
@@ -15,7 +17,8 @@ export function MarkdownEditor({
   onChange, 
   placeholder = "Enter your text here...", 
   rows = 6,
-  className = ""
+  className = "",
+  label = "Text",
 }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -176,6 +179,7 @@ export function MarkdownEditor({
       {/* Textarea */}
       <textarea
         ref={textareaRef}
+        aria-label={label}
         className="flex-1 min-h-[200px] w-full px-4 py-3 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors font-mono text-sm resize-y"
         rows={rows}
         placeholder={placeholder}

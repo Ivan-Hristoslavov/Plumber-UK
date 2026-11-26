@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
 import { MembershipBilling } from "@/components/admin/MembershipBilling";
+import { RequiredNote } from "@/components/admin/RequiredNote";
+import { SaveBar } from "@/components/admin/SaveBar";
 import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { useToast } from "@/components/Toast";
 import {
@@ -649,15 +651,19 @@ function SettingsPanel({
 
       <section className={`${CARD} p-4 sm:p-6`}>
         <h2 className="text-base font-semibold text-gray-900 dark:text-white">Programme</h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+        <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Who can join, and how many.</p>
+        <RequiredNote className="mt-1" />
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
           <Toggle
             checked={form.applicationsOpen}
             onChange={(applicationsOpen) => setForm({ ...form, applicationsOpen })}
             label="Taking applications"
             hint="Turn off to stop new applications. The pages stay visible, the buttons say closed."
           />
-          <div>
-            <label htmlFor="founding-limit" className="mb-1.5 block text-sm font-semibold text-gray-900 dark:text-white">
+          </div>
+          <div className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
+            <label data-required htmlFor="founding-limit" className="mb-1.5 block text-sm font-semibold text-gray-900 dark:text-white">
               Number of places
             </label>
             <input
@@ -669,7 +675,8 @@ function SettingsPanel({
               step={1}
               value={form.limit}
               onChange={(e) => setForm({ ...form, limit: e.target.value })}
-              className={`${INPUT} max-w-[10rem]`}
+              required
+              className={INPUT}
             />
             <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
               {taken} {taken === 1 ? "place is" : "places are"} taken, so this cannot go lower than that.
@@ -688,13 +695,15 @@ function SettingsPanel({
             <div key={plan.id} className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700">
               <p className="text-sm font-semibold text-gray-900 dark:text-white">{plan.name}</p>
               <div className="mt-3 space-y-3">
+                <div className="grid grid-cols-2 items-end gap-3">
                 <div>
-                  <label htmlFor={`price-${plan.id}`} className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">Monthly price (£)</label>
+                  <label data-required htmlFor={`price-${plan.id}`} className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">Monthly price (£)</label>
                   <input
                     id={`price-${plan.id}`}
                     type="number"
                     inputMode="decimal"
                     step="0.01"
+                    required
                     min="0.5"
                     max="500"
                     value={form.plans[plan.id].price}
@@ -703,7 +712,7 @@ function SettingsPanel({
                   />
                 </div>
                 <div>
-                  <label htmlFor={`rate-${plan.id}`} className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
+                  <label data-required htmlFor={`rate-${plan.id}`} className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                     Hourly rate (£){plan.rateApplies ? ` ${plan.rateApplies}` : ""}
                   </label>
                   <input
@@ -711,12 +720,14 @@ function SettingsPanel({
                     type="number"
                     inputMode="decimal"
                     step="0.01"
+                    required
                     min="1"
                     max="500"
                     value={form.plans[plan.id].labourRate}
                     onChange={(e) => setPlan(plan.id, { labourRate: e.target.value })}
                     className={INPUT}
                   />
+                </div>
                 </div>
                 <Toggle
                   checked={form.plans[plan.id].open}
@@ -772,25 +783,16 @@ function SettingsPanel({
         </p>
       )}
 
-      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-        <button
-          type="button"
-          onClick={save}
-          disabled={!dirty || saving || !settingsReady}
-          className="h-10 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {saving ? "Saving…" : "Save settings"}
-        </button>
-        {dirty && (
-          <button type="button" onClick={() => { setForm(saved); setError(null); }} className="h-10 rounded-xl px-4 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
-            Discard changes
-          </button>
-        )}
-        <span className="ml-auto flex gap-4 text-sm">
-          <Link href={FOUNDING_HREF} target="_blank" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">View programme page</Link>
-          <Link href={`${FOUNDING_HREF}/terms`} target="_blank" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">View terms</Link>
-        </span>
-      </div>
+      <SaveBar
+        dirty={dirty}
+        saving={saving}
+        disabled={!settingsReady}
+        onSave={save}
+        onDiscard={() => { setForm(saved); setError(null); }}
+      >
+        <Link href={FOUNDING_HREF} target="_blank" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">View programme page</Link>
+        <Link href={`${FOUNDING_HREF}/terms`} target="_blank" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">View terms</Link>
+      </SaveBar>
     </div>
   );
 }
@@ -969,11 +971,11 @@ export function MembershipsManager() {
             <button
               type="button"
               onClick={() => { setLoading(true); load(); }}
-              className="h-10 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800"
+              className="h-10 flex-1 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800 sm:flex-none"
             >
               Refresh
             </button>
-            <Link href={FOUNDING_HREF} target="_blank" className="inline-flex h-10 items-center rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-500">
+            <Link href={FOUNDING_HREF} target="_blank" className="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-blue-600 px-4 sm:flex-none text-sm font-semibold text-white hover:bg-blue-500">
               View public page
             </Link>
           </>
@@ -1057,7 +1059,7 @@ export function MembershipsManager() {
             />
           ) : (
             <>
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
+              <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filter by status">
                 {(["all", ...MEMBERSHIP_STATUSES] as const).map((key) => {
                   const active = status === key;
                   const count = key === "all" ? data.memberships.length : counts[key];
@@ -1067,7 +1069,7 @@ export function MembershipsManager() {
                       type="button"
                       aria-pressed={active}
                       onClick={() => setStatus(key)}
-                      className={`h-9 rounded-full px-4 text-sm font-semibold transition-colors ${
+                      className={`h-9 shrink-0 rounded-full px-4 text-sm font-semibold transition-colors ${
                         active
                           ? "bg-blue-600 text-white"
                           : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"

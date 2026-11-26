@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useState, useEffect } from "react";
 import { Customer } from "@/types";
 
@@ -141,7 +142,7 @@ export function EditCustomerModal({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Edit Customer
           </h3>
-          <button
+          <button aria-label="Close"
             type="button"
             onClick={onClose}
             disabled={isLoading}
@@ -155,6 +156,7 @@ export function EditCustomerModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
+                <RequiredNote />
           {/* Customer Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -189,10 +191,10 @@ export function EditCustomerModal({
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {formData.customer_type === "company" ? "Company Name" : "Full Name"} *
+              <label data-required htmlFor="edit-customer-modal-form-data-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {formData.customer_type === "company" ? "Company Name" : "Full Name"}
               </label>
-              <input
+              <input aria-required="true" id="edit-customer-modal-form-data-name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => {
@@ -213,10 +215,10 @@ export function EditCustomerModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address *
+              <label data-required htmlFor="edit-customer-modal-form-data-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email Address
               </label>
-              <input
+              <input aria-required="true" id="edit-customer-modal-form-data-email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => {
@@ -237,10 +239,10 @@ export function EditCustomerModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone Number *
+              <label data-required htmlFor="edit-customer-modal-form-data-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Phone Number
               </label>
-              <input
+              <input aria-required="true" id="edit-customer-modal-form-data-phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => {
@@ -261,10 +263,10 @@ export function EditCustomerModal({
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Address *
+              <label data-required htmlFor="edit-customer-modal-form-data-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Address
               </label>
-              <textarea
+              <textarea aria-required="true" id="edit-customer-modal-form-data-address"
                 value={formData.address}
                 onChange={(e) => {
                   setFormData({ ...formData, address: e.target.value });
@@ -294,10 +296,10 @@ export function EditCustomerModal({
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="edit-customer-modal-form-data-vat-number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       VAT Number
                     </label>
-                    <input
+                    <input id="edit-customer-modal-form-data-vat-number"
                       type="text"
                       value={formData.vat_number}
                       onChange={(e) => setFormData({ ...formData, vat_number: e.target.value })}
@@ -315,10 +317,10 @@ export function EditCustomerModal({
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="edit-customer-modal-form-data-contact-person" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Contact Name
                     </label>
-                    <input
+                    <input id="edit-customer-modal-form-data-contact-person"
                       type="text"
                       value={formData.contact_person}
                       onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
@@ -329,10 +331,10 @@ export function EditCustomerModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="edit-customer-modal-form-data-contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Contact Email
                     </label>
-                    <input
+                    <input id="edit-customer-modal-form-data-contact-email"
                       type="email"
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
@@ -343,10 +345,10 @@ export function EditCustomerModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="edit-customer-modal-form-data-contact-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Contact Phone
                     </label>
-                    <input
+                    <input id="edit-customer-modal-form-data-contact-phone"
                       type="tel"
                       value={formData.contact_phone}
                       onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
@@ -362,10 +364,10 @@ export function EditCustomerModal({
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Notes (Optional)
+            <label htmlFor="edit-customer-modal-form-data-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Notes
             </label>
-            <textarea
+            <textarea id="edit-customer-modal-form-data-notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}

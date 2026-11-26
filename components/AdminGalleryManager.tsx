@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import React, { useState, useEffect } from "react";
 import { useGallery } from "@/hooks/useGallery";
 import { useGallerySections } from "@/hooks/useGallerySections";
@@ -592,7 +593,7 @@ export function AdminGalleryManager({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         {/* Tabs */}
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+        <div className="grid grid-cols-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 sm:inline-flex">
           <button
             onClick={() => setActiveTab("items")}
             className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
@@ -614,19 +615,6 @@ export function AdminGalleryManager({
             Sections
           </button>
         </div>
-
-        {/* Add New Item Button */}
-        {activeTab === "items" && (
-          <button
-            onClick={handleAdd}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-xl transition-colors flex items-center gap-2 text-sm font-medium"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add New Item
-          </button>
-        )}
       </div>
 
       {/* Gallery Items Tab */}
@@ -764,7 +752,7 @@ export function AdminGalleryManager({
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingItem ? "Edit Gallery Item" : "Add New Gallery Item"}
               </h4>
-              <button
+              <button aria-label="Close"
                 onClick={() => { setShowAddForm(false); setEditingItem(null); }}
                 className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg"
               >
@@ -774,15 +762,15 @@ export function AdminGalleryManager({
               </button>
               </div>
               <div className="p-4 sm:p-6">
-
+              <RequiredNote className="mb-4" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Title *
+                    <label data-required htmlFor="gallery-form-data-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Title
                     </label>
-                    <input
+                    <input aria-required="true" id="gallery-form-data-title"
                       type="text"
                       value={formData.title}
                       onChange={(e) =>
@@ -797,10 +785,10 @@ export function AdminGalleryManager({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="gallery-form-data-section-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Section
                     </label>
-                    <select
+                    <select id="gallery-form-data-section-id"
                       value={formData.section_id || ""}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -820,10 +808,10 @@ export function AdminGalleryManager({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="gallery-form-data-project-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Project Type
                     </label>
-                    <input
+                    <input id="gallery-form-data-project-type"
                       type="text"
                       value={formData.project_type}
                       onChange={(e) =>
@@ -911,10 +899,10 @@ export function AdminGalleryManager({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="gallery-form-data-completion-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Completion Date
                     </label>
-                    <input
+                    <input id="gallery-form-data-completion-date"
                       type="date"
                       value={formData.completion_date}
                       onChange={(e) =>
@@ -954,7 +942,7 @@ export function AdminGalleryManager({
                   {/* Before Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Before Image *{" "}
+                      Before Image{" "}
                       {editingItem && "(leave empty to keep current)"}
                     </label>
 
@@ -1017,7 +1005,7 @@ export function AdminGalleryManager({
                               alt="Before preview"
                               className="w-full h-32 object-cover rounded"
                             />
-                            <button
+                            <button aria-label="Close"
                               type="button"
                               onClick={() => clearImage("before")}
                               className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
@@ -1109,7 +1097,7 @@ export function AdminGalleryManager({
                   {/* After Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      After Image *{" "}
+                      After Image{" "}
                       {editingItem && "(leave empty to keep current)"}
                     </label>
 
@@ -1172,7 +1160,7 @@ export function AdminGalleryManager({
                               alt="After preview"
                               className="w-full h-32 object-cover rounded"
                             />
-                            <button
+                            <button aria-label="Close"
                               type="button"
                               onClick={() => clearImage("after")}
                               className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
@@ -1265,10 +1253,10 @@ export function AdminGalleryManager({
 
               {/* Description - Full Width */}
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="gallery-form-data-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description
                 </label>
-                <textarea
+                <textarea id="gallery-form-data-description"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -1407,7 +1395,7 @@ export function AdminGalleryManager({
                   ? "Edit Gallery Section"
                   : "Add New Gallery Section"}
               </h4>
-              <button
+              <button aria-label="Close"
                 onClick={() => { setShowAddSectionForm(false); setEditingSection(null); setSectionFormData({ ...defaultSection }); }}
                 className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg"
               >
@@ -1417,13 +1405,13 @@ export function AdminGalleryManager({
               </button>
               </div>
               <div className="p-4 sm:p-6">
-
+              <RequiredNote className="mb-4" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Section Title *
+                  <label data-required htmlFor="gallery-section-form-data-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Section Title
                   </label>
-                  <input
+                  <input aria-required="true" id="gallery-section-form-data-title"
                     type="text"
                     value={sectionFormData.title}
                     onChange={(e) =>
@@ -1438,10 +1426,10 @@ export function AdminGalleryManager({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="gallery-section-form-data-color" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Color
                   </label>
-                  <input
+                  <input id="gallery-section-form-data-color"
                     type="color"
                     value={sectionFormData.color}
                     onChange={(e) =>
@@ -1455,10 +1443,10 @@ export function AdminGalleryManager({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="gallery-section-form-data-order" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Order
                   </label>
-                  <input
+                  <input id="gallery-section-form-data-order"
                     type="number"
                     value={sectionFormData.order}
                     onChange={(e) =>
@@ -1490,10 +1478,10 @@ export function AdminGalleryManager({
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="gallery-section-form-data-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description
                 </label>
-                <textarea
+                <textarea id="gallery-section-form-data-description"
                   value={sectionFormData.description}
                   onChange={(e) =>
                     setSectionFormData((prev) => ({

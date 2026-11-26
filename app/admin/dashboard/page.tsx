@@ -728,7 +728,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Activity</h2>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowActivityModal(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
               >
@@ -801,7 +801,7 @@ export default function DashboardPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">All Bookings</h2>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowBookingsModal(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
               >

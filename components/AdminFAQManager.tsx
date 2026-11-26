@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import React, { useState, useEffect } from "react";
 import { useFAQ } from "@/hooks/useFAQ";
 import { FAQItem } from "@/types";
@@ -33,7 +34,7 @@ function FAQModal({
           <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {editingItem ? "Edit FAQ Item" : "Add New FAQ Item"}
           </h3>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-2 -m-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors touch-manipulation"
           >
@@ -45,11 +46,12 @@ function FAQModal({
 
         {/* Modal Content */}
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1 min-h-0">
+          <RequiredNote />
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Question *
+            <label data-required htmlFor="faq-form-data-question" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Question
             </label>
-            <input
+            <input aria-required="true" id="faq-form-data-question"
               type="text"
               value={formData.question}
               onChange={(e) => setFormData((prev: any) => ({ ...prev, question: e.target.value }))}
@@ -59,10 +61,10 @@ function FAQModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Answer *
+            <label data-required htmlFor="faq-form-data-answer" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Answer
             </label>
-            <textarea
+            <textarea aria-required="true" id="faq-form-data-answer"
               value={formData.answer}
               onChange={(e) => setFormData((prev: any) => ({ ...prev, answer: e.target.value }))}
               rows={5}
@@ -73,10 +75,10 @@ function FAQModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="faq-form-data-order" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Display Order
               </label>
-              <input
+              <input id="faq-form-data-order"
                 type="number"
                 value={formData.order}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
@@ -89,10 +91,10 @@ function FAQModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="faq-form-data-is-active" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Status
               </label>
-              <select
+              <select id="faq-form-data-is-active"
                 value={formData.is_active ? "active" : "inactive"}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, is_active: e.target.value === "active" }))}
                 className="w-full px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors"

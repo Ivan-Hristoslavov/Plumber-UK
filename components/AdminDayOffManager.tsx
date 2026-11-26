@@ -1,4 +1,6 @@
 'use client';
+import { RequiredNote } from "@/components/admin/RequiredNote";
+import { AdminPageHeader } from "@/components/AdminPageHeader";
 import { useState } from 'react';
 import { useDayOffPeriods, DayOffPeriod } from '@/hooks/useDayOffPeriods';
 import { DayOffBanner } from './DayOffBanner';
@@ -25,6 +27,27 @@ const defaultForm: DayOffPeriod = {
   is_recurring: false,
   recurrence_type: null,
 };
+
+const showDay = (value: string) =>
+  new Date(`${value.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+/** Where the period is in time, plus whether visitors see a banner for it. */
+function PeriodBadge({ period }: { period: DayOffPeriod }) {
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" });
+  const [label, tone] = period.is_recurring
+    ? ["Repeats", "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"]
+    : period.end_date.slice(0, 10) < today
+      ? ["Ended", "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"]
+      : period.start_date.slice(0, 10) > today
+        ? ["Upcoming", "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"]
+        : ["Now", "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"];
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5">
+      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone}`}>{label}</span>
+      {period.show_banner && <span className="text-[11px] text-gray-500 dark:text-gray-400">banner on</span>}
+    </span>
+  );
+}
 
 export function AdminDayOffManager() {
   const { periods, loading, error, addPeriod, updatePeriod, deletePeriod } = useDayOffPeriods();
@@ -98,22 +121,22 @@ export function AdminDayOffManager() {
   return (
     <div className="max-w-5xl mx-auto space-y-3 sm:space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Day Off Periods</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block">Manage non-working days and holidays</p>
-        </div>
+      <AdminPageHeader
+        title="Day off"
+        subtitle="Holidays and days you do not work. Customers cannot book them."
+        actions={
         <button
-          onClick={openAdd}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shrink-0"
-          aria-label="Add Day Off"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Add Day Off
-        </button>
-      </div>
+            onClick={openAdd}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shrink-0"
+            aria-label="Add Day Off"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Day Off
+          </button>
+        }
+      />
 
       {/* Main Content */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800/50 overflow-hidden">
@@ -142,16 +165,12 @@ export function AdminDayOffManager() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-gray-900 dark:text-white text-sm truncate">{p.title}</span>
-                  {p.show_banner && (
-                    <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100/80 text-green-700 dark:bg-green-900/40 dark:text-green-300 shrink-0">
-                      Active
-                    </span>
-                  )}
+                  <PeriodBadge period={p} />
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5 text-xs flex-wrap">
-                  <span className="text-gray-900 dark:text-white font-medium">{p.start_date}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">{showDay(p.start_date)}</span>
                   <span className="text-gray-400 dark:text-gray-500">→</span>
-                  <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">{showDay(p.end_date)}</span>
                   {p.banner_message && (
                     <span className="truncate max-w-[140px] text-gray-500 dark:text-gray-400" title={p.banner_message}>· {p.banner_message}</span>
                   )}
@@ -160,7 +179,7 @@ export function AdminDayOffManager() {
               <div className="flex items-center gap-0.5 shrink-0">
                 <button
                   onClick={() => openEdit(p)}
-                  className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  className="p-2.5 rounded-lg hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   aria-label="Edit"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,7 +188,7 @@ export function AdminDayOffManager() {
                 </button>
                 <button
                   onClick={() => { setDeleteId(p.id || null); setDeleteConfirm(true); }}
-                  className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                  className="p-2.5 rounded-lg hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                   aria-label="Delete"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,21 +232,13 @@ export function AdminDayOffManager() {
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1.5 text-sm">
-                      <span className="text-gray-900 dark:text-white font-medium">{p.start_date}</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{showDay(p.start_date)}</span>
                       <span className="text-gray-400 dark:text-gray-500">→</span>
-                      <span className="text-amber-600 dark:text-amber-400 font-medium">{p.end_date}</span>
+                      <span className="text-amber-600 dark:text-amber-400 font-medium">{showDay(p.end_date)}</span>
                     </div>
                   </td>
                   <td className="px-4 py-2.5">
-                    {p.show_banner ? (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100/80 text-green-700 dark:bg-green-900/40 dark:text-green-300">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-600/50 dark:text-gray-400">
-                        Hidden
-                      </span>
-                    )}
+                    <PeriodBadge period={p} />
                   </td>
                   <td className="px-4 py-2.5">
                     <div className="max-w-[180px] truncate text-xs text-gray-500 dark:text-gray-400">
@@ -247,7 +258,7 @@ export function AdminDayOffManager() {
                     <div className="flex items-center justify-end gap-0.5">
                       <button
                         onClick={() => openEdit(p)}
-                        className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        className="p-2.5 rounded-lg hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         aria-label="Edit"
                         title="Edit"
                       >
@@ -257,7 +268,7 @@ export function AdminDayOffManager() {
                       </button>
                       <button
                         onClick={() => { setDeleteId(p.id || null); setDeleteConfirm(true); }}
-                        className="p-1.5 rounded-md hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className="p-2.5 rounded-lg hover:bg-gray-200/80 dark:hover:bg-gray-600/50 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         aria-label="Delete"
                         title="Delete"
                       >
@@ -312,12 +323,13 @@ export function AdminDayOffManager() {
             <div className="p-3 sm:p-5 space-y-3 sm:space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 overflow-y-auto flex-1 min-h-0">
               {/* Left column: Basic Information */}
               <div className="space-y-2 sm:space-y-3">
+                <RequiredNote />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <div>
-                    <label htmlFor="dayoff-title" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
-                      Title <span className="text-red-500">*</span>
+                    <label data-required htmlFor="dayoff-title" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
+                      Title 
                     </label>
-                    <input
+                    <input aria-required="true"
                       id="dayoff-title"
                       type="text"
                       className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-sm"
@@ -343,10 +355,10 @@ export function AdminDayOffManager() {
 
                 <div className="flex gap-3">
                   <div className="flex flex-col">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
-                      Start <span className="text-red-500">*</span>
+                    <label data-required htmlFor="day-off-form-start-date" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
+                      Start 
                     </label>
-                    <input
+                    <input aria-required="true" id="day-off-form-start-date"
                       type="date"
                       className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
                       value={form.start_date}
@@ -355,10 +367,10 @@ export function AdminDayOffManager() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
-                      End <span className="text-red-500">*</span>
+                    <label data-required htmlFor="day-off-form-end-date" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
+                      End 
                     </label>
-                    <input
+                    <input aria-required="true" id="day-off-form-end-date"
                       type="date"
                       className="w-auto min-w-[90px] sm:min-w-[110px] px-1.5 sm:px-2 py-1.5 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200 text-xs sm:text-sm"
                       value={form.end_date}
@@ -433,10 +445,10 @@ export function AdminDayOffManager() {
 
                   {form.show_banner && (
                   <div className="p-1.5 sm:p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
+                    <label htmlFor="day-off-form-banner-message" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
                       Banner Message
                     </label>
-                    <textarea
+                    <textarea id="day-off-form-banner-message"
                       className="w-full px-2 py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs min-h-[52px]"
                       placeholder="Banner message"
                       rows={2}
@@ -448,10 +460,10 @@ export function AdminDayOffManager() {
 
                   {form.is_recurring && (
                     <div className="p-1.5 sm:p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
+                      <label htmlFor="day-off-form-recurrence-type" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5 sm:mb-1">
                         Recurrence Type
                       </label>
-                      <select
+                      <select id="day-off-form-recurrence-type"
                         className="w-full px-2 py-1.5 sm:py-1 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded text-xs"
                         value={form.recurrence_type || 'null'}
                         onChange={e => {
@@ -504,7 +516,7 @@ export function AdminDayOffManager() {
                   Cancel
                 </button>
                 <button
-                  className="px-4 sm:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 text-sm min-w-[100px] sm:min-w-[140px]"
+                  className="px-4 sm:px-5 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 text-sm min-w-[100px] sm:min-w-[140px]"
                   onClick={handleSave}
                   disabled={saving}
                 >

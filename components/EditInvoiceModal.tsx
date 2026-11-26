@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useState, useEffect } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { Customer, Booking, Invoice } from "@/types";
@@ -307,7 +308,7 @@ export function EditInvoiceModal({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Edit Invoice {invoice.invoice_number}
             </h3>
-            <button
+            <button aria-label="Close"
               type="button"
               onClick={onClose}
               disabled={isLoading}
@@ -322,6 +323,7 @@ export function EditInvoiceModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div className="p-4 sm:p-6 space-y-5 overflow-y-auto overflow-x-hidden flex-1 min-h-0 min-w-0">
+                <RequiredNote />
           {/* Business Info Section */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
@@ -347,10 +349,10 @@ export function EditInvoiceModal({
 
           {/* Customer Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Customer *
+            <label data-required htmlFor="edit-invoice-modal-form-data-customer-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Customer
             </label>
-            <select
+            <select aria-required="true" id="edit-invoice-modal-form-data-customer-id"
               value={formData.customer_id}
               onChange={(e) => {
                 setFormData({ ...formData, customer_id: e.target.value, booking_id: "" });
@@ -406,10 +408,10 @@ export function EditInvoiceModal({
 
             {!useManualEntry ? (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Booking *
+                <label data-required htmlFor="edit-invoice-modal-form-data-booking-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Booking
                 </label>
-                <select
+                <select aria-required="true" id="edit-invoice-modal-form-data-booking-id"
                   value={formData.booking_id}
                   onChange={(e) => {
                     setFormData({ ...formData, booking_id: e.target.value });
@@ -441,10 +443,10 @@ export function EditInvoiceModal({
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Service Description *
+                  <label data-required htmlFor="edit-invoice-modal-form-data-manual-service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Service Description
                   </label>
-                  <input
+                  <input aria-required="true" id="edit-invoice-modal-form-data-manual-service"
                     type="text"
                     value={formData.manual_service}
                     onChange={(e) => setFormData({ ...formData, manual_service: e.target.value })}
@@ -461,10 +463,10 @@ export function EditInvoiceModal({
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="edit-invoice-modal-form-data-manual-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {vatSettings?.is_enabled ? 'Amount (including VAT) *' : 'Amount *'}
                   </label>
-                  <input
+                  <input id="edit-invoice-modal-form-data-manual-amount"
                     type="number"
                     step="0.01"
                     min="0"
@@ -483,10 +485,10 @@ export function EditInvoiceModal({
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="edit-invoice-modal-form-data-manual-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Additional Details
                   </label>
-                  <textarea
+                  <textarea id="edit-invoice-modal-form-data-manual-description"
                     value={formData.manual_description}
                     onChange={(e) => setFormData({ ...formData, manual_description: e.target.value })}
                     placeholder="Optional additional details about the service"
@@ -554,7 +556,7 @@ export function EditInvoiceModal({
                             <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">
                               {file.name}
                             </span>
-                            <button
+                            <button aria-label="Close"
                               type="button"
                               onClick={() => removeImage(index)}
                               className="text-red-500 hover:text-red-700 transition-colors p-1"
@@ -610,7 +612,7 @@ export function EditInvoiceModal({
                                   </svg>
                                 )}
                               </button>
-                              <button
+                              <button aria-label="Close"
                                 type="button"
                                 onClick={() => removeExistingImage(index)}
                                 className="text-red-500 hover:text-red-700 transition-colors p-1"
@@ -655,10 +657,10 @@ export function EditInvoiceModal({
           {/* Dates - compact layout */}
           <div className="flex flex-col sm:flex-row gap-3 min-w-0">
             <div className="flex-1 min-w-0">
-              <label className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
-                Invoice Date *
+              <label data-required htmlFor="edit-invoice-modal-form-data-invoice-date" className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
+                Invoice Date
               </label>
-              <input
+              <input aria-required="true" id="edit-invoice-modal-form-data-invoice-date"
                 type="date"
                 value={formData.invoice_date}
                 onChange={(e) => setFormData({ ...formData, invoice_date: e.target.value })}
@@ -674,10 +676,10 @@ export function EditInvoiceModal({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <label className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
-                Due Date *
+              <label data-required htmlFor="edit-invoice-modal-form-data-due-date" className="block text-xs font-normal text-gray-500 dark:text-gray-400 mb-1">
+                Due Date
               </label>
-              <input
+              <input aria-required="true" id="edit-invoice-modal-form-data-due-date"
                 type="date"
                 value={formData.due_date}
                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
@@ -728,10 +730,10 @@ export function EditInvoiceModal({
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="edit-invoice-modal-form-data-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Notes
             </label>
-            <textarea
+            <textarea id="edit-invoice-modal-form-data-notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Optional notes for the invoice"

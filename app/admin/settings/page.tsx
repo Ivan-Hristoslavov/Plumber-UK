@@ -1,5 +1,7 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
+import { SaveBar } from "@/components/admin/SaveBar";
 import { GoogleReviewsIntegration } from "@/components/admin/GoogleReviewsIntegration";
 import { useState, useEffect } from "react";
 
@@ -186,6 +188,8 @@ export default function AdminSettingsPage() {
   const { settings: adminSettings, refreshCache: refreshAdminSettings } =
     useAdminSettings();
   const { showSuccess, showError } = useToast();
+  /** What is in the database, to know when there is something to save. */
+  const [savedSettings, setSavedSettings] = useState<SettingsState | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -217,7 +221,9 @@ export default function AdminSettingsPage() {
         }
       });
 
-      setSettings((prev) => ({ ...prev, ...settingsMap }));
+      const loaded = { ...settings, ...settingsMap };
+      setSettings(loaded);
+      setSavedSettings(loaded);
     } catch (error) {
       console.error("Error loading settings:", error);
     } finally {
@@ -242,6 +248,21 @@ export default function AdminSettingsPage() {
   };
 
   const handleSave = async () => {
+    if (activeTab === "working-hours") {
+      if (!settings.workingHoursStart || !settings.workingHoursEnd) {
+        showError("Not saved", "Enter a start time and an end time.");
+        return;
+      }
+      if (settings.workingHoursEnd <= settings.workingHoursStart) {
+        showError("Not saved", "The end time must be after the start time.");
+        return;
+      }
+      if (settings.workingDays.length === 0) {
+        showError("Not saved", "Choose at least one working day.");
+        return;
+      }
+    }
+
     try {
       setSaving(true);
       setMessage("");
@@ -253,6 +274,7 @@ export default function AdminSettingsPage() {
         await saveSetting(key, value);
       }
 
+      setSavedSettings(settings);
       showSuccess(
         ToastMessages.profile.updated.title,
         "Settings saved successfully!",
@@ -505,7 +527,9 @@ export default function AdminSettingsPage() {
   ];
 
   // Define which tabs need save buttons vs action buttons
-  const tabsWithSaveButtons = ["business", "working-hours", "vat"];
+  // VAT saves each change by itself, so it has no save button.
+  const tabsWithSaveButtons = ["business", "working-hours"];
+  const dirty = savedSettings !== null && JSON.stringify(settings) !== JSON.stringify(savedSettings);
   const tabsWithActionButtons = ["faq", "gallery", "pricing", "areas", "legal"];
 
   const needsSaveButton = tabsWithSaveButtons.includes(activeTab ?? "");
@@ -526,7 +550,7 @@ export default function AdminSettingsPage() {
         };
       case "gallery":
         return {
-          label: "Add Gallery Item",
+          label: "Add item",
           icon: (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -568,7 +592,7 @@ export default function AdminSettingsPage() {
     
     return [
       {
-        label: "Add Gallery Item",
+        label: "Add item",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -578,14 +602,14 @@ export default function AdminSettingsPage() {
         className: "bg-blue-600 hover:bg-blue-700"
       },
       {
-        label: "Add Section",
+        label: "Add section",
         icon: (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         ),
         onClick: () => triggerChildModal("gallery", "sections"),
-        className: "bg-green-600 hover:bg-green-700"
+        className: "bg-gray-700 hover:bg-gray-600"
       }
     ];
   };
@@ -661,46 +685,13 @@ export default function AdminSettingsPage() {
           <div className="mb-5 sm:mb-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
-                <h2 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+                <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
                   {tabs.find((tab) => tab.id === activeTab)?.name}
-                </h2>
+                </h1>
                 <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                   {tabs.find((tab) => tab.id === activeTab)?.description}
                 </p>
               </div>
-
-              {/* Save Button - Show for all tabs */}
-              {needsSaveButton && (
-                <button
-                  className="flex items-center justify-center px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-sm bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
-                  disabled={saving}
-                  onClick={handleSave}
-                >
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M5 13l4 4L19 7"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                        />
-                      </svg>
-                      Save Settings
-                    </>
-                  )}
-                </button>
-              )}
 
               {/* Action Button - Show only for specific tabs */}
               {actionButton && activeTab !== "gallery" && (
@@ -715,11 +706,11 @@ export default function AdminSettingsPage() {
 
               {/* Gallery Action Buttons - Show both buttons for gallery tab */}
               {activeTab === "gallery" && (
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                   {getGalleryActionButtons()?.map((button, index) => (
                     <button
                       key={index}
-                      className={`flex items-center px-4 py-3 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 ${button.className}`}
+                      className={`flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 ${button.className}`}
                       onClick={button.onClick}
                     >
                       <span className="mr-2">{button.icon}</span>
@@ -736,16 +727,16 @@ export default function AdminSettingsPage() {
           {activeTab === "business" && (
             <div className="space-y-5 sm:space-y-6">
               {/* Business Information */}
-              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
                 <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
                   Business Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-business-city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Business City
                     </label>
-                    <input
+                    <input id="settings-settings-business-city"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.businessCity}
@@ -755,10 +746,10 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-business-postcode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Business Postcode
                     </label>
-                    <input
+                    <input id="settings-settings-business-postcode"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.businessPostcode}
@@ -769,10 +760,10 @@ export default function AdminSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-registration-number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Registration Number
                     </label>
-                    <input
+                    <input id="settings-settings-registration-number"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={settings.registrationNumber}
@@ -793,10 +784,10 @@ export default function AdminSettingsPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-company-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Company Status
                     </label>
-                    <select
+                    <select id="settings-settings-company-status"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={settings.companyStatus}
                       onChange={(e) =>
@@ -891,6 +882,7 @@ export default function AdminSettingsPage() {
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
+                            aria-label="MCS certified"
                             checked={settings.mcsCertified}
                             className="sr-only peer"
                             type="checkbox"
@@ -907,6 +899,7 @@ export default function AdminSettingsPage() {
                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
                             placeholder="Enter MCS registration number (optional)"
                             type="text"
+                            aria-label="MCS registration number"
                             value={settings.mcsNumber}
                             onChange={(e) => handleInputChange("mcsNumber", e.target.value)}
                           />
@@ -955,6 +948,7 @@ export default function AdminSettingsPage() {
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
+                            aria-label="Gas Safe registered"
                             checked={settings.gasSafeRegistered}
                             className="sr-only peer"
                             type="checkbox"
@@ -971,6 +965,7 @@ export default function AdminSettingsPage() {
                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300"
                             placeholder="Enter Gas Safe registration number (optional)"
                             type="text"
+                            aria-label="Gas Safe registration number"
                             value={settings.gasSafeNumber}
                             onChange={(e) => handleInputChange("gasSafeNumber", e.target.value)}
                           />
@@ -1019,6 +1014,7 @@ export default function AdminSettingsPage() {
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                           <input
+                            aria-label="Fully insured"
                             checked={settings.fullyInsured}
                             className="sr-only peer"
                             type="checkbox"
@@ -1035,6 +1031,7 @@ export default function AdminSettingsPage() {
                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                             placeholder="Enter insurance provider"
                             type="text"
+                            aria-label="Insurance provider"
                             value={settings.insuranceProvider}
                             onChange={(e) => handleInputChange("insuranceProvider", e.target.value)}
                           />
@@ -1062,20 +1059,20 @@ export default function AdminSettingsPage() {
               </div>
 
               {/* Pricing */}
-              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
                 <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
                   Service Rates
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-emergency-rate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Emergency Rate (per hour)
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
                         £
                       </span>
-                      <input
+                      <input id="settings-settings-emergency-rate"
                         className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         value={settings.emergencyRate}
@@ -1086,14 +1083,14 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="settings-settings-standard-rate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Standard Rate (per hour)
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
                         £
                       </span>
-                      <input
+                      <input id="settings-settings-standard-rate"
                         className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         value={settings.standardRate}
@@ -1111,22 +1108,8 @@ export default function AdminSettingsPage() {
           {activeTab === "working-hours" && (
             <div className="space-y-5 sm:space-y-6">
               {/* Working Hours */}
-              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-                      Business Hours
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Set your availability and working schedule
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Active</span>
-                  </div>
-                </div>
-
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
+                <RequiredNote className="mb-4" />
                 <div className="space-y-6">
                   {/* Time Range */}
                   <div className="rounded-2xl p-5 border border-gray-200/80 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/30">
@@ -1148,43 +1131,33 @@ export default function AdminSettingsPage() {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        <label data-required htmlFor="settings-settings-working-hours-start" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           Start Time
                         </label>
-                        <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
-                          <input
-                            className="w-full min-w-0 py-3 pl-4 pr-10 text-gray-900 dark:text-white bg-transparent border-0 focus:ring-0 focus:outline-none text-base"
+                        <div>
+                          <input aria-required="true" id="settings-settings-working-hours-start"
+                            className="w-full min-w-0 rounded-xl border border-gray-300 bg-white px-3 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             type="time"
                             value={settings.workingHoursStart}
                             onChange={(e) =>
                               handleInputChange("workingHoursStart", e.target.value)
                             }
                           />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                            </svg>
-                          </div>
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        <label data-required htmlFor="settings-settings-working-hours-end" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           End Time
                         </label>
-                        <div className="relative overflow-hidden rounded-lg border border-blue-300 dark:border-blue-600 bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-colors duration-300">
-                          <input
-                            className="w-full min-w-0 py-3 pl-4 pr-10 text-gray-900 dark:text-white bg-transparent border-0 focus:ring-0 focus:outline-none text-base"
+                        <div>
+                          <input aria-required="true" id="settings-settings-working-hours-end"
+                            className="w-full min-w-0 rounded-xl border border-gray-300 bg-white px-3 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             type="time"
                             value={settings.workingHoursEnd}
                             onChange={(e) =>
                               handleInputChange("workingHoursEnd", e.target.value)
                             }
                           />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                            </svg>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -1376,10 +1349,11 @@ export default function AdminSettingsPage() {
           {activeTab === "vat" && (
             <div className="space-y-5 sm:space-y-6">
               {/* VAT Configuration */}
-              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 transition-colors duration-300">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-5 transition-colors duration-300">
+              <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white transition-colors duration-300">
                   VAT Configuration
                 </h2>
+                <p className="mb-5 mt-0.5 text-sm text-gray-500 dark:text-gray-400">Changes here are saved as you make them.</p>
 
                 <div className="space-y-6">
                   {/* Enable VAT */}
@@ -1407,10 +1381,10 @@ export default function AdminSettingsPage() {
                   {vatSettings?.is_enabled && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        <label htmlFor="settings-vat-settings-vat-rate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           VAT Rate (%)
                         </label>
-                        <input
+                        <input id="settings-vat-settings-vat-rate"
                           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           max="100"
                           min="0"
@@ -1426,10 +1400,10 @@ export default function AdminSettingsPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        <label htmlFor="settings-vat-settings-vat-number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           VAT Registration Number
                         </label>
-                        <input
+                        <input id="settings-vat-settings-vat-number"
                           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           placeholder="GB123456789"
                           type="text"
@@ -1441,10 +1415,10 @@ export default function AdminSettingsPage() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                        <label htmlFor="settings-db-profile-company-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                           Company Name for VAT
                         </label>
-                        <input
+                        <input id="settings-db-profile-company-name"
                           disabled
                           className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                           placeholder="Your Company Name Ltd"
@@ -1571,6 +1545,14 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </div>
+          )}
+          {needsSaveButton && (
+            <SaveBar
+              dirty={dirty}
+              saving={saving}
+              onSave={handleSave}
+              onDiscard={() => savedSettings && setSettings(savedSettings)}
+            />
           )}
         </div>
       </div>

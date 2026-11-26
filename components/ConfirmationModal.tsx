@@ -92,7 +92,7 @@ export function ConfirmationModal({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {title}
             </h3>
-            <button
+            <button aria-label="Close"
               onClick={handleClose}
               disabled={isLoading}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"

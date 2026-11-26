@@ -243,6 +243,7 @@ export function AdminLegalManager() {
               onChange={(value) => setContent({ ...content, [activeTab === "terms" ? "terms" : activeTab === "privacy" ? "privacy_policy" : activeTab === "cookies" ? "cookies_policy" : "gdpr_policy"]: value })}
               placeholder={`Write your ${tabs.find((t) => t.id === activeTab)?.name} here. Use # for headings, **bold**, - for lists...`}
               rows={16}
+              label={tabs.find((t) => t.id === activeTab)?.name}
               className="flex-1 min-h-0"
             />
           </div>

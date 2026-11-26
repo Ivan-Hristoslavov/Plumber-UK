@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useState, useEffect } from "react";
 import { useAdminProfile } from "@/hooks/useAdminProfile";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
@@ -92,21 +93,21 @@ export default function ProfilePage() {
         lastName: lastName || "Zhelev",
         email: dbProfile.email || process.env.NEXT_PUBLIC_ADMIN_EMAIL || "plamen@fixmyleak.co.uk",
         businessEmail: dbProfile.business_email || process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "admin@fixmyleak.co.uk",
-        phone: dbProfile.phone || "+44 7700 900123",
+        phone: dbProfile.phone || "",
         about: dbProfile.about || "",
 
         companyName: dbProfile.company_name || "Fix My Leak",
         companyAddress: dbProfile.company_address || "London, UK",
 
-        insuranceProvider: dbProfile.insurance_provider || "Zurich Insurance",
+        insuranceProvider: dbProfile.insurance_provider || "",
         yearsOfExperience: dbProfile.years_of_experience || "",
         specializations: dbProfile.specializations || "",
         certifications: dbProfile.certifications || "",
         responseTime: dbProfile.response_time || "",
 
-        bankName: dbProfile.bank_name || "Barclays Bank",
-        accountNumber: dbProfile.account_number || "12345678",
-        sortCode: dbProfile.sort_code || "20-00-00",
+        bankName: dbProfile.bank_name || "",
+        accountNumber: dbProfile.account_number || "",
+        sortCode: dbProfile.sort_code || "",
 
         avatar: "",
       });
@@ -114,6 +115,11 @@ export default function ProfilePage() {
   }, [dbProfile, loading]);
 
   const handleSave = async () => {
+    if (!profileData.firstName.trim() || !profileData.businessEmail.trim() || !profileData.phone.trim()) {
+      showError("Not saved", "Fill in the first name, business email and phone number.");
+      return;
+    }
+
     setIsSaving(true);
     setSaveMessage("");
 
@@ -161,6 +167,11 @@ export default function ProfilePage() {
   };
 
   const handleChangePassword = async () => {
+    if (!passwordData.currentPassword) {
+      showError(ToastMessages.general.validationError.title, "Enter your current password.");
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showError(
         ToastMessages.general.validationError.title,
@@ -317,10 +328,10 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label data-required htmlFor="profile-profile-data-first-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       First Name
                     </label>
-                    <input
+                    <input aria-required="true" id="profile-profile-data-first-name"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.firstName}
@@ -333,10 +344,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-last-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Last Name
                     </label>
-                    <input
+                    <input id="profile-profile-data-last-name"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={profileData.lastName}
@@ -349,10 +360,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Admin Email (Login)
                     </label>
-                    <input
+                    <input id="profile-profile-data-email"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl shadow-sm cursor-not-allowed transition-colors duration-300"
                       type="email"
                       value={profileData.email}
@@ -364,10 +375,10 @@ export default function ProfilePage() {
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label data-required htmlFor="profile-profile-data-business-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Business Email
                     </label>
-                    <input
+                    <input aria-required="true" id="profile-profile-data-business-email"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="email"
                       value={profileData.businessEmail}
@@ -383,10 +394,10 @@ export default function ProfilePage() {
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label data-required htmlFor="profile-profile-data-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Phone Number
                     </label>
-                    <input
+                    <input aria-required="true" id="profile-profile-data-phone"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="tel"
                       value={profileData.phone}
@@ -407,6 +418,7 @@ export default function ProfilePage() {
                   About Me
                 </h4>
                 <MarkdownEditor
+                  label="About"
                   value={profileData.about}
                   onChange={(value) =>
                     setProfileData({ ...profileData, about: value })
@@ -431,10 +443,10 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-years-of-experience" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Years of Experience
                     </label>
-                    <input
+                    <input id="profile-profile-data-years-of-experience"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., 10+ Years"
@@ -452,10 +464,10 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-insurance-provider" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Insurance Provider
                     </label>
-                    <input
+                    <input id="profile-profile-data-insurance-provider"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., Zurich Insurance"
@@ -497,10 +509,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-response-time" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Response Time
                     </label>
-                    <input
+                    <input id="profile-profile-data-response-time"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., 45 minutes"
@@ -533,10 +545,10 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-company-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Company Name
                     </label>
-                    <input
+                    <input id="profile-profile-data-company-name"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       placeholder="e.g., Fix My Leak"
@@ -550,10 +562,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                    <label htmlFor="profile-profile-data-company-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                       Company Address
                     </label>
-                    <textarea
+                    <textarea id="profile-profile-data-company-address"
                       className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300 resize-none"
                       rows={3}
                       placeholder="e.g., 123 Main Street, London, SW1A 1AA"
@@ -569,9 +581,10 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex items-center justify-between gap-3 pt-4">
+                <RequiredNote />
                 <button
-                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 font-medium shadow-sm"
+                  className="shrink-0 px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300 font-medium shadow-sm"
                   disabled={isSaving}
                   onClick={handleSave}
                 >
@@ -602,7 +615,7 @@ export default function ProfilePage() {
                         Password
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                        Last changed: Never
+                        At least 6 characters
                       </p>
                     </div>
                     <button
@@ -615,12 +628,12 @@ export default function ProfilePage() {
                 </div>
 
                 {showPasswordForm && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      <label data-required htmlFor="profile-password-data-current-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                         Current Password
                       </label>
-                      <input
+                      <input aria-required="true" id="profile-password-data-current-password"
                         className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.currentPassword}
@@ -633,10 +646,10 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      <label data-required htmlFor="profile-password-data-new-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                         New Password
                       </label>
-                      <input
+                      <input aria-required="true" id="profile-password-data-new-password"
                         className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.newPassword}
@@ -649,10 +662,10 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+                      <label data-required htmlFor="profile-password-data-confirm-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
                         Confirm Password
                       </label>
-                      <input
+                      <input aria-required="true" id="profile-password-data-confirm-password"
                         className="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="password"
                         value={passwordData.confirmPassword}
