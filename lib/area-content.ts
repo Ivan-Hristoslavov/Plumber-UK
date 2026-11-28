@@ -45,7 +45,7 @@ const AREAS: Record<string, AreaContent> = {
     neighbourhoods: ["Clapham Common", "Clapham Old Town", "Clapham North", "Clapham High Street", "Abbeville Village", "Clapham Junction"],
     intro: [
       "Clapham has Georgian and Victorian houses around Clapham Common and the Old Town, plenty of them converted into flats, plus terraces off Clapham High Street and around Abbeville Village.",
-      "We cover leak detection and repairs, blocked drains and waste pipes, tap, toilet and shower repairs and low water pressure across Clapham, with emergency call-outs for burst pipes and leaks that cannot wait.",
+      "We cover leak detection and repairs, blocked drains and waste pipes, tap, toilet and shower repairs and low water pressure across Clapham, with same-day call-outs for burst pipes and leaks that cannot wait.",
     ],
     leakNote:
       "Older Clapham houses can still have lead or very old copper supply pipes, which are worth checking when a leak keeps coming back in the same place.",
@@ -55,7 +55,7 @@ const AREAS: Record<string, AreaContent> = {
     neighbourhoods: ["Streatham High Road", "Streatham Hill", "Streatham Common", "Telford Park", "Streatham Vale", "Norbury"],
     intro: [
       "Streatham runs from Edwardian houses and mansion blocks around Streatham Hill and Telford Park to the 1930s semis of Streatham Vale, close to where we are based.",
-      "In Streatham we cover leak detection and repairs, blocked drains, taps, toilets, showers, water pressure problems and appliance installations, with emergency call-outs when a leak cannot wait.",
+      "In Streatham we cover leak detection and repairs, blocked drains, taps, toilets, showers, water pressure problems and appliance installations, with same-day call-outs when a leak cannot wait.",
     ],
     leakNote:
       "In 1930s houses the original pipework is now close to a hundred years old, and slow leaks under floors or behind kitchen units are common before anyone notices damp.",
@@ -100,7 +100,7 @@ export function getAreaContent(slug: string, name: string, postcode: string): Ar
 export const AREA_SERVICES: { title: string; text: string; href?: string }[] = [
   { title: "Leak detection", text: "Finding hidden leaks under floors and behind walls, with pipe tracing, before anything is opened up.", href: "/services/leak-detection" },
   { title: "Leak repairs", text: "Repairs to leaking pipes, joints, valves, tanks and appliances, and making good afterwards.", href: "/services/leak-detection" },
-  { title: "Emergency plumber", text: "Same-day call-outs for burst pipes, overflowing toilets and leaks that cannot wait.", href: "/services/emergency-plumber" },
+  { title: "Same-day repairs", text: "Same-day call-outs for burst pipes, overflowing toilets and leaks that cannot wait." },
   { title: "Blocked drains & waste", text: "Blocked sinks, basins, baths, showers and toilets, and slow or smelly waste pipes." },
   { title: "Taps, toilets & showers", text: "Dripping taps, running or leaking toilets, shower repairs and replacements." },
   { title: "Water pressure & appliances", text: "Low pressure problems, and washing machine and dishwasher installation." },

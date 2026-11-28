@@ -240,7 +240,7 @@ export function renderEmailHtml(content: EmailContent): string {
         </tr>
         <tr>
           <td align="center" style="padding:18px 8px 0;font-family:${FONT};font-size:12px;line-height:1.6;color:#94a3b8;">
-            ${brand} &middot; Emergency plumber, South West London<br>
+            ${brand} &middot; Plumber, South West London<br>
             <a href="${siteUrl()}" style="color:#94a3b8;text-decoration:underline;">${escapeHtml(siteUrl().replace(/^https?:\/\//, ""))}</a>
           </td>
         </tr>

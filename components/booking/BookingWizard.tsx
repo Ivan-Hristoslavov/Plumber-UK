@@ -500,7 +500,7 @@ export default function BookingWizard() {
             {confirmation.service}
             {confirmation.emergency && (
               <span className="ml-2 rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-300">
-                Emergency
+                Urgent
               </span>
             )}
           </SummaryRow>
@@ -631,7 +631,7 @@ export default function BookingWizard() {
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
                 <Icon path={ICON.alert} className="h-4 w-4 text-red-500" />
-                This is an emergency
+                This is urgent
               </span>
               <span className="block text-xs text-gray-600 dark:text-gray-300">
                 Burst pipe, flooding or no water? We will prioritise it.
@@ -735,7 +735,7 @@ export default function BookingWizard() {
                     {dayOff.description && <p className="mt-1">{dayOff.description}</p>}
                     {isEmergency && (
                       <a href={`tel:${phone}`} className="mt-3 inline-flex items-center gap-2 font-semibold underline">
-                        <Icon path={ICON.phone} className="h-4 w-4" /> Emergency? Call {displayPhone}
+                        <Icon path={ICON.phone} className="h-4 w-4" /> Urgent? Call {displayPhone}
                       </a>
                     )}
                   </div>
@@ -903,7 +903,7 @@ export default function BookingWizard() {
               <span className="font-semibold">{service.name}</span>
               <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">{withFrom(service.price)}</span>
               {isEmergency && (
-                <span className="ml-2 rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-300">Emergency</span>
+                <span className="ml-2 rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-300">Urgent</span>
               )}
               {description.trim() && <span className="mt-1 block text-sm text-gray-600 dark:text-gray-300">{description.trim()}</span>}
             </SummaryRow>

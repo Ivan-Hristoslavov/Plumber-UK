@@ -17,7 +17,7 @@ interface AreaPageProps {
   content: AreaContent;
   faqs: AreaFaq[];
   /** "From £90" style prices for the two main services, when known. */
-  prices: { leakDetection: string | null; emergency: string | null };
+  prices: { leakDetection: string | null };
   nearbyAreas: { name: string; slug: string }[];
 }
 
@@ -51,16 +51,13 @@ export function AreaPage({ areaName, postcode, responseMinutes, content, faqs, p
             Plumber &amp; Leak Detection in <span className="text-yellow-300">{areaName}</span>
           </h1>
           <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
-            Leaks found and fixed, blocked drains cleared and emergency call-outs across {areaName} (
+            Leaks found and fixed, blocked drains cleared and same-day call-outs across {areaName} (
             {content.postcodes.join(", ") || postcode}). Typical response around {responseMinutes} minutes.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-sm">
             {prices.leakDetection && (
               <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/20">Leak detection {prices.leakDetection}</span>
-            )}
-            {prices.emergency && (
-              <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/20">Emergency plumber {prices.emergency}</span>
             )}
             <span className="rounded-full bg-white/10 px-3 py-1 ring-1 ring-white/20">No payment upfront</span>
           </div>

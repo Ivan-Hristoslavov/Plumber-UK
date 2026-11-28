@@ -111,12 +111,11 @@ export default async function AreaSlugPage({
     const price = services.find((s) => s.slug === slug)?.price;
     return price !== null && price !== undefined ? `from £${price}` : null;
   };
-  const prices = { leakDetection: fromPrice("leak-detection"), emergency: fromPrice("emergency-plumber") };
+  const prices = { leakDetection: fromPrice("leak-detection") };
 
   const places = content.neighbourhoods.length ? content.neighbourhoods.join(", ") : area.name;
   const priceParts = [
     prices.leakDetection && `leak detection starts ${prices.leakDetection}`,
-    prices.emergency && `emergency call-outs start ${prices.emergency}`,
   ].filter(Boolean) as string[];
   const priceSentence = priceParts.length
     ? `${priceParts.join(" and ").replace(/^./, (c) => c.toUpperCase())}. `
@@ -128,7 +127,7 @@ export default async function AreaSlugPage({
     },
     {
       question: `How quickly can you get to me in ${area.name}?`,
-      answer: `Our typical response time in ${area.name} is around ${responseMinutes} minutes for emergencies. For non-urgent jobs you can book a time online that suits you.`,
+      answer: `Our typical response time in ${area.name} is around ${responseMinutes} minutes for urgent jobs. For other jobs you can book a time online that suits you.`,
     },
     {
       question: "Can you find a hidden leak without ripping up floors?",

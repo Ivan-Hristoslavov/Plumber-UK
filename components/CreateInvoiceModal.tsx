@@ -385,7 +385,7 @@ export function CreateInvoiceModal({
                     type="text"
                     value={formData.manual_service}
                     onChange={(e) => setFormData({ ...formData, manual_service: e.target.value })}
-                    placeholder="e.g., Emergency pipe repair"
+                    placeholder="e.g., Leaking pipe repair"
                     className={`w-full px-4 py-3 min-h-[44px] text-base border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
                       errors.manual_service 
                         ? 'border-red-300 dark:border-red-600' 

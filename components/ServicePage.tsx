@@ -122,7 +122,7 @@ export function ServicePage({
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{responseTime} min</div>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-              Emergency callouts across South West London.
+              Same-day callouts across South West London.
             </p>
           </div>
         </div>

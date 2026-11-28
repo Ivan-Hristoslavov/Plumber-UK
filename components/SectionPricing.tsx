@@ -269,12 +269,10 @@ export function SectionPricing({ initialCards = [] }: { initialCards?: PricingCa
         </div>
 
         {/* Good to know: the four terms in one compact strip. */}
-        <dl className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-gray-200 bg-gray-200 dark:border-gray-700 dark:bg-gray-700 lg:grid-cols-4">
+        <dl className="mx-auto mt-5 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-gray-200 bg-gray-200 dark:border-gray-700 dark:bg-gray-700 lg:grid-cols-2">
           {[
             { term: "Labour only", detail: "Materials are extra. You can supply your own." },
             { term: "Materials via us", detail: "At cost plus 20% if we source them." },
-            { term: "Call-out fee", detail: "Covers travel and the first assessment." },
-            { term: "Full-day rate", detail: "Cheaper per hour, subject to availability." },
           ].map((item) => (
             <div key={item.term} className="bg-white p-3 sm:p-4 dark:bg-gray-800">
               <dt className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{item.term}</dt>
@@ -282,9 +280,6 @@ export function SectionPricing({ initialCards = [] }: { initialCards?: PricingCa
             </div>
           ))}
         </dl>
-        <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
-          Prices are benchmarked against average South West London rates.
-        </p>
       </div>
     </section>
   );

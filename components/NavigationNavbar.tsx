@@ -256,7 +256,7 @@ export default function NavigationNavbar() {
             <div className="min-w-0">
               <BrandWordmark className="block text-lg font-bold" />
               <span className="block text-xs text-gray-500 dark:text-gray-400">
-                Emergency plumber · South West London
+                Plumber · South West London
               </span>
             </div>
             <button

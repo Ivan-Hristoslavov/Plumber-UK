@@ -24,7 +24,7 @@ export function SectionHero({
   foundingLimit = FOUNDING_LIMIT,
 }: {
   availability: Availability;
-  rating: { average: number; count: number } | null;
+  rating: { average: number; count: number; includesGoogle?: boolean } | null;
   areas?: Area[];
   /** Number of founding places, from the admin's Founding 100 settings. */
   foundingLimit?: number;
@@ -122,7 +122,6 @@ export function SectionHero({
       />
 
       <div className="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col items-center">
-        {/* Top Row with Emergency Badge and Trust Badges */}
         {/* Rating, availability and trust badges share one row of small pills
             (they used to take two rows, the second with tall badges). */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-5 w-full max-w-3xl">
@@ -146,7 +145,7 @@ export function SectionHero({
                   {rating.average.toFixed(1)}
                 </span>
                 <span className="text-sm font-medium text-white">
-                  ({rating.count} reviews)
+                  ({rating.count} reviews{rating.includesGoogle ? " incl. Google" : ""})
                 </span>
               </div>
             )}
@@ -206,18 +205,14 @@ export function SectionHero({
 
         {/* Main Content */}
         <div className="text-center mb-5">
-          {/* One h1 carrying both lines: the headline is the Founding 100
-              invitation, and the keyword line above it keeps the page's
-              "emergency plumber, South West London" signal for search. */}
-          <h1 className="mb-3 animate-fade-in-up [text-shadow:0_2px_20px_rgba(0,0,0,0.85)]">
-            <span className="block text-blue-300 text-xs sm:text-sm md:text-base font-semibold tracking-[0.18em] uppercase mb-2">
-              Emergency Plumber in South West London
-            </span>
-            <span className="block text-white text-[1.85rem] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight max-w-4xl mx-auto">
-              We&apos;re looking for our first{" "}
-              <span className="text-blue-300 sm:block">{foundingLimit} founding members</span>
-            </span>
+          {/* The headline says what the business is the moment the page
+              opens; the Founding 100 invitation follows underneath. */}
+          <h1 className="mb-3 animate-fade-in-up text-white text-[2rem] sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-tight max-w-4xl mx-auto [text-shadow:0_2px_20px_rgba(0,0,0,0.85)]">
+            Plumber in <span className="text-blue-300">South West London</span>
           </h1>
+          <p className="mb-2 animate-fade-in-up text-white text-xl sm:text-2xl md:text-3xl font-bold leading-snug max-w-3xl mx-auto [text-shadow:0_2px_16px_rgba(0,0,0,0.85)]">
+            We&apos;re looking for our first {foundingLimit} founding members
+          </p>
 
           <p
             className="text-base sm:text-lg text-white font-medium mb-4 animate-fade-in-up max-w-2xl mx-auto [text-shadow:0_2px_14px_rgba(0,0,0,0.9)]"
@@ -325,7 +320,7 @@ export function SectionHero({
                 <Link
                   key={area.id}
                   href={`/areas/${area.slug}`}
-                  aria-label={`Emergency plumber in ${area.name} ${area.postcode}`}
+                  aria-label={`Plumber in ${area.name} ${area.postcode}`}
                   className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs sm:text-sm font-medium text-white backdrop-blur-md transition-colors hover:border-blue-400/40 hover:bg-white/20"
                 >
                   <svg className="h-3.5 w-3.5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

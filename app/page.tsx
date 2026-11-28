@@ -63,14 +63,14 @@ export async function generateMetadata(): Promise<Metadata> {
     : "10+ Years";
 
   return {
-    title: `${companyName} - Emergency Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
-    description: `Professional emergency plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation.${credentials}`,
+    title: `${companyName} - Plumber London | Same Day Service | Clapham, Chelsea, Battersea`,
+    description: `Professional plumber covering South West London. Same-day service in Clapham, Balham, Chelsea, Battersea, Wandsworth, Streatham. ${responseTimeNormalized}-minute response time, ${yearsExperience} experience. Free call consultation.${credentials}`,
     alternates: {
       canonical: base,
     },
     openGraph: {
-      title: `${companyName} - Emergency Plumber London | Same Day Service`,
-      description: `Professional emergency plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation.${credentials}`,
+      title: `${companyName} - Plumber London | Same Day Service`,
+      description: `Professional plumber covering South West London with ${responseTimeNormalized}-minute response time. Free call consultation.${credentials}`,
       url: base,
       type: "website",
       locale: "en_GB",
@@ -80,14 +80,14 @@ export async function generateMetadata(): Promise<Metadata> {
           url: "/fix_my_leak_logo.jpg",
           width: 1200,
           height: 630,
-          alt: `${companyName} - Professional Emergency Plumber London`,
+          alt: `${companyName} - Professional Plumber London`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${companyName} - Emergency Plumber London`,
-      description: `Professional emergency plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time. Free call consultation.`,
+      title: `${companyName} - Plumber London`,
+      description: `Professional plumber covering South West London with same-day service. ${responseTimeNormalized}-minute response time. Free call consultation.`,
       images: ["/fix_my_leak_logo.jpg"],
     },
   };
@@ -184,6 +184,21 @@ export default async function HomePage() {
   const businessName = BRAND_NAME;
   const responseTimeNormalized = responseTimeMinutes(profile?.response_time);
 
+  // The hero shows every review, the site's own and Google's together. The
+  // structured data below keeps the site's own reviews only: Google's are not
+  // reviews this site collected, and marking them up would break its rules.
+  const googleCount = googleReviews?.rating ? googleReviews.count : 0;
+  const heroRating =
+    rating || googleCount
+      ? {
+          average:
+            ((rating ? rating.average * rating.count : 0) + (googleCount ? (googleReviews!.rating as number) * googleCount : 0)) /
+            ((rating?.count ?? 0) + googleCount),
+          count: (rating?.count ?? 0) + googleCount,
+          includesGoogle: googleCount > 0,
+        }
+      : null;
+
   const faqSchema = faqItems.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -223,7 +238,7 @@ export default async function HomePage() {
         />
       )}
       {/* Hero Section */}
-      <SectionHero availability={availability} rating={rating} areas={areas} foundingLimit={foundingConfig.limit} />
+      <SectionHero availability={availability} rating={heroRating} areas={areas} foundingLimit={foundingConfig.limit} />
 
       {/* Services Section */}
       <section id="services">
@@ -313,7 +328,7 @@ export default async function HomePage() {
                   </h3>
                   <ProfileListWithShowMore
                     value={profile?.specializations}
-                    fallback="Emergency plumbing. Bathroom plumbing & repairs. Leak detection"
+                    fallback="Bathroom plumbing & repairs. Leak detection"
                   />
                 </div>
               </div>

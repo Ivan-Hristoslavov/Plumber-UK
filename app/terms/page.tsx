@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   
   return {
     title: `Terms & Conditions`,
-    description: `Terms and conditions for ${companyName} plumbing services. Professional emergency plumber covering South West London.`,
+    description: `Terms and conditions for ${companyName} plumbing services. Professional plumber covering South West London.`,
     alternates: {
       canonical,
     },

@@ -48,7 +48,7 @@ const CONTENT: Record<string, ServiceContent> = {
       {
         question: "Water is coming through my ceiling. What should I do now?",
         answer:
-          "Turn off the water at the stopcock, switch off electrics near the leak if it is safe to do so, catch the water and call us. We treat it as an emergency.",
+          "Turn off the water at the stopcock, switch off electrics near the leak if it is safe to do so, catch the water and call us. We treat it as urgent.",
       },
     ],
   },
@@ -74,7 +74,7 @@ const CONTENT: Record<string, ServiceContent> = {
       {
         question: "How fast can you get to me?",
         answer:
-          "Our typical emergency response is around 45 minutes across the areas we cover. Call rather than book online when it is urgent.",
+          "Our typical response for urgent jobs is around 45 minutes across the areas we cover. Call rather than book online when it is urgent.",
       },
       {
         question: "Do you charge a call-out fee?",
