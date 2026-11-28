@@ -5,6 +5,7 @@ import FormBooking from "./FormBooking";
 import { useAdminProfile } from "@/components/AdminProfileContext";
 import { trackPhoneCall } from "@/components/GoogleAnalytics";
 import { responseTimeMinutes } from "@/lib/response-time";
+import type { ServiceContent } from "@/lib/service-content";
 
 type AreaLink = { name: string; slug: string; postcode: string };
 type RelatedService = { name: string; slug: string; price: number | null };
@@ -16,6 +17,8 @@ interface ServicePageProps {
   durationMinutes: number | null;
   areas: AreaLink[];
   relatedServices: RelatedService[];
+  /** Longer copy and FAQs, for the services that have it. */
+  content?: ServiceContent | null;
 }
 
 export function ServicePage({
@@ -25,6 +28,7 @@ export function ServicePage({
   durationMinutes,
   areas,
   relatedServices,
+  content = null,
 }: ServicePageProps) {
   const profile = useAdminProfile();
   const businessPhone = profile?.phone || "+44 7541777225";
@@ -118,11 +122,54 @@ export function ServicePage({
             </div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{responseTime} min</div>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-              Emergency callouts across South West London.
+              Same-day callouts across South West London.
             </p>
           </div>
         </div>
       </section>
+
+      {content && (
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{name} explained</h2>
+              {content.intro.map((paragraph) => (
+                <p key={paragraph.slice(0, 24)} className="mt-3 leading-relaxed text-gray-700 dark:text-gray-300">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+            <aside className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">What we deal with</h3>
+              <ul className="mt-3 space-y-2">
+                {content.covers.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-blue-600 dark:text-blue-400" aria-hidden="true">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
+
+          {content.faqs.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Questions about {name.toLowerCase()}</h2>
+              <div className="mt-4 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+                {content.faqs.map((faq) => (
+                  <details key={faq.question} className="group p-4">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-gray-900 dark:text-white">
+                      {faq.question}
+                      <span className="text-blue-600 transition-transform group-open:rotate-45 dark:text-blue-400" aria-hidden="true">+</span>
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">{faq.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Areas covered - internal links to the area pages */}
       {areas.length > 0 && (
@@ -140,7 +187,7 @@ export function ServicePage({
                 href={`/areas/${area.slug}`}
                 className="bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-center transition-colors"
               >
-                <div className="font-semibold text-gray-900 dark:text-white text-sm">{area.name}</div>
+                <div className="font-semibold text-gray-900 dark:text-white text-sm">{name} {area.name}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">{area.postcode}</div>
               </Link>
             ))}

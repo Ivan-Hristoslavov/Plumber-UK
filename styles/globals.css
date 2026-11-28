@@ -71,3 +71,57 @@ html.dark body {
     animation: none;
   }
 }
+
+/*
+ * Admin panel: one look for every form control, whichever page it is on.
+ * Scoped to .admin-shell (set in app/admin/layout.tsx) so the website is not
+ * affected. Text controls are 44px tall and 16px on phones: easy to tap, and
+ * iOS does not zoom into the page when they are focused.
+ */
+.admin-shell :is(input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"], [type="hidden"]), select) {
+  min-height: 44px;
+  border-radius: 0.75rem;
+  font-size: 16px;
+}
+.admin-shell textarea {
+  min-height: 88px;
+  border-radius: 0.75rem;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.admin-shell select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.1rem;
+  padding-right: 2.5rem;
+  text-overflow: ellipsis;
+}
+.admin-shell :is(input[type="date"], input[type="time"]) {
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.admin-shell.dark :is(input[type="date"], input[type="time"]),
+.dark .admin-shell :is(input[type="date"], input[type="time"]) {
+  color-scheme: dark;
+}
+@media (min-width: 640px) {
+  .admin-shell :is(input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"], [type="hidden"]), select, textarea) {
+    font-size: 14px;
+  }
+}
+
+/* Required fields: marked once, the same way, from data-required on the label. */
+.admin-shell label[data-required]::after {
+  content: " *";
+  color: #dc2626;
+}
+.dark .admin-shell label[data-required]::after {
+  color: #f87171;
+}
+/* Only after the person has touched the field, never on an untouched form. */
+.admin-shell :is(input, select, textarea):user-invalid {
+  border-color: #dc2626;
+}

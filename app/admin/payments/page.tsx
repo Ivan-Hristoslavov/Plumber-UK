@@ -1,7 +1,9 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useState, useEffect } from "react";
 import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
+import { MembershipPayments } from "@/components/admin/MembershipPayments";
 import { format } from "date-fns";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
@@ -188,8 +190,8 @@ export default function PaymentsPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!newPayment.customer_id || !newPayment.amount) {
-      setFormError("Please fill in all required fields.");
+    if (!newPayment.customer_id || !(parseFloat(newPayment.amount) > 0) || !newPayment.payment_date) {
+      setFormError("Fill in the fields marked with *. The amount must be more than zero.");
       return;
     }
 
@@ -231,8 +233,8 @@ export default function PaymentsPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!paymentLink.customer_id || !paymentLink.amount) {
-      setFormError("Please fill in all required fields");
+    if (!paymentLink.customer_id || !(parseFloat(paymentLink.amount) > 0)) {
+      setFormError("Fill in the fields marked with *. The amount must be more than zero.");
       return;
     }
 
@@ -289,8 +291,8 @@ export default function PaymentsPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!emailLink.customer_id || !emailLink.amount) {
-      setFormError("Please fill in all required fields");
+    if (!emailLink.customer_id || !(parseFloat(emailLink.amount) > 0)) {
+      setFormError("Fill in the fields marked with *. The amount must be more than zero.");
       return;
     }
 
@@ -402,8 +404,8 @@ export default function PaymentsPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!editPayment.customer_id || !editPayment.amount) {
-      setFormError("Please fill in all required fields.");
+    if (!editPayment.customer_id || !(parseFloat(editPayment.amount) > 0)) {
+      setFormError("Fill in the fields marked with *. The amount must be more than zero.");
       return;
     }
 
@@ -864,7 +866,7 @@ export default function PaymentsPage() {
         </FilterBar>
 
         {/* Financial Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <div className="border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 xl:p-6 transition-colors duration-300">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -875,7 +877,7 @@ export default function PaymentsPage() {
                   £{financialSummary.totalRevenue.toFixed(2)}
                 </p>
               </div>
-              <div className="p-2.5 shrink-0 bg-green-100 dark:bg-green-900/30 rounded-xl transition-colors duration-300">
+              <div className="hidden sm:block p-2.5 shrink-0 bg-green-100 dark:bg-green-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-green-600 dark:text-green-400 transition-colors duration-300"
                   fill="none"
@@ -903,7 +905,7 @@ export default function PaymentsPage() {
                   £{financialSummary.pendingPayments.toFixed(2)}
                 </p>
               </div>
-              <div className="p-2.5 shrink-0 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl transition-colors duration-300">
+              <div className="hidden sm:block p-2.5 shrink-0 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors duration-300"
                   fill="none"
@@ -931,7 +933,7 @@ export default function PaymentsPage() {
                   {financialSummary.totalPayments}
                 </p>
               </div>
-              <div className="p-2.5 shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-xl transition-colors duration-300">
+              <div className="hidden sm:block p-2.5 shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors duration-300"
                   fill="none"
@@ -959,7 +961,7 @@ export default function PaymentsPage() {
                   £{financialSummary.averageTransaction.toFixed(2)}
                 </p>
               </div>
-              <div className="p-2.5 shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-xl transition-colors duration-300">
+              <div className="hidden sm:block p-2.5 shrink-0 bg-purple-100 dark:bg-purple-900/30 rounded-xl transition-colors duration-300">
                 <svg
                   className="w-6 h-6 text-purple-600 dark:text-purple-400 transition-colors duration-300"
                   fill="none"
@@ -978,6 +980,8 @@ export default function PaymentsPage() {
           </div>
         </div>
       </div>
+
+      <MembershipPayments />
 
       {/* Payments Table */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 overflow-hidden transition-colors duration-300">
@@ -1395,7 +1399,7 @@ export default function PaymentsPage() {
       {/* Create Payment Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowCreateModal(false)}
@@ -1406,11 +1410,12 @@ export default function PaymentsPage() {
                   Record New Payment
                 </h3>
                 <div className="mt-4 space-y-4">
+                  <RequiredNote />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-new-payment-customer-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Customer
                     </label>
-                    <select
+                    <select aria-required="true" id="payments-new-payment-customer-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.customer_id}
                       onChange={(e) =>
@@ -1430,10 +1435,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Booking (Optional)
+                    <label htmlFor="payments-new-payment-booking-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking
                     </label>
-                    <select
+                    <select id="payments-new-payment-booking-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.booking_id}
                       onChange={(e) =>
@@ -1457,7 +1462,7 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-new-payment-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
                     <div className="relative mt-1 rounded-md shadow-sm">
@@ -1466,7 +1471,7 @@ export default function PaymentsPage() {
                           £
                         </span>
                       </div>
-                      <input
+                      <input aria-required="true" id="payments-new-payment-amount"
                         className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
@@ -1482,10 +1487,10 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-new-payment-payment-method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Method
                     </label>
-                    <select
+                    <select aria-required="true" id="payments-new-payment-payment-method"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={newPayment.payment_method}
                       onChange={(e) =>
@@ -1502,10 +1507,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-new-payment-payment-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Date
                     </label>
-                    <input
+                    <input aria-required="true" id="payments-new-payment-payment-date"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="date"
                       value={newPayment.payment_date}
@@ -1518,10 +1523,10 @@ export default function PaymentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Reference (Optional)
+                    <label htmlFor="payments-new-payment-reference" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Reference
                     </label>
-                    <input
+                    <input id="payments-new-payment-reference"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={newPayment.reference}
@@ -1534,10 +1539,10 @@ export default function PaymentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Notes (Optional)
+                    <label htmlFor="payments-new-payment-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Notes
                     </label>
-                    <textarea
+                    <textarea id="payments-new-payment-notes"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       rows={3}
                       value={newPayment.notes}
@@ -1578,7 +1583,7 @@ export default function PaymentsPage() {
       {/* Payment Link Modal */}
       {showPaymentLinkModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowPaymentLinkModal(false)}
@@ -1589,11 +1594,12 @@ export default function PaymentsPage() {
                   Create Payment Link
                 </h3>
                 <div className="mt-4 space-y-4">
+                  <RequiredNote />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-payment-link-customer-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Customer
                     </label>
-                    <select
+                    <select aria-required="true" id="payments-payment-link-customer-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={paymentLink.customer_id}
                       onChange={(e) =>
@@ -1613,10 +1619,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Booking (Optional)
+                    <label htmlFor="payments-payment-link-booking-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking
                     </label>
-                    <select
+                    <select id="payments-payment-link-booking-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={paymentLink.booking_id}
                       onChange={(e) =>
@@ -1640,7 +1646,7 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-payment-link-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
                     <div className="relative mt-1 rounded-md shadow-sm">
@@ -1649,7 +1655,7 @@ export default function PaymentsPage() {
                           £
                         </span>
                       </div>
-                      <input
+                      <input aria-required="true" id="payments-payment-link-amount"
                         className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
@@ -1665,10 +1671,10 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-payment-link-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Description
                     </label>
-                    <input
+                    <input id="payments-payment-link-description"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={paymentLink.description}
@@ -1736,7 +1742,7 @@ export default function PaymentsPage() {
       {/* Payment Link Result Modal */}
       {showPaymentLinkResult && paymentLinkResult && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowPaymentLinkResult(false)}
@@ -1747,7 +1753,7 @@ export default function PaymentsPage() {
                   <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white transition-colors duration-300">
                     Payment Link Created
                   </h3>
-                  <button
+                  <button aria-label="Close"
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300"
                     onClick={() => setShowPaymentLinkResult(false)}
                   >
@@ -1793,11 +1799,11 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-payment-link-result-payment-link-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Link
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
-                      <input
+                      <input id="payments-payment-link-result-payment-link-url"
                         type="text"
                         readOnly
                         value={paymentLinkResult.payment_link_url}
@@ -1883,7 +1889,7 @@ export default function PaymentsPage() {
       {/* Email Link Modal */}
       {showEmailLinkModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowEmailLinkModal(false)}
@@ -1898,11 +1904,12 @@ export default function PaymentsPage() {
                   customer's email address.
                 </p>
                 <div className="mt-4 space-y-4">
+                  <RequiredNote />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-email-link-customer-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Customer
                     </label>
-                    <select
+                    <select aria-required="true" id="payments-email-link-customer-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={emailLink.customer_id}
                       onChange={(e) =>
@@ -1922,10 +1929,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Booking (Optional)
+                    <label htmlFor="payments-email-link-booking-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking
                     </label>
-                    <select
+                    <select id="payments-email-link-booking-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={emailLink.booking_id}
                       onChange={(e) =>
@@ -1949,7 +1956,7 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-email-link-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
                     <div className="relative mt-1 rounded-md shadow-sm">
@@ -1958,7 +1965,7 @@ export default function PaymentsPage() {
                           £
                         </span>
                       </div>
-                      <input
+                      <input aria-required="true" id="payments-email-link-amount"
                         className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
@@ -1974,10 +1981,10 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-email-link-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Description
                     </label>
-                    <input
+                    <input id="payments-email-link-description"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={emailLink.description}
@@ -2050,7 +2057,7 @@ export default function PaymentsPage() {
               <h2 className="text-lg font-semibold text-gray-900">
                 Payment Details
               </h2>
-              <button
+              <button aria-label="Close"
                 className="text-gray-400 hover:text-gray-600"
                 onClick={() => setSelectedPayment(null)}
               >
@@ -2147,7 +2154,7 @@ export default function PaymentsPage() {
       {/* Edit Payment Modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => setShowEditModal(false)}
@@ -2158,11 +2165,12 @@ export default function PaymentsPage() {
                   Edit Payment
                 </h3>
                 <div className="mt-4 space-y-4">
+                  <RequiredNote />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-edit-payment-customer-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Customer
                     </label>
-                    <select
+                    <select aria-required="true" id="payments-edit-payment-customer-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.customer_id}
                       onChange={(e) =>
@@ -2182,10 +2190,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Booking (Optional)
+                    <label htmlFor="payments-edit-payment-booking-id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Booking
                     </label>
-                    <select
+                    <select id="payments-edit-payment-booking-id"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.booking_id}
                       onChange={(e) =>
@@ -2214,7 +2222,7 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label data-required htmlFor="payments-edit-payment-amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Amount
                     </label>
                     <div className="relative mt-1 rounded-md shadow-sm">
@@ -2223,7 +2231,7 @@ export default function PaymentsPage() {
                           £
                         </span>
                       </div>
-                      <input
+                      <input aria-required="true" id="payments-edit-payment-amount"
                         className="w-full pl-7 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                         type="number"
                         step="0.01"
@@ -2239,10 +2247,10 @@ export default function PaymentsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-edit-payment-payment-method" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Method
                     </label>
-                    <select
+                    <select id="payments-edit-payment-payment-method"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.payment_method}
                       onChange={(e) =>
@@ -2259,10 +2267,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-edit-payment-payment-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Status
                     </label>
-                    <select
+                    <select id="payments-edit-payment-payment-status"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       value={editPayment.payment_status}
                       onChange={(e) =>
@@ -2279,10 +2287,10 @@ export default function PaymentsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    <label htmlFor="payments-edit-payment-payment-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                       Payment Date
                     </label>
-                    <input
+                    <input id="payments-edit-payment-payment-date"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="date"
                       value={editPayment.payment_date}
@@ -2295,10 +2303,10 @@ export default function PaymentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Reference (Optional)
+                    <label htmlFor="payments-edit-payment-reference" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Reference
                     </label>
-                    <input
+                    <input id="payments-edit-payment-reference"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       type="text"
                       value={editPayment.reference}
@@ -2311,10 +2319,10 @@ export default function PaymentsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-                      Notes (Optional)
+                    <label htmlFor="payments-edit-payment-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                      Notes
                     </label>
-                    <textarea
+                    <textarea id="payments-edit-payment-notes"
                       className="w-full px-3 py-2 mt-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-colors duration-300"
                       rows={3}
                       value={editPayment.notes}
@@ -2381,7 +2389,7 @@ export default function PaymentsPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && paymentToDelete && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-center justify-center min-h-screen p-3 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75"
               onClick={() => !deletingPayment && setShowDeleteModal(false)}

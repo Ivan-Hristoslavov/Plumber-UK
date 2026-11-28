@@ -10,10 +10,13 @@ import { useAdminProfile } from "./AdminProfileContext";
 import { trackPhoneCall } from "./GoogleAnalytics";
 import { ButtonWhatsApp } from "./ButtonWhatsApp";
 import { BRAND_NAME } from "@/lib/brand";
+import { BrandWordmark } from "@/components/BrandWordmark";
+import { FOUNDING_HREF } from "@/lib/founding";
 import { SHOW_NAVBAR_ACTIONS } from "@/lib/feature-flags";
 
 const navigation = [
   { name: "Home", href: "#home" },
+  { name: "Founding 100", href: FOUNDING_HREF },
   {
     name: "Services",
     href: "#services",
@@ -216,7 +219,13 @@ export default function NavigationNavbar() {
     return item.dropdown.some((sub: any) => activeSection === sub.href.substring(1));
   };
 
-  const isLinkActive = (href: string) => activeSection === href.substring(1);
+  // Page links (/founding-100) are active on their own page; section links
+  // (#services) only mean something on the homepage, so Home no longer lights
+  // up while you are reading another page.
+  const isLinkActive = (href: string) =>
+    href.startsWith("/")
+      ? pathname === href || pathname.startsWith(`${href}/`)
+      : pathname === "/" && activeSection === href.substring(1);
 
   if (shouldHideNavigation) return null;
 
@@ -245,11 +254,9 @@ export default function NavigationNavbar() {
           {/* Panel header */}
           <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-800">
             <div className="min-w-0">
-              <span className="block text-lg font-bold text-blue-600 dark:text-blue-400 tracking-tight">
-                {BRAND_NAME}
-              </span>
+              <BrandWordmark className="block text-lg font-bold" />
               <span className="block text-xs text-gray-500 dark:text-gray-400">
-                Emergency plumber · South West London
+                Plumber · South West London
               </span>
             </div>
             <button
@@ -400,10 +407,11 @@ export default function NavigationNavbar() {
             <div className="flex justify-between items-center gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               {/* Logo */}
               <Link
-                className="text-2xl font-bold transition-all duration-300 hover:scale-105 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="text-2xl font-bold transition-transform duration-300 hover:scale-105"
                 href="/"
+                aria-label={`${BRAND_NAME} home`}
               >
-                {BRAND_NAME}
+                <BrandWordmark />
               </Link>
 
               {/* Desktop Navigation */}

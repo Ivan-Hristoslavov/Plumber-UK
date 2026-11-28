@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useCallback, useEffect, useState } from "react";
 
 import { useToast } from "@/components/Toast";
@@ -138,7 +139,6 @@ export function AdminServicesManager() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Services</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Each active service gets its own page at /services/… and is listed in the
             footer and sitemap. Switch one off to remove it everywhere.
@@ -151,20 +151,22 @@ export function AdminServicesManager() {
             setEditingId(null);
             setShowForm((v) => !v);
           }}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-sm font-semibold transition-colors"
+          className="w-full sm:w-auto shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-sm font-semibold transition-colors"
         >
           {showForm ? "Cancel" : "Add service"}
         </button>
       </div>
 
       {showForm && (
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 p-5 space-y-4">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 p-4 sm:p-5 space-y-4">
+          <RequiredNote />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Name
+                Name <span aria-hidden="true" className="text-red-600 dark:text-red-400">*</span>
               </span>
               <input
+                required
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                 placeholder="Leak Detection"
@@ -284,7 +286,7 @@ export function AdminServicesManager() {
         {services.map((service) => (
           <div
             key={service.id}
-            className={`flex flex-wrap items-center gap-3 rounded-2xl border p-4 transition-colors ${
+            className={`flex flex-col gap-3 sm:flex-row sm:items-center rounded-2xl border p-4 transition-colors ${
               service.is_active
                 ? "border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900"
                 : "border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40"
@@ -312,12 +314,12 @@ export function AdminServicesManager() {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                 {service.description || "—"}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:shrink-0 sm:items-center">
               <button
                 type="button"
                 onClick={() => toggleActive(service)}

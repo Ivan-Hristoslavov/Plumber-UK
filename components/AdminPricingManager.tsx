@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import React, { useState, useEffect } from "react";
 import { usePricingCards } from "@/hooks/usePricingCards";
 import { PricingCard, PricingCardTableRow, PricingCardNote } from "@/types";
@@ -146,7 +147,7 @@ function PricingCardModal({
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {editingCard ? "Edit Pricing Card" : "Add New Pricing Card"}
           </h3>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
@@ -158,13 +159,14 @@ function PricingCardModal({
 
         {/* Modal Content */}
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <RequiredNote />
           {/* Basic Info */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Title *
+              <label data-required htmlFor="pricing-form-data-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Title
               </label>
-              <input
+              <input aria-required="true" id="pricing-form-data-title"
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, title: e.target.value }))}
@@ -173,10 +175,10 @@ function PricingCardModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="pricing-form-data-subtitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Subtitle
               </label>
-              <input
+              <input id="pricing-form-data-subtitle"
                 type="text"
                 value={formData.subtitle}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, subtitle: e.target.value }))}

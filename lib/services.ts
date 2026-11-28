@@ -28,3 +28,19 @@ export async function getActiveServices(): Promise<Service[]> {
     return [];
   }
 }
+
+/**
+ * True when a service with this page address exists but is switched off in the
+ * admin. Its old page then redirects to /services instead of showing a 404.
+ * False on any error, so a database hiccup never redirects a live page.
+ */
+export async function isHiddenServiceSlug(slug: string): Promise<boolean> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase.from("services").select("name").eq("is_active", false);
+    if (error) return false;
+    return (data || []).some((s: { name: string }) => slugify(s.name) === slug);
+  } catch {
+    return false;
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useState, useEffect } from "react";
 import { EditCustomerModal } from "@/components/EditCustomerModal";
 import { DeleteCustomerModal } from "@/components/DeleteCustomerModal";
@@ -607,6 +608,7 @@ export default function CustomersPage() {
               onSubmit={handleAddCustomer}
             >
             <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
+                <RequiredNote />
               <div className="flex gap-2 sm:gap-3">
                 <button
                   className={`flex-1 min-h-[44px] px-4 py-3 rounded-xl font-medium border transition-colors duration-300 touch-manipulation ${addType === "individual" ? "bg-primary text-white border-primary shadow" : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"}`}
@@ -629,10 +631,10 @@ export default function CustomersPage() {
               {addType === "individual" ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                      Name<span className="text-red-500 dark:text-red-400 transition-colors duration-300">*</span>
+                    <label data-required htmlFor="customers-new-customer-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                      Name
                     </label>
-                    <input
+                    <input id="customers-new-customer-name"
                       required
                       className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.name}
@@ -645,10 +647,10 @@ export default function CustomersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                      Email<span className="text-red-500 dark:text-red-400 transition-colors duration-300">*</span>
+                    <label data-required htmlFor="customers-new-customer-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                      Email
                     </label>
-                    <input
+                    <input id="customers-new-customer-email"
                       required
                       className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       type="email"
@@ -662,10 +664,10 @@ export default function CustomersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                      Phone<span className="text-red-500 dark:text-red-400 transition-colors duration-300">*</span>
+                    <label data-required htmlFor="customers-new-customer-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                      Phone
                     </label>
-                    <input
+                    <input id="customers-new-customer-phone"
                       required
                       className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.phone}
@@ -678,10 +680,10 @@ export default function CustomersPage() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
-                      Address<span className="text-red-500 dark:text-red-400 transition-colors duration-300">*</span>
+                    <label data-required htmlFor="customers-new-customer-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">
+                      Address
                     </label>
-                    <input
+                    <input id="customers-new-customer-address"
                       required
                       className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-300"
                       value={newCustomer.address}
@@ -701,10 +703,10 @@ export default function CustomersPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Company Name<span className="text-red-500 dark:text-red-400">*</span>
+                      <label data-required htmlFor="customers-new-customer-company-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Name
                       </label>
-                      <input
+                      <input id="customers-new-customer-company-name"
                         required
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyName}
@@ -717,10 +719,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Company Email<span className="text-red-500 dark:text-red-400">*</span>
+                      <label data-required htmlFor="customers-new-customer-company-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Email
                       </label>
-                      <input
+                      <input id="customers-new-customer-company-email"
                         required
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
@@ -734,10 +736,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Company Phone<span className="text-red-500 dark:text-red-400">*</span>
+                      <label data-required htmlFor="customers-new-customer-company-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Phone
                       </label>
-                      <input
+                      <input id="customers-new-customer-company-phone"
                         required
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyPhone}
@@ -750,10 +752,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Company Address<span className="text-red-500 dark:text-red-400">*</span>
+                      <label data-required htmlFor="customers-new-customer-company-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Company Address
                       </label>
-                      <input
+                      <input id="customers-new-customer-company-address"
                         required
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.companyAddress}
@@ -766,10 +768,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label htmlFor="customers-new-customer-vat" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         VAT Number
                       </label>
-                      <input
+                      <input id="customers-new-customer-vat"
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.vat}
                         onChange={(e) =>
@@ -786,10 +788,10 @@ export default function CustomersPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label htmlFor="customers-new-customer-contact-person" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Person
                       </label>
-                      <input
+                      <input id="customers-new-customer-contact-person"
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPerson}
                         onChange={(e) =>
@@ -801,10 +803,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label htmlFor="customers-new-customer-contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Email
                       </label>
-                      <input
+                      <input id="customers-new-customer-contact-email"
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         type="email"
                         value={newCustomer.contactEmail}
@@ -817,10 +819,10 @@ export default function CustomersPage() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label htmlFor="customers-new-customer-contact-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Contact Phone
                       </label>
-                      <input
+                      <input id="customers-new-customer-contact-phone"
                         className="block w-full min-h-[44px] text-base px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition"
                         value={newCustomer.contactPhone}
                         onChange={(e) =>
@@ -862,7 +864,7 @@ export default function CustomersPage() {
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white transition-colors duration-300">Customer Details</h2>
-                <button
+                <button aria-label="Close"
                   className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 transition-colors duration-300"
                   onClick={() => setSelectedCustomer(null)}
                 >

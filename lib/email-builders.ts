@@ -1,6 +1,7 @@
 import {
   formatClock,
   formatLondonDateTime,
+  formatLongDate,
   formatShortDate,
   renderEmail,
   renderEmailHtml,
@@ -193,3 +194,345 @@ export function generateInvoiceEmailHtml(invoice: any, paymentLink: string | nul
     footerNote: `Questions about this invoice? Get in touch:\n${invoice.company_name}${invoice.company_phone ? `\n${invoice.company_phone}` : ""}${invoice.company_email ? `\n${invoice.company_email}` : ""}${invoice.company_address ? `\n${invoice.company_address}` : ""}`,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Founding 100 membership
+// ---------------------------------------------------------------------------
+
+export interface MembershipEmailInput {
+  id: string;
+  plan: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  postcode: string;
+  monthly_price: number | string;
+  labour_rate: number | string;
+  marketing_opt_in?: boolean;
+  created_at?: string;
+}
+
+const planLabel = (plan: string) => plan.charAt(0).toUpperCase() + plan.slice(1);
+
+// The "new application" alert the plumber receives.
+export function buildMembershipAlertEmail(m: MembershipEmailInput) {
+  const price = `£${Number(m.monthly_price).toFixed(2)} / month`;
+  const base = siteUrl();
+
+  const content = {
+    preheader: `${planLabel(m.plan)} · ${m.postcode} · ${m.phone}`,
+    eyebrow: "Founding 100",
+    title: `${m.full_name} wants to join`,
+    intro:
+      "Someone has applied for a Founding 100 place through the website. Nothing has been charged. Check the details and accept or decline the application in the admin panel.",
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: price },
+      },
+      {
+        type: "rows" as const,
+        title: "Applicant",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Phone", value: m.phone, href: `tel:${m.phone}` },
+          { label: "Email", value: m.email, href: `mailto:${m.email}` },
+          {
+            label: "Address",
+            value: `${m.address}, ${m.postcode}`,
+            href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${m.address}, ${m.postcode}`)}`,
+          },
+          { label: "Marketing emails", value: m.marketing_opt_in ? "Yes, opted in" : "No" },
+        ],
+      },
+      {
+        type: "rows" as const,
+        rows: [
+          { label: "Application ref", value: String(m.id) },
+          { label: "Received", value: formatLondonDateTime(m.created_at || new Date()) },
+        ],
+      },
+    ],
+    buttons: [
+      { label: `Call ${m.full_name.split(" ")[0]}`, url: `tel:${m.phone}`, tone: "success" as const },
+      { label: "Open in admin", url: `${base}/admin/memberships`, tone: "brand" as const },
+    ],
+    footerNote: "This is an automatic alert from the FixMyLeak membership system.",
+  };
+
+  return {
+    subject: `New Founding 100 application: ${m.full_name} · ${planLabel(m.plan)}`,
+    ...renderEmail(content),
+  };
+}
+
+// The acknowledgement the applicant receives. It must not read as acceptance:
+// the terms say a place is only confirmed in writing after review.
+export function buildMembershipReceivedEmail(m: MembershipEmailInput, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `We have your ${planLabel(m.plan)} application and will confirm your place in writing`,
+    eyebrow: "Founding 100",
+    title: "We have your application",
+    intro: `Hi ${first},\n\nThank you for applying to be one of our first 100 founding members. We will review your application and confirm your place in writing, with your start date and how payment works.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Your details",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Address", value: `${m.address}, ${m.postcode}` },
+          { label: "Phone", value: m.phone },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "What happens next",
+        text: "Nothing has been charged. Your membership starts only once we have accepted your application and your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [{ label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "brand" as const }],
+    footerNote: `You are receiving this because you applied for a ${company} Founding 100 membership.`,
+  };
+
+  return {
+    subject: `We have your ${company} Founding 100 application`,
+    ...renderEmail(content),
+  };
+}
+
+// Sent when the plumber accepts an application. This is the written acceptance
+// the terms promise: plan, monthly price, property and start date. It does not
+// say benefits have started — the terms start them at the first payment.
+export function buildMembershipAcceptedEmail(
+  m: MembershipEmailInput & { started_at?: string | null },
+  company: string,
+  options: { paymentUrl?: string } = {},
+) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+  const portal = membershipPortalUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `Your ${planLabel(m.plan)} membership is accepted`,
+    eyebrow: "Founding membership",
+    title: "Your place is confirmed",
+    intro: `Hi ${first},\n\nGood news: we have accepted your Founding membership application. Here is what we agreed, so you have it in writing.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Your membership",
+        rows: [
+          { label: "Property", value: `${m.address}, ${m.postcode}` },
+          ...(m.started_at ? [{ label: "Start date", value: formatLongDate(m.started_at) }] : []),
+          { label: "Name", value: m.full_name },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "Payment and when benefits start",
+        text: options.paymentUrl
+          ? "Use the button below to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee."
+          : "We will be in touch to set up your monthly payment. Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [
+      ...(options.paymentUrl ? [{ label: "Set up your monthly payment", url: options.paymentUrl, tone: "success" as const }] : []),
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: options.paymentUrl ? ("light" as const) : ("brand" as const) },
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "light" as const }] : []),
+    ],
+    footerNote: `You are receiving this because your ${company} Founding membership application was accepted.`,
+  };
+
+  return {
+    subject: `Your ${company} membership is confirmed`,
+    ...renderEmail(content),
+  };
+}
+
+// Sent when an application is declined. Kept short and kind, and it points to
+// the one thing that is still open to them: booking a job as normal.
+export function buildMembershipDeclinedEmail(m: MembershipEmailInput, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+
+  const content = {
+    brandName: company,
+    preheader: "An update on your membership application",
+    eyebrow: "Founding membership",
+    title: "About your application",
+    intro: `Hi ${first},\n\nThank you for applying to be a ${company} founding member. We are sorry, but we are not able to offer you a place at the moment. Places are limited and depend on capacity and our service area.`,
+    blocks: [
+      {
+        type: "note" as const,
+        title: "You can still book us",
+        text: "Membership is optional. You are welcome to book a plumbing job with us at our standard rates at any time.",
+      },
+    ],
+    buttons: [{ label: `Visit ${company}`, url: base, tone: "brand" as const }],
+    footerNote: `You are receiving this because you applied for a ${company} Founding membership.`,
+  };
+
+  return {
+    subject: `Your ${company} membership application`,
+    ...renderEmail(content),
+  };
+}
+
+/** Stripe's customer portal, where a member changes their card or cancels. Optional. */
+function membershipPortalUrl(): string | null {
+  const url = process.env.STRIPE_CUSTOMER_PORTAL_URL?.trim();
+  return url && /^https:\/\//i.test(url) ? url : null;
+}
+
+// Sent once, when a member's first payment has been taken. The terms start the
+// benefits at that point, so this is the email that says so.
+export function buildMembershipPaidEmail(m: MembershipEmailInput & { first_paid_at?: string | null }, company: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+  const portal = membershipPortalUrl();
+  const fee = `£${Number(m.monthly_price).toFixed(2)}`;
+
+  const content = {
+    brandName: company,
+    preheader: `Your first payment has been taken and your ${planLabel(m.plan)} membership has started`,
+    eyebrow: "Founding membership",
+    title: "Payment received, welcome",
+    intro: `Hi ${first},\n\nThank you. Your first payment has been taken and your member benefits have now started.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: fee },
+      },
+      {
+        type: "rows" as const,
+        title: "Your membership",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Property", value: `${m.address}, ${m.postcode}` },
+          { label: "Paid on", value: formatLondonDateTime(m.first_paid_at || new Date()) },
+        ],
+      },
+      {
+        type: "note" as const,
+        title: "What happens next",
+        text: `Your membership renews every month at ${fee}. You can cancel at any time with no cancellation fee.`,
+      },
+    ],
+    buttons: [
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "brand" as const }] : []),
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: portal ? ("light" as const) : ("brand" as const) },
+    ],
+    footerNote: `You are receiving this because you are a ${company} Founding member.`,
+  };
+
+  return {
+    subject: `Payment received: your ${company} membership has started`,
+    ...renderEmail(content),
+  };
+}
+
+// The alert the plumber receives at the same moment.
+export function buildMembershipPaidAlertEmail(m: MembershipEmailInput & { first_paid_at?: string | null }) {
+  const base = siteUrl();
+
+  const content = {
+    preheader: `${planLabel(m.plan)} · ${m.postcode} · ${m.phone}`,
+    eyebrow: "Founding 100",
+    title: `${m.full_name} has paid`,
+    intro: "Their first monthly payment went through in Stripe and their member benefits have started.",
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "rows" as const,
+        title: "Member",
+        rows: [
+          { label: "Name", value: m.full_name },
+          { label: "Phone", value: m.phone, href: `tel:${m.phone}` },
+          { label: "Email", value: m.email, href: `mailto:${m.email}` },
+          { label: "Address", value: `${m.address}, ${m.postcode}` },
+          { label: "Paid on", value: formatLondonDateTime(m.first_paid_at || new Date()) },
+        ],
+      },
+    ],
+    buttons: [{ label: "Open in admin", url: `${base}/admin/memberships`, tone: "brand" as const }],
+    footerNote: "This is an automatic alert from the FixMyLeak membership system.",
+  };
+
+  return {
+    subject: `Founding 100 payment: ${m.full_name} · ${planLabel(m.plan)}`,
+    ...renderEmail(content),
+  };
+}
+
+// Sent when the plumber (re)sends a member their payment link on its own.
+export function buildMembershipPaymentLinkEmail(m: MembershipEmailInput, company: string, paymentUrl: string) {
+  const first = m.full_name.split(" ")[0];
+  const base = siteUrl();
+  const portal = membershipPortalUrl();
+
+  const content = {
+    brandName: company,
+    preheader: `Set up your ${planLabel(m.plan)} membership payment`,
+    eyebrow: "Founding membership",
+    title: "Set up your monthly payment",
+    intro: `Hi ${first},\n\nYour ${company} membership is accepted. Use the button below to set up your monthly payment securely with Stripe.`,
+    blocks: [
+      {
+        type: "highlight" as const,
+        label: "Your plan",
+        title: planLabel(m.plan),
+        subtitle: `£${Number(m.labour_rate).toFixed(2)} per hour member labour rate`,
+        aside: { label: "Monthly fee", value: `£${Number(m.monthly_price).toFixed(2)}` },
+      },
+      {
+        type: "note" as const,
+        title: "When benefits start",
+        text: "Your member benefits start once your first payment has been taken. You can cancel at any time with no cancellation fee.",
+      },
+    ],
+    buttons: [
+      { label: "Set up your monthly payment", url: paymentUrl, tone: "success" as const },
+      { label: "Read the membership terms", url: `${base}/founding-100/terms`, tone: "light" as const },
+      ...(portal ? [{ label: "Manage or cancel your membership", url: portal, tone: "light" as const }] : []),
+    ],
+    footerNote: "The payment page is secure and processed by Stripe. If you have any questions, just reply to this email.",
+  };
+
+  return {
+    subject: `Set up your ${company} membership payment`,
+    ...renderEmail(content),
+  };
+}
+

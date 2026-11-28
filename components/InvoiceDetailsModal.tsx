@@ -82,7 +82,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile, va
                 Created on {format(new Date(invoice.created_at), "dd MMM yyyy")}
               </p>
             </div>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
@@ -310,7 +310,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, adminProfile, va
                   Invoice: {invoice.invoice_number}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={handleCloseImageModal}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >

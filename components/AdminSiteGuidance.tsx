@@ -258,6 +258,7 @@ export function AdminSiteGuidance() {
           </svg>
           <input
             type="search"
+            aria-label="Search guides"
             placeholder="Search guides..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

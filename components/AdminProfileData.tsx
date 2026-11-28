@@ -77,7 +77,7 @@ function ListManager({ value, onChange, placeholder, label, description }: ListM
         <input
           className="flex-1 min-w-0 px-4 py-3 min-h-[44px] text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
           type="text"
-          placeholder={placeholder}
+          aria-label={placeholder} placeholder={placeholder}
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           onKeyPress={handleKeyPress}

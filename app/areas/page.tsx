@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const names = areas.map((a) => a.name).join(", ");
 
   const title = "Areas We Cover";
-  const description = `Emergency plumbing across South West London — ${names}. Same-day callouts, fully insured, transparent pricing.`;
+  const description = `Plumbing across South West London — ${names}. Same-day callouts, fully insured, transparent pricing.`;
 
   return {
     title,
@@ -86,7 +86,7 @@ export default async function AreasIndexPage() {
             Areas We Cover
           </h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Emergency plumbing across South West London, with a {responseTime}-minute
+            Plumbing across South West London, with a {responseTime}-minute
             response target in every area below.
           </p>
         </div>
@@ -112,7 +112,7 @@ export default async function AreasIndexPage() {
                 {area.description}
               </p>
               <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 inline-flex items-center gap-1">
-                Emergency plumber in {area.name}
+                Plumber in {area.name}
                 <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                 </svg>

@@ -46,6 +46,15 @@ const navigation = [
     ),
   },
   {
+    name: "Memberships",
+    href: "/admin/memberships",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+      </svg>
+    ),
+  },
+  {
     name: "Reviews",
     href: "/admin/reviews",
     icon: (
@@ -245,7 +254,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
+    <div className="admin-shell min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -258,8 +267,9 @@ export default function AdminLayout({
 
       {/* Fixed Sidebar */}
       <div
-        className={`fixed inset-y-0 right-0 lg:right-auto lg:left-0 z-50 w-72 max-w-[85vw] lg:w-64 bg-white dark:bg-gray-900 border-l lg:border-l-0 lg:border-r border-gray-200/80 dark:border-gray-800 shadow-xl lg:shadow-none transform transition-all duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        className={`fixed inset-y-0 right-0 lg:right-auto lg:left-0 z-50 w-72 max-w-[85vw] lg:w-64 bg-white dark:bg-gray-900 border-l lg:border-l-0 lg:border-r border-gray-200/80 dark:border-gray-800 lg:shadow-none transform ${
+          // Hidden when closed, so its links cannot be reached with Tab on a phone.
+          sidebarOpen ? "visible translate-x-0 shadow-xl transition-transform duration-200 ease-out" : "invisible translate-x-full lg:visible lg:translate-x-0"
         }`}
       >
         {/* Sidebar Header */}
@@ -406,7 +416,8 @@ export default function AdminLayout({
 
         {/* Quick Actions */}
         {(
-          <div className="px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 lg:pt-6">
+          /* On phones only on the dashboard: every other page has its own buttons. */
+          <div className={`px-3 sm:px-4 lg:px-6 xl:px-8 pt-3 sm:pt-4 lg:pt-6 ${pathname === "/admin/dashboard" ? "" : "hidden sm:block"}`}>
             <div className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {quickActions.map((action) => (
                 <Link
@@ -428,7 +439,7 @@ export default function AdminLayout({
         )}
 
         {/* Page content */}
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24 lg:pb-0 transition-colors duration-300">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 lg:pb-8 transition-colors duration-300">
           <div className="p-3 sm:p-4 lg:p-6 xl:p-8">{children}</div>
         </main>
       </div>

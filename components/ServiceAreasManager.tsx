@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import React, { useState, useEffect } from "react";
 import { useToast, ToastMessages } from "@/components/Toast";
 
@@ -236,7 +237,7 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
             key={area.id}
             className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800 p-4"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-gray-900 dark:text-white">{area.name}</h4>
                 {area.description && (
@@ -260,12 +261,12 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1 shrink-0 border-t border-gray-100 pt-2 text-sm font-medium dark:border-gray-800 sm:border-0 sm:pt-0">
                 <button
                   onClick={() => moveArea(area.id, "up")}
                   disabled={areas.findIndex((a) => a.id === area.id) === 0}
                   className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-30 rounded-lg"
-                  title="Move Up"
+                  title="Move up" aria-label={`Move ${area.name} up`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -275,7 +276,7 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                   onClick={() => moveArea(area.id, "down")}
                   disabled={areas.findIndex((a) => a.id === area.id) === areas.length - 1}
                   className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-30 rounded-lg"
-                  title="Move Down"
+                  title="Move down" aria-label={`Move ${area.name} down`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -328,12 +329,12 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
             <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
               {areas.map((area) => (
                 <tr key={area.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-300">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
+                  <td className="px-6 py-4">
+                    <div className="max-w-md">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {area.name}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
                         {area.description}
                       </div>
                     </div>
@@ -364,7 +365,7 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                         onClick={() => moveArea(area.id, 'up')}
                         disabled={areas.findIndex(a => a.id === area.id) === 0}
                         className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-300"
-                        title="Move Up"
+                        title="Move up" aria-label={`Move ${area.name} up`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -374,7 +375,7 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                         onClick={() => moveArea(area.id, 'down')}
                         disabled={areas.findIndex(a => a.id === area.id) === areas.length - 1}
                         className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-300"
-                        title="Move Down"
+                        title="Move down" aria-label={`Move ${area.name} down`}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -409,7 +410,7 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingArea ? "Edit Area" : "Add New Area"}
               </h3>
-              <button
+              <button aria-label="Close"
                 type="button"
                 onClick={handleCancel}
                 className="p-2 -m-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors touch-manipulation"
@@ -421,11 +422,12 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
             </div>
             <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
             <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                <RequiredNote />
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label data-required htmlFor="service-areas-form-data-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Area Name
                 </label>
-                <input
+                <input id="service-areas-form-data-name"
                   type="text"
                   required
                   value={formData.name}
@@ -434,10 +436,10 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label data-required htmlFor="service-areas-form-data-slug" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Slug (URL)
                 </label>
-                <input
+                <input id="service-areas-form-data-slug"
                   type="text"
                   required
                   value={formData.slug}
@@ -446,10 +448,10 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="service-areas-form-data-postcode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Postcode
                 </label>
-                <input
+                <input id="service-areas-form-data-postcode"
                   type="text"
                   value={formData.postcode}
                   onChange={(e) => setFormData({ ...formData, postcode: e.target.value })}
@@ -457,10 +459,10 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="service-areas-form-data-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Description
                 </label>
-                <textarea
+                <textarea id="service-areas-form-data-description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
@@ -468,10 +470,10 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="service-areas-form-data-response-time" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Response Time
                 </label>
-                <input
+                <input id="service-areas-form-data-response-time"
                   type="text"
                   value={formData.response_time}
                   onChange={(e) => setFormData({ ...formData, response_time: e.target.value })}
@@ -480,10 +482,10 @@ export function ServiceAreasManager({ triggerModal }: { triggerModal?: boolean }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="service-areas-form-data-order" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Order
                 </label>
-                <input
+                <input id="service-areas-form-data-order"
                   type="number"
                   value={formData.order}
                   onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}

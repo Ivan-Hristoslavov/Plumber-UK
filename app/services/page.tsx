@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const names = services.map((s) => s.name).join(", ");
 
   const title = "Plumbing Services & Prices";
-  const description = `${names} across South West London. Transparent pricing, same-day emergency callouts, fully insured.`;
+  const description = `${names} across South West London. Transparent pricing, same-day callouts, fully insured.`;
 
   return {
     title,
@@ -81,7 +81,7 @@ export default async function ServicesIndexPage() {
             Plumbing Services &amp; Prices
           </h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Every job quoted before work starts. Emergency callouts answered within
+            Every job quoted before work starts. Urgent callouts answered within
             {" "}{responseTime} minutes across South West London.
           </p>
         </div>

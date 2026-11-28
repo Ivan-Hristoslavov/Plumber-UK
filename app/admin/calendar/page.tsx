@@ -1,5 +1,6 @@
 "use client";
 
+import { RequiredNote } from "@/components/admin/RequiredNote";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addDays,
@@ -651,9 +652,10 @@ export default function CalendarPage() {
             }}
             className="space-y-4 p-6"
           >
+            <RequiredNote />
             <div>
-              <label className={labelClass}>Customer name</label>
-              <input
+              <label data-required htmlFor="calendar-edit-form-customer-name" className={labelClass}>Customer name</label>
+              <input id="calendar-edit-form-customer-name"
                 type="text"
                 required
                 className={inputClass}
@@ -665,8 +667,8 @@ export default function CalendarPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Email</label>
-                <input
+                <label htmlFor="calendar-edit-form-customer-email" className={labelClass}>Email</label>
+                <input id="calendar-edit-form-customer-email"
                   type="email"
                   className={inputClass}
                   value={editForm.customer_email}
@@ -676,8 +678,8 @@ export default function CalendarPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Phone</label>
-                <input
+                <label htmlFor="calendar-edit-form-customer-phone" className={labelClass}>Phone</label>
+                <input id="calendar-edit-form-customer-phone"
                   type="tel"
                   className={inputClass}
                   value={editForm.customer_phone}
@@ -688,8 +690,8 @@ export default function CalendarPage() {
               </div>
             </div>
             <div>
-              <label className={labelClass}>Service</label>
-              <select
+              <label data-required htmlFor="calendar-edit-form-service" className={labelClass}>Service</label>
+              <select id="calendar-edit-form-service"
                 required
                 className={inputClass}
                 value={editForm.service}
@@ -706,8 +708,8 @@ export default function CalendarPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label className={labelClass}>Date</label>
-                <input
+                <label data-required htmlFor="calendar-edit-form-date" className={labelClass}>Date</label>
+                <input id="calendar-edit-form-date"
                   type="date"
                   required
                   className={inputClass}
@@ -718,8 +720,8 @@ export default function CalendarPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Time</label>
-                <input
+                <label data-required htmlFor="calendar-edit-form-time" className={labelClass}>Time</label>
+                <input id="calendar-edit-form-time"
                   type="time"
                   required
                   className={inputClass}
@@ -730,8 +732,8 @@ export default function CalendarPage() {
                 />
               </div>
               <div>
-                <label className={labelClass}>Amount (£)</label>
-                <input
+                <label data-required htmlFor="calendar-edit-form-amount" className={labelClass}>Amount (£)</label>
+                <input id="calendar-edit-form-amount"
                   type="number"
                   step="0.01"
                   min="0"
@@ -745,8 +747,8 @@ export default function CalendarPage() {
               </div>
             </div>
             <div>
-              <label className={labelClass}>Address</label>
-              <input
+              <label htmlFor="calendar-edit-form-address" className={labelClass}>Address</label>
+              <input id="calendar-edit-form-address"
                 type="text"
                 className={inputClass}
                 value={editForm.address}
@@ -756,8 +758,8 @@ export default function CalendarPage() {
               />
             </div>
             <div>
-              <label className={labelClass}>Notes</label>
-              <textarea
+              <label htmlFor="calendar-edit-form-notes" className={labelClass}>Notes</label>
+              <textarea id="calendar-edit-form-notes"
                 rows={2}
                 className={inputClass}
                 value={editForm.notes}

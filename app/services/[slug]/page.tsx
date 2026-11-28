@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { ServicePage } from "@/components/ServicePage";
 import { getAdminProfile } from "@/lib/admin-profile";
-import { getActiveServices } from "@/lib/services";
+import { getActiveServices, isHiddenServiceSlug } from "@/lib/services";
 import { createClient } from "@/lib/supabase/server";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { BRAND_NAME } from "@/lib/brand";
+import { getServiceContent } from "@/lib/service-content";
 
 export const revalidate = 3600;
 
@@ -47,8 +48,8 @@ export async function generateMetadata({
   const responseTime = responseTimeMinutes(profile?.response_time);
   const priceSuffix = service.price !== null ? ` From £${service.price}.` : "";
 
-  const title = `${service.name} South West London`;
-  const rawDescription = `${service.description || service.name} across Clapham, Balham, Chelsea, Battersea, Wandsworth and Streatham.${priceSuffix} ${responseTime}-minute emergency response, fully insured. Call now.`;
+  const title = getServiceContent(service.slug)?.title ?? `${service.name} South West London`;
+  const rawDescription = `${service.description || service.name} across Clapham, Balham, Chelsea, Battersea, Wandsworth and Streatham.${priceSuffix} ${responseTime}-minute response, fully insured. Call now.`;
   // Search results cut off around 160 characters; end on a whole word instead.
   const description =
     rawDescription.length <= 160
@@ -84,7 +85,12 @@ export default async function ServiceSlugPage({
   ]);
   const service = services.find((s) => s.slug === slug);
 
-  if (!service) notFound();
+  if (!service) {
+    // A service switched off in the admin keeps its old visitors and search
+    // ranking by sending them to the list of services.
+    if (await isHiddenServiceSlug(slug)) permanentRedirect("/services");
+    notFound();
+  }
 
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
   const description = service.description || `Professional ${service.name.toLowerCase()} across South West London.`;
@@ -122,6 +128,19 @@ export default async function ServiceSlugPage({
     url: `${base}/services/${service.slug}`,
   };
 
+  const content = getServiceContent(service.slug);
+  const faqSchema = content?.faqs.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: content.faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
+      }
+    : null;
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -147,12 +166,16 @@ export default async function ServiceSlugPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
       <ServicePage
         name={service.name}
         description={description}
         price={service.price}
         durationMinutes={service.duration_minutes}
         areas={areas}
+        content={content}
         relatedServices={services
           .filter((s) => s.slug !== service.slug)
           .map((s) => ({ name: s.name, slug: s.slug, price: s.price }))}
