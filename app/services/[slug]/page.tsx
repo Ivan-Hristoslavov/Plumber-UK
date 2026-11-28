@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { ServicePage } from "@/components/ServicePage";
 import { getAdminProfile } from "@/lib/admin-profile";
-import { getActiveServices } from "@/lib/services";
+import { getActiveServices, isHiddenServiceSlug } from "@/lib/services";
 import { createClient } from "@/lib/supabase/server";
 import { responseTimeMinutes } from "@/lib/response-time";
 import { BRAND_NAME } from "@/lib/brand";
@@ -85,7 +85,12 @@ export default async function ServiceSlugPage({
   ]);
   const service = services.find((s) => s.slug === slug);
 
-  if (!service) notFound();
+  if (!service) {
+    // A service switched off in the admin keeps its old visitors and search
+    // ranking by sending them to the list of services.
+    if (await isHiddenServiceSlug(slug)) permanentRedirect("/services");
+    notFound();
+  }
 
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://fixmyleak.co.uk";
   const description = service.description || `Professional ${service.name.toLowerCase()} across South West London.`;
